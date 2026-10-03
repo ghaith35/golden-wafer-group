@@ -1,0 +1,36 @@
+.next/
+node_modules/
+dist-electron/
+build/
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.local
+backups/
+logs/
+
+# Secrets & certs (never push)
+certs/
+*.key
+*.pem
+# Build outputs & binaries
+out/
+*.apk
+*.exe
+electron/dist/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/capacitor.settings.gradle
+# OS / editor
+.DS_Store
+*.log
+
+# ...but keep these sources
+!out-van/
+!out-van/**
+!build/installer.nsh
+!build/icon.icns
+!build/icon.ico

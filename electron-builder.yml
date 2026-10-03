@@ -1,0 +1,27 @@
+appId: com.distribuili.app
+productName: Distribuili
+directories:
+  output: dist-electron
+files:
+  - .next/standalone/**/*
+  - .next/static/**/*
+  - public/**/*
+  - electron/dist/**/*
+  - package.json
+mac:
+  category: public.app-category.business
+  icon: build/icon.icns
+win:
+  icon: build/icon.ico
+  target: [nsis]
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+# Update feed (baked default; override at runtime via DISTRIBUILI_UPDATE_URL
+# or <userData>/update-feed.json — see electron/updater.ts).
+# latest.yml MUST be served with `Cache-Control: no-cache`.
+publish:
+  provider: generic
+  url: https://updates.distribuili.dz/latest
+  channel: latest

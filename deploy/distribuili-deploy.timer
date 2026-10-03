@@ -1,0 +1,10 @@
+[Unit]
+Description=Distribuili auto-redeploy every 2 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+Unit=distribuili-deploy.service
+
+[Install]
+WantedBy=timers.target

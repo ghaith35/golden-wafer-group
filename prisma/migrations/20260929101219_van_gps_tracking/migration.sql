@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "stores" ADD COLUMN     "lastLat" DOUBLE PRECISION,
+ADD COLUMN     "lastLng" DOUBLE PRECISION,
+ADD COLUMN     "lastSeenAt" TIMESTAMP(3);
+

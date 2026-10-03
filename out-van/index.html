@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Distribuili Van</title>
+<style>
+body{font-family:system-ui;background:#0f172a;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
+.card{background:#1e293b;border-radius:16px;padding:28px;max-width:420px;width:92%;box-shadow:0 10px 40px #0008;text-align:center}
+h1{font-size:18px;margin:0 0 6px}.logo{font-size:40px}
+p{font-size:13px;opacity:.7;margin:0 0 14px}
+input{width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:14px;margin-top:8px}
+input::placeholder{opacity:.5}
+button{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#65a30d;color:#fff;font-size:15px;font-weight:800;cursor:pointer}
+button.ghost{background:transparent;border:1px solid #334155}
+.hint{font-size:12px;opacity:.6;margin-top:10px}
+code{direction:ltr;unicode-bidi:embed}
+</style>
+</head>
+<body>
+<div class="card" id="setup">
+  <div class="logo">🚚</div>
+  <h1>Distribuili Van</h1>
+  <p>أدخل عنوان السيرفر (دومين أو IP الشبكة)<br>مثال: <code>https://vente.mondomaine.dz</code> أو <code>http://192.168.1.50:32517</code></p>
+  <input id="url" dir="ltr" placeholder="https://…">
+  <input id="token" dir="ltr" placeholder="رمز الجهاز (اختياري)">
+  <button onclick="go()">اتصال ✓</button>
+  <div class="hint" id="hint"></div>
+</div>
+<div class="card" id="loading" style="display:none">
+  <div class="logo">🚚</div>
+  <h1>جارٍ الاتصال…</h1>
+  <p id="to" dir="ltr"></p>
+  <button class="ghost" onclick="change()">تغيير العنوان</button>
+</div>
+<script>
+var KEY = "dili_apk_server";
+var TKEY = "dili_apk_token";
+var timer = null;
+function saved() {
+  try { return { url: localStorage.getItem(KEY) || "", token: localStorage.getItem(TKEY) || "" }; }
+  catch (e) { return { url: "", token: "" }; }
+}
+function showSetup(url, token) {
+  if (timer) { clearTimeout(timer); timer = null; }
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("setup").style.display = "";
+  if (url) document.getElementById("url").value = url;
+  if (token) document.getElementById("token").value = token;
+}
+function change() { showSetup(saved().url, saved().token); }
+function target(url, token) {
+  var base = url.replace(/\/$/, "");
+  var dest = base + "/ar/livreur";
+  if (token) dest += "?device=" + encodeURIComponent(token);
+  return dest;
+}
+function go() {
+  var url = document.getElementById("url").value.trim().replace(/\/$/, "");
+  var token = document.getElementById("token").value.trim();
+  if (!/^https?:\/\//i.test(url)) url = "http://" + url;
+  if (!/^https?:\/\/[^\/]+(:\d+)?$/i.test(url)) {
+    document.getElementById("hint").textContent = "رابط غير صالح";
+    return;
+  }
+  try {
+    localStorage.setItem(KEY, url);
+    if (token) localStorage.setItem(TKEY, token);
+  } catch (e) {}
+  document.getElementById("to").textContent = url;
+  document.getElementById("setup").style.display = "none";
+  document.getElementById("loading").style.display = "";
+  // Give the remote a moment; if the WebView errors out the user taps change.
+  timer = setTimeout(function () { window.location.href = target(url, token); }, 600);
+  // Safety: if still here after 25s (load failed), offer change.
+  setTimeout(function () {
+    if (document.getElementById("loading").style.display !== "none") showSetup(url, token);
+  }, 25000);
+}
+(function init() {
+  var s = saved();
+  if (s.url) {
+    document.getElementById("to").textContent = s.url;
+    document.getElementById("setup").style.display = "none";
+    document.getElementById("loading").style.display = "";
+    timer = setTimeout(function () { window.location.href = target(s.url, s.token); }, 800);
+    setTimeout(function () {
+      if (document.getElementById("loading").style.display !== "none") showSetup(s.url, s.token);
+    }, 25000);
+  }
+})();
+</script>
+</body>
+</html>

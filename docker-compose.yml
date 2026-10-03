@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: distribuili
+      POSTGRES_PASSWORD: distribuili_dev_pass
+      POSTGRES_DB: distribuili_dev
+    ports:
+      - "5459:5432"
+    volumes:
+      - distribuili_pg:/var/lib/postgresql/data
+
+volumes:
+  distribuili_pg:

@@ -1,0 +1,13 @@
+node_modules
+.next
+dist-electron
+build
+.git
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.local
+backups
+logs
+coverage

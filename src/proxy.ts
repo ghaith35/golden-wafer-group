@@ -1,0 +1,144 @@
+import { NextRequest, NextResponse } from "next/server";
+import createMiddleware from "next-intl/middleware";
+import { jwtVerify, SignJWT } from "jose";
+import { routing } from "@/i18n/routing";
+import { ACCESS_MAX_AGE, ACCESS_SLIDE_WINDOW } from "@/lib/auth/tokens";
+
+const handleI18nRouting = createMiddleware(routing);
+
+const PROTECTED_PREFIXES = ["/dashboard", "/clients", "/suppliers", "/inventory", "/products", "/sales", "/purchases", "/expenses", "/reports", "/settings",   "/pos", "/tournees", "/vans", "/carte", "/cash", "/journal", "/users", "/devices", "/license"];
+const PORTAL_PREFIXES = ["/portal"];
+
+const COOKIE_SECURE =
+  process.env.COOKIE_SECURE != null ? process.env.COOKIE_SECURE === "true" : process.env.NODE_ENV === "production";
+
+type Claims = {
+  sub: string;
+  companyId?: string;
+  username?: string;
+  role?: string;
+  _type?: string;
+  exp?: number;
+};
+
+async function readClaims(token: string): Promise<Claims | null> {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) return null;
+  try {
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
+    if (typeof payload.sub !== "string") return null;
+    return payload as unknown as Claims;
+  } catch {
+    return null;
+  }
+}
+
+async function mintAccess(c: Claims): Promise<string | null> {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || !c.sub || !c.companyId || !c.username || !c.role) return null;
+  return new SignJWT({ sub: c.sub, companyId: c.companyId, username: c.username, role: c.role })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("12h")
+    .sign(new TextEncoder().encode(secret));
+}
+
+function withAccessCookie(res: NextResponse, token: string): NextResponse {
+  res.cookies.set("access_token", token, {
+    httpOnly: true,
+    secure: COOKIE_SECURE,
+    sameSite: "lax",
+    maxAge: ACCESS_MAX_AGE,
+    path: "/",
+  });
+  return res;
+}
+
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const localeMatch = pathname.match(/^\/(ar|fr|en)(\/|$)/);
+  const locale = localeMatch ? localeMatch[1] : null;
+  const routePath = localeMatch ? pathname.slice(localeMatch[1].length + 1) || "/" : pathname;
+  const accessToken = request.cookies.get("access_token")?.value;
+  const refreshToken = request.cookies.get("refresh_token")?.value;
+  // Always redirect to a locale-prefixed URL so next-intl (localePrefix: "always")
+  // never needs a second hop.
+  const localized = (target: string) => (locale ? `/${locale}${target}` : `/${routing.defaultLocale}${target}`);
+
+  // Sliding session: a valid access token keeps you in (renewed silently
+  // near expiry); an expired one is re-minted from the refresh cookie.
+  // Only a missing/invalid refresh cookie sends you back to login.
+  const now = Math.floor(Date.now() / 1000);
+  let claims = accessToken ? await readClaims(accessToken) : null;
+  let renewed: string | null = null;
+  if (claims && claims.exp != null && claims.exp - now < ACCESS_SLIDE_WINDOW) {
+    renewed = await mintAccess(claims);
+    if (!renewed) claims = null;
+  }
+  if (!claims && refreshToken) {
+    const r = await readClaims(refreshToken);
+    if (r && r._type === "refresh") {
+      renewed = await mintAccess(r);
+      if (renewed) claims = { sub: r.sub, companyId: r.companyId, username: r.username, role: r.role };
+      else claims = null;
+    }
+  }
+
+  // API + pages alike: an expired access token is refreshed in passing so
+  // background fetches never 401 while the refresh cookie lives.
+  if (routePath.startsWith("/api")) {
+    return renewed ? withAccessCookie(NextResponse.next(), renewed) : NextResponse.next();
+  }
+
+  // Never interfere with Next internals, static files, or service worker.
+  // (The `config.matcher` already excludes most of these; this is defense in depth.)
+  if (
+    pathname.startsWith("/_next/") ||
+    pathname.startsWith("/__nextjs_font") ||
+    pathname === "/favicon.ico" ||
+    pathname === "/manifest.webmanifest" ||
+    pathname === "/sw.js"
+  ) {
+    return NextResponse.next();
+  }
+
+  // Client portal: public login, own session cookie (portal_token) elsewhere.
+  if (PORTAL_PREFIXES.some((p) => routePath === p || routePath.startsWith(p + "/"))) {
+    return handleI18nRouting(request);
+  }
+
+  if (!localeMatch) {
+    const preferred = request.cookies.get("NEXT_LOCALE")?.value;
+    if (preferred && preferred !== routing.defaultLocale && (routing.locales as readonly string[]).includes(preferred)) {
+      return NextResponse.redirect(new URL(`/${preferred}${routePath}`, request.url));
+    }
+  }
+
+  // Match exact route or a full segment ("/pos" must not match "/postal").
+  const isPath = (route: string, prefix: string) => route === prefix || route.startsWith(prefix + "/");
+  const isProtected = PROTECTED_PREFIXES.some((p) => isPath(routePath, p));
+
+  if (isProtected) {
+    if (!claims) {
+      const loginUrl = new URL(localized("/login"), request.url);
+      loginUrl.searchParams.set("from", routePath);
+      return NextResponse.redirect(loginUrl);
+    }
+    // Must pass through the i18n handler (not plain NextResponse.next()),
+    // otherwise the locale is never resolved and every page renders Arabic.
+    const res = handleI18nRouting(request);
+    return renewed ? withAccessCookie(res, renewed) : res;
+  }
+
+  // NOTE: no bounce for authenticated users visiting /login. A still-valid
+  // JWT can carry a dead companyId (DB reset) while getSession() is null —
+  // bouncing to /dashboard then loops forever. Rendering the form lets
+  // re-login heal the session; harmless for valid sessions.
+  if (renewed) return withAccessCookie(handleI18nRouting(request), renewed);
+
+  return handleI18nRouting(request);
+}
+
+export const config = {
+  matcher: ["/((?!_next|_vercel|.*\\..*).*)"],
+};

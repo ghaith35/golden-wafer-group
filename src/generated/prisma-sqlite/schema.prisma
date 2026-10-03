@@ -1,0 +1,1057 @@
+// AUTO-GENERATED from schema.prisma by scripts/gen-sqlite-schema.mjs — do not edit.
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma-sqlite"
+}
+
+// Prisma 7: url lives in prisma.config.ts (PostgreSQL).
+// Offline desktop uses prisma/schema.sqlite.prisma (generated, git-ignored).
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── Auth / tenancy ──────────────────────────────────────────────────────────
+
+model Company {
+  id           String   @id @default(cuid())
+  name         String
+  phone        String?
+  address      String?
+  email        String?
+  /// Algerian fiscal IDs (shown on invoices / sheets).
+  rc           String?
+  nif          String?
+  ai           String?
+  nis          String?
+  bankName     String?
+  rib          String?
+  logoUrl      String?
+  /// Signature + stamp images printed on documents.
+  signatureUrl String?
+  stampUrl     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users            User[]
+  stores           Store[]
+  customers        Customer[]
+  suppliers        Supplier[]
+  products         Product[]
+  seasons          Season[]
+  settings         CompanySettings?
+  units            Unit[]
+  priceTiers       PriceTier[]
+  expenseTypes     ExpenseType[]
+  secteurs         Secteur[]
+  purchaseInvoices PurchaseInvoice[]
+  supplierReturns  SupplierReturn[]
+  stockBatches     StockBatch[]
+  transfers        Transfer[]
+  stockCounts      StockCount[]
+  stockLosses      StockLoss[]
+  sales            Sale[]
+  clientReturns    ClientReturn[]
+  tournees         Tournee[]
+  expenses         Expense[]
+  versements       Versement[]
+  distances        ClientDistance[]
+  deposits         Deposit[]
+  devices          Device[]
+  syncOps          SyncOp[]
+  dailyCloses      DailyClose[]
+
+  @@map("companies")
+}
+
+model CompanySettings {
+  id            String  @id @default(cuid())
+  companyId     String  @unique
+  company       Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  defaultLocale String  @default("ar")
+  currency      String  @default("DZD")
+
+  // ── Feature toggles (every toggle gates real logic + UI + reports) ──
+  expiryEnabled           Boolean @default(false)
+  creditSalesEnabled      Boolean @default(false)
+  debtTrackingEnabled     Boolean @default(true)
+  remiseEnabled           Boolean @default(false)
+  depositsEnabled         Boolean @default(false)
+  multiDepotEnabled       Boolean @default(false)
+  costingMethod           String  @default("FIFO")
+  facturePro              Boolean @default(false)
+  posEnabled              Boolean @default(false)
+  vanBindingMode          String  @default("LOCKED")
+  oversellAllowed         Boolean @default(true)
+  pieceSalesEnabled       Boolean @default(false)
+  /// Transfers need an explicit receipt confirmation (declare → confirm).
+  /// OFF = declare delivers straight to destination (single-step).
+  transferConfirmRequired Boolean @default(true)
+  gpsEnabled              Boolean @default(true)
+  qrStrictMode            Boolean @default(true)
+
+  @@map("company_settings")
+}
+
+// ─── Settings-managed reference lists ────────────────────────────────────────
+
+model Unit {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name      String
+  symbol    String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  baseFor     Product[]               @relation("BaseUnit")
+  saleFor     Product[]               @relation("SaleUnit")
+  purchaseFor Product[]               @relation("PurchaseUnit")
+  conversions ProductUnitConversion[]
+
+  @@unique([companyId, name])
+  @@map("units")
+}
+
+model PriceTier {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name      String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  prices    ProductTierPrice[]
+  customers Customer[]
+  sales     Sale[]
+
+  @@unique([companyId, name])
+  @@map("price_tiers")
+}
+
+model ExpenseType {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  expenses Expense[]
+
+  @@unique([companyId, name])
+  @@map("expense_types")
+}
+
+/// National reference: 58 wilayas (global, seeded once — not per company).
+model Wilaya {
+  code   Int    @id
+  nameFr String
+  nameAr String
+
+  secteurs  Secteur[]
+  customers Customer[]
+  suppliers Supplier[]
+}
+
+/// Secteur inside a wilaya, per company (dispatch + tournées operate on these).
+model Secteur {
+  id         String   @id @default(cuid())
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  wilayaCode Int
+  wilaya     Wilaya   @relation(fields: [wilayaCode], references: [code], onDelete: Restrict)
+  name       String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  customers Customer[]
+  suppliers Supplier[]
+  tournees  Tournee[]
+
+  @@unique([companyId, wilayaCode, name])
+  @@index([companyId, wilayaCode])
+  @@map("secteurs")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  companyId    String
+  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  username     String
+  passwordHash String
+  /// Staff phone number (login accepts username OR phone).
+  phone        String?
+  /// Admin-visible copy of the password (staff QR cards). Auth still uses
+  /// bcrypt passwordHash; this column exists only so the admin can read it
+  /// back on the Livreur / Pré-vendeur cards.
+  passwordView String?
+  /// Long-lived staff login token (QR cards + scan-to-login). Revocable via
+  /// regenerate. Stored raw so cards can re-render the QR at any time.
+  qrToken      String?  @unique
+  fullName     String
+  role         String   @default("Vendeur")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  distances ClientDistance[]
+
+  assignedVans Store[]  @relation("AssignedVan")
+  devices      Device[]
+  createdSales Sale[]   @relation("CreatedSales")
+
+  @@unique([companyId, username])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model SuperAdminUser {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  @@map("super_admin_users")
+}
+
+// ─── Distribution domain (minimal foundation) ────────────────────────────────
+
+model Store {
+  id                String    @id @default(cuid())
+  companyId         String
+  company           Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name              String
+  address           String?
+  /// DEPOT = fixed warehouse, VAN = van stock (marque + matricule).
+  kind              String    @default("DEPOT")
+  marque            String?
+  matricule         String?
+  /// Van photo (uploads/vans/…). Null = placeholder icon.
+  imageUrl          String?
+  userId            String?
+  user              User?     @relation("AssignedVan", fields: [userId], references: [id], onDelete: SetNull)
+  isActive          Boolean   @default(true)
+  /// Live GPS tracking (APK reports via POST /api/track).
+  lastLat           Float?
+  lastLng           Float?
+  lastSeenAt        DateTime?
+  /// Admin pressed "request location" (POST /api/vans/[id]/locate).
+  /// The APK polls it and reports immediately; cleared on next report.
+  locateRequestedAt DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  batches       StockBatch[]
+  transfersFrom Transfer[]     @relation("TransferFrom")
+  transfersTo   Transfer[]     @relation("TransferTo")
+  counts        StockCount[]
+  losses        StockLoss[]
+  sales         Sale[]
+  clientReturns ClientReturn[]
+  tournees      Tournee[]
+  expenseLinks  Expense[]
+  devices       Device[]
+  dailyCloses   DailyClose[]
+
+  /// One driver ↔ max one van (NULL userIds are always allowed).
+  @@unique([companyId, userId])
+  @@map("stores")
+}
+
+/// Declare → confirm transfer (depot↔van, van↔van, depot↔depot).
+/// Stock leaves the source at declare (in-transit holding batches),
+/// enters the destination only at confirm. Nothing moves silently.
+model Transfer {
+  id             String   @id @default(cuid())
+  companyId      String
+  company        Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId       String?
+  number         String
+  fromLocationId String
+  fromLocation   Store    @relation("TransferFrom", fields: [fromLocationId], references: [id], onDelete: Restrict)
+  toLocationId   String
+  toLocation     Store    @relation("TransferTo", fields: [toLocationId], references: [id], onDelete: Restrict)
+  status         String   @default("DECLARED")
+  /// Cash the vendeur hands over with a van→depot return (versement link in Phase 6).
+  cashAmount     Decimal  @default(0)
+  notes          String?
+  declaredById   String?
+  confirmedById  String?
+  date           DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  lines          TransferLine[]
+  holdingBatches StockBatch[]   @relation("HoldingBatches")
+  versements     Versement[]
+
+  @@unique([companyId, number])
+  @@index([companyId, status])
+  @@map("transfers")
+}
+
+model TransferLine {
+  id           String   @id @default(cuid())
+  transferId   String
+  transfer     Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  declaredQty  Decimal
+  confirmedQty Decimal?
+
+  @@index([transferId])
+  @@map("transfer_lines")
+}
+
+/// Physical stock count per location, then validated into adjustments.
+
+model StockCount {
+  id         String   @id @default(cuid())
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId   String?
+  locationId String
+  location   Store    @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  number     String
+  status     String   @default("DRAFT")
+  notes      String?
+  date       DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  lines StockCountLine[]
+
+  @@unique([companyId, number])
+  @@index([companyId, locationId])
+  @@map("stock_counts")
+}
+
+model StockCountLine {
+  id          String     @id @default(cuid())
+  countId     String
+  count       StockCount @relation(fields: [countId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product    @relation(fields: [productId], references: [id], onDelete: Restrict)
+  expectedQty Decimal
+  countedQty  Decimal
+
+  @@index([countId])
+  @@map("stock_count_lines")
+}
+
+/// Breakage / loss / gift recording (consumes FIFO, decrements stock).
+model StockLoss {
+  id         String   @id @default(cuid())
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId   String?
+  locationId String
+  location   Store    @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  baseQty    Decimal
+  motive     String
+  notes      String?
+  date       DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([companyId, locationId])
+  @@map("stock_losses")
+}
+
+/// Monthly accounting period, auto-created (never manual, never deletable).
+
+model Season {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  year      Int
+  month     Int
+  status    String   @default("open")
+  createdAt DateTime @default(now())
+
+  @@unique([companyId, year, month])
+  @@map("seasons")
+}
+
+model Customer {
+  id               String     @id @default(cuid())
+  companyId        String
+  company          Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  /// Stable code: QR payload + printed cards (`CLT-0001…`).
+  code             String
+  name             String
+  /// Portal username (unique per company).
+  phone            String?
+  address          String?
+  wilayaCode       Int?
+  wilaya           Wilaya?    @relation(fields: [wilayaCode], references: [code], onDelete: SetNull)
+  secteurId        String?
+  secteur          Secteur?   @relation(fields: [secteurId], references: [id], onDelete: SetNull)
+  activityType     String?
+  /// Sale price tier assigned at creation.
+  tierId           String?
+  tier             PriceTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
+  creditLimit      Decimal    @default(0)
+  creditDays       Int        @default(0)
+  gpsLat           Float?
+  gpsLng           Float?
+  /// Bcrypt hash of the portal secret code (login = phone + secret).
+  portalSecretHash String?
+  balance          Decimal    @default(0)
+  isActive         Boolean    @default(true)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  distances ClientDistance[]
+
+  sales        Sale[]
+  returns      ClientReturn[]
+  tourneeStops TourneeStop[]
+  versements   Versement[]
+  deposits     Deposit[]
+
+  @@unique([companyId, code])
+  @@unique([companyId, phone])
+  @@index([companyId, name])
+  @@index([companyId, secteurId])
+  @@map("customers")
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name      String
+  phone     String?
+  address   String?
+  balance   Decimal  @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  code             String?
+  wilayaCode       Int?
+  wilaya           Wilaya?           @relation(fields: [wilayaCode], references: [code], onDelete: SetNull)
+  secteurId        String?
+  secteur          Secteur?          @relation(fields: [secteurId], references: [id], onDelete: SetNull)
+  notes            String?
+  defaultProducts  Product[]         @relation("DefaultSupplier")
+  purchaseInvoices PurchaseInvoice[]
+  supplierReturns  SupplierReturn[]
+  versements       Versement[]
+
+  @@unique([companyId, code])
+  @@index([companyId, name])
+  @@map("suppliers")
+}
+
+model ProductCategory {
+  id        String    @id @default(cuid())
+  companyId String
+  name      String
+  createdAt DateTime  @default(now())
+  products  Product[]
+
+  @@unique([companyId, name])
+  @@map("product_categories")
+}
+
+model Product {
+  id             String           @id @default(cuid())
+  companyId      String
+  company        Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  categoryId     String?
+  category       ProductCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  supplierId     String?
+  supplier       Supplier?        @relation("DefaultSupplier", fields: [supplierId], references: [id], onDelete: SetNull)
+  name           String
+  reference      String?
+  barcode        String?
+  /// Colisage: free text, e.g. "12 pcs/ctn".
+  colisage       String?
+  baseUnitId     String?
+  baseUnit       Unit?            @relation("BaseUnit", fields: [baseUnitId], references: [id], onDelete: SetNull)
+  /// Grossiste packaging: default unit used when buying / selling.
+  /// Must be the base unit or one of this product's conversions.
+  saleUnitId     String?
+  saleUnit       Unit?            @relation("SaleUnit", fields: [saleUnitId], references: [id], onDelete: SetNull)
+  purchaseUnitId String?
+  purchaseUnit   Unit?            @relation("PurchaseUnit", fields: [purchaseUnitId], references: [id], onDelete: SetNull)
+  salePrice      Decimal          @default(0)
+  costPrice      Decimal          @default(0)
+  stockQty       Decimal          @default(0)
+  minStock       Decimal          @default(0)
+  isActive       Boolean          @default(true)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  images            ProductImage[]
+  conversions       ProductUnitConversion[]
+  tierPrices        ProductTierPrice[]
+  batches           StockBatch[]
+  purchaseLines     PurchaseLine[]
+  returnLines       SupplierReturnLine[]
+  transferLines     TransferLine[]
+  countLines        StockCountLine[]
+  lossLines         StockLoss[]
+  saleLines         SaleLine[]
+  clientReturnLines ClientReturnLine[]
+
+  @@index([companyId, name])
+  @@index([companyId, barcode])
+  @@index([companyId, reference])
+  @@map("products")
+}
+
+/// Swipe gallery: ordered image list per product.
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([productId, sortOrder])
+  @@map("product_images")
+}
+
+/// 1 unit = factor × product base unit (e.g. 1 carton = 12 pièces).
+model ProductUnitConversion {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  unitId    String
+  unit      Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  factor    Decimal
+  /// Pack barcode: scanning it finds the product (sold in this pack unit).
+  barcode   String?
+  createdAt DateTime @default(now())
+
+  @@unique([productId, unitId])
+  @@index([barcode])
+  @@map("product_unit_conversions")
+}
+
+/// Sale price per tier (détail / gros / super gros — customizable).
+model ProductTierPrice {
+  id        String    @id @default(cuid())
+  productId String
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tierId    String
+  tier      PriceTier @relation(fields: [tierId], references: [id], onDelete: Cascade)
+  price     Decimal
+  updatedAt DateTime  @updatedAt
+
+  @@unique([productId, tierId])
+  @@map("product_tier_prices")
+}
+
+// ─── Sales ───────────────────────────────────────────────────────────────────
+
+/// ORDER = bon de commande (no stock move) → DELIVERY (stock out) → INVOICE.
+/// TICKET = immediate van/POS cash sale (delivered + paid at once).
+model Sale {
+  id          String     @id @default(cuid())
+  companyId   String
+  company     Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId    String?
+  kind        String
+  status      String     @default("DRAFT")
+  channel     String     @default("DEPOT")
+  number      String
+  clientId    String?
+  client      Customer?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  locationId  String?
+  location    Store?     @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  tierId      String?
+  tier        PriceTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
+  /// Staff member who created the doc (vendeur order, van ticket). Null = back-office/legacy.
+  createdById String?
+  createdBy   User?      @relation("CreatedSales", fields: [createdById], references: [id], onDelete: SetNull)
+  tourneeId   String?
+  tournee     Tournee?   @relation(fields: [tourneeId], references: [id], onDelete: SetNull)
+  /// Source doc in the chain (delivery ← order, invoice ← delivery).
+  sourceId    String?
+  source      Sale?      @relation("SaleChain", fields: [sourceId], references: [id], onDelete: SetNull)
+  children    Sale[]     @relation("SaleChain")
+  remise      Decimal    @default(0)
+  total       Decimal    @default(0)
+  /// Cash received at sale time (versement link in Phase 6).
+  paid        Decimal    @default(0)
+  /// Van sale without QR scan while strict mode off.
+  offList     Boolean    @default(false)
+  qrScanned   Boolean    @default(false)
+  /// Order placed by the client through the portal (staff validates).
+  isPortal    Boolean    @default(false)
+  notes       String?
+  date        DateTime   @default(now())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  lines   SaleLine[]
+  returns ClientReturn[]
+
+  @@unique([companyId, kind, number])
+  @@index([companyId, clientId])
+  @@index([companyId, status])
+  @@map("sales")
+}
+
+model SaleLine {
+  id        String  @id @default(cuid())
+  saleId    String
+  sale      Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  unitId    String?
+  qty       Decimal
+  baseQty   Decimal
+  unitPrice Decimal
+  remise    Decimal @default(0)
+  lineTotal Decimal
+  /// Snapshot COGS at delivery (for margin reports).
+  unitCost  Decimal @default(0)
+
+  @@index([saleId])
+  @@map("sale_lines")
+}
+
+/// Client returns: restock + refund (cash) or debt credit.
+
+model ClientReturn {
+  id         String   @id @default(cuid())
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId   String?
+  clientId   String
+  client     Customer @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  saleId     String?
+  sale       Sale?    @relation(fields: [saleId], references: [id], onDelete: SetNull)
+  locationId String
+  location   Store    @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  number     String
+  refundType String
+  total      Decimal  @default(0)
+  notes      String?
+  date       DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  lines ClientReturnLine[]
+
+  @@unique([companyId, number])
+  @@index([companyId, clientId])
+  @@map("client_returns")
+}
+
+model ClientReturnLine {
+  id        String       @id @default(cuid())
+  returnId  String
+  ret       ClientReturn @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  baseQty   Decimal
+  unitPrice Decimal
+  lineTotal Decimal
+
+  @@index([returnId])
+  @@map("client_return_lines")
+}
+
+// ─── Tournées ────────────────────────────────────────────────────────────────
+
+/// Daily van visit list (admin-planned, vendeur-executed, optimized en route).
+model Tournee {
+  id         String    @id @default(cuid())
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  date       DateTime
+  locationId String
+  location   Store     @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  secteurId  String?
+  secteur    Secteur?  @relation(fields: [secteurId], references: [id], onDelete: SetNull)
+  status     String    @default("OPEN")
+  notes      String?
+  /// Day tracking set by the livreur/vendeur: départ → fin de journée.
+  startedAt  DateTime?
+  finishedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  stops TourneeStop[]
+  sales Sale[]
+
+  @@index([companyId, date])
+  @@index([companyId, locationId])
+  @@map("tournees")
+}
+
+model TourneeStop {
+  id        String   @id @default(cuid())
+  tourneeId String
+  tournee   Tournee  @relation(fields: [tourneeId], references: [id], onDelete: Cascade)
+  clientId  String
+  client    Customer @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  position  Int      @default(0)
+  visited   Boolean  @default(false)
+  sold      Boolean  @default(false)
+  skipped   Boolean  @default(false)
+  total     Decimal  @default(0)
+
+  @@unique([tourneeId, clientId])
+  @@map("tournee_stops")
+}
+
+// ─── Desktop licensing (server side — self-hosted, single business) ─────────
+
+/// Known machines (informational registration from the desktop app).
+model Machine {
+  id        String   @id @default(cuid())
+  machineId String   @unique
+  label     String?
+  phone     String?
+  specs     Json?
+  lastSeen  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@map("machines")
+}
+
+/// Human-readable activation keys (DILI-XXXX-XXXX-XXXX). Pool keys bind to
+/// the first machine that redeems them; revoked keys kill the install.
+model LicenseKey {
+  id        String   @id @default(cuid())
+  machineId String?
+  label     String?
+  humanKey  String   @unique
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("license_keys")
+}
+
+/// One trial per machine.
+model TrialIssue {
+  machineId String   @id
+  start     DateTime
+  end       DateTime
+  createdAt DateTime @default(now())
+
+  @@map("trial_issues")
+}
+
+// ─── Mobile sync ─────────────────────────────────────────────────────────────
+
+/// One APK device, optionally locked to a van (vanBindingMode = LOCKED).
+model Device {
+  id         String    @id @default(cuid())
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  label      String
+  locationId String?
+  location   Store?    @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tokenHash  String    @unique
+  lastSyncAt DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+
+  ops SyncOp[]
+
+  @@index([companyId])
+  @@map("devices")
+}
+
+/// Idempotent offline operation log (opId unique per company).
+/// Failed ops stay visible for owner reconciliation.
+model SyncOp {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  deviceId  String?
+  device    Device?  @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  opId      String
+  kind      String
+  status    String
+  error     String?
+  createdAt DateTime @default(now())
+
+  @@unique([companyId, opId])
+  @@index([companyId, deviceId])
+  @@map("sync_ops")
+}
+
+// ─── Purchases ───────────────────────────────────────────────────────────────
+
+model PurchaseInvoice {
+  id         String   @id @default(cuid())
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId   String?
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  number     String
+  date       DateTime @default(now())
+  /// Invoice-level remise (amount). Line remises live on lines.
+  remise     Decimal  @default(0)
+  total      Decimal  @default(0)
+  /// Paid so far via invoice payments (versements linked below).
+  paid       Decimal  @default(0)
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  lines    PurchaseLine[]
+  returns  SupplierReturn[]
+  payments Versement[]      @relation("InvoicePayments")
+
+  @@unique([companyId, number])
+  @@index([companyId, supplierId])
+  @@map("purchase_invoices")
+}
+
+model PurchaseLine {
+  id         String          @id @default(cuid())
+  invoiceId  String
+  invoice    PurchaseInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
+  unitId     String?
+  /// Qty in line unit + free units (supplier gifts).
+  qty        Decimal
+  freeQty    Decimal         @default(0)
+  /// Qty converted to product base unit (qty + freeQty) × factor.
+  baseQty    Decimal
+  unitPrice  Decimal
+  remise     Decimal         @default(0)
+  lineTotal  Decimal
+  expiryDate DateTime?
+  batchId    String?         @unique
+  batch      StockBatch?     @relation(fields: [batchId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@map("purchase_lines")
+}
+
+/// FIFO/FEFO stock batches created at purchase (consumed by sales in Phase 5).
+model StockBatch {
+  id         String    @id @default(cuid())
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// Null = main stock (Phase 4 backfills to the main depot).
+  storeId    String?
+  location   Store?    @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  /// Set while in-transit (declare→confirm holding).
+  transferId String?
+  transfer   Transfer? @relation("HoldingBatches", fields: [transferId], references: [id], onDelete: SetNull)
+  qty        Decimal
+  initialQty Decimal
+  unitCost   Decimal
+  expiryDate DateTime?
+  createdAt  DateTime  @default(now())
+
+  purchaseLine PurchaseLine?
+
+  @@index([companyId, productId])
+  @@index([productId, expiryDate])
+  @@map("stock_batches")
+}
+
+/// Returns to supplier: restock reversal + supplier credit note (balance down).
+model SupplierReturn {
+  id         String           @id @default(cuid())
+  companyId  String
+  company    Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId   String?
+  supplierId String
+  supplier   Supplier         @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  invoiceId  String?
+  invoice    PurchaseInvoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  number     String
+  date       DateTime         @default(now())
+  total      Decimal          @default(0)
+  notes      String?
+  createdAt  DateTime         @default(now())
+
+  lines SupplierReturnLine[]
+
+  @@unique([companyId, number])
+  @@index([companyId, supplierId])
+  @@map("supplier_returns")
+}
+
+model SupplierReturnLine {
+  id        String         @id @default(cuid())
+  returnId  String
+  ret       SupplierReturn @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product        @relation(fields: [productId], references: [id], onDelete: Restrict)
+  baseQty   Decimal
+  unitPrice Decimal
+  lineTotal Decimal
+
+  @@index([returnId])
+  @@map("supplier_return_lines")
+}
+
+model Expense {
+  id          String       @id @default(cuid())
+  companyId   String
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId    String?
+  typeId      String?
+  type        ExpenseType? @relation(fields: [typeId], references: [id], onDelete: SetNull)
+  /// Optional van link (fuel / maintenance per van).
+  locationId  String?
+  location    Store?       @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  label       String
+  description String?
+  amount      Decimal
+  expenseDate DateTime     @default(now())
+  createdAt   DateTime     @default(now())
+  deletedAt   DateTime?
+
+  @@index([companyId, expenseDate])
+  @@index([companyId, typeId])
+  @@map("expenses")
+}
+
+// ─── Cash ────────────────────────────────────────────────────────────────────
+
+/// Cash-only money movements (per plan). Client/supplier payments move balances;
+/// CASH_COLLECTION records van→depot handovers (auto-created on transfer confirm).
+model Versement {
+  id                String           @id @default(cuid())
+  companyId         String
+  company           Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId          String?
+  kind              String
+  clientId          String?
+  client            Customer?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  supplierId        String?
+  supplier          Supplier?        @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  transferId        String?
+  transfer          Transfer?        @relation(fields: [transferId], references: [id], onDelete: SetNull)
+  purchaseInvoiceId String?
+  purchaseInvoice   PurchaseInvoice? @relation("InvoicePayments", fields: [purchaseInvoiceId], references: [id], onDelete: SetNull)
+  /// Van/day attribution (till reconciliation): set when the money moves on
+  /// a van — client payment collected on tour, or handover to the depot.
+  /// Plain scalars (no FK): history must survive van/tournee cleanup.
+  locationId        String?
+  tourneeId         String?
+  amount            Decimal
+  date              DateTime         @default(now())
+  notes             String?
+  createdAt         DateTime         @default(now())
+
+  @@index([companyId, date])
+  @@index([companyId, clientId])
+  @@index([companyId, supplierId])
+  @@index([companyId, locationId, date])
+  @@map("versements")
+}
+
+/// Daily van-till close (صندوق اليوم): expected vs collected vs remitted.
+/// OPEN = computed live, nothing stored. DECLARED = livreur counted and
+/// submitted his till (pending admin). CLOSED = admin snapshotted + locked.
+
+model DailyClose {
+  id             String    @id @default(cuid())
+  companyId      String
+  company        Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId       String?
+  vanId          String
+  van            Store     @relation(fields: [vanId], references: [id], onDelete: Cascade)
+  /// Day at midnight (local). Unique per van-day.
+  date           DateTime
+  /// Snapshot taken at close (live-computed while open/declared).
+  expected       Decimal   @default(0)
+  collected      Decimal   @default(0)
+  clientPayments Decimal   @default(0)
+  expenses       Decimal   @default(0)
+  returnsCash    Decimal   @default(0)
+  dueTotal       Decimal   @default(0)
+  /// Livreur-counted till, submitted for control.
+  declared       Decimal?
+  declaredById   String?
+  declaredAt     DateTime?
+  /// Accepted handover (CASH_COLLECTION versements).
+  remitted       Decimal   @default(0)
+  /// remitted − (collected + clientPayments − expenses − returnsCash).
+  difference     Decimal   @default(0)
+  status         String    @default("DECLARED")
+  closedById     String?
+  closedAt       DateTime?
+  notes          String?
+
+  @@unique([companyId, vanId, date])
+  @@index([companyId, date])
+  @@map("daily_closes")
+}
+
+/// Client advances (toggle-gated, default OFF). Credits the client balance.
+model Deposit {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId  String?
+  clientId  String
+  client    Customer @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  amount    Decimal
+  date      DateTime @default(now())
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([companyId, clientId])
+  @@map("deposits")
+}
+
+model DocumentSequence {
+  id        String  @id @default(cuid())
+  companyId String
+  storeId   String?
+  type      String
+  year      Int
+  nextNo    Int     @default(1)
+
+  @@unique([companyId, storeId, type, year])
+  @@map("document_sequences")
+}
+
+/// Per-user distance/time snapshot to every geolocated client.
+/// Written on each "actualiser" (and manual entry); read back on open.
+model ClientDistance {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId  String
+  client    Customer @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  distanceM Float
+  durationS Float
+  atLat     Float
+  atLng     Float
+  /// "osrm" (road) or "estimate" (straight-line fallback).
+  source    String   @default("estimate")
+  updatedAt DateTime @updatedAt
+
+  @@unique([companyId, userId, clientId])
+  @@index([companyId, userId])
+  @@map("client_distances")
+}

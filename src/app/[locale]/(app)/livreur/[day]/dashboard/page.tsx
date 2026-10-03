@@ -1,0 +1,98 @@
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth/session";
+import { prisma } from "@/lib/db";
+import { getLivreurVan } from "../../_data";
+import { parseDay } from "../../_days";
+import { DashClient } from "./DashClient";
+
+/// Step 3 — Dashboard hub: sale, factures, commande, commandes, stock, sync.
+export default async function LivreurDashPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string; day: string }>;
+  searchParams: Promise<{ client?: string }>;
+}) {
+  const { locale, day } = await params;
+  const sp = await searchParams;
+  setRequestLocale(locale);
+  const session = await getSession();
+  if (!session) redirect(`/${locale}/login`);
+  const date = parseDay(day);
+  if (!date) redirect(`/${locale}/livreur`);
+  const t = await getTranslations("livreur");
+  const tc = await getTranslations("sync");
+  const tm = await getTranslations("cashDaily");
+  const van = await getLivreurVan(session.companyId, session.userId);
+  if (!van) redirect(`/${locale}/livreur`);
+
+  const client = sp.client
+    ? await prisma.customer.findFirst({
+        where: { id: sp.client, companyId: session.companyId },
+        select: { id: true, name: true, code: true, phone: true, tierId: true, balance: true },
+      })
+    : null;
+
+  const dayStart = new Date(date);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(date);
+  dayEnd.setHours(23, 59, 59, 999);
+  const [today, readyCount, tournee] = await Promise.all([
+    prisma.sale.aggregate({
+      where: {
+        companyId: session.companyId,
+        locationId: van.id,
+        kind: { in: ["DELIVERY", "TICKET"] },
+        date: { gte: dayStart, lte: dayEnd },
+      },
+      _sum: { total: true },
+      _count: true,
+    }),
+    prisma.sale.count({
+      where: { companyId: session.companyId, kind: "ORDER", status: "CONFIRMED", locationId: van.id },
+    }),
+    prisma.tournee.findFirst({
+      where: { companyId: session.companyId, locationId: van.id, date: { gte: dayStart, lte: dayEnd } },
+      select: { id: true, status: true, startedAt: true, finishedAt: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  return (
+    <DashClient
+      locale={locale}
+      day={day}
+      vanId={van.id}
+      vanName={van.name}
+      client={client ? JSON.parse(JSON.stringify(client)) : null}
+      dayCount={today._count}
+      dayTotal={Number(today._sum.total ?? 0)}
+      readyCount={readyCount}
+      tournee={tournee ? JSON.parse(JSON.stringify(tournee)) : null}
+      labels={{
+        title: t("title"), newSale: t("newSale"), factures: t("factures"),
+        clients: t("clients"), total: t("total"), stock: t("stock"),
+        ready: t("ready"),
+        newCommand: t("newCommand"), commandes: t("commandes"), syncT: t("syncT"),
+        pending: tc("pending"), lastSync: tc("lastSync"), syncNow: tc("syncNow"), synced: tc("synced"),
+        syncTitle: tc("syncTitle"), syncUpload: tc("upload"), syncDownload: tc("download"),
+        syncImages: tc("images"), syncApplied: tc("applied"), syncFailed: tc("failed"),
+        syncRemaining: tc("remaining"), syncStart: tc("start"), syncClose: tc("close"),
+        syncUp: tc("up"), syncDown: tc("down"),
+        syncHistory: tc("history"), syncNoHistory: tc("noHistory"), syncClearHistory: tc("clearHistory"),
+        syncCamNeedHttps: tc("camNeedHttps"), syncCamDenied: tc("camDenied"), syncCamUnsupported: tc("camUnsupported"),
+        syncUpdateTitle: tc("updateTitle"), syncCheckUpdate: tc("checkUpdate"),
+        syncWebOk: tc("webOk"), syncWebNew: tc("webNew"), syncUpdateNow: tc("updateNow"),
+        syncDownloadApk: tc("downloadApk"), syncApkHint: tc("apkHint"),
+        syncSetupHint: tc("setupHint"), syncScanSetup: tc("scanSetup"), syncManual: tc("manual"),
+        syncGallery: tc("gallery"), syncQrNotFound: tc("qrNotFound"), syncInvalidQr: tc("invalidQr"),
+        syncTokenPh: tc("tokenPh"), syncUrlPh: tc("urlPh"), syncTokenRequired: tc("tokenRequired"),
+        syncSaveConfig: tc("saveConfig"), syncResetConfig: tc("resetConfig"),
+        newClient: t("newClient"), startDay: t("startDay"), finishDay: t("finishDay"), elapsed: t("elapsed"),
+        declare: t("declare"), declaredOk: t("declaredOk"), queuedOk: t("queuedOk"),
+        amount: tm("amount"), notes: tm("notes"), save: tm("save"), cancel: tm("cancel"),
+      }}
+    />
+  );
+}

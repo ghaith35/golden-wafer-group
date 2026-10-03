@@ -1,0 +1,29 @@
+{
+  "tokens": ["surface", "sunken", "overlay", "ink", "muted", "border", "brand", "brand600", "grad", "success", "danger"],
+  "themes": [
+    { "id": "emerald", "name": "Emerald", "ar": "زمردي", "tokens": ["#fafbf9", "#f1f5f4", "#ffffff", "#0b1f17", "#4b5b53", "#e2e8e6", "#10b981", "#059669", "#047857", "#10b981", "#ef4444"] },
+    { "id": "ocean", "name": "Ocean", "ar": "محيطي", "tokens": ["#f3f7fc", "#e5edf7", "#ffffff", "#0b1e33", "#47617d", "#d3e0ef", "#2563eb", "#1d4ed8", "#1e40af", "#16a34a", "#dc2626"] },
+    { "id": "indigo", "name": "Indigo", "ar": "نيلي", "tokens": ["#f4f5fd", "#e7e9fb", "#ffffff", "#1e1b4b", "#54538a", "#d8dbf7", "#6366f1", "#4f46e5", "#4338ca", "#10b981", "#ef4444"] },
+    { "id": "royal", "name": "Royal", "ar": "ملكي", "tokens": ["#f6f3fd", "#e9e2fa", "#ffffff", "#241245", "#5f5485", "#d9cff3", "#7c3aed", "#6d28d9", "#5b21b6", "#10b981", "#e11d48"] },
+    { "id": "crimson", "name": "Crimson", "ar": "قرمزي", "tokens": ["#fdf2f4", "#f9dfe4", "#ffffff", "#40060f", "#844652", "#eec3cc", "#d61f3f", "#b31230", "#8f0e27", "#16a34a", "#dc2626"] },
+    { "id": "sunset", "name": "Sunset", "ar": "غروب", "tokens": ["#fff7f1", "#fdebd9", "#ffffff", "#431607", "#8a5a3b", "#f2d3b8", "#ea580c", "#c2410c", "#9a3412", "#16a34a", "#dc2626"] },
+    { "id": "amber", "name": "Amber", "ar": "كهرماني", "tokens": ["#fffaf0", "#fbeed3", "#ffffff", "#422006", "#8a6a3b", "#eed9ac", "#d97706", "#b45309", "#92400e", "#16a34a", "#dc2626"] },
+    { "id": "khiata", "name": "Khiata Gold", "ar": "ذهبي", "tokens": ["#f7f3ee", "#efe9dd", "#ffffff", "#0f0e0d", "#665a4d", "#e8e0d4", "#c9993a", "#b8862e", "#96691f", "#1a5c52", "#c94a3a"] },
+    { "id": "forest", "name": "Forest", "ar": "غابي", "tokens": ["#f3f7f1", "#e4eddf", "#ffffff", "#0f1f0e", "#4b5f4b", "#d3dfcd", "#2e7d32", "#276a2b", "#1b5e20", "#2e7d32", "#c62828"] },
+    { "id": "teal", "name": "Teal", "ar": "مخضر", "tokens": ["#f0faf8", "#dcf0ed", "#ffffff", "#08302b", "#3f6b64", "#c6e2dd", "#0d9488", "#0f766e", "#115e59", "#0d9488", "#e11d48"] },
+    { "id": "rose", "name": "Rose", "ar": "وردي", "tokens": ["#fdf2f5", "#f9e2e9", "#ffffff", "#3f0c1a", "#88505f", "#f0cbd5", "#f43f5e", "#e11d48", "#be123c", "#10b981", "#dc2626"] },
+    { "id": "mono", "name": "Mono Slate", "ar": "رمادي", "tokens": ["#f8fafc", "#edf1f6", "#ffffff", "#0f172a", "#475569", "#d9e0e9", "#334155", "#1e293b", "#0f172a", "#16a34a", "#dc2626"] },
+    { "id": "coffee", "name": "Coffee", "ar": "قهوة", "tokens": ["#f7f4ef", "#eae1d3", "#ffffff", "#221709", "#6e5f4b", "#ddd0ba", "#a16207", "#854d0e", "#713f12", "#4d7c0f", "#b91c1c"] },
+    { "id": "midnight", "name": "Midnight", "ar": "ليلي", "tokens": ["#eef1f7", "#dfe5ef", "#ffffff", "#0b1026", "#4c5872", "#cfd7e4", "#3730a3", "#312e81", "#23215e", "#16a34a", "#dc2626"] },
+    { "id": "magenta", "name": "Magenta", "ar": "فوشي", "tokens": ["#fdf2f8", "#f9e0ed", "#ffffff", "#3b0a22", "#85566e", "#f0c6da", "#db2777", "#be185d", "#9d174d", "#10b981", "#dc2626"] },
+    { "id": "cyan", "name": "Cyan", "ar": "سماوي", "tokens": ["#f0fbfd", "#ddf2f9", "#ffffff", "#083344", "#3f6879", "#c4e2ed", "#06b6d4", "#0891b2", "#0e7490", "#10b981", "#dc2626"] },
+    { "id": "coral", "name": "Coral", "ar": "مرجاني", "tokens": ["#fff5f2", "#fde5de", "#ffffff", "#421208", "#8a554a", "#f2cabd", "#e8593f", "#cf4527", "#a83620", "#16a34a", "#dc2626"] },
+    { "id": "plum", "name": "Plum", "ar": "برقوقي", "tokens": ["#faf3f8", "#f2e2ee", "#ffffff", "#380f2c", "#7c4e6d", "#e9c9de", "#ad2e7e", "#8f2365", "#711c50", "#10b981", "#dc2626"] },
+    { "id": "lime", "name": "Lime", "ar": "ليموني", "tokens": ["#f7fee7", "#e9f8d2", "#ffffff", "#1a2e05", "#4f6430", "#d5e5b5", "#65a30d", "#4d7c0f", "#3f6212", "#65a30d", "#dc2626"] },
+    { "id": "burgundy", "name": "Burgundy", "ar": "عنابي", "tokens": ["#faf3f4", "#f3e2e6", "#ffffff", "#3d0a14", "#7d4a55", "#e8c9d1", "#9f1239", "#881337", "#6f0f2c", "#16a34a", "#dc2626"] },
+    { "id": "olive", "name": "Olive", "ar": "زيتي", "tokens": ["#f6f7ee", "#e9ebda", "#ffffff", "#222806", "#5c6142", "#dcdcc0", "#5b7f0d", "#4a680b", "#3a5409", "#5b7f0d", "#b91c1c"] },
+    { "id": "sand", "name": "Sand", "ar": "رملي", "tokens": ["#f7f1e5", "#efe4d0", "#fffdf8", "#292017", "#6f6250", "#e3d5bd", "#b45309", "#92400e", "#78350f", "#4d7c0f", "#b91c1c"] },
+    { "id": "arctic", "name": "Arctic", "ar": "ثلجي", "tokens": ["#f6fafd", "#e8f1f7", "#ffffff", "#0c1e2e", "#4a6a85", "#d2e2ee", "#0284c7", "#0369a1", "#075985", "#10b981", "#dc2626"] },
+    { "id": "chocolate", "name": "Chocolate", "ar": "شوكولاتة", "tokens": ["#f8f4ee", "#ecdfd0", "#ffffff", "#241610", "#6e5a48", "#ddc9b3", "#7c4a21", "#5f3719", "#4a2b13", "#4d7c0f", "#b91c1c"] }
+  ]
+}

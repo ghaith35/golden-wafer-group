@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Test phase (WiFi-local): trust the Mac's self-signed server cert in
+     addition to system CAs, and allow cleartext for LAN use. Production
+     (public domain + real cert): remove the @raw anchor + cleartext. -->
+<network-security-config>
+  <base-config cleartextTrafficPermitted="true">
+    <trust-anchors>
+      <certificates src="@raw/distribuili_ca" />
+      <certificates src="system" />
+    </trust-anchors>
+  </base-config>
+</network-security-config>

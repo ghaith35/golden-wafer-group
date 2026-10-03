@@ -1,0 +1,23 @@
+# Thin client: no Next server bundled — just the shell + license + updater.
+appId: com.distribuili.app.server
+productName: Distribuili Server
+directories:
+  output: dist-electron
+files:
+  - electron/dist/**/*
+  - build-mode.json
+  - package.json
+mac:
+  category: public.app-category.business
+  icon: build/icon.icns
+win:
+  icon: build/icon.ico
+  target: [nsis]
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+publish:
+  provider: generic
+  url: https://updates.distribuili.dz/server
+  channel: latest

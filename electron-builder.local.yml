@@ -1,0 +1,59 @@
+appId: com.distribuili.app.local
+productName: Distribuili Local
+npmRebuild: false
+directories:
+  output: dist-electron
+files:
+  - electron/dist/**/*
+  - package.json
+  # Build-time-only native compilers — the shipped standalone Next server never
+  # runs them (compilation happened at build time).
+  - "!node_modules/@next/swc-*/**"
+  - "!node_modules/@swc/core-*/**"
+  # The Next standalone server is self-contained (runtime deps traced into
+  # .next/standalone/node_modules). Drop the redundant full copies.
+  - "!node_modules/next/**"
+  - "!node_modules/@prisma/**"
+  - "!node_modules/.prisma/**"
+
+# The Next.js standalone server + offline-DB resources ship as
+# resources/app/.next/standalone (matches the packaged path in electron/main.ts)
+# — OUTSIDE the asar archive so plain-Node require resolution works.
+extraResources:
+  - from: .next/standalone
+    to: app/.next/standalone
+  # electron-builder skips a copy source's root node_modules, so copy it as its
+  # own `from` root (children are never the literal "node_modules").
+  - from: .next/standalone/node_modules
+    to: app/.next/standalone/node_modules
+  - from: build-mode.json
+    to: build-mode.json
+  # Pre-seeded DB (built by scripts/build-sqlite-seed.mjs) — copied on first
+  # run so the offline app ships ready to log in.
+  - from: prisma/sqlite-seed.db
+    to: app/.next/standalone/prisma/sqlite-seed.db
+
+asar: true
+# Native modules can't load from inside an asar — unpack the SQLite driver
+# the MAIN process opens the DB with.
+asarUnpack:
+  - "node_modules/libsql/**"
+  - "node_modules/@libsql/**"
+
+mac:
+  category: public.app-category.business
+  icon: build/icon.icns
+win:
+  icon: build/icon.ico
+  target: [nsis]
+nsis:
+  oneClick: false
+  # Machine install: Windows shows the admin (UAC) prompt automatically,
+  # so the always-on setup below can run without extra steps.
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  include: build/installer.nsh
+publish:
+  provider: generic
+  url: https://updates.distribuili.dz/local
+  channel: latest

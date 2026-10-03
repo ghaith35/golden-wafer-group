@@ -1,0 +1,81 @@
+# Production stack (LAN home-server or VPS). Bring up with:
+#   docker compose -f docker-compose.prod.yml up -d --build
+# First deploy: migrations + seed via the `tools` profile (see scripts/deploy.sh).
+#
+# Required in .env (next to this file, chmod 600):
+#   POSTGRES_PASSWORD=<openssl rand -hex 16>
+#   JWT_SECRET=<openssl rand -hex 32>
+#   LOG_LEVEL=info
+# Behind plain HTTP (no TLS): COOKIE_SECURE=false
+# License authority (desktop activations): LICENSE_PRIVATE_KEY=<from gen-license-keys.mjs>
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: distribuili
+      POSTGRES_USER: distribuili
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U distribuili -d distribuili"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://distribuili:${POSTGRES_PASSWORD}@db:5432/distribuili
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+    # Reach it at http://<server-ip>:3002 (host 3002 → container 3000).
+    ports:
+      - "3002:3000"
+    volumes:
+      # Uploaded photos/logos survive rebuilds (seed placeholders are
+      # written here on first deploy if the dir is empty).
+      - uploads:/app/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # One-shot: apply migrations (safe on every deploy — migrate deploy is
+  # idempotent). `docker compose -f docker-compose.prod.yml --profile tools run --rm migrate`
+  migrate:
+    profiles: ["tools"]
+    build:
+      context: .
+      target: builder
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://distribuili:${POSTGRES_PASSWORD}@db:5432/distribuili
+    command: sh -c "npx prisma migrate deploy"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # One-shot: first deploy only — migrations + demo company + admin user.
+  seed:
+    profiles: ["tools"]
+    build:
+      context: .
+      target: builder
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://distribuili:${POSTGRES_PASSWORD}@db:5432/distribuili
+    command: sh -c "npx prisma migrate deploy && npx tsx prisma/seed.ts"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  uploads:
