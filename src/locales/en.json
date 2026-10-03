@@ -968,7 +968,7 @@
     "phone": "Phone",
     "adminUser": "Admin login",
     "adminName": "Admin name",
-    "adminPass": "Password (8+)",
+    "adminPass": "Password",
     "users": "users",
     "stores": "stores"
   }

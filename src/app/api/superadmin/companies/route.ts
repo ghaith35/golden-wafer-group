@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     adminPassword?: string;
     adminName?: string;
   };
-  if (!name?.trim() || !adminUsername?.trim() || !adminPassword || adminPassword.length < 8) {
+  if (!name?.trim() || !adminUsername?.trim() || !adminPassword) {
     return NextResponse.json({ error: "missing_fields" }, { status: 400 });
   }
   const company = await prisma.$transaction(async (tx) => {

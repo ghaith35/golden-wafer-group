@@ -4,11 +4,14 @@ import { hashPassword } from "../src/lib/superadmin/session";
 /// Create (or reset) the vendor superadmin. Prints credentials ONCE —
 /// force-rotation happens on first login (passwordChangedAt == null).
 /// Usage: npx tsx --env-file=.env scripts/make-superadmin.ts <username> <password>
+///
+/// NOTE (owner decision): no minimum length is enforced here. Short
+/// passwords are weak — prefer 12+ characters with symbols.
 
 async function main() {
   const [username, password] = process.argv.slice(2);
-  if (!username || !password || password.length < 8) {
-    console.error("Usage: make-superadmin.ts <username> <password min 8 chars>");
+  if (!username || !password) {
+    console.error("Usage: make-superadmin.ts <username> <password>");
     process.exit(1);
   }
   const row = await prisma.superAdminUser.upsert({
