@@ -17,6 +17,7 @@ certs/
 # Build outputs & binaries
 out/
 *.apk
+!public/apk/*.apk
 *.exe
 electron/dist/
 android/.gradle/
