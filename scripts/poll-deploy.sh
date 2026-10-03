@@ -5,6 +5,11 @@
 # rebuild + health-check + rollback). Logs to logs/auto-deploy.log.
 set -euo pipefail
 
+# Single-flight: cron every 2 min must never overlap a running deploy
+# (or a manual one) — second runner exits quietly.
+exec 9>"${REPO_LOCK:-/tmp/distribuili-deploy.lock}"
+flock -n 9 || exit 0
+
 REPO="${REPO:-/home/ghaith/distribuili}"
 export APP_PORT="${APP_PORT:-3005}"
 cd "$REPO"

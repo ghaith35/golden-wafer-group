@@ -10,7 +10,7 @@ export APP_PORT="${APP_PORT:-3002}"
 APP_URL="${APP_URL:-http://127.0.0.1:${APP_PORT}/api/health}"
 
 echo "==> git pull"
-git pull --ff-only
+git pull --ff-only origin master
 
 echo "==> migrate"
 $COMPOSE --profile tools run --rm migrate
