@@ -135,11 +135,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // vente (dedicated mobile sections replace the desktop sidebar).
   // Defaults to full (admin) until the check returns.
   const [role, setRole] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         setRole((d?.user?.role as string | undefined) ?? null);
+        setUsername((d?.user?.username as string | undefined) ?? null);
       })
       .catch(() => {});
   }, []);
@@ -155,7 +157,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         ...g,
         items: g.items.filter((i) => !isStaff || !i.adminOnly),
       }))
-  ).filter((g) => (!isStaff || !g.adminOnly) && g.items.length > 0);
+  ).filter((g) => (!isStaff || !g.adminOnly) && g.items.length > 0)
+    // The van workspace (الشاحنة / بيع الشاحنة) is staff-only: admins manage
+    // vans from الشاحنات / مخزون الشاحنات instead.
+    .filter((g) => g.label !== "group_livreur" || isStaff);
   const visibleTabs = isLivreur
     ? TAB_KEYS_LIVREUR.flatMap((k) => GROUPS.flatMap((g) => g.items).filter((i) => i.key === k))
     : TABS.filter((t) => {
@@ -215,7 +220,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <div className={cn("transition-all duration-300 ease-in-out", !hideChrome && (collapsed ? "lg:ps-[68px]" : "lg:ps-60"))}>
-        <TopBar onMenuClick={() => setNavOpen(true)} onLogout={logout} syncLabels={syncLabels} hideMenu={hideChrome} />
+        <TopBar onMenuClick={() => setNavOpen(true)} onLogout={logout} syncLabels={syncLabels} hideMenu={hideChrome} username={username} />
         <main className={hideChrome ? "" : "pb-20 lg:pb-0"}>{children}</main>
         {!hideChrome && visibleTabs.length > 0 && (
         <nav className="fixed inset-x-0 bottom-0 flex border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)] lg:hidden">

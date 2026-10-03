@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronLeft, LogOut, Menu, Moon, Sun } from "lucide-react";
+import { ChevronDown, ChevronLeft, LogOut, Menu, Moon, Sun, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SyncBadge } from "@/components/sync/SyncBadge";
 import { isDarkNow, toggleDark, THEME_CHANGED_EVENT } from "@/components/theme/ThemeSelector";
@@ -22,11 +22,13 @@ export function TopBar({
   onLogout,
   syncLabels,
   hideMenu = false,
+  username = null,
 }: {
   onMenuClick: () => void;
   onLogout: () => void;
   syncLabels: { offline: string; pending: string; sync: string; synced: string; noDevice: string };
   hideMenu?: boolean;
+  username?: string | null;
 }) {
   const t = useTranslations("nav");
   const locale = useLocale();
@@ -53,24 +55,76 @@ export function TopBar({
         <LanguageSwitcher />
       </div>
       <ThemeToggle />
-      <button
-        type="button"
-        onClick={onLogout}
-        title={t("logout")}
-        aria-label={t("logout")}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-(--text-secondary) transition-colors hover:bg-(--bg-sunken) hover:text-(--text-primary) md:hidden"
-      >
-        <LogOut size={17} />
-      </button>
-      <button
-        type="button"
-        onClick={onLogout}
-        className="hidden shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-(--text-secondary) transition-colors hover:bg-(--bg-sunken) hover:text-(--text-primary) md:flex"
-      >
-        <LogOut size={17} />
-        {t("logout")}
-      </button>
+      <UserMenu username={username} onLogout={onLogout} />
     </header>
+  );
+}
+
+/// Signed-in user chip: shows the name; clicking reveals disconnect.
+function UserMenu({ username, onLogout }: { username: string | null; onLogout: () => void }) {
+  const t = useTranslations("nav");
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open ]);
+
+  const initial = (username ?? "?").trim().charAt(0).toUpperCase();
+
+  return (
+    <div ref={boxRef} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        title={username ?? t("logout")}
+        className="flex h-11 min-w-11 items-center gap-2 rounded-xl border border-(--border-default) bg-(--bg-overlay) px-2 text-sm font-black text-(--text-primary) transition-colors hover:border-(--brand-500)"
+      >
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-brand text-xs font-black text-white">
+          {username ? initial : <UserRound size={14} />}
+        </span>
+        {username && <span className="hidden max-w-32 truncate sm:block">{username}</span>}
+        <ChevronDown size={14} className={cn("shrink-0 opacity-60 transition-transform", open && "rotate-180")} />
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute end-0 top-[calc(100%+8px)] z-50 w-52 overflow-hidden rounded-xl border border-(--border-default) bg-(--bg-overlay) p-1.5 shadow-xl"
+        >
+          {username && (
+            <div className="truncate px-2.5 py-2 text-xs font-bold opacity-60" dir="auto">
+              {username}
+            </div>
+          )}
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              onLogout();
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2.5 text-sm font-black text-red-500 transition-colors hover:bg-red-500/10"
+          >
+            <LogOut size={16} />
+            {t("logout")}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
