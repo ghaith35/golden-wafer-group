@@ -3,6 +3,7 @@ import createMiddleware from "next-intl/middleware";
 import { jwtVerify, SignJWT } from "jose";
 import { routing } from "@/i18n/routing";
 import { ACCESS_MAX_AGE, ACCESS_SLIDE_WINDOW } from "@/lib/auth/tokens";
+import { isLocalMode, localEntitledCached } from "@/lib/license/gate";
 
 const handleI18nRouting = createMiddleware(routing);
 
@@ -20,6 +21,23 @@ type Claims = {
   _type?: string;
   exp?: number;
 };
+
+function superAdminSecret(): Uint8Array | null {
+  const s = process.env.SUPER_ADMIN_JWT_SECRET || process.env.JWT_SECRET;
+  return s ? new TextEncoder().encode(s) : null;
+}
+
+async function readSuperAdmin(request: NextRequest): Promise<boolean> {
+  const token = request.cookies.get("dili_superadmin")?.value;
+  const secret = superAdminSecret();
+  if (!token || !secret) return false;
+  try {
+    const { payload } = await jwtVerify(token, secret);
+    return (payload as Record<string, unknown>)._type === "superadmin";
+  } catch {
+    return false;
+  }
+}
 
 async function readClaims(token: string): Promise<Claims | null> {
   const secret = process.env.JWT_SECRET;
@@ -87,6 +105,23 @@ export async function proxy(request: NextRequest) {
   // API + pages alike: an expired access token is refreshed in passing so
   // background fetches never 401 while the refresh cookie lives.
   if (routePath.startsWith("/api")) {
+    // Local-install license gate (Node runtime): a locked/expired desktop
+    // install gets 402 on everything except the license flows themselves,
+    // health, auth (trial/redeem need no session) and the update feed.
+    // Central/vendor installs and plain dev servers are never gated.
+    if (
+      isLocalMode() &&
+      !(
+        routePath === "/api/license" ||
+        routePath.startsWith("/api/license/") ||
+        routePath === "/api/health" ||
+        routePath.startsWith("/api/auth/") ||
+        routePath === "/api/apk-info"
+      ) &&
+      !localEntitledCached()
+    ) {
+      return NextResponse.json({ error: "not_entitled" }, { status: 402 });
+    }
     return renewed ? withAccessCookie(NextResponse.next(), renewed) : NextResponse.next();
   }
 
@@ -100,6 +135,14 @@ export async function proxy(request: NextRequest) {
     pathname === "/sw.js"
   ) {
     return NextResponse.next();
+  }
+
+  // Vendor superadmin console: own session, own login. Never falls
+  // through to company auth (a locked-out company admin must not matter).
+  if (routePath === "/superadmin" || routePath.startsWith("/superadmin/")) {
+    if (routePath === "/superadmin/login") return handleI18nRouting(request);
+    if (await readSuperAdmin(request)) return handleI18nRouting(request);
+    return NextResponse.redirect(new URL(localized("/superadmin/login"), request.url));
   }
 
   // Client portal: public login, own session cookie (portal_token) elsewhere.

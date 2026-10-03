@@ -125,7 +125,22 @@ CREATE TABLE "super_admin_users" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "username" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "passwordChangedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "super_admin_audits" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "adminId" TEXT NOT NULL,
+    "action" TEXT NOT NULL,
+    "targetType" TEXT,
+    "targetId" TEXT,
+    "meta" JSONB,
+    "ip" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "super_admin_audits_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "super_admin_users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -472,7 +487,42 @@ CREATE TABLE "machines" (
     "label" TEXT,
     "phone" TEXT,
     "specs" JSONB,
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "token" TEXT,
+    "activationKey" TEXT,
+    "activationType" TEXT NOT NULL DEFAULT 'machine',
+    "consumedByMachineId" TEXT,
+    "trialStart" DATETIME,
+    "trialEnd" DATETIME,
+    "activatedAt" DATETIME,
+    "contactName" TEXT,
+    "city" TEXT,
+    "deviceSpecs" JSONB,
+    "trialIp" TEXT,
+    "lastIp" TEXT,
     "lastSeen" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "machine_subscriptions" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "machineId" TEXT NOT NULL,
+    "plan" TEXT NOT NULL DEFAULT 'standard',
+    "status" TEXT NOT NULL DEFAULT 'trial',
+    "expiresAt" DATETIME,
+    "graceEndsAt" DATETIME,
+    "activatedBy" TEXT,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "machine_subscriptions_machineId_fkey" FOREIGN KEY ("machineId") REFERENCES "machines" ("machineId") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "blocked_ips" (
+    "ip" TEXT NOT NULL PRIMARY KEY,
+    "reason" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -483,6 +533,7 @@ CREATE TABLE "license_keys" (
     "label" TEXT,
     "humanKey" TEXT NOT NULL,
     "revoked" BOOLEAN NOT NULL DEFAULT false,
+    "consumedByMachineId" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
@@ -751,6 +802,9 @@ CREATE INDEX "refresh_tokens_userId_idx" ON "refresh_tokens"("userId");
 CREATE UNIQUE INDEX "super_admin_users_username_key" ON "super_admin_users"("username");
 
 -- CreateIndex
+CREATE INDEX "super_admin_audits_adminId_createdAt_idx" ON "super_admin_audits"("adminId", "createdAt");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "stores_companyId_userId_key" ON "stores"("companyId", "userId");
 
 -- CreateIndex
@@ -851,6 +905,12 @@ CREATE UNIQUE INDEX "tournee_stops_tourneeId_clientId_key" ON "tournee_stops"("t
 
 -- CreateIndex
 CREATE UNIQUE INDEX "machines_machineId_key" ON "machines"("machineId");
+
+-- CreateIndex
+CREATE INDEX "machines_status_createdAt_idx" ON "machines"("status", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "machine_subscriptions_machineId_key" ON "machine_subscriptions"("machineId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "license_keys_humanKey_key" ON "license_keys"("humanKey");

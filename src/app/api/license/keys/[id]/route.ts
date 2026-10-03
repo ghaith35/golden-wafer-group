@@ -21,5 +21,32 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     await prisma.licenseKey.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   }
+  if (action === "reset") {
+    // Un-consume a pool key: back to unbound, consumer machine to pending.
+    const consumer = existing.consumedByMachineId ?? existing.machineId;
+    const row = await prisma.$transaction(async (tx) => {
+      const r = await tx.licenseKey.update({
+        where: { id },
+        data: { machineId: null, consumedByMachineId: null, revoked: false },
+      });
+      if (consumer) {
+        await tx.machine.updateMany({
+          where: { machineId: consumer, activationKey: existing.humanKey },
+          data: { status: "pending", token: null, activationKey: null },
+        });
+      }
+      return r;
+    });
+    return NextResponse.json(row);
+  }
+  if (action === "end_trial") {
+    const machineId = existing.machineId;
+    if (!machineId) return NextResponse.json({ error: "unbound_key" }, { status: 400 });
+    await prisma.$transaction([
+      prisma.trialIssue.updateMany({ where: { machineId }, data: { end: new Date() } }),
+      prisma.machine.updateMany({ where: { machineId }, data: { trialEnd: new Date() } }),
+    ]);
+    return NextResponse.json({ ok: true });
+  }
   return NextResponse.json({ error: "bad_action" }, { status: 400 });
 }

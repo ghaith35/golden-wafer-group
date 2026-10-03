@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/settings/helpers";
-import { randomHumanKey, licenseConfigured } from "@/lib/license/sign";
+import { generateActivationKey, licenseConfigured } from "@/lib/license/sign";
 
 /// Admin console: list machines + keys, mint keys, revoke.
 export async function GET() {
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   if (!licenseConfigured()) return NextResponse.json({ error: "license_not_configured" }, { status: 500 });
   const { label, machineId } = (await req.json().catch(() => ({}))) as { label?: string; machineId?: string };
   const row = await prisma.licenseKey.create({
-    data: { label: label?.trim() || null, machineId: machineId?.trim() || null, humanKey: randomHumanKey() },
+    data: { label: label?.trim() || null, machineId: machineId?.trim() || null, humanKey: generateActivationKey() },
   });
   return NextResponse.json(row, { status: 201 });
 }

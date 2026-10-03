@@ -19,7 +19,8 @@ export default async function SettingsLicensePage({ params }: { params: Promise<
         labels={{
           title: t("console"), notConfigured: t("notConfigured"), shopLabel: t("shopLabel"),
           machine: t("machine"), pool: t("pool"), mint: t("mint"), revoke: t("revoke"),
-          unrevoke: t("unrevoke"), machines: t("machines"), empty: t("empty"),
+          unrevoke: t("unrevoke"), reset: t("reset"), endTrial: t("endTrial"),
+          machines: t("machines"), empty: t("empty"),
           search: tc("search"), save: tc("save"), cancel: tc("cancel"), delete: tc("delete"),
           deleteTitle: tc("deleteTitle"), deleteMessage: tc("deleteMessage"),
         }}

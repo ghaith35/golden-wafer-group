@@ -129,6 +129,16 @@ export function LicenseConsole({ labels }: { labels: Record<string, string> }) {
                   {labels.revoke}
                 </Button>
               )}
+              {k.machineId && (
+                <>
+                  <Button variant="secondary" onClick={() => void act(k.id, "reset")} className="h-8 px-3 text-xs">
+                    {labels.reset}
+                  </Button>
+                  <Button variant="secondary" onClick={() => void act(k.id, "end_trial")} className="h-8 px-3 text-xs">
+                    {labels.endTrial}
+                  </Button>
+                </>
+              )}
               <button
                 type="button"
                 title={labels.delete}

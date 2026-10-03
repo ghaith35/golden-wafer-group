@@ -224,9 +224,55 @@ function getStableMachineId(): string {
 }
 
 function entitled(): boolean {
+  if (readLockFlag()) return false;
   if (isRevoked()) return false;
   const e = license.getEntitlement(userDataDir, machineId);
   return e.activated || e.inTrial;
+}
+
+// ── Sticky lock flag (safeStorage-encrypted) ──────────────────────────────
+// A plaintext revoked.flag proved too easy to delete-and-replant; the flag
+// now lives encrypted via the OS keychain. Wiping .lic files alone is NOT
+// enough — only a FRESH server-signed token clears this.
+function lockFlagFile(): string { return join(userDataDir, "revoked.dat"); }
+
+function readLockFlag(): boolean {
+  try {
+    const { safeStorage } = require("electron") as typeof import("electron");
+    if (!safeStorage.isEncryptionAvailable()) return isRevoked();
+    const raw = require("node:fs").readFileSync(lockFlagFile());
+    return safeStorage.decryptString(raw) === "revoked";
+  } catch {
+    return isRevoked();
+  }
+}
+
+function writeLockFlag(): void {
+  try {
+    const { safeStorage } = require("electron") as typeof import("electron");
+    if (safeStorage.isEncryptionAvailable()) {
+      require("node:fs").writeFileSync(lockFlagFile(), safeStorage.encryptString("revoked"));
+      return;
+    }
+  } catch { /* fall through to plaintext marker */ }
+  markRevoked();
+}
+
+function clearLockFlag(): void {
+  try {
+    require("node:fs").rmSync(lockFlagFile(), { force: true });
+  } catch { /* best-effort */ }
+  clearRevoked();
+}
+
+/// Remote kill-switch: wipe every token + clock, set the sticky flag, steer
+/// to /activate. Survives offline AND file replanting — only a fresh server
+/// token (unrevoke) resurrects the install.
+function enforceLock(log: (m: string) => void): void {
+  writeLockFlag();
+  license.wipeAllTokens(userDataDir);
+  log("[license] REVOKED by server — install locked");
+  routeByEntitlement();
 }
 
 // ── Revocation persistence (survives offline / token replanting) ────────────
@@ -251,6 +297,7 @@ function routeByEntitlement(): void {
 function registerLicenseIpc(): void {
   ipcMain.handle("license-status", () => {
     const e = license.getEntitlement(userDataDir, machineId);
+    if (readLockFlag()) return { ...e, activated: false, inTrial: false, locked: true, machineId };
     if (isRevoked()) return { ...e, activated: false, inTrial: false, machineId };
     return { ...e, machineId, serverUrl: licenseServerUrl() };
   });
@@ -563,6 +610,9 @@ async function startServer(log: (m: string) => void): Promise<number> {
       // LAN-reachable: the office PC IS the server (phones connect to it).
       // Windows Firewall will ask once — allow private networks.
       HOSTNAME: "0.0.0.0",
+      // Same public key the main process verifies with → the bundled Next
+      // server enforces the identical gate (direct-Chrome bypass closed).
+      DISTRIBUILI_LICENSE_PUBLIC_KEY: license.publicKeyB64(),
     },
   });
   void child;
@@ -698,14 +748,16 @@ app.whenReady().then(async () => {
       try {
         const res = await license.pullActivation(licenseServerUrl(), machineId);
         if (res.revoked) {
-          markRevoked();
-          license.clearActivation(userDataDir);
+          enforceLock(log);
+          return;
+        }
+        if (res.trialEnded) {
           license.clearTrial(userDataDir);
           routeByEntitlement();
           return;
         }
         if (res.token) {
-          clearRevoked();
+          clearLockFlag();
           if (!license.getEntitlement(userDataDir, machineId).activated) {
             license.writeActivation(userDataDir, res.token);
             routeByEntitlement();

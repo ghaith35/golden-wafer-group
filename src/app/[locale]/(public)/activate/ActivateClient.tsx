@@ -17,6 +17,7 @@ type Status = {
   serverUrl?: string;
   error?: string;
   revoked?: boolean;
+  locked?: boolean;
 };
 
 export function ActivateClient({ labels }: { labels: Record<string, string> }) {
@@ -70,6 +71,11 @@ export function ActivateClient({ labels }: { labels: Record<string, string> }) {
           {status.activated && <div className="font-bold text-emerald-600">✓ {labels.activated}</div>}
           {status.inTrial && <div className="font-bold text-amber-600">{labels.trial}: {status.daysLeft}j</div>}
           {status.expired && <div className="font-bold text-red-500">{labels.expired}</div>}
+          {(status.locked || status.revoked) && (
+            <div className="mt-1 rounded-lg bg-red-500/10 p-2 text-sm font-bold text-red-500">
+              🔒 {labels.locked}: {labels.revoked}
+            </div>
+          )}
         </Card>
       )}
 
@@ -90,7 +96,7 @@ export function ActivateClient({ labels }: { labels: Record<string, string> }) {
 
       <Card>
         <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.key}</label>
-        <Input value={key} onChange={(e) => setKey(e.target.value)} placeholder="DILI-XXXX-XXXX-XXXX" />
+        <Input value={key} onChange={(e) => setKey(e.target.value)} placeholder="XXXXX-XXXXX-XXXXX-XXXXX" dir="ltr" />
         <div className="mt-2 flex gap-2">
           <Button disabled={busy || !key.trim()} onClick={() => run(() => window.distribuili!.licenseRedeemKey(key.trim(), label))}>
             {labels.redeem}
