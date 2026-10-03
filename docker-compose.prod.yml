@@ -36,9 +36,10 @@ services:
       NODE_ENV: production
       PORT: "3000"
       HOSTNAME: 0.0.0.0
-    # Reach it at http://<server-ip>:3002 (host 3002 → container 3000).
+    # Reach it at http://<server-ip>:${APP_PORT:-3002} (host port → container 3000).
+    # Override per server, e.g. APP_PORT=3005 (when 3002 is taken).
     ports:
-      - "3002:3000"
+      - "${APP_PORT:-3002}:3000"
     volumes:
       # Uploaded photos/logos survive rebuilds (seed placeholders are
       # written here on first deploy if the dir is empty).
