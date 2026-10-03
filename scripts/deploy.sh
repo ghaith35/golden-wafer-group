@@ -4,7 +4,10 @@
 set -euo pipefail
 
 COMPOSE="docker compose -f docker-compose.prod.yml"
-APP_URL="${APP_URL:-http://127.0.0.1:3002/api/health}"
+# Host port + health URL follow APP_PORT (default keeps the old 3002).
+# e.g. APP_PORT=3005 bash scripts/deploy.sh
+export APP_PORT="${APP_PORT:-3002}"
+APP_URL="${APP_URL:-http://127.0.0.1:${APP_PORT}/api/health}"
 
 echo "==> git pull"
 git pull --ff-only
