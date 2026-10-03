@@ -108,7 +108,7 @@ export function SettingsShell({ children, isAdmin }: { children: React.ReactNode
       )}
 
       {/* Desktop: sticky rail */}
-      <nav aria-label={t("title")} className="hidden w-60 shrink-0 lg:sticky lg:top-20 lg:block">
+      <nav aria-label={t("title")} className="hidden w-60 shrink-0 lg:sticky lg:top-20 lg:block xl:w-72">
         <ul className="flex flex-col gap-0.5">
           {sections.map((section) => {
             const href = hrefFor(locale, section);
