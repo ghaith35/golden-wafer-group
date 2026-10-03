@@ -879,7 +879,8 @@
     "gpsGranted": "Location on ✓",
     "qrSaved": "QR saved ✓",
     "qrShared": "Shared ✓",
-    "qrSaveFail": "Save failed — retry"
+    "qrSaveFail": "Save failed — retry",
+    "dayQueued": "⏳ Saved — will sync"
   },
   "presence": {
     "title": "Attendance",

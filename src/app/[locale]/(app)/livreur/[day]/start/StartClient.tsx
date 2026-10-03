@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { checkGpsPermission, requestGpsPermission, type GpsPerm } from "@/lib/gps-permission";
+import { queueOp } from "@/lib/sync/client";
 
 /// Start-of-day gate: live clock + validate to stamp départ, then clients.
 export function StartClient({
@@ -28,6 +29,8 @@ export function StartClient({
   const [now, setNow] = useState(() => new Date());
   const [busy, setBusy] = useState(false);
   const [started, setStarted] = useState<string | null>(startedAt);
+  const [startQueued, setStartQueued] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
   /// Location permission state (asked once here, then lazily per feature).
   const [gps, setGps] = useState<GpsPerm | null>(null);
 
@@ -60,8 +63,20 @@ export function StartClient({
         if (res.ok) {
           const d = await res.json();
           setStarted(d.startedAt ?? new Date().toISOString());
+        } else {
+          const d = await res.json().catch(() => null);
+          setStartError(d?.error ?? "failed");
         }
-      } catch { /* offline — continue anyway */ } finally {
+      } catch {
+        // Offline: queue the start, continue into the day anyway.
+        try {
+          await queueOp("day-start", { tourneeId });
+          setStarted(new Date().toISOString());
+          setStartQueued(true);
+        } catch {
+          setStartError("save_failed");
+        }
+      } finally {
         setBusy(false);
       }
     }
@@ -100,6 +115,12 @@ export function StartClient({
           </span>
         )}
       </Button>
+      {startQueued && (
+        <p className="max-w-xs rounded-xl bg-amber-500/10 p-2.5 text-xs font-bold text-amber-600">{labels.dayQueued ?? ""}</p>
+      )}
+      {startError && (
+        <p className="max-w-xs rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{startError}</p>
+      )}
       {!started && gps !== "granted" && (
         <button
           type="button"

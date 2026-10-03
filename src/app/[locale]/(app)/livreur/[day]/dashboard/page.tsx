@@ -91,6 +91,7 @@ export default async function LivreurDashPage({
         syncTokenPh: tc("tokenPh"), syncUrlPh: tc("urlPh"), syncTokenRequired: tc("tokenRequired"),
         syncSaveConfig: tc("saveConfig"), syncResetConfig: tc("resetConfig"),
         newClient: t("newClient"), startDay: t("startDay"), finishDay: t("finishDay"), elapsed: t("elapsed"),
+        dayQueued: t("dayQueued"), noTournee: t("noTournee"),
         declare: t("declare"), declaredOk: t("declaredOk"), queuedOk: t("queuedOk"),
         amount: tm("amount"), notes: tm("notes"), save: tm("save"), cancel: tm("cancel"),
       }}

@@ -45,6 +45,9 @@ export function DashClient({
   const [tillSaving, setTillSaving] = useState(false);
   const [tillMsg, setTillMsg] = useState<string | null>(null);
   const [tillError, setTillError] = useState<string | null>(null);
+  /// Day-stamp offline state.
+  const [dayPending, setDayPending] = useState(false);
+  const [dayError, setDayError] = useState<string | null>(null);
   /// Sync popup (both directions + progress bar).
   const [syncOpen, setSyncOpen] = useState(false);
   const [stamp, setStamp] = useState<{ startedAt: string | null; finishedAt: string | null } | null>(
@@ -63,17 +66,34 @@ export function DashClient({
   async function stampDay(kind: "start" | "finish") {
     if (!tournee || stamping) return;
     setStamping(true);
+    setDayError(null);
     try {
       const res = await fetch(`/api/tournees/${tournee.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: kind }),
       });
-      if (res.ok) {
-        const d = await res.json();
+      const d = await res.json().catch(() => null);
+      if (res.ok && d) {
         setStamp({ startedAt: d.startedAt ?? null, finishedAt: d.finishedAt ?? null });
+        setDayPending(false);
+        return;
       }
-    } catch { /* offline — retry with sync */ } finally {
+      setDayError(d?.error ?? "failed");
+    } catch {
+      // Offline: queue the stamp, show it optimistically as pending.
+      try {
+        await queueOp(kind === "start" ? "day-start" : "day-finish", { tourneeId: tournee.id });
+        const now = new Date().toISOString();
+        setStamp((s) => ({
+          startedAt: kind === "start" ? now : (s?.startedAt ?? null),
+          finishedAt: kind === "finish" ? now : (s?.finishedAt ?? null),
+        }));
+        setDayPending(true);
+      } catch {
+        setDayError("save_failed");
+      }
+    } finally {
       setStamping(false);
     }
   }
@@ -182,18 +202,20 @@ export function DashClient({
         </div>
       </div>
 
-      {tournee && tournee.status === "OPEN" && (
+      {tournee && tournee.status === "OPEN" ? (
         <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
           <div className="mb-2 flex items-center justify-between text-xs font-bold opacity-60">
             <span>{labels.startDay}</span>
             <span className="tabular-nums" dir="ltr">
               {stamp?.startedAt ? new Date(stamp.startedAt).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" }) : "—"}
+              {dayPending && !stamp?.startedAt ? ` ⏳` : ""}
             </span>
           </div>
           <div className="mb-2 flex items-center justify-between text-xs font-bold opacity-60">
             <span>{labels.finishDay}</span>
             <span className="tabular-nums" dir="ltr">
               {stamp?.finishedAt ? new Date(stamp.finishedAt).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" }) : "—"}
+              {dayPending && stamp?.startedAt && !stamp?.finishedAt ? ` ⏳` : ""}
             </span>
           </div>
           {stamp?.startedAt && (() => {
@@ -222,6 +244,16 @@ export function DashClient({
               </Button>
             ) : null}
           </div>
+          {dayPending && (
+            <p className="mt-2 rounded-xl bg-amber-500/10 p-2 text-xs font-bold text-amber-600">{labels.dayQueued ?? ""}</p>
+          )}
+          {dayError && (
+            <p className="mt-2 rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{dayError}</p>
+          )}
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed border-(--border-default) p-3 text-center text-xs font-bold opacity-60">
+          {labels.noTournee ?? ""}
         </div>
       )}
 

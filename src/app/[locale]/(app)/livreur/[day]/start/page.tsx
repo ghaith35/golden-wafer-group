@@ -40,7 +40,7 @@ export default async function LivreurStartPage({
       vanName={van.name}
       tourneeId={tournee?.id ?? null}
       startedAt={tournee?.startedAt ? new Date(tournee.startedAt).toISOString() : null}
-      labels={{ startDay: t("startDay"), clients: t("clients"), gpsWhy: t("gpsWhy"), gpsDenied: t("gpsDenied"), gpsGranted: t("gpsGranted") }}
+      labels={{ startDay: t("startDay"), clients: t("clients"), gpsWhy: t("gpsWhy"), gpsDenied: t("gpsDenied"), gpsGranted: t("gpsGranted"), dayQueued: t("dayQueued") }}
     />
   );
 }

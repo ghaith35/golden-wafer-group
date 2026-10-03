@@ -125,6 +125,14 @@ async function applyOp(
         await tx.customer.update({ where: { id: clientId }, data: { balance: { decrement: amount } } });
         return v.id;
       });
+    } else if (op.kind === "day-start" || op.kind === "day-finish") {
+      // Offline day stamps: applied with the device owner's role.
+      const { startDay, finishDay } = await import("@/lib/tournees/service");
+      const staffer = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
+      const row = op.kind === "day-start"
+        ? await startDay(companyId, userId, staffer?.role ?? "Vendeur", p.tourneeId as string)
+        : await finishDay(companyId, userId, staffer?.role ?? "Vendeur", p.tourneeId as string);
+      id = row.id;
     } else if (op.kind === "cash-declare") {
       // Offline till declaration: lands as DECLARED unless already closed.
       const { declareCash } = await import("@/lib/cash/daily");

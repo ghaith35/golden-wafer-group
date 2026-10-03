@@ -879,7 +879,8 @@
     "gpsGranted": "Position activée ✓",
     "qrSaved": "QR enregistré ✓",
     "qrShared": "Partagé ✓",
-    "qrSaveFail": "Échec — réessayez"
+    "qrSaveFail": "Échec — réessayez",
+    "dayQueued": "⏳ Enregistré — sera synchronisé"
   },
   "presence": {
     "title": "Pointage",
