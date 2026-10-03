@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Distribuili Van</title>
+<script src="./js/jsQR.js"></script>
 <style>
 body{font-family:system-ui;background:#0f172a;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
 .card{background:#1e293b;border-radius:16px;padding:28px;max-width:420px;width:92%;box-shadow:0 10px 40px #0008;text-align:center}
@@ -11,82 +12,202 @@ h1{font-size:18px;margin:0 0 6px}.logo{font-size:40px}
 p{font-size:13px;opacity:.7;margin:0 0 14px}
 input{width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:14px;margin-top:8px}
 input::placeholder{opacity:.5}
-button{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#65a30d;color:#fff;font-size:15px;font-weight:800;cursor:pointer}
-button.ghost{background:transparent;border:1px solid #334155}
+button{width:100%;margin-top:12px;padding:14px;border:0;border-radius:12px;background:#65a30d;color:#fff;font-size:16px;font-weight:800;cursor:pointer}
+button.ghost{background:transparent;border:1px solid #334155;font-size:14px;font-weight:600}
+button.link{background:none;border:0;color:#94a3b8;font-size:13px;font-weight:600;padding:8px}
 .hint{font-size:12px;opacity:.6;margin-top:10px}
 code{direction:ltr;unicode-bidi:embed}
+video{width:100%;border-radius:12px;background:#000;max-height:46vh;object-fit:cover}
+.hidden{display:none}
+.err{color:#f87171;font-size:13px;min-height:20px;margin-top:8px}
 </style>
 </head>
 <body>
-<div class="card" id="setup">
-  <div class="logo">🚚</div>
-  <h1>Distribuili Van</h1>
-  <p>أدخل عنوان السيرفر (دومين أو IP الشبكة)<br>مثال: <code>https://vente.mondomaine.dz</code> أو <code>http://192.168.1.50:32517</code></p>
-  <input id="url" dir="ltr" placeholder="https://…">
-  <input id="token" dir="ltr" placeholder="رمز الجهاز (اختياري)">
-  <button onclick="go()">اتصال ✓</button>
-  <div class="hint" id="hint"></div>
-</div>
+<!-- connecting (returning user: never touches anything) -->
 <div class="card" id="loading" style="display:none">
   <div class="logo">🚚</div>
   <h1>جارٍ الاتصال…</h1>
   <p id="to" dir="ltr"></p>
   <button class="ghost" onclick="change()">تغيير العنوان</button>
 </div>
+
+<!-- first run: scan first, type never -->
+<div class="card" id="setup" style="display:none">
+  <div class="logo">🚚</div>
+  <h1>Distribuili Van</h1>
+  <p>امسح رمز الـ QR المعروض على شاشة الكمبيوتر</p>
+  <button id="scanBtn" onclick="startScan()">📷 مسح الرمز</button>
+  <video id="cam" class="hidden" playsinline muted></video>
+  <button id="stopBtn" class="ghost hidden" onclick="stopScan()">إيقاف</button>
+  <div class="err" id="scanErr"></div>
+  <div id="manualWrap" class="hidden">
+    <input id="url" dir="ltr" placeholder="https://…">
+    <input id="token" dir="ltr" placeholder="رمز الجهاز (اختياري)">
+    <button onclick="go()">اتصال ✓</button>
+  </div>
+  <button class="link" id="manualLink" onclick="showManual()">إدخال يدوي</button>
+  <div class="hint">أو اختر صورة الرمز من المعرض:</div>
+  <input type="file" id="gallery" accept="image/*" style="margin-top:8px">
+  <div class="err" id="err"></div>
+</div>
+
 <script>
 var KEY = "dili_apk_server";
 var TKEY = "dili_apk_token";
-var timer = null;
+var timer = null, stream = null, scanning = false, scanTimer = 0;
+
 function saved() {
   try { return { url: localStorage.getItem(KEY) || "", token: localStorage.getItem(TKEY) || "" }; }
   catch (e) { return { url: "", token: "" }; }
 }
-function showSetup(url, token) {
-  if (timer) { clearTimeout(timer); timer = null; }
-  document.getElementById("loading").style.display = "none";
-  document.getElementById("setup").style.display = "";
-  if (url) document.getElementById("url").value = url;
-  if (token) document.getElementById("token").value = token;
-}
-function change() { showSetup(saved().url, saved().token); }
 function target(url, token) {
-  var base = url.replace(/\/$/, "");
-  var dest = base + "/ar/livreur";
+  var dest = url.replace(/\/$/, "") + "/ar/livreur";
   if (token) dest += "?device=" + encodeURIComponent(token);
   return dest;
 }
-function go() {
-  var url = document.getElementById("url").value.trim().replace(/\/$/, "");
-  var token = document.getElementById("token").value.trim();
-  if (!/^https?:\/\//i.test(url)) url = "http://" + url;
-  if (!/^https?:\/\/[^\/]+(:\d+)?$/i.test(url)) {
-    document.getElementById("hint").textContent = "رابط غير صالح";
-    return;
-  }
+function connect(url, token) {
   try {
     localStorage.setItem(KEY, url);
     if (token) localStorage.setItem(TKEY, token);
   } catch (e) {}
   document.getElementById("to").textContent = url;
   document.getElementById("setup").style.display = "none";
-  document.getElementById("loading").style.display = "";
-  // Give the remote a moment; if the WebView errors out the user taps change.
+  var l = document.getElementById("loading");
+  l.style.display = "";
   timer = setTimeout(function () { window.location.href = target(url, token); }, 600);
-  // Safety: if still here after 25s (load failed), offer change.
   setTimeout(function () {
     if (document.getElementById("loading").style.display !== "none") showSetup(url, token);
   }, 25000);
 }
+function showSetup(url, token) {
+  if (timer) { clearTimeout(timer); timer = null; }
+  stopScan();
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("setup").style.display = "";
+  if (url) document.getElementById("url").value = url;
+  if (token) document.getElementById("token").value = token;
+}
+function change() { var s = saved(); showSetup(s.url, s.token); }
+function showManual() {
+  document.getElementById("manualWrap").classList.remove("hidden");
+  document.getElementById("manualLink").style.display = "none";
+}
+function go() {
+  var url = document.getElementById("url").value.trim().replace(/\/$/, "");
+  var token = document.getElementById("token").value.trim();
+  if (!/^https?:\/\//i.test(url)) url = "http://" + url;
+  if (!/^https?:\/\/[^\/]+(:\d+)?$/i.test(url)) {
+    document.getElementById("err").textContent = "رابط غير صالح";
+    return;
+  }
+  connect(url, token);
+}
+
+/* ---- QR scan (camera + gallery), decoded on-device, no network ---- */
+function parsePayload(text) {
+  text = (text || "").trim();
+  try {
+    var d = JSON.parse(text);
+    if (d && d.app === "distribuili" && d.type === "device-setup" && d.url && d.token)
+      return { url: String(d.url), token: String(d.token) };
+    if (d && d.url) return { url: String(d.url), token: d.token ? String(d.token) : "" };
+  } catch (e) {}
+  if (/^https?:\/\//i.test(text)) return { url: text, token: "" };
+  if (/^[0-9a-f]{32,128}$/i.test(text)) {
+    var s = saved();
+    if (s.url) return { url: s.url, token: text };
+  }
+  return null;
+}
+function onCode(text) {
+  var p = parsePayload(text);
+  if (!p) {
+    document.getElementById("scanErr").textContent = "رمز غير صالح — حاول مجدداً";
+    return;
+  }
+  stopScan();
+  connect(p.url, p.token);
+}
+function decodeFrame(video, canvas) {
+  try {
+    var w = video.videoWidth, h = video.videoHeight;
+    if (!w || !h || typeof jsQR === "undefined") return;
+    canvas.width = w; canvas.height = h;
+    var ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(video, 0, 0, w, h);
+    var data = ctx.getImageData(0, 0, w, h);
+    var hit = jsQR(data.data, w, h);
+    if (hit && hit.data) onCode(hit.data);
+  } catch (e) {}
+}
+async function startScan() {
+  document.getElementById("scanErr").textContent = "";
+  var video = document.getElementById("cam");
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw 0;
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+  } catch (e) {
+    document.getElementById("scanErr").textContent = "تعذّر فتح الكاميرا — اسمح بالكاميرا أو استعمل المعرض";
+    return;
+  }
+  video.srcObject = stream;
+  try { await video.play(); } catch (e) {}
+  video.classList.remove("hidden");
+  document.getElementById("scanBtn").classList.add("hidden");
+  document.getElementById("stopBtn").classList.remove("hidden");
+  scanning = true;
+  var canvas = document.createElement("canvas");
+  (function tick() {
+    if (!scanning) return;
+    decodeFrame(video, canvas);
+    scanTimer = setTimeout(tick, 350);
+  })();
+}
+function stopScan() {
+  scanning = false;
+  clearTimeout(scanTimer);
+  try {
+    if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
+  } catch (e) {}
+  stream = null;
+  var video = document.getElementById("cam");
+  video.classList.add("hidden");
+  video.srcObject = null;
+  document.getElementById("scanBtn").classList.remove("hidden");
+  document.getElementById("stopBtn").classList.add("hidden");
+}
+document.getElementById("gallery").addEventListener("change", function (e) {
+  var f = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!f || typeof jsQR === "undefined") return;
+  var img = new Image();
+  img.onload = function () {
+    try {
+      var c = document.createElement("canvas");
+      var sc = Math.min(1, 1280 / Math.max(img.width, img.height));
+      c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+      var ctx = c.getContext("2d");
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      var hit = jsQR(ctx.getImageData(0, 0, c.width, c.height).data, c.width, c.height);
+      if (hit && hit.data) onCode(hit.data);
+      else document.getElementById("scanErr").textContent = "لا يوجد رمز في هذه الصورة";
+    } catch (err) {}
+    try { URL.revokeObjectURL(img.src); } catch (err) {}
+  };
+  img.src = URL.createObjectURL(f);
+});
+
 (function init() {
   var s = saved();
   if (s.url) {
     document.getElementById("to").textContent = s.url;
-    document.getElementById("setup").style.display = "none";
     document.getElementById("loading").style.display = "";
     timer = setTimeout(function () { window.location.href = target(s.url, s.token); }, 800);
     setTimeout(function () {
       if (document.getElementById("loading").style.display !== "none") showSetup(s.url, s.token);
     }, 25000);
+  } else {
+    document.getElementById("setup").style.display = "";
   }
 })();
 </script>

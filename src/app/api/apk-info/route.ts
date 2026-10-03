@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 
+export const dynamic = "force-dynamic";
+
 /// Public update feed for the van phones (works before login):
 /// web build id + latest APK (versionCode, name, size, download URL).
 export async function GET() {
