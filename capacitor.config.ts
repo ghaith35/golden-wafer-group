@@ -7,12 +7,11 @@ const config: CapacitorConfig = {
   appName: "Distribuili Van",
   webDir: "out-van",
   server: {
-    // Client-set server: the APK boots to the local setup page (out-van),
-    // where the customer enters THEIR address (domain or LAN IP). The
-    // WebView then loads it (allowNavigation below permits any host).
-    // NOTE: shipping a fixed url here would hard-code OUR test server.
-    cleartext: true,
-    allowNavigation: ["*"],
+    // Production: phones open the live server directly — no setup screen,
+    // no typing. Device token + first sync happen inside the app.
+    url: "https://distribuili.khiatadz.com/ar/login?from=%2Fdashboard",
+    cleartext: false,
+    allowNavigation: ["distribuili.khiatadz.com"],
   },
   android: {
     allowMixedContent: true,
