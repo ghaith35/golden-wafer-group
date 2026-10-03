@@ -331,7 +331,7 @@ export function PosClient({
                 }
               }}
               placeholder={labels.search}
-              className="h-12 w-full rounded-xl border border-(--border-default) bg-(--bg-overlay) py-2 pe-4 ps-10 text-sm font-semibold  outline-none focus:border-(--brand-500)"
+              className="h-12 w-full rounded-xl border border-(--border-default) bg-white py-2 pe-4 ps-10 text-sm font-semibold text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-(--brand-500) focus:bg-white"
             />
             {q && (
               <button
@@ -484,7 +484,7 @@ export function PosClient({
           </div>
 
           <div className="mb-2 grid grid-cols-[1fr_auto] gap-2">
-            <Input placeholder={labels.searchClient} value={clientQ} onChange={(e) => setClientQ(e.target.value)} className="h-10" />
+            <Input placeholder={labels.searchClient} value={clientQ} onChange={(e) => setClientQ(e.target.value)} className="h-10 bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" />
             <select
               value={tierId}
               onChange={(e) => setTierId(e.target.value)}

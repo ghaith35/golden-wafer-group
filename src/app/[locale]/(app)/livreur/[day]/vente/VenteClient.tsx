@@ -354,7 +354,7 @@ export function VenteClient({
         <>
           <div className="flex gap-2">
             <div className="flex-1">
-              <Input placeholder={labels.searchProduct} value={pq} onChange={(e) => setPq(e.target.value)} />
+              <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.searchProduct} value={pq} onChange={(e) => setPq(e.target.value)} />
             </div>
           </div>
           <div className="flex gap-1.5 overflow-x-auto pb-0.5">

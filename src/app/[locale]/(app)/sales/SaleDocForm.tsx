@@ -282,7 +282,7 @@ export function SaleDocForm({
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.client}</label>
-            <Input placeholder={labels.searchClient} value={clientQ} onChange={(e) => setClientQ(e.target.value)} />
+            <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.searchClient} value={clientQ} onChange={(e) => setClientQ(e.target.value)} />
             <select value={clientId} onChange={(e) => { setClientId(e.target.value); setLines((ls) => ls.map((l) => ({ ...l, unitPrice: "" }))); }} className={inputCls}>
               <option value="">— {mode === "order" ? labels.required : labels.walkin}</option>
               {clientId && !shownClients.some((c) => c.id === clientId) && client && (

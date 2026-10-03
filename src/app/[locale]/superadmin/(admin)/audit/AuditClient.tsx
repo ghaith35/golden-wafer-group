@@ -38,7 +38,7 @@ export function AuditClient({ labels }: { labels: Record<string, string> }) {
 
   return (
     <div className="space-y-2">
-      <Input placeholder={labels.search} value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} />
+      <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} />
       {rows.map((r) => (
         <div key={r.id} className="rounded-xl border border-(--border-default) bg-(--bg-overlay) px-3 py-2 text-xs">
           <div className="flex items-center justify-between gap-2">

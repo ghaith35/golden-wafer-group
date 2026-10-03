@@ -201,7 +201,7 @@ export function LicensesClient({ labels }: { labels: Record<string, string> }) {
         <>
           <div className="flex gap-2">
             <div className="flex-1">
-              <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+              <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
             </div>
             <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} className="h-11 shrink-0 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm">
               <option value="">{labels.all}</option>

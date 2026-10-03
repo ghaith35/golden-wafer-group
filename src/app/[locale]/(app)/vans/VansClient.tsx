@@ -105,7 +105,7 @@ export function VansClient({
           {labels.neW}
         </Button>
         <div className="flex-1">
-          <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
       </div>
       {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}

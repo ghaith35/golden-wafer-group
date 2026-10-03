@@ -127,7 +127,7 @@ export function PortalShop({ locale, labels }: { locale: string; labels: Record<
 
       {tab === "shop" && (
         <>
-          <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
           {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
           <div className="grid gap-3 sm:grid-cols-2">
             {shown.map((p) => {

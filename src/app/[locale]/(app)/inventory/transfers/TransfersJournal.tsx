@@ -152,7 +152,7 @@ export function TransfersJournal({
           ))}
         </div>
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-5">
-          <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
           <select value={fromId} onChange={(e) => setFromId(e.target.value)} className={inputCls} aria-label={labels.from}>
             <option value="">{labels.from}: —</option>
             {locations.map((l) => (

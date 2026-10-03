@@ -96,7 +96,7 @@ export function PresenceClient({
       <div className="flex flex-col gap-2 lg:flex-row">
         <div className="flex flex-1 gap-2">
           <div className="flex-1">
-            <Input placeholder={labels.van} value={q} onChange={(e) => setQ(e.target.value)} />
+            <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.van} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
           <select
             value={year}

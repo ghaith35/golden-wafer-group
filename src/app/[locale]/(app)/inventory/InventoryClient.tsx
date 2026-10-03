@@ -121,7 +121,7 @@ export function InventoryClient({
       {tab === "stock" && (
         <>
           <div className="flex gap-2">
-            <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+            <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
             <select value={locFilter} onChange={(e) => setLocFilter(e.target.value)} className={inputCls}>
               <option value="">—</option>
               {locations.map((l) => (

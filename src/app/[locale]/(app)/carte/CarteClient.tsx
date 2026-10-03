@@ -156,7 +156,7 @@ export function CarteClient({
       </div>
 
       {mode === "client" && (
-        <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} className="shrink-0" />
+        <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} className="shrink-0 bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" />
       )}
 
       {filtered.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}

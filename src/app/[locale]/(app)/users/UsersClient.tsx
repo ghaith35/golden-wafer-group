@@ -452,7 +452,7 @@ export function UsersClient({
 
       <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
         <div className="flex-1">
-          <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="flex gap-1.5 overflow-x-auto pb-0.5">
           <button

@@ -99,7 +99,7 @@ export function QrPrintClient({
         </div>
       </div>
       <div className="no-print flex gap-2">
-        <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+        <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         <select value={wilaya} onChange={(e) => { setWilaya(e.target.value); setSecteur(""); }} className="h-11 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm">
           <option value="">—</option>
           {wilayas.map((w) => (

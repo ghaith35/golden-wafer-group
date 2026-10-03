@@ -93,7 +93,7 @@ export function DayClients({
       )}
 
       <div className="sticky top-0">
-        <Input placeholder={labels.searchClient} value={q} onChange={(e) => setQ(e.target.value)} />
+        <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.searchClient} value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
 
       <div className="space-y-1.5">
