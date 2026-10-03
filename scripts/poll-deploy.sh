@@ -20,3 +20,5 @@ echo "==> $(date -u +%FT%TZ) new commits $LOCAL..$REMOTE — deploying"
 # shellcheck disable=SC1091
 bash scripts/deploy.sh >> logs/auto-deploy.log 2>&1
 echo "==> $(date -u +%FT%TZ) deploy exit: $?" >> logs/auto-deploy.log
+
+# auto-deploy active since 2026-10-03
