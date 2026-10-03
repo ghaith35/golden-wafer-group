@@ -35,6 +35,7 @@ export async function POST(req: Request) {
   if (d.vanId) {
     const van = await prisma.store.findFirst({ where: { id: d.vanId, companyId: auth.session.companyId, kind: "VAN" } });
     if (!van) return NextResponse.json({ error: "bad_van" }, { status: 400 });
+    if (d.role === "Admin") return NextResponse.json({ error: "admin_no_van" }, { status: 400 });
   }
   try {
     const row = await prisma.$transaction(async (tx) => {

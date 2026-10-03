@@ -20,7 +20,7 @@ export default async function SettingsDevicesPage({ params }: { params: Promise<
       select: { id: true, name: true, userId: true },
       orderBy: { name: "asc" },
     }),
-    prisma.user.findMany({ where: { companyId: session.companyId, isActive: true }, orderBy: { fullName: "asc" } }),
+    prisma.user.findMany({ where: { companyId: session.companyId, isActive: true, role: { not: "Admin" } }, orderBy: { fullName: "asc" } }),
   ]);
   return (
     <SettingsPanel title={ts("sections.devices")} description={ts("sections.devicesDesc")}>

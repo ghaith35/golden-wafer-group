@@ -19,7 +19,7 @@ export default async function VansPage({ params }: { params: Promise<{ locale: s
       take: 100,
     }),
     prisma.user.findMany({
-      where: { companyId: session.companyId, isActive: true },
+      where: { companyId: session.companyId, isActive: true, role: { not: "Admin" } },
       select: { id: true, fullName: true, username: true },
       orderBy: { fullName: "asc" },
     }),

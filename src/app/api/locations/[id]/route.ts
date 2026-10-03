@@ -14,7 +14,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const d = parsed.data;
   if (d.userId) {
     const u = await prisma.user.findFirst({ where: { id: d.userId, companyId: session.companyId } });
-    if (!u) return NextResponse.json({ error: "bad_user" }, { status: 400 });
+    if (!u || u.role === "Admin") return NextResponse.json({ error: "bad_user" }, { status: 400 });
     // One driver ↔ max one van (excluding this van).
     const busy = await prisma.store.findFirst({
       where: { companyId: session.companyId, userId: d.userId, id: { not: id } },

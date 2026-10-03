@@ -24,6 +24,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (d.vanId) {
     const van = await prisma.store.findFirst({ where: { id: d.vanId, companyId: auth.session.companyId, kind: "VAN" } });
     if (!van) return NextResponse.json({ error: "bad_van" }, { status: 400 });
+    if ((d.role ?? existing.role) === "Admin") return NextResponse.json({ error: "admin_no_van" }, { status: 400 });
   }
   const row = await prisma.$transaction(async (tx) => {
     await tx.user.update({

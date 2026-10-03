@@ -92,7 +92,7 @@ function UserForm({
             <option key={r} value={r}>{roleName(r, labels)}</option>
           ))}
         </select>
-        <select value={v.vanId} onChange={(e) => set("vanId", e.target.value)} className={inputCls} aria-label={labels.van}>
+        <select value={v.vanId} onChange={(e) => set("vanId", e.target.value)} className={inputCls} aria-label={labels.van} disabled={v.role === "Admin"}>
           <option value="">— {labels.van}</option>
           {vans.map((x) => (
             <option key={x.id} value={x.id}>{x.name}</option>
@@ -332,7 +332,7 @@ export function UsersClient({
           fullName: v.fullName.trim(),
           phone: v.phone.trim() || null,
           role: v.role,
-          vanId: v.vanId || null,
+          vanId: v.role === "Admin" ? null : (v.vanId || null),
           ...(scope ? { scope } : {}),
         }),
       });
@@ -364,7 +364,7 @@ export function UsersClient({
           phone: v.phone.trim() || null,
           role: v.role,
           isActive: v.isActive,
-          vanId: v.vanId || null,
+          vanId: v.role === "Admin" ? null : (v.vanId || null),
           ...(v.password ? { password: v.password } : {}),
           ...(scope ? { scope } : {}),
         }),
