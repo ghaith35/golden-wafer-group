@@ -874,7 +874,10 @@
     "ticketQueued": "⏳ Saved on phone — will sync",
     "gpsWhy": "📍 Allow location to track the tour and prove deliveries",
     "gpsDenied": "Location denied — enable it in the phone settings then retry",
-    "gpsGranted": "Location on ✓"
+    "gpsGranted": "Location on ✓",
+    "qrSaved": "QR saved ✓",
+    "qrShared": "Shared ✓",
+    "qrSaveFail": "Save failed — retry"
   },
   "presence": {
     "title": "Attendance",

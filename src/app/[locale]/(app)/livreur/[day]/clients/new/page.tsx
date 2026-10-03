@@ -48,7 +48,7 @@ export default async function LivreurNewClientPage({
         tierOpt: t("tierOpt"), useGps: t("useGps"), confirm: t("confirm"),
         cancel: t("cancel"), empty: t("empty"), clients: t("clients"),
         qrReady: t("qrReady"), pendingSync: t("pendingSync"), another: t("another"),
-        saveQr: t("saveQr"),
+        saveQr: t("saveQr"), qrSaved: t("qrSaved"), qrShared: t("qrShared"), qrSaveFail: t("qrSaveFail"),
       }}
     />
   );

@@ -874,7 +874,10 @@
     "ticketQueued": "⏳ Enregistré — sera synchronisé",
     "gpsWhy": "📍 Autorisez la position pour suivre la tournée",
     "gpsDenied": "Position refusée — activez-la dans les réglages du téléphone puis réessayez",
-    "gpsGranted": "Position activée ✓"
+    "gpsGranted": "Position activée ✓",
+    "qrSaved": "QR enregistré ✓",
+    "qrShared": "Partagé ✓",
+    "qrSaveFail": "Échec — réessayez"
   },
   "presence": {
     "title": "Pointage",

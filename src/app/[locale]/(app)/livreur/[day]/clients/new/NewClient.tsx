@@ -185,14 +185,65 @@ export function NewClient({
     setQueued(false); setCreated(null);
   }
 
-  function saveQr() {
+  const [saveMsg, setSaveMsg] = useState<string | null>(null);
+
+  /// Save the QR as a PNG that the user can actually keep:
+  /// 1. native (APK): write into Documents + open the share sheet
+  ///    (gallery / WhatsApp / …) — anchor downloads silently fail in WebViews.
+  /// 2. mobile browsers: Web Share API with the file.
+  /// 3. fallback: classic blob download.
+  async function saveQr() {
     if (!created) return;
-    const a = document.createElement("a");
-    a.href = created.qr;
-    a.download = `${created.code}.png`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    setSaveMsg(null);
+    const fileName = `${created.code}.png`;
+    const base64 = created.qr.includes(",") ? created.qr.split(",")[1] : created.qr;
+    const { Capacitor } = await import("@capacitor/core");
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const { Filesystem, Directory } = await import("@capacitor/filesystem");
+        await Filesystem.writeFile({ path: fileName, data: base64, directory: Directory.Documents });
+        try {
+          const { Share } = await import("@capacitor/share");
+          const uri = await Filesystem.getUri({ path: fileName, directory: Directory.Documents });
+          await Share.share({ title: created.code, text: created.name, url: uri.uri });
+          setSaveMsg(labels.qrShared ?? labels.qrSaved ?? "saved");
+        } catch {
+          setSaveMsg(labels.qrSaved ?? "saved");
+        }
+        return;
+      } catch {
+        /* fall through to browser methods */
+      }
+    }
+    try {
+      const blob = await (await fetch(created.qr)).blob();
+      const file = new File([blob], fileName, { type: "image/png" });
+      const nav = navigator as Navigator & {
+        canShare?: (d: { files: File[] }) => boolean;
+        share?: (d: { files: File[]; title?: string }) => Promise<void>;
+      };
+      if (nav.canShare?.({ files: [file] })) {
+        await nav.share({ files: [file], title: created.code });
+        setSaveMsg(labels.qrShared ?? labels.qrSaved ?? "saved");
+        return;
+      }
+    } catch {
+      /* fall through to download */
+    }
+    try {
+      const blob = await (await fetch(created.qr)).blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 5000);
+      setSaveMsg(labels.qrSaved ?? "saved");
+    } catch {
+      setSaveMsg(labels.qrSaveFail ?? "failed");
+    }
   }
 
   if (created) {
@@ -212,8 +263,11 @@ export function NewClient({
         {created.offline && (
           <p className="rounded-xl bg-amber-500/10 p-2.5 text-xs font-bold text-amber-600">{labels.pendingSync}</p>
         )}
+        {saveMsg && (
+          <p className="rounded-xl bg-emerald-500/10 p-2.5 text-xs font-bold text-emerald-600">{saveMsg}</p>
+        )}
         <div className="flex gap-2">
-          <Button onClick={saveQr} variant="secondary" className="h-12 flex-1 text-base">
+          <Button onClick={() => void saveQr()} variant="secondary" className="h-12 flex-1 text-base">
             ⬇ {labels.saveQr}
           </Button>
           <Button onClick={reset} className="h-12 flex-1 text-base">{labels.another}</Button>
