@@ -82,6 +82,7 @@ export default async function LivreurDashPage({
         syncUp: tc("up"), syncDown: tc("down"),
         syncHistory: tc("history"), syncNoHistory: tc("noHistory"), syncClearHistory: tc("clearHistory"),
         syncCamNeedHttps: tc("camNeedHttps"), syncCamDenied: tc("camDenied"), syncCamUnsupported: tc("camUnsupported"),
+        syncDirectSync: tc("directSync"), syncNoVan: tc("noVan"),
         syncUpdateTitle: tc("updateTitle"), syncCheckUpdate: tc("checkUpdate"),
         syncWebOk: tc("webOk"), syncWebNew: tc("webNew"), syncUpdateNow: tc("updateNow"),
         syncDownloadApk: tc("downloadApk"), syncApkHint: tc("apkHint"),

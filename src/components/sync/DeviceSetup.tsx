@@ -5,7 +5,7 @@ import { Camera, Keyboard } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { CameraBox } from "@/components/scan/CameraBox";
-import { setDeviceToken, setSyncUrl } from "@/lib/sync/client";
+import { setDeviceToken, setSyncUrl, setVanId } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
 
 export type SetupPayload = {
@@ -46,6 +46,33 @@ export function DeviceSetup({
   const [url, setUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [directBusy, setDirectBusy] = useState(false);
+
+  /// Direct pairing: the logged-in staffer's own van, no QR, no admin.
+  async function directSync() {
+    if (directBusy) return;
+    setDirectBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/devices/self-register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const d = await res.json().catch(() => null);
+      if (!res.ok || !d?.token) {
+        setError(d?.error === "no_van" ? (labels.noVan ?? "no_van") : (d?.error ?? "failed"));
+        return;
+      }
+      setDeviceToken(d.token);
+      if (d.vanId) setVanId(d.vanId);
+      onConfigured();
+    } catch {
+      setError("failed");
+    } finally {
+      setDirectBusy(false);
+    }
+  }
 
   function apply(p: SetupPayload) {
     setSaving(true);
@@ -79,6 +106,9 @@ export function DeviceSetup({
 
   return (
     <div className="space-y-3">
+      <Button onClick={() => void directSync()} disabled={directBusy} className="h-12 w-full text-base">
+        {directBusy ? "…" : `⚡ ${labels.directSync ?? "direct"}`}
+      </Button>
       <p className="text-xs font-bold opacity-60">{labels.setupHint ?? ""}</p>
       <div className="flex gap-1 rounded-xl bg-(--bg-sunken) p-1">
         {(["scan", "manual"] as const).map((m) => (

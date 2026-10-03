@@ -122,6 +122,7 @@ export function SyncModal({
             tokenPh: labels.tokenPh, urlPh: labels.urlPh, tokenRequired: labels.tokenRequired,
             saveConfig: labels.saveConfig,
             camNeedHttps: labels.camNeedHttps, camDenied: labels.camDenied, camUnsupported: labels.camUnsupported,
+            directSync: labels.directSync, noVan: labels.noVan,
           }}
         />
       ) : (

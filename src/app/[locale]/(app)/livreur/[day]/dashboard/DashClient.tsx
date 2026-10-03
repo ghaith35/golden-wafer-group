@@ -272,6 +272,7 @@ export function DashClient({
           saveConfig: labels.syncSaveConfig, resetConfig: labels.syncResetConfig,
           history: labels.syncHistory, noHistory: labels.syncNoHistory, clearHistory: labels.syncClearHistory,
           camNeedHttps: labels.syncCamNeedHttps, camDenied: labels.syncCamDenied, camUnsupported: labels.syncCamUnsupported,
+          directSync: labels.syncDirectSync, noVan: labels.syncNoVan,
           updateTitle: labels.syncUpdateTitle, checkUpdate: labels.syncCheckUpdate,
           webOk: labels.syncWebOk, webNew: labels.syncWebNew, updateNow: labels.syncUpdateNow,
           downloadApk: labels.syncDownloadApk, apkHint: labels.syncApkHint,

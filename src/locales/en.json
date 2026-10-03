@@ -636,7 +636,9 @@
     "updateNow": "Update now",
     "downloadApk": "Download",
     "apkHint": "Open the file to install (your data is kept)",
-    "apkNew": "New app build"
+    "apkNew": "New app build",
+    "directSync": "Direct sync, no code",
+    "noVan": "No van linked — use the setup code"
   },
   "license": {
     "activateTitle": "App activation",

@@ -636,7 +636,9 @@
     "updateNow": "Mettre à jour",
     "downloadApk": "Télécharger",
     "apkHint": "Ouvrez le fichier pour installer (données conservées)",
-    "apkNew": "Nouvelle app"
+    "apkNew": "Nouvelle app",
+    "directSync": "Synchro directe sans QR",
+    "noVan": "Aucun camion lié — utilisez le QR"
   },
   "license": {
     "activateTitle": "Activation de l'app",
