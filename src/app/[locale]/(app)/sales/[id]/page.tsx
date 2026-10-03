@@ -38,7 +38,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ loc
   if (!sale) notFound();
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-5 md:p-6">
+    <div className="mx-auto w-full max-w-2xl space-y-4 p-5 md:p-6 lg:max-w-4xl xl:max-w-5xl">
       <BackButton fallback={`/${locale}/commandes`} />
       <SaleActions
         locale={locale}

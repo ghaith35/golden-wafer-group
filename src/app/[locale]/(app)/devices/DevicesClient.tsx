@@ -213,7 +213,7 @@ export function DevicesClient({
         </div>
       </div>
 
-      {filtered.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
+      {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
 
       <div className="space-y-2">
         {filtered.map((d) => (
@@ -240,7 +240,7 @@ export function DevicesClient({
               title={labels.edit}
               aria-label={labels.edit}
               onClick={(e) => { e.preventDefault(); openEdit(d); }}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600 transition-colors hover:bg-amber-500/25"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600 transition-colors hover:bg-amber-500/25"
             >
               <Pencil size={15} />
             </button>

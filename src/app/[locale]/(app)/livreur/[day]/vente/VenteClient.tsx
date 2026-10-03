@@ -329,7 +329,7 @@ export function VenteClient({
   }
 
   return (
-    <div className="space-y-3 p-4 pb-28 md:p-5">
+    <div className="space-y-3 p-4 pb-28 md:p-5 md:pb-28">
       <div className="flex items-center gap-2">
         <button
           aria-label="back"
@@ -358,11 +358,11 @@ export function VenteClient({
             </div>
           </div>
           <div className="flex gap-1.5 overflow-x-auto pb-0.5">
-            <button onClick={() => setCat("")} className={cn("shrink-0 rounded-full px-3 py-2 text-xs font-black", cat === "" ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken) opacity-70")}>
+            <button onClick={() => setCat("")} className={cn("min-h-11 shrink-0 rounded-full px-3 py-2 text-xs font-black", cat === "" ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken) opacity-70")}>
               {labels.allCats}
             </button>
             {effCategories.map((c) => (
-              <button key={c.id} onClick={() => setCat(cat === c.id ? "" : c.id)} className={cn("max-w-28 shrink-0 truncate rounded-full px-3 py-2 text-xs font-black", cat === c.id ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken) opacity-70")}>
+              <button key={c.id} onClick={() => setCat(cat === c.id ? "" : c.id)} className={cn("min-h-11 max-w-28 shrink-0 truncate rounded-full px-3 py-2 text-xs font-black", cat === c.id ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken) opacity-70")}>
                 {c.name}
               </button>
             ))}
@@ -539,7 +539,7 @@ export function VenteClient({
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
             <button type="button" aria-label={labels.cancel} onClick={() => setQtyFor(null)} className="absolute inset-0 bg-black/55" />
-            <div className="relative w-full max-w-sm rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-2xl">
+            <div className="relative max-h-[90dvh] w-full max-w-sm overflow-y-auto rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-2xl">
               <div className="mb-1 truncate text-base font-black">{qtyFor.name}</div>
               <div className={cn("mb-2 rounded-xl bg-(--bg-sunken) p-2.5", live < 0 ? "text-red-500" : "")}>
                 <div className="flex items-baseline justify-between gap-2">

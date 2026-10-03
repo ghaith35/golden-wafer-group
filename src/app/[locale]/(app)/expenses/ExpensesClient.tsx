@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { RowActions } from "@/components/ui/RowActions";
+import { dz, dzMoney } from "@/lib/format";
 
 type Row = {
   id: string;
@@ -26,10 +27,8 @@ type Option = { id: string; name: string };
 const inputCls =
   "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)";
 
-const fmtAmount = (v: unknown) =>
-  Number(v ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
-const fmtTotal = (v: number) =>
-  v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtAmount = (v: unknown) => dz(v as number);
+const fmtTotal = (v: number) => dzMoney(v);
 const fmtDate = (iso: string, locale: string) => {
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? iso.slice(0, 10) : d.toLocaleDateString(locale);
@@ -308,7 +307,7 @@ export function ExpensesClient({
         </span>
       </div>
 
-      {filtered.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
+      {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
 
       <div className="space-y-2">
         {filtered.map((r) => (

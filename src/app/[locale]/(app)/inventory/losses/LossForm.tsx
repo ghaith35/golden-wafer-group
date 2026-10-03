@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { UnitQty, PackInfo, factorOf, baseNameOf } from "@/components/products/UnitQty";
 
-const inputCls = "h-10 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
+const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
 const MOTIVES = ["BREAKAGE", "EXPIRED", "GIFT", "LOSS", "OTHER"] as const;
 
 export function LossForm({

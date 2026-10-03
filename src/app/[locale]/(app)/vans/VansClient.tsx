@@ -108,7 +108,7 @@ export function VansClient({
           <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
       </div>
-      {filtered.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
+      {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
       <div className="grid gap-3 sm:grid-cols-2">
         {filtered.map((v) => (
           <div

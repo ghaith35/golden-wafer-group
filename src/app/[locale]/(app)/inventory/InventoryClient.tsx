@@ -34,7 +34,7 @@ export type AlertData = {
   inTransit: number;
 };
 
-const inputCls = "h-10 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
+const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
 
 export function InventoryClient({
   locale,

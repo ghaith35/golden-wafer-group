@@ -40,19 +40,19 @@ export function ImageUploader({
 
   return (
     <div>
-      <div className="mb-2 grid grid-cols-4 gap-2">
+      <div className="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {images.map((url, i) => (
           <div key={url} className="relative">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={url} alt="" className="aspect-square w-full rounded-lg object-cover" />
             {i === 0 && <span className="absolute start-1 top-1 rounded bg-black/50 px-1 text-[10px] text-white">★</span>}
             <div className="absolute end-1 top-1 flex gap-1">
-              <button type="button" onClick={() => move(i, -1)} className="rounded bg-black/50 px-1 text-xs text-white">‹</button>
-              <button type="button" onClick={() => move(i, 1)} className="rounded bg-black/50 px-1 text-xs text-white">›</button>
+              <button type="button" onClick={() => move(i, -1)} className="flex min-h-9 min-w-9 items-center justify-center rounded bg-black/50 text-xs text-white">‹</button>
+              <button type="button" onClick={() => move(i, 1)} className="flex min-h-9 min-w-9 items-center justify-center rounded bg-black/50 text-xs text-white">›</button>
               <button
                 type="button"
                 onClick={() => onChange(images.filter((_, j) => j !== i))}
-                className="rounded bg-black/50 px-1 text-xs text-white"
+                className="flex min-h-9 min-w-9 items-center justify-center rounded bg-black/50 text-xs text-white"
               >
                 ✕
               </button>

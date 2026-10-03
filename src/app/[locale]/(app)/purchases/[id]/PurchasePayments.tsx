@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { dzMoney } from "@/lib/format";
 
 type Payment = { id: string; amount: unknown; date: string; notes: string | null };
 
@@ -89,7 +90,7 @@ export function PurchasePayments({
   }
 
   return (
-    <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-sm">
+    <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4">
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-sm font-black">
           {labels.payments}
@@ -106,28 +107,28 @@ export function PurchasePayments({
       <div className="mb-2 grid grid-cols-3 gap-2 text-center">
         <div className="rounded-xl bg-(--bg-sunken) px-2 py-2">
           <div className="text-[11px] font-bold opacity-60">{labels.total}</div>
-          <div className="text-sm font-black tabular-nums">{total.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+          <div className="text-xs font-black tabular-nums sm:text-sm">{dzMoney(total)}</div>
         </div>
         <div className="rounded-xl bg-(--bg-sunken) px-2 py-2">
           <div className="text-[11px] font-bold opacity-60">{labels.paid}</div>
-          <div className="text-sm font-black tabular-nums text-emerald-600">{paid.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+          <div className="text-xs font-black tabular-nums text-emerald-600 sm:text-sm">{dzMoney(paid)}</div>
         </div>
         <div className="rounded-xl bg-(--bg-sunken) px-2 py-2">
           <div className="text-[11px] font-bold opacity-60">{labels.remaining}</div>
-          <div className="text-sm font-black tabular-nums text-red-500">{remaining.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+          <div className="text-xs font-black tabular-nums text-red-500 sm:text-sm">{dzMoney(remaining)}</div>
         </div>
       </div>
       {rows.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
       {rows.map((r) => (
         <div key={r.id} className="flex items-center justify-between border-b border-(--border-subtle) py-2 text-sm last:border-0">
           <div>
-            <span className="font-black tabular-nums">{String(r.amount)}</span>
-            <span className="ms-2 text-xs opacity-60">{new Date(r.date).toLocaleDateString(locale)}{r.notes ? ` · ${r.notes}` : ""}</span>
+            <span className="font-black tabular-nums">{dzMoney(Number(r.amount))}</span>
+            <span className="ms-2 text-xs opacity-60"><bdi>{new Date(r.date).toLocaleDateString(locale)}</bdi>{r.notes ? <span> · <bdi dir="auto">{r.notes}</bdi></span> : ""}</span>
           </div>
           <button
             onClick={() => setDeleting(r)}
             aria-label={labels.delete}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/15 text-red-500 hover:bg-red-500/25"
+            className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/15 text-red-500 hover:bg-red-500/25"
           >
             <Trash2 size={15} />
           </button>

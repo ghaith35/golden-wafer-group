@@ -136,7 +136,7 @@ export function SaleActions({
     <div className="space-y-3">
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
       {/* ── Khiata-style header: badge + paid dot, client, metric trio ── */}
-      <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5 shadow-sm">
+      <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
@@ -191,11 +191,11 @@ export function SaleActions({
           <thead>
             <tr className="text-[10px] font-black uppercase tracking-wide opacity-50">
               <th className="px-1 pb-1.5 text-start font-black">{labels.product}</th>
-              <th className="w-24 px-1 pb-1.5 text-end font-black" dir="ltr">{labels.unitPriceL}</th>
-              <th className="w-24 px-1 pb-1.5 text-end font-black" dir="ltr">{labels.packPriceL}</th>
-              <th className="w-20 px-1 pb-1.5 text-end font-black" dir="ltr">{labels.qtyPack}</th>
-              <th className="w-20 px-1 pb-1.5 text-end font-black" dir="ltr">{labels.qtyPiece}</th>
-              <th className="w-24 px-1 pb-1.5 text-end font-black" dir="ltr">{labels.total}</th>
+              <th className="w-24 px-1 pb-1.5 text-end font-black">{labels.unitPriceL}</th>
+              <th className="w-24 px-1 pb-1.5 text-end font-black">{labels.packPriceL}</th>
+              <th className="w-20 px-1 pb-1.5 text-end font-black">{labels.qtyPack}</th>
+              <th className="w-20 px-1 pb-1.5 text-end font-black">{labels.qtyPiece}</th>
+              <th className="w-24 px-1 pb-1.5 text-end font-black">{labels.total}</th>
             </tr>
           </thead>
           <tbody>

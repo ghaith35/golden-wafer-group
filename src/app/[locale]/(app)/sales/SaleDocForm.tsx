@@ -25,7 +25,7 @@ export type DocProduct = {
 };
 export type DocLine = { productId: string; unitId: string; qty: number; unitPrice: string; remise: number };
 
-const inputCls = "h-10 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
+const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
 
 /// Shared order/ticket editor: tier pricing, conversions, remise, paid.
 export function SaleDocForm({
@@ -386,7 +386,7 @@ export function SaleDocForm({
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <div>
                   <label className="text-xs opacity-60">{labels.unit}</label>
                   <select value={l.unitId} onChange={(e) => setLine(i, { unitId: e.target.value })} className={inputCls}>

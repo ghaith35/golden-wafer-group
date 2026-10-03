@@ -5,6 +5,7 @@ import { FileDown, FileText, Printer } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { vanSheetPdfUrl, type VanSheetPdfInput } from "@/lib/pdf/vanSheetPdf";
+import { dz, dzMoney } from "@/lib/format";
 
 export type SheetRow = {
   name: string;
@@ -50,7 +51,7 @@ export function VanSheet({
   const [fileName, setFileName] = useState("sheet.pdf");
 
   const fmtMoney = (v: number) =>
-    `${v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${currency ? ` ${currency}` : ""}`;
+    `${dzMoney(v)}${currency ? ` ${currency}` : ""}`;
 
   async function openPdf() {
     setPdfBusy(true);
@@ -103,12 +104,12 @@ export function VanSheet({
           )}
           <span className="opacity-70">{labels.driver}: <b>{driverName}</b></span>
           <span className="ms-auto font-black tabular-nums" dir="ltr">
-            {totals.units.toLocaleString(undefined, { maximumFractionDigits: 0 })} · {fmtMoney(totals.value)}
+            {dz(totals.units)} · {fmtMoney(totals.value)}
           </span>
         </div>
 
-        <div className="px-2 py-1">
-          <table className="w-full text-xs">
+        <div className="overflow-x-auto px-2 py-1">
+          <table className="w-full min-w-[640px] text-xs">
             <thead>
               <tr className="text-start text-[11px] uppercase opacity-50">
                 <th className="px-3 py-2 text-start font-black">#</th>
@@ -134,7 +135,7 @@ export function VanSheet({
             <tfoot>
               <tr className="border-t-2 border-black font-black">
                 <td colSpan={4} className="px-3 py-2.5 text-start">{labels.total}</td>
-                <td className="px-3 py-2.5 tabular-nums" dir="ltr">{totals.units.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                <td className="px-3 py-2.5 tabular-nums" dir="ltr">{dz(totals.units)}</td>
                 <td className="px-3 py-2.5 text-end tabular-nums" dir="ltr">{fmtMoney(totals.value)}</td>
               </tr>
             </tfoot>

@@ -97,7 +97,7 @@ export function LanguageSwitcher() {
           onClick={() => switchLang(l)}
           aria-pressed={l === locale}
           className={cn(
-            "min-h-7 rounded-md px-2.5 text-[11px] font-black transition-colors",
+            "min-h-11 rounded-md px-3 text-xs font-black transition-colors",
             l === locale
               ? "bg-gradient-brand text-white shadow"
               : "text-(--text-secondary) hover:text-(--text-primary)"

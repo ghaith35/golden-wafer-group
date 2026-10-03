@@ -14,6 +14,7 @@ import { VanSheet } from "./VanSheet";
 import { packBreakdown } from "@/components/products/UnitQty";
 import { mixedColisTotal } from "@/lib/products/colisage";
 import { cn } from "@/lib/utils";
+import { dz, dzMoney } from "@/lib/format";
 
 type Van = {
   id: string;
@@ -129,7 +130,7 @@ export function StockBoard({
   const needle = q.trim().toLowerCase();
 
   const fmtMoney = (v: number) =>
-    `${v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${currency ? ` ${currency}` : ""}`;
+    `${dzMoney(v)}${currency ? ` ${currency}` : ""}`;
 
   const stats = useMemo(() => {
     const m = new Map<string, { units: number; skus: number; low: number; transit: number }>();
@@ -214,8 +215,8 @@ export function StockBoard({
   );
   const fleetUnitsLabel =
     fleetColis.packs > 0 && fleetColis.packName
-      ? `${fleetUnits.toLocaleString(undefined, { maximumFractionDigits: 0 })} · ${fleetColis.packs.toLocaleString()} ${fleetColis.packName}`
-      : fleetUnits.toLocaleString(undefined, { maximumFractionDigits: 0 });
+      ? `${dz(fleetUnits)} · ${dz(fleetColis.packs)} ${fleetColis.packName}`
+      : dz(fleetUnits);
   const fleetValue = [...valueByVan.values()].reduce((s, e) => s + e.value, 0);
   const selectedValue = selected ? (valueByVan.get(selected.id)?.value ?? 0) : 0;
 
@@ -267,7 +268,7 @@ export function StockBoard({
           name: p?.name ?? l.productId,
           reference: p?.reference ?? "",
           colis: p ? packBreakdown(l.qty, p.conversions, uname, base) : String(l.qty),
-          units: `${l.qty.toLocaleString(undefined, { maximumFractionDigits: 0 })}${base ? ` ${base}` : ""}`,
+          units: `${dz(l.qty)}${base ? ` ${base}` : ""}`,
           value: vVals.get(l.productId)?.value ?? 0,
         };
       })
@@ -350,7 +351,7 @@ export function StockBoard({
                       {v.matricule ?? ""}{v.user ? ` · ${v.user.fullName}` : ""}
                     </span>
                     <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-black tabular-nums">
-                      <span>{s.units.toLocaleString(undefined, { maximumFractionDigits: 0 })} {labels.onVan}</span>
+                      <span><bdi dir="ltr">{dz(s.units)}</bdi> {labels.onVan}</span>
                       <span className="text-(--brand-600)" dir="ltr">{fmtMoney(valueByVan.get(v.id)?.value ?? 0)}</span>
                       {s.low > 0 && (
                         <span className="flex items-center gap-0.5 text-amber-600">

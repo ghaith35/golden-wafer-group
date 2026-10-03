@@ -196,7 +196,7 @@ export function DettesClient({ labels }: { labels: Record<string, string> }) {
         </div>
       </div>
 
-      {rows.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
+      {rows.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
 
       <div className="grid items-start gap-2 md:grid-cols-2 xl:grid-cols-3">
         {rows.map((r) => (
@@ -215,20 +215,20 @@ export function DettesClient({ labels }: { labels: Record<string, string> }) {
             <div className="mt-2 grid grid-cols-3 gap-2 text-center">
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
                 <div className="text-[10px] font-bold uppercase opacity-50">{labels.total}</div>
-                <div className="text-[13px] font-black tabular-nums">{num(r.total)}</div>
+                <div className="text-xs font-black tabular-nums sm:text-[13px]">{num(r.total)}</div>
               </div>
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
                 <div className="text-[10px] font-bold uppercase opacity-50">{labels.paid}</div>
-                <div className="text-[13px] font-black tabular-nums text-emerald-600">{num(r.paid)}</div>
+                <div className="text-xs font-black tabular-nums sm:text-[13px] text-emerald-600">{num(r.paid)}</div>
               </div>
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
                 <div className="text-[10px] font-bold uppercase opacity-50">{labels.balance}</div>
-                <div className="text-[13px] font-black tabular-nums text-red-500">{num(r.balance)}</div>
+                <div className="text-xs font-black tabular-nums sm:text-[13px] text-red-500">{num(r.balance)}</div>
               </div>
             </div>
             <div className="mt-1.5 flex justify-between text-[11px] font-bold opacity-60">
               <span>{labels.openDocs}: {r.openDocs}</span>
-              <span>{r.lastActivity ? `${labels.lastActivity}: ${new Date(r.lastActivity).toLocaleDateString(locale)}` : ""}</span>
+              <span>{r.lastActivity ? <>{labels.lastActivity}: <bdi>{new Date(r.lastActivity).toLocaleDateString(locale)}</bdi></> : ""}</span>
             </div>
             <div className="mt-2 flex gap-2">
               <Button onClick={() => startPay(r)} disabled={r.balance <= 0} className="flex-1">
@@ -246,7 +246,7 @@ export function DettesClient({ labels }: { labels: Record<string, string> }) {
                 {hist.slice(0, 10).map((h) => (
                   <div key={h.id} className="flex justify-between text-xs">
                     <span className="opacity-60">
-                      {new Date(h.date).toLocaleDateString(locale)}{h.notes ? ` · ${h.notes}` : ""}
+                      <bdi>{new Date(h.date).toLocaleDateString(locale)}</bdi>{h.notes ? <span> · <bdi dir="auto">{h.notes}</bdi></span> : ""}
                     </span>
                     <span className="font-black tabular-nums text-emerald-600">{num(Number(h.amount))}</span>
                   </div>

@@ -138,7 +138,7 @@ export function SuppliersClient({
           {filtered.length}
         </span>
       </div>
-      {filtered.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
+      {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
       <div className={view === "grid" ? "grid items-start gap-2.5 md:grid-cols-2 xl:grid-cols-3" : "space-y-1.5"}>
         {filtered.map((s) => {
           const bal = Number(s.balance);
@@ -157,8 +157,10 @@ export function SuppliersClient({
                   <div className="truncate text-sm font-bold">
                     {s.name} {s.code && <span className="font-mono text-[11px] opacity-50" dir="ltr">{s.code}</span>}
                   </div>
-                  <div className="truncate text-[11px] opacity-60" dir="ltr">
-                    {[s.phone, s.wilaya ? `${s.wilaya.code} ${s.wilaya.nameAr}` : "", s.secteur?.name ?? ""].filter(Boolean).join(" · ")}
+                  <div className="truncate text-[11px] opacity-60">
+                    <bdi dir="ltr">{s.phone}</bdi>
+                    {s.wilaya ? <span> · <bdi dir="auto">{s.wilaya.code} {s.wilaya.nameAr}</bdi></span> : ""}
+                    {s.secteur?.name ? <span> · <bdi dir="auto">{s.secteur.name}</bdi></span> : ""}
                   </div>
                 </div>
                 <span className={cn("shrink-0 text-sm font-black tabular-nums", bal > 0 ? "text-amber-600" : "text-emerald-600")} dir="ltr">
@@ -171,7 +173,7 @@ export function SuppliersClient({
             <div
               key={s.id}
               onClick={() => void openEdit(s)}
-              className="cursor-pointer rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5 shadow-sm transition-all hover:-translate-y-px hover:border-(--brand-500) hover:shadow-md"
+              className="cursor-pointer rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5 transition-all hover:-translate-y-px hover:border-(--brand-500)"
               style={s.isActive ? undefined : { opacity: 0.55 }}
             >
               <div className="flex items-center gap-2.5">

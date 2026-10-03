@@ -121,7 +121,7 @@ export function TourneeMap({
           <Tooltip direction="top" offset={[0, -14]}>
             <b>{i + 1}. {s.name}</b>
             <br />
-            <span style={{ fontFamily: "monospace" }}>{s.code}</span>
+            <span style={{ fontFamily: "monospace" }} dir="ltr">{s.code}</span>
           </Tooltip>
         </Marker>
       ))}

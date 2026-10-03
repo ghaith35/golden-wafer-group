@@ -10,6 +10,7 @@ import { Modal } from "@/components/ui/Modal";
 import { TransferPopup } from "../../inventory/transfers/[id]/TransferPopup";
 import { packBreakdown } from "@/components/products/UnitQty";
 import { mixedColisTotal } from "@/lib/products/colisage";
+import { dz } from "@/lib/format";
 import { VanJournal } from "./VanJournal";
 import { cn } from "@/lib/utils";
 
@@ -50,7 +51,7 @@ const STATUS_COLOR: Record<string, string> = {
   CANCELLED: "bg-gray-500/10 text-gray-500",
 };
 
-const fmt = (v: number) => v.toLocaleString(undefined, { maximumFractionDigits: 2 });
+const fmt = (v: number) => dz(v);
 
 export function VanDetailClient({
   locale,
@@ -176,7 +177,7 @@ export function VanDetailClient({
         </div>
       </div>
 
-      <div className={cn("grid gap-2", value != null ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3")}>
+      <div className={cn("grid gap-2", value != null ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-4")}>
         <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) px-3 py-2.5 text-center">
           <div className="text-lg font-black tabular-nums">{fmt(totalUnits)}</div>
           <div className="text-[11px] font-bold opacity-60">{labels.onVan}</div>
@@ -317,8 +318,8 @@ export function VanDetailClient({
                     l.product?.baseUnit?.name ?? ""
                   )}
                 </span>
-                <span className="block text-[11px] font-bold opacity-60" dir="ltr">
-                  = {l.qty.toLocaleString(undefined, { maximumFractionDigits: 2 })} {l.product?.baseUnit?.name ?? ""}
+                <span className="block text-[11px] font-bold opacity-60">
+                  = <bdi dir="ltr">{dz(l.qty)}</bdi> <bdi dir="auto">{l.product?.baseUnit?.name ?? ""}</bdi>
                 </span>
               </span>
             </div>
@@ -326,7 +327,7 @@ export function VanDetailClient({
         })}
       </div>
       {filtered.length > 0 && (
-        <div className="text-right text-sm font-black tabular-nums opacity-80">
+        <div className="text-end text-sm font-black tabular-nums opacity-80">
           {labels.total}: {fmt(filtered.reduce((s, l) => s + l.qty, 0))}
           {totalColis.packs > 0 && totalColis.packName && (
             <span className="text-(--brand-600)"> · {totalColis.packs.toLocaleString()} {totalColis.packName}</span>

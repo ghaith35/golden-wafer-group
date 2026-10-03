@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { packBreakdown } from "@/components/products/UnitQty";
 import { mixedColisTotal } from "@/lib/products/colisage";
 import { cn } from "@/lib/utils";
+import { dz, dzMoney } from "@/lib/format";
 
 type JProduct = {
   id: string;
@@ -58,7 +59,7 @@ type Entry = {
   lines: JLine[];
 };
 
-const fmt = (v: number) => v.toLocaleString(undefined, { maximumFractionDigits: 2 });
+const fmt = (v: number) => dz(v);
 
 function packsOf(p: JProduct) {
   return p.conversions
@@ -74,7 +75,7 @@ function LineQty({ product, qty }: { product: JProduct; qty: number }) {
     <span className="shrink-0 text-end tabular-nums">
       <span className="block text-sm font-black">{packBreakdown(qty, convs, uname, product.baseUnit?.name ?? "")}</span>
       <span className="block text-[11px] font-bold opacity-60" dir="ltr">
-        = {qty.toLocaleString(undefined, { maximumFractionDigits: 2 })} {product.baseUnit?.name ?? ""}
+        = <bdi dir="ltr">{dz(qty)}</bdi> <bdi dir="auto">{product.baseUnit?.name ?? ""}</bdi>
       </span>
     </span>
   );
@@ -181,8 +182,8 @@ export function VanJournal({
 
   const totalLine = (t: { packs: number; packName: string | null; units: number }) => (
     <>
-      {t.units.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-      {t.packs > 0 && t.packName && <span className="text-(--brand-600)"> · {t.packs.toLocaleString()} {t.packName}</span>}
+      {dz(t.units)}
+      {t.packs > 0 && t.packName && <span className="text-(--brand-600)"> · <bdi dir="ltr">{dz(t.packs)}</bdi> <bdi dir="auto">{t.packName}</bdi></span>}
     </>
   );
 

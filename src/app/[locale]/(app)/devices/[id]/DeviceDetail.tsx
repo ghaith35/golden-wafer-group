@@ -49,7 +49,7 @@ export function DeviceDetail({ deviceId, locale, labels }: { deviceId: string; l
   const failed = d.ops.filter((o) => o.status === "FAILED");
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-5 md:p-6">
+    <div className="mx-auto w-full max-w-2xl space-y-4 p-5 md:p-6 lg:max-w-4xl xl:max-w-5xl">
       <BackButton fallback={`/${locale}/settings/devices`} />
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">{d.label}</h1>

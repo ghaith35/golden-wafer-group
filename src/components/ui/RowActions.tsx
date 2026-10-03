@@ -23,7 +23,7 @@ export function RowActions({
 }) {
   const btn = cn(
     "flex shrink-0 items-center justify-center rounded-lg transition-colors",
-    size === "sm" ? "h-8 w-8" : "h-9 w-9"
+    size === "sm" ? "h-8 w-8" : "h-10 w-10"
   );
   return (
     <div className="flex shrink-0 gap-1" onClick={(e) => e.stopPropagation()}>

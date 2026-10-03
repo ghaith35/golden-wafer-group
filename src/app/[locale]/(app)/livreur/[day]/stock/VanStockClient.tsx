@@ -153,7 +153,7 @@ export function VanStockClient({
               <div className="flex items-center justify-center gap-0.5 text-[10px] font-black uppercase opacity-60">
                 <Lock size={10} /> held
               </div>
-              <div className="text-sm font-black tabular-nums text-amber-600">{breakdown(h.held, h)}</div>
+              <div className="text-xs font-black tabular-nums sm:text-sm text-amber-600">{breakdown(h.held, h)}</div>
             </div>
             <div className="rounded-lg bg-emerald-500/10 px-1 py-1.5">
               <div className="text-[10px] font-black uppercase opacity-60">free</div>
@@ -163,7 +163,7 @@ export function VanStockClient({
               <div className="flex items-center justify-center gap-0.5 text-[10px] font-black uppercase opacity-60">
                 <Store size={10} /> depot{!depotLive && syncAge() ? ` · ${syncAge()}` : ""}
               </div>
-              <div className="text-sm font-black tabular-nums">{breakdown(depot[h.productId] ?? 0, h)}</div>
+              <div className="text-xs font-black tabular-nums sm:text-sm">{breakdown(depot[h.productId] ?? 0, h)}</div>
             </div>
           </div>
           {h.orders.length > 0 && (

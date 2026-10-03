@@ -54,7 +54,7 @@ export function DayClients({
   };
 
   return (
-    <div className="space-y-3 p-4 pb-28 md:p-5">
+    <div className="space-y-3 p-4 pb-28 md:p-5 md:pb-28">
       <div className="flex items-center gap-2">
         <button
           aria-label="back"

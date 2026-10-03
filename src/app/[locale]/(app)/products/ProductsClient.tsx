@@ -13,6 +13,7 @@ import { levelLabel } from "@/lib/products/colisage";
 import { ProductCardDetails } from "@/components/products/ProductCardDetails";
 import { ProductForm, type ProductData, type Ref } from "./ProductForm";
 import { cn } from "@/lib/utils";
+import { dz, dzMoney } from "@/lib/format";
 
 type Row = {
   id: string;
@@ -244,16 +245,17 @@ export function ProductsClient({
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
-          <div className="flex items-center rounded-lg bg-(--bg-sunken) p-0.5" role="group" aria-label="view">
+          <div className="flex shrink-0 items-center gap-1 rounded-xl bg-(--bg-sunken) p-1" role="group" aria-label="view">
           {VIEW_MODES.map((m) => (
             <button
               key={m.v}
               type="button"
               onClick={() => pickView(m.v)}
               aria-pressed={view === m.v}
+              aria-label={m.v}
               className={cn(
-                "flex h-9 min-w-9 items-center justify-center rounded-md px-2 text-xs font-black transition-colors",
-                view === m.v ? "bg-(--bg-overlay) text-(--text-primary) shadow" : "text-(--text-secondary) hover:text-(--text-primary)"
+                "flex h-9 w-9 items-center justify-center rounded-lg",
+                view === m.v ? "bg-(--bg-overlay) shadow" : "opacity-50"
               )}
             >
               {m.label}
@@ -401,17 +403,17 @@ export function ProductsClient({
                   <div className="mt-2 space-y-1 border-t border-(--border-default) pt-2 text-sm">
                     <div className="flex justify-between">
                       <span className="font-semibold opacity-60">{labels.cump}</span>
-                      <span className="font-black tabular-nums" dir="ltr">{details.stock.cump.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                      <span className="font-black tabular-nums" dir="ltr">{dzMoney(details.stock.cump)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-semibold opacity-60">{labels.stockValue}</span>
-                      <span className="font-black tabular-nums text-(--brand-600)" dir="ltr">{details.stock.value.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                      <span className="font-black tabular-nums text-(--brand-600)" dir="ltr">{dzMoney(details.stock.value)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-semibold opacity-60">{labels.margin}</span>
                       <span className={`font-black tabular-nums ${details.salePrice - details.stock.cump >= 0 ? "text-(--brand-600)" : "text-red-500"}`} dir="ltr">
-                        {(details.salePrice - details.stock.cump).toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                        {details.stock.cump > 0 ? ` (${Math.round(((details.salePrice - details.stock.cump) / details.stock.cump) * 100)}%)` : ""}
+                        {dzMoney(details.salePrice - details.stock.cump)}
+                        {details.stock.cump > 0 ? <bdi> ({dz(Math.round(((details.salePrice - details.stock.cump) / details.stock.cump) * 100))}%)</bdi> : ""}
                       </span>
                     </div>
                   </div>
@@ -432,7 +434,7 @@ export function ProductsClient({
                       .map(({ c, i }) => (
                         <div key={c.unitId} className="flex justify-between rounded-lg bg-(--bg-sunken) px-3 py-1.5 text-sm">
                           <span className="font-semibold">{levelLabel(levels, i, base)}</span>
-                          <span className="font-black tabular-nums">{priceForUnit(details.salePrice, c.factor).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                          <span className="font-black tabular-nums">{dzMoney(priceForUnit(details.salePrice, c.factor))}</span>
                         </div>
                       ));
                   })()}

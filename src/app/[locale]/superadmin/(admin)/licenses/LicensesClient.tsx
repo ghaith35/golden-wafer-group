@@ -218,8 +218,14 @@ export function LicensesClient({ labels }: { labels: Record<string, string> }) {
                     <div className="truncate text-sm font-black">{m.label || m.machineId.slice(-6)}</div>
                     <div className="truncate font-mono text-[11px] opacity-50" dir="ltr">{m.machineId}</div>
                     {(m.contactName || m.phone || m.city) && (
-                      <div className="truncate text-[11px] opacity-60">{[m.contactName, m.phone, m.city].filter(Boolean).join(" · ")}</div>
-                    )}
+                        <div className="truncate text-[11px] opacity-60">
+                          {m.contactName ? <bdi dir="auto">{m.contactName}</bdi> : ""}
+                          {m.contactName && (m.phone || m.city) ? " · " : ""}
+                          {m.phone ? <bdi dir="ltr">{m.phone}</bdi> : ""}
+                          {m.phone && m.city ? " · " : ""}
+                          {m.city ? <bdi dir="auto">{m.city}</bdi> : ""}
+                        </div>
+                      )}
                   </div>
                   <span className={cn("shrink-0 rounded-full px-2 py-1 text-[10px] font-black", STATUS_COLOR[m.status] ?? "")}>
                     {labels[`st_${m.status}`] ?? m.status}
@@ -292,16 +298,16 @@ export function LicensesClient({ labels }: { labels: Record<string, string> }) {
                   </div>
                 </div>
                 {!bound && !k.revoked && <span className="shrink-0 text-xs font-black text-emerald-600">○ {labels.free}</span>}
-                <div className="flex shrink-0 gap-1">
+                <div className="flex max-w-full shrink-0 flex-wrap justify-end gap-1">
                   {k.revoked ? (
-                    <Button variant="secondary" onClick={() => void keyAct(k.id, "unrevoke")} disabled={busy} className="h-8 px-2 text-[11px]">{labels.unrevoke}</Button>
+                    <Button variant="secondary" onClick={() => void keyAct(k.id, "unrevoke")} disabled={busy} className="h-10 px-2.5 text-[11px]">{labels.unrevoke}</Button>
                   ) : (
-                    <Button variant="secondary" onClick={() => void keyAct(k.id, "revoke")} disabled={busy} className="h-8 px-2 text-[11px]">{labels.revoke}</Button>
+                    <Button variant="secondary" onClick={() => void keyAct(k.id, "revoke")} disabled={busy} className="h-10 px-2.5 text-[11px]">{labels.revoke}</Button>
                   )}
                   {bound && (
-                    <Button variant="secondary" onClick={() => void keyAct(k.id, "reset")} disabled={busy} className="h-8 px-2 text-[11px]">{labels.reset}</Button>
+                    <Button variant="secondary" onClick={() => void keyAct(k.id, "reset")} disabled={busy} className="h-10 px-2.5 text-[11px]">{labels.reset}</Button>
                   )}
-                  <Button variant="secondary" onClick={() => void keyDelete(k.id)} disabled={busy} className="h-8 px-2 text-[11px]">{labels.delete}</Button>
+                  <Button variant="secondary" onClick={() => void keyDelete(k.id)} disabled={busy} className="h-10 px-2.5 text-[11px]">{labels.delete}</Button>
                 </div>
               </div>
             );

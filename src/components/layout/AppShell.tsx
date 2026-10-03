@@ -220,9 +220,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {!hideChrome && visibleTabs.length > 0 && (
         <nav className="fixed inset-x-0 bottom-0 flex border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)] lg:hidden">
           {visibleTabs.map(({ key, href, Icon }) => (
-            <Link key={key} href={`/${locale}/${href}`} className="flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-semibold opacity-70">
+            <Link key={key} href={`/${locale}/${href}`} className="flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold leading-tight opacity-70">
               <Icon size={19} />
-              {t(key)}
+              <span className="max-w-full truncate">{t(key)}</span>
             </Link>
           ))}
         </nav>

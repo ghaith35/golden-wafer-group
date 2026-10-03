@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { useLivePosition, formatDist, formatTime } from "@/lib/geo";
+import { dzMoney } from "@/lib/format";
 import { Crosshair, Navigation } from "lucide-react";
 
 export type Stop = {
@@ -70,9 +71,9 @@ export function TourneeDay({
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-bold">
                   <span className="me-1 rounded bg-(--bg-sunken) px-1.5 font-mono">{i + 1}</span>
-                  {s.client.name} <span className="font-mono text-xs opacity-50">{s.client.code}</span>
+                  {s.client.name} <span className="font-mono text-xs opacity-50" dir="ltr">{s.client.code}</span>
                 </div>
-                {s.client.phone && <div className="text-xs opacity-60">📞 {s.client.phone}</div>}
+                {s.client.phone && <div className="text-xs opacity-60" dir="ltr">📞 <bdi>{s.client.phone}</bdi></div>}
                 <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
                   {meta && (
                     <span className="font-mono text-[11px] font-bold text-sky-600" dir="ltr">{meta}</span>
@@ -98,8 +99,8 @@ export function TourneeDay({
           <div className="mb-1 text-sm font-bold">{labels.sales ?? "Ventes"}</div>
           {sales.map((x) => (
             <Link key={x.id} href={`/${locale}/sales/${x.id}`} className="flex justify-between py-1 text-sm">
-              <span>{x.number} · {x.client?.name}</span>
-              <span className="font-black">{String(x.total)}</span>
+              <span className="min-w-0"><bdi dir="ltr">{x.number}</bdi> · <bdi dir="auto">{x.client?.name}</bdi></span>
+              <span className="shrink-0 font-black">{dzMoney(Number(x.total))}</span>
             </Link>
           ))}
         </Card>

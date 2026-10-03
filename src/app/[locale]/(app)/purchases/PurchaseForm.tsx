@@ -11,6 +11,7 @@ import { ProductForm } from "../products/ProductForm";
 import { PackInfo, factorOf, baseNameOf, describePack } from "@/components/products/UnitQty";
 import { ProductPicker } from "@/components/products/ProductPicker";
 import { breakdownNested } from "@/lib/products/colisage";
+import { dz, dzMoney } from "@/lib/format";
 
 export type SupplierOpt = { id: string; name: string };
 export type ProductOpt = {
@@ -477,8 +478,8 @@ export function PurchaseForm({
               <div className="w-28 shrink-0">
                 <Input type="number" min={0} step="any" value={l.unitPrice} title={`${labels.price} (DA)`} placeholder={`${labels.price} (DA)`} onChange={(e) => setLine(i, { unitPrice: e.target.value === "" ? "" : Number(e.target.value) })} className="font-black" />
                 {p && l.unitId && f !== 1 && (
-                  <div className="mt-0.5 truncate text-[11px] font-bold opacity-60" dir="ltr">
-                    = {(Number(l.unitPrice || 0) ? Math.round((Number(l.unitPrice || 0) / (f || 1)) * 1000) / 1000 : 0).toLocaleString(undefined, { maximumFractionDigits: 3 })} DA/{baseNameOf(p)}
+                  <div className="mt-0.5 truncate text-[11px] font-bold opacity-60">
+                    = <bdi dir="ltr">{dz(Number(l.unitPrice || 0) ? Math.round((Number(l.unitPrice || 0) / (f || 1)) * 1000) / 1000 : 0)} DA</bdi>/<bdi>{baseNameOf(p)}</bdi>
                   </div>
                 )}
               </div>
@@ -489,8 +490,8 @@ export function PurchaseForm({
                   onChange={(e) => setLine(i, { salePrice: e.target.value === "" ? "" : Number(e.target.value) })}
                 />
                 {p && l.unitId && f !== 1 && l.salePrice !== "" && (
-                  <div className="mt-0.5 truncate text-[11px] font-bold opacity-60" dir="ltr">
-                    = {(Math.round((Number(l.salePrice) / (f || 1)) * 1000) / 1000).toLocaleString(undefined, { maximumFractionDigits: 3 })} DA/{baseNameOf(p)}
+                  <div className="mt-0.5 truncate text-[11px] font-bold opacity-60">
+                    = <bdi dir="ltr">{dz(Math.round((Number(l.salePrice) / (f || 1)) * 1000) / 1000)} DA</bdi>/<bdi>{baseNameOf(p)}</bdi>
                   </div>
                 )}
               </div>
@@ -506,14 +507,14 @@ export function PurchaseForm({
                       onChange={(e) => setLine(i, { tierPrices: { ...l.tierPrices, [tr.id]: e.target.value === "" ? "" : Number(e.target.value) } })}
                     />
                     {l.unitId && f !== 1 && typed !== "" && typed != null && (
-                      <div className="mt-0.5 truncate text-[11px] font-bold opacity-60" dir="ltr">
-                        = {(Math.round((Number(typed) / (f || 1)) * 1000) / 1000).toLocaleString(undefined, { maximumFractionDigits: 3 })} DA/{baseNameOf(p)}
+                      <div className="mt-0.5 truncate text-[11px] font-bold opacity-60">
+                        = <bdi dir="ltr">{dz(Math.round((Number(typed) / (f || 1)) * 1000) / 1000)} DA</bdi>/<bdi>{baseNameOf(p)}</bdi>
                       </div>
                     )}
                   </div>
                 );
               })}
-              <span className="flex h-11 w-24 shrink-0 items-center justify-end text-base font-black tabular-nums">{Math.max(0, l.qty * Number(l.unitPrice || 0) - l.remise).toFixed(2)}</span>
+              <span className="flex h-11 w-24 shrink-0 items-center justify-end text-base font-black tabular-nums">{dzMoney(Math.max(0, l.qty * Number(l.unitPrice || 0) - l.remise))}</span>
               <Button type="button" variant="ghost" onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="h-11 w-8 shrink-0 px-0">✕</Button>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">

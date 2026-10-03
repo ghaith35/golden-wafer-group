@@ -76,7 +76,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ l
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-5 md:p-6">
+    <div className="mx-auto w-full max-w-2xl space-y-4 p-5 md:p-6 lg:max-w-4xl xl:max-w-5xl">
       <BackButton fallback={`/${locale}/clients`} />
       <h1 className="text-xl font-bold">
         {client.name} <span className="font-mono text-sm opacity-50">{client.code}</span>

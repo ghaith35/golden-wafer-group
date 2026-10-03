@@ -331,7 +331,7 @@ export function PosClient({
                 }
               }}
               placeholder={labels.search}
-              className="h-12 w-full rounded-xl border border-(--border-default) bg-(--bg-overlay) py-2 pe-4 ps-10 text-sm font-semibold shadow-sm outline-none focus:border-(--brand-500)"
+              className="h-12 w-full rounded-xl border border-(--border-default) bg-(--bg-overlay) py-2 pe-4 ps-10 text-sm font-semibold  outline-none focus:border-(--brand-500)"
             />
             {q && (
               <button
@@ -385,7 +385,7 @@ export function PosClient({
                   key={p.id}
                   onClick={() => addProduct(p.id)}
                   className={cn(
-                    "group relative flex flex-col overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay) text-start shadow-sm transition-all hover:-translate-y-0.5 hover:border-(--brand-500) hover:shadow-md",
+                    "group relative flex flex-col overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay) text-start  transition-all hover:-translate-y-0.5 hover:border-(--brand-500) hover:shadow-md",
                     out && "opacity-70 saturate-50"
                   )}
                 >
@@ -421,13 +421,13 @@ export function PosClient({
                           {fmt(shelfPrice)} {labels.currency} / {saleUnitName(p)}
                         </span>
                         {pieceConv && (
-                          <span dir="ltr" className="flex items-center gap-1 text-left text-[11px] font-bold text-(--brand-600)">
+                          <span dir="ltr" className="flex items-center gap-1 text-start text-[11px] font-bold text-(--brand-600)">
                             <span>{fmt(shelfPrice / pieceN)} {labels.currency} / {pieceConv.unit.name}</span>
                             <span>=</span>
                           </span>
                         )}
                         {!pieceConv && saleFactor !== 1 && (
-                          <span dir="ltr" className="block text-left text-[11px] font-bold text-(--brand-600)">
+                          <span dir="ltr" className="block text-start text-[11px] font-bold text-(--brand-600)">
                             {fmt(shelfPrice / saleFactor)} {labels.currency} / {p.baseUnit?.name ?? ""}
                           </span>
                         )}
@@ -469,7 +469,7 @@ export function PosClient({
         </div>
 
         {/* ── Cart (end side) ── */}
-        <div className="flex rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-sm lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
+        <div className="flex rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4  lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
           <div className="mb-3 flex min-h-12 items-center justify-between rounded-xl bg-(--bg-sunken) px-3 py-2">
             <span className="flex items-center gap-2 text-base font-black">
               <ReceiptText size={19} className="text-(--brand-600)" />
@@ -559,11 +559,11 @@ export function PosClient({
                           const piece = p.conversions.filter((c) => c.factor < 1).sort((a, b) => a.factor - b.factor)[0];
                           if (f >= 1 && piece) {
                             const n = Math.round(1 / normFactor(piece.factor));
-                            return <div dir="ltr" className="text-right font-bold text-(--brand-600)">{fmt(price / n)} {labels.currency} / {piece.unit.name} =</div>;
+                            return <div dir="ltr" className="text-end font-bold text-(--brand-600)">{fmt(price / n)} {labels.currency} / {piece.unit.name} =</div>;
                           }
                           if (f < 1) {
                             const n = Math.round(1 / f);
-                            return <div dir="ltr" className="text-right font-bold text-(--brand-600)">{fmt(price * n)} {labels.currency} / {p.baseUnit?.name ?? ""} =</div>;
+                            return <div dir="ltr" className="text-end font-bold text-(--brand-600)">{fmt(price * n)} {labels.currency} / {p.baseUnit?.name ?? ""} =</div>;
                           }
                           return null;
                         })()}

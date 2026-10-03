@@ -19,7 +19,7 @@ export default async function CountDetailPage({ params }: { params: Promise<{ lo
   if (!row) notFound();
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-5 md:p-6">
+    <div className="mx-auto w-full max-w-2xl space-y-4 p-5 md:p-6 lg:max-w-4xl xl:max-w-5xl">
       <BackButton fallback={`/${locale}/inventory/counts`} />
       <h1 className="text-xl font-bold">{row.number} · {row.location.name}</h1>
       <Card>

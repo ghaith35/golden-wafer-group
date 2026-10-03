@@ -224,7 +224,7 @@ export function ClientsClient({
           })}
         </div>
       )}
-      {filtered.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
+      {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
       {filtered.length > 0 && (
         <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-(--border-default) px-3 py-2 text-sm font-bold">
           <input type="checkbox" checked={allFilteredSelected} onChange={toggleAll} />
@@ -262,8 +262,10 @@ export function ClientsClient({
                   <div className="truncate text-sm font-bold">
                     {c.name} <span className="font-mono text-[11px] opacity-50" dir="ltr">{c.code}</span>
                   </div>
-                  <div className="truncate text-[11px] opacity-60" dir="ltr">
-                    {[c.phone, c.wilaya ? `${c.wilaya.code} ${c.wilaya.nameAr}` : "", c.secteur?.name ?? ""].filter(Boolean).join(" · ")}
+                  <div className="truncate text-[11px] opacity-60">
+                    <bdi dir="ltr">{c.phone}</bdi>
+                    {c.wilaya ? <span> · <bdi dir="auto">{c.wilaya.code} {c.wilaya.nameAr}</bdi></span> : ""}
+                    {c.secteur?.name ? <span> · <bdi dir="auto">{c.secteur.name}</bdi></span> : ""}
                   </div>
                 </div>
                 <span className={cn("shrink-0 text-sm font-black tabular-nums", bal > 0 ? "text-red-500" : "text-emerald-600")} dir="ltr">
@@ -276,7 +278,7 @@ export function ClientsClient({
             <div
               key={c.id}
               onClick={() => void openEdit(c)}
-              className="cursor-pointer rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5 shadow-sm transition-all hover:-translate-y-px hover:border-(--brand-500) hover:shadow-md"
+              className="cursor-pointer rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5 transition-all hover:-translate-y-px hover:border-(--brand-500)"
               style={c.isActive ? undefined : { opacity: 0.55 }}
             >
               <div className="flex items-center gap-2.5">

@@ -109,12 +109,12 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
         />
       </div>
 
-      <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-8">
         {actions.map(({ href, label, Icon, cls }) => (
           <Link
             key={href}
             href={`/${locale}/${href}`}
-            className="flex flex-col items-center gap-1.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 text-center shadow-sm transition-all hover:-translate-y-0.5 hover:border-(--brand-500) hover:shadow-md"
+            className="flex flex-col items-center gap-1.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 text-center  transition-all hover:-translate-y-0.5 hover:border-(--brand-500) hover:shadow-md"
           >
             <span className={cn("flex h-10 w-10 items-center justify-center rounded-xl", cls)}>
               <Icon size={19} />

@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { factorOf, baseNameOf, PackInfo } from "@/components/products/UnitQty";
 import { breakdownNested } from "@/lib/products/colisage";
+import { dz } from "@/lib/format";
 
-const inputCls = "h-10 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
+const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
 
 type ProductOpt = {
   id: string;
@@ -197,15 +198,15 @@ export function SupplierReturnForm({
                 </div>
                 <div>
                   <label className="text-xs opacity-60">
-                    {labels.price} {p && <span dir="ltr">(DA/{levels.find((u) => u.id === (l.unitId || p.baseUnitId))?.name ?? ""})</span>}
+                    {labels.price} {p && <span>(<bdi dir="ltr">DA</bdi>/<bdi>{levels.find((u) => u.id === (l.unitId || p.baseUnitId))?.name ?? ""}</bdi>)</span>}
                   </label>
                   <Input
                     type="number" min={0} step="any" value={l.unitPrice}
                     onChange={(e) => setLines((ls) => ls.map((x, j) => (j === i ? { ...x, unitPrice: Number(e.target.value) } : x)))}
                   />
                   {p && l.factor !== 1 && (
-                    <div className="mt-1 text-[11px] opacity-60" dir="ltr">
-                      = {(l.unitPrice / l.factor).toLocaleString(undefined, { maximumFractionDigits: 3 })} DA/{baseNameOf(p)}
+                    <div className="mt-1 text-[11px] opacity-60">
+                      = <bdi dir="ltr">{dz(l.unitPrice / l.factor)} DA</bdi>/<bdi>{baseNameOf(p)}</bdi>
                     </div>
                   )}
                 </div>

@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-sm", className)} {...props} />;
+  return <div className={cn("rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4", className)} {...props} />;
 }
 
 export function KpiCard({
@@ -19,7 +19,7 @@ export function KpiCard({
   className?: string;
 }) {
   return (
-    <div className={cn("flex items-center gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 shadow-sm", className)}>
+    <div className={cn("flex items-center gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3", className)}>
       {icon && (
         <div className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl", accent ?? "bg-(--bg-sunken) text-(--text-secondary)")}>
           {icon}

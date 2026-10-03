@@ -141,7 +141,7 @@ export function PresenceClient({
           );
         })}
       </div>
-      {visible.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
+      {visible.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
       <div className="grid items-start gap-2 md:grid-cols-2 xl:grid-cols-3">
         {visible.map((r) => (
           <div key={r.id} className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5">
@@ -170,15 +170,15 @@ export function PresenceClient({
             <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
                 <div className="text-[10px] font-bold uppercase opacity-50">{labels.start}</div>
-                <div className="text-[13px] font-black tabular-nums" dir="ltr">{fmtTime(r.startedAt, locale)}</div>
+                <div className="text-xs font-black tabular-nums sm:text-[13px]" dir="ltr">{fmtTime(r.startedAt, locale)}</div>
               </div>
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
                 <div className="text-[10px] font-bold uppercase opacity-50">{labels.end}</div>
-                <div className="text-[13px] font-black tabular-nums" dir="ltr">{fmtTime(r.finishedAt, locale)}</div>
+                <div className="text-xs font-black tabular-nums sm:text-[13px]" dir="ltr">{fmtTime(r.finishedAt, locale)}</div>
               </div>
               <div className="rounded-lg bg-(--brand-500)/10 px-1 py-1.5">
                 <div className="text-[10px] font-black uppercase opacity-60">{labels.duration}</div>
-                <div className="text-[13px] font-black tabular-nums" dir="ltr">{fmtDur(r.startedAt, r.finishedAt)}</div>
+                <div className="text-xs font-black tabular-nums sm:text-[13px]" dir="ltr">{fmtDur(r.startedAt, r.finishedAt)}</div>
               </div>
             </div>
           </div>

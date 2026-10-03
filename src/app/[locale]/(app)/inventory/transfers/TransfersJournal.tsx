@@ -114,7 +114,7 @@ export function TransfersJournal({
     return [...map.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1));
   }, [filtered, locale]);
 
-  const inputCls = "h-10 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
+  const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
 
   return (
     <div className="space-y-4 p-5 md:p-6">
@@ -201,7 +201,7 @@ export function TransfersJournal({
               className="flex items-center gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 transition-colors hover:border-(--brand-500)"
             >
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                <div className="flex shrink-0 -space-x-2">
+                <div className="flex shrink-0 -space-x-2 rtl:space-x-reverse">
                   {r.lines.slice(0, 3).map((l, i) =>
                     l.product.images[0] ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -230,7 +230,7 @@ export function TransfersJournal({
                   </div>
                 </div>
               </div>
-              <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[11px] font-black", STATUS_COLOR[r.status] ?? "")}>
+              <span className={cn("shrink-0 rounded-full px-2 py-1 text-[10px] font-black", STATUS_COLOR[r.status] ?? "")}>
                 {statusLabel[r.status] ?? r.status}
               </span>
             </Link>

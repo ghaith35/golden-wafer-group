@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { ProductGallery } from "@/components/products/ProductGallery";
 import { cn } from "@/lib/utils";
+import { dzMoney } from "@/lib/format";
 
 type P = {
   id: string;
@@ -141,11 +142,11 @@ export function PortalShop({ locale, labels }: { locale: string; labels: Record<
                   <div className="mt-1 grid grid-cols-2 gap-1">
                     <div className="rounded-lg bg-(--brand-500)/10 px-2 py-1">
                       <div className="truncate text-[9px] font-black uppercase opacity-60">{selUnit?.name ?? ""}</div>
-                      <div className="truncate text-sm font-black tabular-nums text-(--brand-600)" dir="ltr">{selPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })} DA</div>
+                      <div className="truncate text-sm font-black tabular-nums text-(--brand-600)" dir="ltr">{dzMoney(selPrice)}</div>
                     </div>
                     <div className="rounded-lg bg-(--bg-sunken) px-2 py-1">
                       <div className="truncate text-[9px] font-black uppercase opacity-60">{baseUnit?.name ?? ""}</div>
-                      <div className="truncate text-sm font-black tabular-nums" dir="ltr">{p.price.toLocaleString(undefined, { maximumFractionDigits: 2 })} DA</div>
+                      <div className="truncate text-sm font-black tabular-nums" dir="ltr">{dzMoney(p.price)}</div>
                     </div>
                   </div>
                   <div className="mt-1 flex items-center justify-between">
@@ -178,7 +179,7 @@ export function PortalShop({ locale, labels }: { locale: string; labels: Record<
           {cartCount > 0 && (
             <div className="sticky bottom-4">
               <Button onClick={submit} disabled={busy} className="w-full shadow-lg">
-                {labels.order} · {cartCount} · {cartTotal.toFixed(0)}
+                {labels.order} · {cartCount} · {dzMoney(cartTotal)}
               </Button>
             </div>
           )}
@@ -190,11 +191,11 @@ export function PortalShop({ locale, labels }: { locale: string; labels: Record<
           {orders.map((o) => (
             <Card key={o.id}>
               <div className="flex justify-between text-sm">
-                <span className="font-bold">{o.number} · {o.status}</span>
-                <span className="font-black">{String(o.total)}</span>
+                <span className="font-bold"><bdi dir="ltr">{o.number}</bdi> · {o.status}</span>
+                <span className="font-black">{dzMoney(Number(o.total))}</span>
               </div>
               <div className="mt-1 text-xs opacity-60">
-                {new Date(o.date).toLocaleDateString(locale)} · {o.lines.map((l) => `${l.product.name} ×${String(l.qty)}`).join(", ")}
+                <bdi>{new Date(o.date).toLocaleDateString(locale)}</bdi> · {o.lines.map((l, i) => (<span key={i}><bdi dir="auto">{l.product.name}</bdi> <bdi dir="ltr">×{String(l.qty)}</bdi>{i < o.lines.length - 1 ? ", " : ""}</span>))}
               </div>
             </Card>
           ))}

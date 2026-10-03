@@ -43,7 +43,7 @@ export function JournalClient({ labels }: { labels: Record<string, string> }) {
       </div>
       {data && (
         <Card>
-          <div className="grid grid-cols-4 gap-2 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
             <div><div className="text-xs opacity-60">{labels.sales}</div><div className="font-black">{data.monthTotal.sales.toFixed(0)}</div></div>
             <div><div className="text-xs opacity-60">{labels.paid}</div><div className="font-black">{data.monthTotal.paid.toFixed(0)}</div></div>
             <div><div className="text-xs opacity-60">{labels.versements}</div><div className="font-black">{data.monthTotal.versements.toFixed(0)}</div></div>
@@ -54,7 +54,7 @@ export function JournalClient({ labels }: { labels: Record<string, string> }) {
       {days.map((d) => (
         <Card key={d}>
           <div className="mb-1 text-sm font-black">{d}</div>
-          <div className="grid grid-cols-4 gap-1 text-center text-sm">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-center text-sm">
             <div><div className="text-[11px] opacity-60">{labels.sales}</div><div className="font-bold">{(data!.salesByDay[d] ?? 0).toFixed(0)}</div></div>
             <div><div className="text-[11px] opacity-60">{labels.paid}</div><div className="font-bold">{(data!.paidByDay[d] ?? 0).toFixed(0)}</div></div>
             <div><div className="text-[11px] opacity-60">{labels.versements}</div><div className="font-bold">{(data!.versementsByDay[d] ?? 0).toFixed(0)}</div></div>

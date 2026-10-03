@@ -12,7 +12,7 @@ export default async function NewTicketPage({
   const sp = await searchParams;
   const channel = sp.channel === "POS" ? "POS" : sp.channel === "DEPOT" ? "DEPOT" : "VAN";
   return (
-    <div className="mx-auto max-w-3xl space-y-4 p-5 md:p-6">
+    <div className="mx-auto w-full max-w-2xl space-y-4 p-5 md:p-6 lg:max-w-4xl xl:max-w-5xl">
       <BackButton fallback={`/${locale}/sales`} />
       <OrderFormLoader
         locale={locale}

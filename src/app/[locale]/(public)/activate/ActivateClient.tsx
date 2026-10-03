@@ -66,7 +66,7 @@ export function ActivateClient({ labels }: { labels: Record<string, string> }) {
 
       {status && (
         <Card>
-          <div className="text-sm"><b>{labels.machine}:</b> <span className="font-mono text-xs">{status.machineId}</span></div>
+          <div className="text-sm"><b>{labels.machine}:</b> <span className="font-mono text-xs" dir="ltr">{status.machineId}</span></div>
           {status.devBypass && <div className="text-xs text-amber-600">DEV — placeholder key</div>}
           {status.activated && <div className="font-bold text-emerald-600">✓ {labels.activated}</div>}
           {status.inTrial && <div className="font-bold text-amber-600">{labels.trial}: {status.daysLeft}j</div>}

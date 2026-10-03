@@ -255,7 +255,7 @@ export function SalesClient({
               )}
             >
               <Bus size={12} />
-              <span className="max-w-24 truncate">{v.name}</span>
+              <span className="max-w-32 truncate sm:max-w-40" title={v.name}>{v.name}</span>
             </button>
           );
         })}
@@ -296,7 +296,7 @@ export function SalesClient({
                 </div>
                 <div className="mt-0.5 flex items-center justify-between gap-2 text-[11px] opacity-60">
                   <span className="flex min-w-0 items-center gap-1">
-                    <span className={cn("shrink-0 rounded-full px-1.5 py-px text-[10px] font-black", STATUS_STYLE[r.status] ?? STATUS_STYLE.DRAFT)}>
+                    <span className={cn("shrink-0 rounded-full px-2 py-1 text-[10px] font-black", STATUS_STYLE[r.status] ?? STATUS_STYLE.DRAFT)}>
                       {r.status}
                     </span>
                     <span className="truncate">{r.location?.name ?? ""} · {new Date(r.date as string).toLocaleDateString(locale)}</span>

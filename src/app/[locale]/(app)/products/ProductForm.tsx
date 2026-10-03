@@ -457,7 +457,7 @@ export function ProductForm({
         </div>
 
         {/* Product kind: unite / colisage / colisage-in-colisage */}
-        <div className="mb-3 grid grid-cols-3 gap-2">
+        <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
           {(
             [
               ["unite", t("kindUnite", "Unité")],
@@ -469,7 +469,7 @@ export function ProductForm({
               key={m}
               type="button"
               onClick={() => setColisK("mode", m)}
-              className={`h-10 rounded-lg border text-xs font-black transition-colors ${
+              className={`min-h-11 rounded-lg border px-1 text-xs font-black leading-tight transition-colors ${
                 colis.mode === m
                   ? "border-(--brand-500) bg-(--brand-500)/10 text-(--brand-600)"
                   : "border-(--border-default) opacity-70"
@@ -482,7 +482,7 @@ export function ProductForm({
 
         {colis.mode !== "unite" && (
           <div className="grid gap-2 rounded-lg border border-(--border-subtle) p-2">
-            <div className="grid grid-cols-[1fr_90px] gap-2">
+            <div className="grid grid-cols-[1fr_110px] gap-2">
               <div>
                 <label className="mb-1 block text-xs font-bold uppercase opacity-60">
                   {t("colisName", "Nom du colisage")}

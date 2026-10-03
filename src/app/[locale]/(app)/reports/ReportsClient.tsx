@@ -42,7 +42,7 @@ export function ReportsClient({ labels }: { labels: Record<string, string> }) {
       <Card>
         {rows.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[720px] text-sm">
             <thead>
               <tr className="border-b border-(--border-default) text-start text-xs uppercase opacity-60">
                 {cols.map((c) => (
@@ -54,7 +54,7 @@ export function ReportsClient({ labels }: { labels: Record<string, string> }) {
               {rows.map((r, i) => (
                 <tr key={i} className="border-b border-(--border-subtle) last:border-0">
                   {cols.map((c) => (
-                    <td key={c} className="py-2 pe-3">{String(r[c])}</td>
+                    <td key={c} className="whitespace-nowrap py-2 pe-3 tabular-nums">{String(r[c])}</td>
                   ))}
                 </tr>
               ))}

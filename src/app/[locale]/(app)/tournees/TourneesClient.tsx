@@ -330,7 +330,7 @@ export function TourneesClient({
                                 title={labels.edit}
                                 aria-label={labels.edit}
                                 onClick={() => setEditingStops({ id: t.id, secteurId: t.secteur?.id ?? null, stopIds: t.stops.map((s) => s.client?.id ?? s.id) })}
-                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600 hover:bg-amber-500/25"
+                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600 hover:bg-amber-500/25"
                               >
                                 <Pencil size={13} />
                               </button>
@@ -339,7 +339,7 @@ export function TourneesClient({
                                 title={labels.delete}
                                 aria-label={labels.delete}
                                 onClick={() => setDeletingTour({ id: t.id, label: `${v.name} · ${fmtDay.format(d)}` })}
-                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/15 text-red-500 hover:bg-red-500/25"
+                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/15 text-red-500 hover:bg-red-500/25"
                               >
                                 <Trash2 size={13} />
                               </button>
@@ -607,7 +607,7 @@ function StopEditor({
                 />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold leading-tight">{c.name}</span>
-                  <span className="block font-mono text-[11px] opacity-50">
+                  <span className="block font-mono text-[11px] opacity-50" dir="ltr">
                     {c.code}{meta ? <span className="font-bold text-sky-600"> · {meta}</span> : ""}
                   </span>
                 </span>

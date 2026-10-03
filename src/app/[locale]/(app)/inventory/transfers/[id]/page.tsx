@@ -51,7 +51,7 @@ export default async function TransferDetailPage({ params }: { params: Promise<{
       : null;
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-4 p-5 md:p-6">
+    <div className="mx-auto w-full max-w-2xl space-y-4 p-5 md:p-6 lg:max-w-4xl xl:max-w-5xl">
       <BackButton fallback={`/${locale}/inventory/transfers`} />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-black tabular-nums">{row.number}</h1>

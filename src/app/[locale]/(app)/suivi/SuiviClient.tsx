@@ -144,7 +144,7 @@ export function SuiviClient({ labels }: { labels: Record<string, string> }) {
 
       <VansMap marks={marks} />
 
-      {vans.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
+      {vans.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
 
       <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
         {vans.map((v) => {

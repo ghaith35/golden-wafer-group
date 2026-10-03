@@ -215,7 +215,7 @@ export function CommandesClient({
             )}
           >
             <Bus size={12} />
-            <span className="max-w-24 truncate">{v.name}</span>
+            <span className="max-w-32 truncate sm:max-w-40" title={v.name}>{v.name}</span>
             <span className="rounded-full bg-(--bg-sunken) px-1 tabular-nums">{v.count}</span>
           </button>
         ))}
@@ -224,7 +224,7 @@ export function CommandesClient({
       <div className="grid min-h-0 flex-1 items-start gap-4 lg:grid-cols-[300px_minmax(0,1fr)] lg:overflow-hidden">
         {/* ── Sidebar: commandes ── */}
         <div className="space-y-1.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2.5 lg:h-full lg:min-h-0 lg:overflow-y-auto">
-          {visible.length === 0 && <p className="p-1 text-sm opacity-60">{labels.empty}</p>}
+          {visible.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
           {visible.map((r) => {
             const active = r.id === selectedId;
             return (
@@ -253,7 +253,10 @@ export function CommandesClient({
                       {stName(r.status)}
                     </span>
                     <span className="truncate">
-                      {[r.createdBy?.fullName, r.location?.name, new Date(r.date as string).toLocaleDateString(locale)].filter(Boolean).join(" · ")}
+                      {[r.createdBy?.fullName, r.location?.name].filter(Boolean).length > 0 && (
+                        <bdi dir="auto">{[r.createdBy?.fullName, r.location?.name].filter(Boolean).join(" · ")} · </bdi>
+                      )}
+                      <bdi>{new Date(r.date as string).toLocaleDateString(locale)}</bdi>
                     </span>
                   </span>
                   <span className="shrink-0 tabular-nums">{r._count.lines} {labels.lines}</span>
