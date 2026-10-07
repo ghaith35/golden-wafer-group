@@ -25,6 +25,7 @@ export default async function SuperAdminLayout({
         dashboard: t("dashboard"),
         licenses: t("licenses"),
         companies: t("companies"),
+        sales: t("sales"),
         audit: t("audit"),
         tunnels: t("tunnels"),
         sectionOverview: t("sectionOverview"),
@@ -34,6 +35,18 @@ export default async function SuperAdminLayout({
         logout: t("logout"),
         collapse: t("collapse"),
         expand: t("expand"),
+        accountSettings: t("accountSettings"),
+        currentPassword: t("currentPassword"),
+        newPassword: t("newPassword"),
+        passwordOptional: t("passwordOptional"),
+        save: t("save"),
+        cancel: t("cancel"),
+        current_password_required: t("currentPasswordRequired"),
+        invalid_current_password: t("invalidCurrentPassword"),
+        invalid_username: t("invalidUsername"),
+        weak_password: t("weakPassword"),
+        username_taken: t("usernameTaken"),
+        no_changes: t("noChanges"),
       }}
     >
       {children}

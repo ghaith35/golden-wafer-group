@@ -13,8 +13,10 @@ import {
   Menu,
   KeyRound,
   RadioTower,
+  ReceiptText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AccountSettings } from "./AccountSettings";
 
 /// Vendor console shell (repaire-style): collapsible sidebar with sections,
 /// mobile drawer, RTL-aware, footer with the signed-in vendor + logout.
@@ -45,6 +47,7 @@ export function SuperAdminShell({
       items: [
         { href: `/${locale}/superadmin/licenses`, Icon: KeyRound, label: labels.licenses },
         { href: `/${locale}/superadmin/companies`, Icon: Building2, label: labels.companies },
+        { href: `/${locale}/superadmin/sales`, Icon: ReceiptText, label: labels.sales },
       ],
     },
     {
@@ -153,6 +156,7 @@ export function SuperAdminShell({
             <p className="truncate font-mono text-xs font-medium" dir="ltr" style={{ color: "var(--sa-sidebar-fg)" }}>
               {username}
             </p>
+            <AccountSettings username={username} labels={labels} />
             <button
               onClick={() => void logout()}
               className="mt-1 flex items-center gap-1 text-[11px] font-bold hover:opacity-80"

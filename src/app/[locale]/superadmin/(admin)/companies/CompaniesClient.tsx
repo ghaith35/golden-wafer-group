@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useLocale } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -16,6 +18,7 @@ type Company = {
 /// Vendor companies console (repaire-style table): search + count + New,
 /// rows with name/phone, users, stores, created date.
 export function CompaniesClient({ labels }: { labels: Record<string, string> }) {
+  const locale = useLocale();
   const [rows, setRows] = useState<Company[]>([]);
   const [q, setQ] = useState("");
   const [creating, setCreating] = useState(false);
@@ -116,7 +119,9 @@ export function CompaniesClient({ labels }: { labels: Record<string, string> }) 
               rows.map((c) => (
                 <tr key={c.id} className="transition-colors hover:bg-(--bg-sunken)/60">
                   <td className="px-4 py-3">
-                    <div className="font-semibold text-(--text-primary)">{c.name}</div>
+                    <Link href={`/${locale}/superadmin/companies/${c.id}`} className="font-semibold text-(--brand-600) hover:underline">
+                      {c.name}
+                    </Link>
                     {c.phone && (
                       <p className="text-xs text-(--text-secondary)" dir="ltr">
                         {c.phone}
