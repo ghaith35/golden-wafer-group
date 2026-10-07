@@ -516,6 +516,7 @@ export function PurchasesClient({
           remiseEnabled={formData.settings.remiseEnabled}
           expiryEnabled={formData.settings.expiryEnabled}
           multiDepot={formData.settings.multiDepotEnabled}
+          supplierFilter={formData.settings.supplierFilterEnabled ?? true}
           labels={formLabels}
           onSuccess={() => {
             setCreating(false);
@@ -549,6 +550,7 @@ export function PurchasesClient({
             remiseEnabled={formData.settings.remiseEnabled}
             expiryEnabled={formData.settings.expiryEnabled}
             multiDepot={formData.settings.multiDepotEnabled}
+          supplierFilter={formData.settings.supplierFilterEnabled ?? true}
             labels={formLabels}
             editingId={editing.id}
             initial={editInitial}

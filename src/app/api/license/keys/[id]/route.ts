@@ -1,10 +1,21 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/settings/helpers";
+import { requireSuperAdmin } from "@/lib/superadmin/session";
+import { isLocalMode } from "@/lib/license/gate";
+
+async function guard() {
+  if (isLocalMode()) return null;
+  const su = await requireSuperAdmin();
+  if (!su.ok) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  return null;
+}
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin();
   if (!auth.ok) return auth.response;
+  const blocked = await guard();
+  if (blocked) return blocked;
   const { id } = await params;
   const { action } = (await req.json().catch(() => ({}))) as { action?: string };
   const existing = await prisma.licenseKey.findFirst({ where: { id } });

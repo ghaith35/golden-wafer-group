@@ -1,18 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowDownUp, ArrowLeft, Check, Minus, Plus, QrCode } from "lucide-react";
+import { ArrowDownUp, ArrowLeft, Check, Minus, Plus, Printer, QrCode, Share2, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { CameraBox } from "@/components/scan/CameraBox";
+import { TicketView, type TicketLabels, type TicketVM } from "@/components/sales/TicketView";
 import { factorOf, normFactor, priceForUnit, saleUnits } from "@/components/products/UnitQty";
 import { beepAdd, beepConfirm } from "@/lib/beep";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { getVanSnapshot, queueOp, type VanSnapshot } from "@/lib/sync/client";
+import { getVanSnapshot, getOutbox, queueOp, type VanSnapshot } from "@/lib/sync/client";
+import { checkOfflineSale, pendingEffects } from "@/lib/sync/offline-rules";
+import type { OutboxRow } from "@/lib/sync/offline-db";
 
 type Client = { id: string; name: string; code: string; phone: string | null; tierId: string | null; balance: unknown };
 type Prod = {
@@ -44,6 +48,8 @@ export function VenteClient({
   vanStock,
   allowPieces,
   labels,
+  ticketLabels,
+  ticketLang,
 }: {
   locale: string;
   day: string;
@@ -56,6 +62,8 @@ export function VenteClient({
   vanStock: Record<string, number>;
   allowPieces: boolean;
   labels: Record<string, string>;
+  ticketLabels: TicketLabels;
+  ticketLang: "ar" | "fr";
 }) {
   const router = useRouter();
   const [scanOpen, setScanOpen] = useState(!initialClient);
@@ -71,11 +79,20 @@ export function VenteClient({
   const [qtyFor, setQtyFor] = useState<Prod | null>(null);
   const [qtyPacks, setQtyPacks] = useState(1);
   const [qtyUnits, setQtyUnits] = useState(0);
+  /// Edit mode: tapping a product already in the facture edits its single
+  /// line — one line per product, never duplicates.
+  const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [paid, setPaid] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [doneId, setDoneId] = useState<string | null>(null);
   const [doneQueued, setDoneQueued] = useState(false);
+  /// Print preview: created ticket (server response or local snapshot when
+  /// offline) + company header/width for the TicketView.
+  const [doneTicket, setDoneTicket] = useState<TicketVM | null>(null);
+  const [ticketCo, setTicketCo] = useState<{ company: { name: string; phone?: string | null; address?: string | null; rc?: string | null; nif?: string | null; logoUrl?: string | null }; width: "58" | "80"; currency: string } | null>(null);
+  const [ticketQr, setTicketQr] = useState<string | null>(null);
+  const [isNative, setIsNative] = useState(false);
   const [gallery, setGallery] = useState<Prod | null>(null);
   const [gIdx, setGIdx] = useState(0);
   const [freshStock, setFreshStock] = useState<number | null>(null);
@@ -86,15 +103,24 @@ export function VenteClient({
   /// Offline snapshot (first sync seeds the whole catalog): used whenever a
   /// fetch fails so the van keeps selling with zero connection.
   const [snap, setSnap] = useState<VanSnapshot | null>(null);
+  /// Queued (unsynced) ops — their effects are subtracted from local stock so
+  /// an offline sale can't promise the same units twice.
+  const [ops, setOps] = useState<OutboxRow[]>([]);
 
   useEffect(() => {
     getVanSnapshot().then(setSnap).catch(() => {});
+    getOutbox().then(setOps).catch(() => {});
   }, []);
   const pressTimer = useRef(0);
   const touchX = useRef<number | null>(null);
+  /// Synchronous double-tap guard (state updates are async).
+  const submittingRef = useRef(false);
 
   useEffect(() => {
     let dead = false;
+    import("@capacitor/core").then(({ Capacitor }) => {
+      if (!dead) setIsNative(Capacitor.isNativePlatform());
+    }).catch(() => {});
     fetch("/api/settings/public", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
@@ -104,6 +130,11 @@ export function VenteClient({
           setScanned(false);
           setScanOpen(true);
         }
+        setTicketCo({
+          company: d?.company ?? { name: "" },
+          width: d?.ticketWidth === "58" ? "58" : "80",
+          currency: d?.currency ?? "DZD",
+        });
       })
       .catch(() => {
         // Offline: fall back to the synced snapshot's flag.
@@ -166,9 +197,11 @@ export function VenteClient({
     for (const b of snap.stock ?? []) m[b.productId] = Number(b.qty);
     return m;
   })();
-  const stockOf = (pid: string) => vanStock[pid] ?? snapStock?.[pid] ?? 0;
+  /// Pending (unsynced) effects: sold-but-not-synced units are already gone.
+  const pendingStock = pendingEffects(snap, ops, vanId).stock;
+  const stockOf = (pid: string) => (vanStock[pid] ?? snapStock?.[pid] ?? 0) + (pendingStock[pid] ?? 0);
   /// Sellable right now (free): holds split when present, else the total.
-  const freeOf = (pid: string) => (freeMap ? (freeMap[pid] ?? 0) : stockOf(pid));
+  const freeOf = (pid: string) => (freeMap ? (freeMap[pid] ?? 0) : stockOf(pid)) + (pendingStock[pid] ?? 0);
 
   const filteredProducts = effProducts.filter(
     (p) =>
@@ -209,10 +242,30 @@ export function VenteClient({
       .sort((a, b) => Number(a.factor) - Number(b.factor))[0];
   }
 
+  function closeQty() {
+    setQtyFor(null);
+    setEditingIdx(null);
+  }
+
   function openQty(p: Prod) {
-    setQtyFor(p);
-    setQtyPacks(1);
-    setQtyUnits(0);
+    const idx = lines.findIndex((l) => l.productId === p.id);
+    if (idx >= 0) {
+      // Already in the facture: edit its single line (prefill its qty).
+      const ex = lines[idx];
+      const exPack = p.conversions
+        .filter((c) => Number(c.factor) > 1)
+        .sort((a, b) => Number(a.factor) - Number(b.factor))[0];
+      const isPack = !!exPack && ex.unitId === exPack.unitId;
+      setEditingIdx(idx);
+      setQtyFor(p);
+      setQtyPacks(isPack ? Math.max(0, Math.floor(Number(ex.qty))) : 0);
+      setQtyUnits(isPack ? 0 : Math.max(0, Math.floor(Number(ex.qty))));
+    } else {
+      setEditingIdx(null);
+      setQtyFor(p);
+      setQtyPacks(1);
+      setQtyUnits(0);
+    }
     setFreshStock(null);
     // Fresh FREE stock for this product (cards may be stale).
     fetch(`/api/vans/${vanId}/holds`, { cache: "no-store" })
@@ -237,21 +290,36 @@ export function VenteClient({
     const p = qtyFor;
     const pack = packOf(p);
     const live = freshStock ?? freeOf(p.id);
-    const avail = Math.max(0, live);
+    // Editing: the line's current qty goes back to the available pool.
+    const cur = editingIdx != null ? lines[editingIdx] ?? null : null;
     const f = pack ? normFactor(Number(pack.factor)) : 0;
+    const curBase = cur ? Number(cur.qty) * (pack && cur.unitId === pack.unitId && f ? f : 1) : 0;
+    const avail = Math.max(0, live + curBase);
     const packs = f ? Math.min(qtyPacks, Math.floor(avail / f)) : 0;
     const units = Math.min(qtyUnits, Math.floor(avail));
     const opts = saleUnits({ ...p, conversions: p.conversions.map((c) => ({ ...c, factor: Number(c.factor) })) } as never, allowPieces);
     const base = priceFor(p, client?.tierId ?? null);
-    if (pack && packs > 0) {
-      setLines((prev) => [...prev, { productId: p.id, unitId: pack.unitId, qty: packs, unitPrice: priceForUnit(base, f) }]);
-    } else if (units > 0 && opts.some((o) => o.id === (p.baseUnitId ?? ""))) {
-      setLines((prev) => [...prev, { productId: p.id, unitId: p.baseUnitId, qty: units, unitPrice: base }]);
-    } else if (units > 0) {
-      setLines((prev) => [...prev, { productId: p.id, unitId: null, qty: units, unitPrice: base }]);
-    } else return;
+    const row =
+      pack && packs > 0
+        ? { productId: p.id, unitId: pack.unitId, qty: packs, unitPrice: priceForUnit(base, f) }
+        : units > 0 && opts.some((o) => o.id === (p.baseUnitId ?? ""))
+          ? { productId: p.id, unitId: p.baseUnitId, qty: units, unitPrice: base }
+          : units > 0
+            ? { productId: p.id, unitId: null, qty: units, unitPrice: base }
+            : null;
+    if (!row) {
+      // Zeroed while editing: drop the line instead of keeping a 0 line.
+      if (editingIdx != null) setLines((prev) => prev.filter((_, j) => j !== editingIdx));
+      closeQty();
+      return;
+    }
+    if (editingIdx != null) {
+      setLines((prev) => prev.map((l, j) => (j === editingIdx ? row : l)));
+    } else {
+      setLines((prev) => [...prev, row]);
+    }
     beepAdd();
-    setQtyFor(null);
+    closeQty();
   }
 
   const total = lines.reduce((s, l) => s + l.qty * l.unitPrice, 0);
@@ -263,56 +331,185 @@ export function VenteClient({
   }
 
   async function confirmSale() {
-    if (!lines.length || saving) return;
-    if (qrStrict && (!client || !scanned)) {
-      setError("qr_required");
-      setScanOpen(true);
-      return;
-    }
-    setSaving(true);
-    setError(null);
-    const body = {
-      clientId: client?.id ?? null,
-      locationId: vanId,
-      tierId: client?.tierId ?? null,
-      channel: "VAN",
-      tourneeId,
-      qrScanned: scanned,
-      paid: paid === "" ? total : Number(paid),
-      lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0 })),
-    };
+    if (!lines.length || saving || submittingRef.current) return;
+    submittingRef.current = true;
     try {
-      const res = await fetch("/api/sales/tickets", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+      if (qrStrict && (!client || !scanned)) {
+        setError("qr_required");
+        setScanOpen(true);
+        return;
+      }
+      const paidNow = paid === "" ? total : Number(paid);
+      // Mirror the server's rules locally so an offline sale the PC would
+      // reject is caught BEFORE goods change hands.
+      const check = checkOfflineSale({
+        snap,
+        ops,
+        channel: "VAN",
+        clientId: client?.id ?? null,
+        lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0 })),
+        remise: 0,
+        paid: paidNow,
+        qrScanned: scanned,
+        vanId,
       });
-      const d = await res.json().catch(() => null);
-      if (!res.ok) {
-        setError(d?.error ?? "failed");
+      if (!check.ok) {
+        setError(check.error);
+        if (check.error === "qr_required") setScanOpen(true);
         return;
       }
-      beepConfirm();
-      setDoneId(d.id);
-      setDoneQueued(false);
-      setLines([]);
-      setShowFacture(false);
-    } catch {
-      // Offline: queue the ticket, it syncs as an immediate sale later.
+      // Snapshot for the print preview (lines/client are cleared below).
+      const snapLines = lines.map((l) => ({
+        name: (effProducts.find((p) => p.id === l.productId)?.name) ?? products.find((p) => p.id === l.productId)?.name ?? "",
+        qty: l.qty,
+        baseQty: null as number | null,
+        unitPrice: l.unitPrice,
+        lineTotal: l.qty * l.unitPrice,
+      }));
+      const snapClient = client;
+      const snapTotal = total;
+      const snapPaid = paidNow;
+      setSaving(true);
+      setError(null);
+      const body = {
+        clientId: client?.id ?? null,
+        locationId: vanId,
+        tierId: client?.tierId ?? null,
+        channel: "VAN",
+        tourneeId,
+        qrScanned: scanned,
+        paid: paidNow,
+        lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0 })),
+      };
       try {
-        await queueOp("ticket", body as unknown as Record<string, unknown>);
+        const res = await fetch("/api/sales/tickets", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const d = await res.json().catch(() => null);
+        if (!res.ok) {
+          setError(d?.error ?? "failed");
+          return;
+        }
+        beepConfirm();
+        setDoneId(d.id);
+        setDoneQueued(false);
+        setDoneTicket({
+          number: d.number,
+          date: d.date,
+          total: d.total,
+          paid: d.paid,
+          remise: d.remise ?? 0,
+          // Server balance is read before posting → old debt as returned.
+          oldDebt: d.client ? Number(d.client.balance ?? 0) : null,
+          newDebt: d.client ? Number(d.client.balance ?? 0) + (Number(d.total) - Number(d.paid)) : null,
+          client: d.client ? { name: d.client.name, code: d.client.code, phone: d.client.phone ?? null, tierName: d.client.tier?.name ?? null } : null,
+          location: d.location ? { name: d.location.name } : { name: vanName },
+          seller: null,
+          sellerPhone: null,
+          lines: (d.lines ?? []).map((l: { product?: { name?: string }; name?: string; qty: number | string; baseQty?: number | string | null; unitPrice: number | string; lineTotal: number | string }) => ({
+            name: l.product?.name ?? l.name ?? "",
+            qty: l.qty,
+            baseQty: l.baseQty ?? null,
+            unitPrice: l.unitPrice,
+            lineTotal: l.lineTotal,
+          })),
+        });
+        setLines([]);
+        setShowFacture(false);
       } catch {
-        setError("save_failed");
-        return;
+        // Offline: queue the ticket, it syncs as an immediate sale later.
+        // Preview renders from the local snapshot (number assigned on sync).
+        try {
+          await queueOp("ticket", body as unknown as Record<string, unknown>);
+          setOps(await getOutbox());
+        } catch {
+          setError("save_failed");
+          return;
+        }
+        beepConfirm();
+        setDoneId("queued");
+        setDoneQueued(true);
+        setDoneTicket({
+          number: "…",
+          date: new Date().toISOString(),
+          total: snapTotal,
+          paid: snapPaid,
+          remise: 0,
+          oldDebt: snapClient ? Number(snapClient.balance ?? 0) : null,
+          newDebt: snapClient ? Number(snapClient.balance ?? 0) + (snapTotal - snapPaid) : null,
+          client: snapClient ? { name: snapClient.name, code: snapClient.code, phone: snapClient.phone, tierName: null } : null,
+          location: { name: vanName },
+          seller: null,
+          sellerPhone: null,
+          lines: snapLines,
+        });
+        setLines([]);
+        setShowFacture(false);
+      } finally {
+        setSaving(false);
       }
-      beepConfirm();
-      setDoneId("queued");
-      setDoneQueued(true);
-      setLines([]);
-      setShowFacture(false);
     } finally {
-      setSaving(false);
+      submittingRef.current = false;
     }
+  }
+
+  // Ticket QR for the preview (same payload as the print page).
+  useEffect(() => {
+    if (!doneTicket || doneTicket.number === "…") return;
+    let dead = false;
+    import("qrcode")
+      .then(({ default: QRCode }) =>
+        QRCode.toDataURL(JSON.stringify({ app: "distribuili", type: "ticket", n: doneTicket.number }), { margin: 1, width: 160 })
+      )
+      .then((url) => { if (!dead) setTicketQr(url); })
+      .catch(() => {});
+    return () => { dead = true; };
+  }, [doneTicket]);
+
+  function doPrint() {
+    document.body.classList.add("ticket-printing");
+    const done = () => document.body.classList.remove("ticket-printing");
+    window.addEventListener("afterprint", done, { once: true });
+    window.setTimeout(done, 2500);
+    window.print();
+  }
+
+  function ticketText(): string {
+    if (!doneTicket) return "";
+    const L = [
+      ticketCo?.company.name ?? "",
+      ticketCo?.company.phone ?? "",
+      `N° ${doneTicket.number}`,
+      doneTicket.client ? `${doneTicket.client.name} (${doneTicket.client.code ?? ""})` : "",
+      "----------------",
+      ...doneTicket.lines.map((l) => `${l.name}  ${l.qty} x ${l.unitPrice} = ${l.lineTotal}`),
+      "----------------",
+      `${ticketLabels.total}: ${doneTicket.total}`,
+      `${ticketLabels.paid}: ${doneTicket.paid}`,
+      `${ticketLabels.due}: ${Number(doneTicket.total) - Number(doneTicket.paid)}`,
+      ticketLabels.thanks,
+    ];
+    return L.filter((x) => x !== "").join("\n");
+  }
+
+  async function doShare() {
+    try {
+      const { Share } = await import("@capacitor/share");
+      await Share.share({ title: `N° ${doneTicket?.number ?? ""}`, text: ticketText() });
+    } catch {
+      // Web fallback: copy to clipboard.
+      try {
+        await navigator.clipboard.writeText(ticketText());
+      } catch { /* ignore */ }
+    }
+  }
+
+  function closeDone() {
+    setDoneId(null);
+    setDoneTicket(null);
+    setTicketQr(null);
   }
 
   function startPress(p: Prod) {
@@ -378,6 +575,7 @@ export function VenteClient({
               const whole = f ? Math.floor(stock / f) : 0;
               const rest = f ? Math.round((stock - whole * f) * 1000) / 1000 : 0;
               const packPrice = pack ? base * f : 0;
+              const inSale = lines.find((l) => l.productId === p.id);
               return (
                 <div
                   key={p.id}
@@ -391,8 +589,13 @@ export function VenteClient({
                   onMouseUp={endPress}
                   onMouseLeave={endPress}
                   onKeyDown={(e) => e.key === "Enter" && openQty(p)}
-                  className="overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay)"
+                  className="relative overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay)"
                 >
+                  {inSale && (
+                    <span className="absolute end-1.5 top-1.5 z-10 rounded-full bg-(--brand-500) px-2 py-0.5 text-[11px] font-black tabular-nums text-white" dir="ltr">
+                      ×{dzMoney(Number(inSale.qty))}
+                    </span>
+                  )}
                   {img ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={img} alt={p.name} className="aspect-[4/3] w-full object-cover" loading="lazy" draggable={false} />
@@ -538,7 +741,7 @@ export function VenteClient({
         const unitFull = qtyUnits >= maxUnits;
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
-            <button type="button" aria-label={labels.cancel} onClick={() => setQtyFor(null)} className="absolute inset-0 bg-black/55" />
+            <button type="button" aria-label={labels.cancel} onClick={() => closeQty()} className="absolute inset-0 bg-black/55" />
             <div className="relative max-h-[90dvh] w-full max-w-sm overflow-y-auto rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-2xl">
               <div className="mb-1 truncate text-base font-black">{qtyFor.name}</div>
               <div className={cn("mb-2 rounded-xl bg-(--bg-sunken) p-2.5", live < 0 ? "text-red-500" : "")}>
@@ -595,7 +798,7 @@ export function VenteClient({
               </div>
               )}
               <div className="mt-3 flex gap-2">
-                <Button variant="secondary" onClick={() => setQtyFor(null)} className="flex-1">{labels.cancel}</Button>
+                  <Button variant="secondary" onClick={() => closeQty()} className="flex-1">{labels.cancel}</Button>
                 <Button onClick={addQty} disabled={qtyPacks <= 0 && qtyUnits <= 0} className="flex-[2]">{labels.confirm}</Button>
               </div>
             </div>
@@ -632,22 +835,56 @@ export function VenteClient({
         )}
       </Modal>
 
-      {/* Done → print (or queued note when offline) */}
-      <Modal open={doneId !== null} onClose={() => setDoneId(null)} title={labels.saved} subtitle="" icon={<Check size={18} />}>
-        {doneQueued ? (
-          <p className="text-xs font-bold opacity-60">{labels.ticketQueued ?? labels.printHint}</p>
-        ) : (
-          <p className="text-xs font-bold opacity-60">{labels.printHint}</p>
-        )}
-        <div className="mt-2 flex gap-2">
-          <Button variant="secondary" onClick={() => setDoneId(null)} className="flex-1">{labels.cancel}</Button>
-          {doneId && !doneQueued && (
-            <Link href={`/${locale}/sales/${doneId}/ticket`} target="_blank" className="flex-[2]">
-              <Button className="w-full">{labels.print}</Button>
-            </Link>
-          )}
-        </div>
-      </Modal>
+      {/* Done → print preview popup (or queued note when offline).
+          Rendered in a body-level portal so the print CSS can isolate the
+          ticket from the rest of the page. */}
+      {doneId !== null && (doneQueued || !doneTicket || typeof document === "undefined"
+        ? (
+          <Modal open onClose={closeDone} title={labels.saved} subtitle="" icon={<Check size={18} />}>
+            <p className="text-xs font-bold opacity-60">{labels.ticketQueued ?? labels.printHint}</p>
+            <div className="mt-2 flex gap-2">
+              <Button variant="secondary" onClick={closeDone} className="flex-1">{labels.cancel}</Button>
+            </div>
+          </Modal>
+        )
+        : createPortal(
+          <div className="ticket-print-scope fixed inset-0 z-[70] overflow-y-auto bg-black/60 p-3">
+            <div className="mx-auto w-fit max-w-full">
+              <div className="overflow-hidden rounded-2xl bg-white shadow-2xl">
+                <TicketView
+                  ticket={doneTicket}
+                  company={ticketCo?.company ?? { name: "" }}
+                  width={ticketCo?.width ?? "80"}
+                  locale={ticketLang}
+                  labels={ticketLabels}
+                  qrDataUrl={ticketQr}
+                  lang={ticketLang}
+                />
+              </div>
+              <div className="no-print mx-auto mt-2 flex max-w-full gap-2 pb-6" style={{ width: `${ticketCo?.width ?? "80"}mm` }}>
+                <Button variant="secondary" onClick={closeDone} className="flex-1" aria-label={labels.cancel}>
+                  <X size={16} />
+                </Button>
+                {isNative && (
+                  <Button variant="secondary" onClick={() => void doShare()} className="flex-1">
+                    <Share2 size={16} className="me-1" />
+                    {ticketLabels.share}
+                  </Button>
+                )}
+                <Button onClick={doPrint} className="flex-[2]">
+                  <Printer size={16} className="me-1" />
+                  {labels.print}
+                </Button>
+              </div>
+              <div className="no-print mx-auto max-w-full pb-8 text-center" style={{ width: `${ticketCo?.width ?? "80"}mm` }}>
+                <Link href={`/${locale}/sales/${doneId}/ticket`} target="_blank" className="text-xs font-bold text-white/80 underline">
+                  {labels.printTitle ?? labels.print}
+                </Link>
+              </div>
+            </div>
+          </div>,
+          document.body
+        ))}
     </div>
   );
 }

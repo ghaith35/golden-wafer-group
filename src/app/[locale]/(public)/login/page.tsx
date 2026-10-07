@@ -1,10 +1,14 @@
+import { redirect } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { prisma } from "@/lib/db";
 import { LoginForm } from "./LoginForm";
 import { LanguageSwitcher } from "@/components/layout/TopBar";
 
 export default async function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  // Fresh install (no company yet) → owner creates credentials first.
+  if ((await prisma.company.count()) === 0) redirect(`/${locale}/onboard`);
   const t = await getTranslations("app");
   return (
     <main className="relative min-h-screen flex items-center justify-center overflow-hidden">

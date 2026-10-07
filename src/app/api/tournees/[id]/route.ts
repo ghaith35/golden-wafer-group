@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { tourneeStopsSchema, stopUpdateSchema } from "@/lib/sales/validation";
-import { setStops, closeTournee, reorderStops, startDay, finishDay } from "@/lib/tournees/service";
+import { setStops, closeTournee, reorderStops, startDay, finishDay, setTourneeTimes } from "@/lib/tournees/service";
 import { optimizeRoute } from "@/lib/routes/optimize";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -53,6 +53,17 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
     if (body.action === "finish") {
       return NextResponse.json(await finishDay(session.companyId, session.userId, session.role, id));
+    }
+    if (body.action === "times") {
+      // Admin only: manual départ/fin correction from the presence board.
+      if (session.role !== "Admin") return NextResponse.json({ error: "forbidden" }, { status: 403 });
+      const { startedAt, finishedAt } = body as { startedAt?: string | null; finishedAt?: string | null };
+      return NextResponse.json(await setTourneeTimes(
+        session.companyId,
+        id,
+        startedAt ? new Date(startedAt) : null,
+        finishedAt ? new Date(finishedAt) : null
+      ));
     }
     const parsed = tourneeStopsSchema.safeParse(body);
     if (parsed.success) {

@@ -30,6 +30,20 @@
   --semantic-success: #10b981;
   --semantic-warning: #f59e0b;
   --semantic-danger: #ef4444;
+
+  /* ── Superadmin sidebar (repaire-style console shell) ─────────────── */
+  --sa-sidebar-start: #0c1226;
+  --sa-sidebar-end: #162042;
+  --sa-sidebar-fg: #e2e8f0;
+  --sa-sidebar-muted: #8b98b8;
+  --sa-sidebar-accent: #818cf8;
+  --sa-sidebar-active-bg: rgba(99, 102, 241, 0.25);
+  --sa-sidebar-active-fg: #c7d2fe;
+  --sa-sidebar-hover-bg: rgba(255, 255, 255, 0.06);
+  --sa-sidebar-hover-fg: #f1f5f9;
+  --sa-sidebar-section: #64748b;
+  --sa-sidebar-footer-border: #1e293b;
+  --sa-sidebar-logout: #f87171;
 }
 
 /* THEMES:START */
@@ -429,6 +443,20 @@
   --border-default: #1f2e27;
   --border-subtle: #16211c;
   --border-strong: #2c3f35;
+
+  /* ── Superadmin sidebar (dark) ──────────────────────────────────── */
+  --sa-sidebar-start: #070b18;
+  --sa-sidebar-end: #0d1530;
+  --sa-sidebar-fg: #e2e8f0;
+  --sa-sidebar-muted: #7c8aa8;
+  --sa-sidebar-accent: #818cf8;
+  --sa-sidebar-active-bg: rgba(99, 102, 241, 0.3);
+  --sa-sidebar-active-fg: #c7d2fe;
+  --sa-sidebar-hover-bg: rgba(255, 255, 255, 0.06);
+  --sa-sidebar-hover-fg: #f1f5f9;
+  --sa-sidebar-section: #475569;
+  --sa-sidebar-footer-border: #1e293b;
+  --sa-sidebar-logout: #f87171;
 }
 
 body {

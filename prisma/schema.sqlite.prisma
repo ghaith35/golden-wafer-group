@@ -17,81 +17,91 @@ datasource db {
 
 
 model Company {
-  id        String   @id @default(cuid())
-  name      String
-  phone     String?
-  address   String?
-  email     String?
+  id           String   @id @default(cuid())
+  name         String
+  phone        String?
+  address      String?
+  email        String?
   /// Algerian fiscal IDs (shown on invoices / sheets).
-  rc        String?
-  nif       String?
-  ai        String?
-  nis       String?
-  bankName  String?
-  rib       String?
-  logoUrl   String?
+  rc           String?
+  nif          String?
+  ai           String?
+  nis          String?
+  bankName     String?
+  rib          String?
+  logoUrl      String?
   /// Signature + stamp images printed on documents.
   signatureUrl String?
   stampUrl     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  users     User[]
-  stores    Store[]
-  customers Customer[]
-  suppliers Supplier[]
-  products  Product[]
-  seasons   Season[]
-  settings  CompanySettings?
-  units     Unit[]
-  priceTiers PriceTier[]
-  expenseTypes ExpenseType[]
-  secteurs  Secteur[]
+  users            User[]
+  stores           Store[]
+  customers        Customer[]
+  suppliers        Supplier[]
+  products         Product[]
+  seasons          Season[]
+  settings         CompanySettings?
+  units            Unit[]
+  priceTiers       PriceTier[]
+  expenseTypes     ExpenseType[]
+  secteurs         Secteur[]
   purchaseInvoices PurchaseInvoice[]
-  supplierReturns SupplierReturn[]
-  stockBatches StockBatch[]
-  transfers Transfer[]
-  stockCounts StockCount[]
-  stockLosses StockLoss[]
-  sales Sale[]
-  clientReturns ClientReturn[]
-  tournees Tournee[]
-  expenses Expense[]
-  versements Versement[]
-  distances  ClientDistance[]
-  deposits Deposit[]
-  devices Device[]
-  syncOps SyncOp[]
-  dailyCloses DailyClose[]
+  supplierReturns  SupplierReturn[]
+  stockBatches     StockBatch[]
+  transfers        Transfer[]
+  stockCounts      StockCount[]
+  stockLosses      StockLoss[]
+  sales            Sale[]
+  clientReturns    ClientReturn[]
+  tournees         Tournee[]
+  expenses         Expense[]
+  versements       Versement[]
+  distances        ClientDistance[]
+  deposits         Deposit[]
+  devices          Device[]
+  syncOps          SyncOp[]
+  dailyCloses      DailyClose[]
 
   @@map("companies")
 }
 
 model CompanySettings {
-  id            String   @id @default(cuid())
-  companyId     String   @unique
-  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  defaultLocale String   @default("ar")
-  currency      String   @default("DZD")
+  id            String  @id @default(cuid())
+  companyId     String  @unique
+  company       Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  defaultLocale String  @default("ar")
+  currency      String  @default("DZD")
 
   // ── Feature toggles (every toggle gates real logic + UI + reports) ──
-  expiryEnabled       Boolean        @default(false)
-  creditSalesEnabled  Boolean        @default(false)
-  debtTrackingEnabled Boolean        @default(true)
-  remiseEnabled       Boolean        @default(false)
-  depositsEnabled     Boolean        @default(false)
-  multiDepotEnabled   Boolean        @default(false)
-  costingMethod       String  @default("FIFO")
-  facturePro          Boolean        @default(false)
-  posEnabled          Boolean        @default(false)
-  vanBindingMode      String @default("LOCKED")
-  oversellAllowed     Boolean        @default(true)
-  pieceSalesEnabled   Boolean        @default(false)
+  expiryEnabled           Boolean        @default(false)
+  creditSalesEnabled      Boolean        @default(false)
+  debtTrackingEnabled     Boolean        @default(true)
+  remiseEnabled           Boolean        @default(false)
+  depositsEnabled         Boolean        @default(false)
+  multiDepotEnabled       Boolean        @default(false)
+  costingMethod           String  @default("FIFO")
+  facturePro              Boolean        @default(false)
+  posEnabled              Boolean        @default(false)
+  vanBindingMode          String @default("LOCKED")
+  oversellAllowed         Boolean        @default(true)
+  pieceSalesEnabled       Boolean        @default(false)
   /// Transfers need an explicit receipt confirmation (declare → confirm).
   /// OFF = declare delivers straight to destination (single-step).
-  transferConfirmRequired Boolean  @default(true)
-  gpsEnabled          Boolean        @default(true)
-  qrStrictMode        Boolean        @default(true)
+  transferConfirmRequired Boolean        @default(true)
+  gpsEnabled              Boolean        @default(true)
+  qrStrictMode            Boolean        @default(true)
+  /// Thermal ticket paper width in mm (admin setting: "58" or "80").
+  ticketWidth             String         @default("80")
+  /// Thermal ticket language (admin setting: "ar" or "fr", default French).
+  ticketLang              String         @default("fr")
+  /// Purchase picker: only the chosen supplier's products (default ON).
+  supplierFilterEnabled   Boolean        @default(true)
+  /// Public internet domain for this install's phones
+  /// (e.g. client1.distribuili.khiatadz.com, no scheme). The Devices setup QR
+  /// uses it when set, so vans reach the PC through the tunnel from anywhere.
+  remoteDomain            String?
 
   @@map("company_settings")
 }
@@ -108,13 +118,13 @@ model Unit {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  @@unique([companyId, name])
-  @@map("units")
-
   baseFor     Product[]               @relation("BaseUnit")
   saleFor     Product[]               @relation("SaleUnit")
   purchaseFor Product[]               @relation("PurchaseUnit")
   conversions ProductUnitConversion[]
+
+  @@unique([companyId, name])
+  @@map("units")
 }
 
 model PriceTier {
@@ -126,12 +136,12 @@ model PriceTier {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
+  prices    ProductTierPrice[]
+  customers Customer[]
+  sales     Sale[]
+
   @@unique([companyId, name])
   @@map("price_tiers")
-
-  prices ProductTierPrice[]
-  customers Customer[]
-  sales Sale[]
 }
 
 model ExpenseType {
@@ -142,10 +152,10 @@ model ExpenseType {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
+  expenses Expense[]
+
   @@unique([companyId, name])
   @@map("expense_types")
-
-  expenses Expense[]
 }
 
 /// National reference: 58 wilayas (global, seeded once — not per company).
@@ -154,29 +164,28 @@ model Wilaya {
   nameFr String
   nameAr String
 
-  secteurs Secteur[]
+  secteurs  Secteur[]
   customers Customer[]
   suppliers Supplier[]
 }
 
 /// Secteur inside a wilaya, per company (dispatch + tournées operate on these).
 model Secteur {
-  id        String   @id @default(cuid())
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   wilayaCode Int
-  wilaya    Wilaya   @relation(fields: [wilayaCode], references: [code], onDelete: Restrict)
-  name      String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-
-  @@unique([companyId, wilayaCode, name])
-  @@index([companyId, wilayaCode])
+  wilaya     Wilaya   @relation(fields: [wilayaCode], references: [code], onDelete: Restrict)
+  name       String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
 
   customers Customer[]
   suppliers Supplier[]
   tournees  Tournee[]
 
+  @@unique([companyId, wilayaCode, name])
+  @@index([companyId, wilayaCode])
   @@map("secteurs")
 }
 
@@ -203,12 +212,12 @@ model User {
 
   distances ClientDistance[]
 
-  @@unique([companyId, username])
-  @@map("users")
-
-  assignedVans Store[] @relation("AssignedVan")
+  assignedVans Store[]  @relation("AssignedVan")
   devices      Device[]
   createdSales Sale[]   @relation("CreatedSales")
+
+  @@unique([companyId, username])
+  @@map("users")
 }
 
 model RefreshToken {
@@ -223,12 +232,12 @@ model RefreshToken {
 }
 
 model SuperAdminUser {
-  id               String    @id @default(cuid())
-  username         String    @unique
-  passwordHash     String
-  isActive         Boolean   @default(true)
+  id                String    @id @default(cuid())
+  username          String    @unique
+  passwordHash      String
+  isActive          Boolean   @default(true)
   passwordChangedAt DateTime?
-  createdAt        DateTime  @default(now())
+  createdAt         DateTime  @default(now())
 
   audits SuperAdminAudit[]
 
@@ -237,15 +246,15 @@ model SuperAdminUser {
 
 /// Every superadmin action (who did what to which machine/key, when, from where).
 model SuperAdminAudit {
-  id        String   @id @default(cuid())
-  adminId   String
-  admin     SuperAdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
-  action    String
+  id         String         @id @default(cuid())
+  adminId    String
+  admin      SuperAdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  action     String
   targetType String?
-  targetId  String?
-  meta      Json?
-  ip        String?
-  createdAt DateTime @default(now())
+  targetId   String?
+  meta       Json?
+  ip         String?
+  createdAt  DateTime       @default(now())
 
   @@index([adminId, createdAt])
   @@map("super_admin_audits")
@@ -254,37 +263,33 @@ model SuperAdminAudit {
 // ─── Distribution domain (minimal foundation) ────────────────────────────────
 
 model Store {
-  id        String   @id @default(cuid())
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  name      String
-  address   String?
+  id                String       @id @default(cuid())
+  companyId         String
+  company           Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name              String
+  address           String?
   /// DEPOT = fixed warehouse, VAN = van stock (marque + matricule).
-  kind      String @default("DEPOT")
-  marque    String?
-  matricule String?
+  kind              String @default("DEPOT")
+  marque            String?
+  matricule         String?
   /// Van photo (uploads/vans/…). Null = placeholder icon.
-  imageUrl  String?
-  userId    String?
-  user      User?    @relation("AssignedVan", fields: [userId], references: [id], onDelete: SetNull)
-  isActive  Boolean  @default(true)
+  imageUrl          String?
+  userId            String?
+  user              User?        @relation("AssignedVan", fields: [userId], references: [id], onDelete: SetNull)
+  isActive          Boolean      @default(true)
   /// Live GPS tracking (APK reports via POST /api/track).
-  lastLat    Float?
-  lastLng    Float?
-  lastSeenAt DateTime?
+  lastLat           Float?
+  lastLng           Float?
+  lastSeenAt        DateTime?
   /// Admin pressed "request location" (POST /api/vans/[id]/locate).
   /// The APK polls it and reports immediately; cleared on next report.
   locateRequestedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  /// One driver ↔ max one van (NULL userIds are always allowed).
-  @@unique([companyId, userId])
-  @@map("stores")
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   batches       StockBatch[]
-  transfersFrom Transfer[]   @relation("TransferFrom")
-  transfersTo   Transfer[]   @relation("TransferTo")
+  transfersFrom Transfer[]     @relation("TransferFrom")
+  transfersTo   Transfer[]     @relation("TransferTo")
   counts        StockCount[]
   losses        StockLoss[]
   sales         Sale[]
@@ -293,6 +298,10 @@ model Store {
   expenseLinks  Expense[]
   devices       Device[]
   dailyCloses   DailyClose[]
+
+  /// One driver ↔ max one van (NULL userIds are always allowed).
+  @@unique([companyId, userId])
+  @@map("stores")
 }
 
 
@@ -301,42 +310,45 @@ model Store {
 /// Stock leaves the source at declare (in-transit holding batches),
 /// enters the destination only at confirm. Nothing moves silently.
 model Transfer {
-  id            String         @id @default(cuid())
-  companyId     String
-  company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  seasonId      String?
-  number        String
+  id             String         @id @default(cuid())
+  companyId      String
+  company        Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId       String?
+  number         String
   fromLocationId String
-  fromLocation  Store          @relation("TransferFrom", fields: [fromLocationId], references: [id], onDelete: Restrict)
-  toLocationId  String
-  toLocation    Store          @relation("TransferTo", fields: [toLocationId], references: [id], onDelete: Restrict)
-  status        String @default("DECLARED")
+  fromLocation   Store          @relation("TransferFrom", fields: [fromLocationId], references: [id], onDelete: Restrict)
+  toLocationId   String
+  toLocation     Store          @relation("TransferTo", fields: [toLocationId], references: [id], onDelete: Restrict)
+  status         String @default("DECLARED")
   /// Cash the vendeur hands over with a van→depot return (versement link in Phase 6).
-  cashAmount    Decimal        @default(0)
-  notes         String?
-  declaredById  String?
-  confirmedById String?
-  date          DateTime       @default(now())
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  cashAmount     Decimal        @default(0)
+  notes          String?
+  declaredById   String?
+  confirmedById  String?
+  date           DateTime       @default(now())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
-  lines         TransferLine[]
-  holdingBatches StockBatch[] @relation("HoldingBatches")
+  lines          TransferLine[]
+  holdingBatches StockBatch[]   @relation("HoldingBatches")
   versements     Versement[]
 
+  /// Offline idempotency key: the sync opId that declared this transfer.
+  opId String?
 
   @@unique([companyId, number])
+  @@unique([companyId, opId])
   @@index([companyId, status])
   @@map("transfers")
 }
 
 model TransferLine {
-  id          String   @id @default(cuid())
-  transferId  String
-  transfer    Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
-  declaredQty Decimal
+  id           String   @id @default(cuid())
+  transferId   String
+  transfer     Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  declaredQty  Decimal
   confirmedQty Decimal?
 
   @@index([transferId])
@@ -358,7 +370,7 @@ model StockCount {
   date       DateTime    @default(now())
   createdAt  DateTime    @default(now())
 
-  lines      StockCountLine[]
+  lines StockCountLine[]
 
   @@unique([companyId, number])
   @@index([companyId, locationId])
@@ -415,47 +427,51 @@ model Season {
 }
 
 model Customer {
-  id        String   @id @default(cuid())
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  id               String     @id @default(cuid())
+  companyId        String
+  company          Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   /// Stable code: QR payload + printed cards (`CLT-0001…`).
-  code      String
-  name      String
+  code             String
+  name             String
   /// Portal username (unique per company).
-  phone     String?
-  address   String?
-  wilayaCode Int?
-  wilaya    Wilaya?  @relation(fields: [wilayaCode], references: [code], onDelete: SetNull)
-  secteurId String?
-  secteur   Secteur? @relation(fields: [secteurId], references: [id], onDelete: SetNull)
-  activityType String?
+  phone            String?
+  address          String?
+  wilayaCode       Int?
+  wilaya           Wilaya?    @relation(fields: [wilayaCode], references: [code], onDelete: SetNull)
+  secteurId        String?
+  secteur          Secteur?   @relation(fields: [secteurId], references: [id], onDelete: SetNull)
+  activityType     String?
   /// Sale price tier assigned at creation.
-  tierId    String?
-  tier      PriceTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
-  creditLimit Decimal @default(0)
-  creditDays  Int     @default(0)
-  gpsLat    Float?
-  gpsLng    Float?
+  tierId           String?
+  tier             PriceTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
+  creditLimit      Decimal    @default(0)
+  creditDays       Int        @default(0)
+  gpsLat           Float?
+  gpsLng           Float?
   /// Bcrypt hash of the portal secret code (login = phone + secret).
   portalSecretHash String?
-  balance   Decimal  @default(0)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  balance          Decimal    @default(0)
+  isActive         Boolean    @default(true)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  /// Offline idempotency key: the sync opId that created this client.
+  opId String?
 
   distances ClientDistance[]
 
+  sales        Sale[]
+  returns      ClientReturn[]
+  tourneeStops TourneeStop[]
+  versements   Versement[]
+  deposits     Deposit[]
+
   @@unique([companyId, code])
   @@unique([companyId, phone])
+  @@unique([companyId, opId])
   @@index([companyId, name])
   @@index([companyId, secteurId])
   @@map("customers")
-
-  sales Sale[]
-  returns ClientReturn[]
-  tourneeStops TourneeStop[]
-  versements Versement[]
-  deposits Deposit[]
 }
 
 model Supplier {
@@ -470,21 +486,20 @@ model Supplier {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([companyId, name])
-  @@map("suppliers")
-
-  code       String?
-  wilayaCode Int?
-  wilaya     Wilaya?  @relation(fields: [wilayaCode], references: [code], onDelete: SetNull)
-  secteurId  String?
-  secteur    Secteur? @relation(fields: [secteurId], references: [id], onDelete: SetNull)
-  notes      String?
+  code             String?
+  wilayaCode       Int?
+  wilaya           Wilaya?           @relation(fields: [wilayaCode], references: [code], onDelete: SetNull)
+  secteurId        String?
+  secteur          Secteur?          @relation(fields: [secteurId], references: [id], onDelete: SetNull)
+  notes            String?
   defaultProducts  Product[]         @relation("DefaultSupplier")
   purchaseInvoices PurchaseInvoice[]
   supplierReturns  SupplierReturn[]
   versements       Versement[]
 
   @@unique([companyId, code])
+  @@index([companyId, name])
+  @@map("suppliers")
 }
 
 model ProductCategory {
@@ -499,44 +514,44 @@ model ProductCategory {
 }
 
 model Product {
-  id          String           @id @default(cuid())
-  companyId   String
-  company     Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  categoryId  String?
-  category    ProductCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  supplierId  String?
-  supplier    Supplier?        @relation("DefaultSupplier", fields: [supplierId], references: [id], onDelete: SetNull)
-  name        String
-  reference   String?
-  barcode     String?
+  id             String           @id @default(cuid())
+  companyId      String
+  company        Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  categoryId     String?
+  category       ProductCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  supplierId     String?
+  supplier       Supplier?        @relation("DefaultSupplier", fields: [supplierId], references: [id], onDelete: SetNull)
+  name           String
+  reference      String?
+  barcode        String?
   /// Colisage: free text, e.g. "12 pcs/ctn".
-  colisage    String?
-  baseUnitId  String?
-  baseUnit    Unit?            @relation("BaseUnit", fields: [baseUnitId], references: [id], onDelete: SetNull)
+  colisage       String?
+  baseUnitId     String?
+  baseUnit       Unit?            @relation("BaseUnit", fields: [baseUnitId], references: [id], onDelete: SetNull)
   /// Grossiste packaging: default unit used when buying / selling.
   /// Must be the base unit or one of this product's conversions.
   saleUnitId     String?
-  saleUnit       Unit?              @relation("SaleUnit", fields: [saleUnitId], references: [id], onDelete: SetNull)
+  saleUnit       Unit?            @relation("SaleUnit", fields: [saleUnitId], references: [id], onDelete: SetNull)
   purchaseUnitId String?
-  purchaseUnit   Unit?              @relation("PurchaseUnit", fields: [purchaseUnitId], references: [id], onDelete: SetNull)
-  salePrice   Decimal          @default(0)
-  costPrice   Decimal          @default(0)
-  stockQty    Decimal          @default(0)
-  minStock    Decimal          @default(0)
-  isActive    Boolean          @default(true)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  purchaseUnit   Unit?            @relation("PurchaseUnit", fields: [purchaseUnitId], references: [id], onDelete: SetNull)
+  salePrice      Decimal          @default(0)
+  costPrice      Decimal          @default(0)
+  stockQty       Decimal          @default(0)
+  minStock       Decimal          @default(0)
+  isActive       Boolean          @default(true)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
-  images      ProductImage[]
-  conversions ProductUnitConversion[]
-  tierPrices  ProductTierPrice[]
-  batches     StockBatch[]
-  purchaseLines PurchaseLine[]
-  returnLines SupplierReturnLine[]
-  transferLines TransferLine[]
-  countLines StockCountLine[]
-  lossLines StockLoss[]
-  saleLines SaleLine[]
+  images            ProductImage[]
+  conversions       ProductUnitConversion[]
+  tierPrices        ProductTierPrice[]
+  batches           StockBatch[]
+  purchaseLines     PurchaseLine[]
+  returnLines       SupplierReturnLine[]
+  transferLines     TransferLine[]
+  countLines        StockCountLine[]
+  lossLines         StockLoss[]
+  saleLines         SaleLine[]
   clientReturnLines ClientReturnLine[]
 
   @@index([companyId, name])
@@ -634,10 +649,15 @@ model Sale {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
-  lines       SaleLine[]
-  returns     ClientReturn[]
+  lines   SaleLine[]
+  returns ClientReturn[]
+
+  /// Offline idempotency key: the sync opId that created this document.
+  /// Unique per company → an offline sale can never be double-applied.
+  opId String?
 
   @@unique([companyId, kind, number])
+  @@unique([companyId, opId])
   @@index([companyId, clientId])
   @@index([companyId, status])
   @@map("sales")
@@ -665,26 +685,30 @@ model SaleLine {
 /// Client returns: restock + refund (cash) or debt credit.
 
 model ClientReturn {
-  id          String     @id @default(cuid())
-  companyId   String
-  company     Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  seasonId    String?
-  clientId    String
-  client      Customer   @relation(fields: [clientId], references: [id], onDelete: Restrict)
-  saleId      String?
-  sale        Sale?      @relation(fields: [saleId], references: [id], onDelete: SetNull)
-  locationId  String
-  location    Store      @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  number      String
-  refundType  String
-  total       Decimal    @default(0)
-  notes       String?
-  date        DateTime   @default(now())
-  createdAt   DateTime   @default(now())
+  id         String     @id @default(cuid())
+  companyId  String
+  company    Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId   String?
+  clientId   String
+  client     Customer   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  saleId     String?
+  sale       Sale?      @relation(fields: [saleId], references: [id], onDelete: SetNull)
+  locationId String
+  location   Store      @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  number     String
+  refundType String
+  total      Decimal    @default(0)
+  notes      String?
+  date       DateTime   @default(now())
+  createdAt  DateTime   @default(now())
 
-  lines       ClientReturnLine[]
+  lines ClientReturnLine[]
+
+  /// Offline idempotency key: the sync opId that created this return.
+  opId String?
 
   @@unique([companyId, number])
+  @@unique([companyId, opId])
   @@index([companyId, clientId])
   @@map("client_returns")
 }
@@ -721,10 +745,10 @@ model Tournee {
   /// Day tracking set by the livreur/vendeur: départ → fin de journée.
   startedAt  DateTime?
   finishedAt DateTime?
-  createdAt DateTime @default(now())
+  createdAt  DateTime      @default(now())
 
-  stops      TourneeStop[]
-  sales      Sale[]
+  stops TourneeStop[]
+  sales Sale[]
 
   @@index([companyId, date])
   @@index([companyId, locationId])
@@ -753,26 +777,28 @@ model TourneeStop {
 /// status drives the poll: pending | activated | revoked. A machine row is
 /// the server-side counterpart of the client's .lic files.
 model Machine {
-  id        String   @id @default(cuid())
-  machineId String   @unique
-  label     String?
-  phone     String?
-  specs     Json?
-  status    String   @default("pending")
-  token     String?
-  activationKey String?
-  activationType String @default("machine")
+  id                  String    @id @default(cuid())
+  machineId           String    @unique
+  label               String?
+  phone               String?
+  specs               Json?
+  status              String    @default("pending")
+  token               String?
+  activationKey       String?
+  activationType      String    @default("machine")
   consumedByMachineId String?
-  trialStart DateTime?
-  trialEnd  DateTime?
-  activatedAt DateTime?
-  contactName String?
-  city      String?
-  deviceSpecs Json?
-  trialIp   String?
-  lastIp    String?
-  lastSeen  DateTime @default(now())
-  createdAt DateTime @default(now())
+  trialStart          DateTime?
+  trialEnd            DateTime?
+  activatedAt         DateTime?
+  contactName         String?
+  city                String?
+  workshop            String?
+  email               String?
+  deviceSpecs         Json?
+  trialIp             String?
+  lastIp              String?
+  lastSeen            DateTime  @default(now())
+  createdAt           DateTime  @default(now())
 
   subscription MachineSubscription?
 
@@ -783,17 +809,17 @@ model Machine {
 /// Billing posture per machine (manual for now — no payment provider).
 /// expiry/suspension flips the same lock path as a manual revoke.
 model MachineSubscription {
-  id        String   @id @default(cuid())
-  machineId String   @unique
-  machine   Machine  @relation(fields: [machineId], references: [machineId], onDelete: Cascade)
-  plan      String   @default("standard")
-  status    String   @default("trial")
-  expiresAt DateTime?
+  id          String    @id @default(cuid())
+  machineId   String    @unique
+  machine     Machine   @relation(fields: [machineId], references: [machineId], onDelete: Cascade)
+  plan        String    @default("standard")
+  status      String    @default("trial")
+  expiresAt   DateTime?
   graceEndsAt DateTime?
   activatedBy String?
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@map("machine_subscriptions")
 }
@@ -811,15 +837,15 @@ model BlockedIp {
 /// Human-readable activation keys (DILI-XXXX-XXXX-XXXX). Pool keys bind to
 /// the first machine that redeems them; revoked keys kill the install.
 model LicenseKey {
-  id        String   @id @default(cuid())
-  machineId String?
-  label     String?
-  humanKey  String    @unique
-  revoked   Boolean   @default(false)
+  id                  String   @id @default(cuid())
+  machineId           String?
+  label               String?
+  humanKey            String   @unique
+  revoked             Boolean  @default(false)
   /// Pool key consumed by another machine (resetKey restores it).
   consumedByMachineId String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   @@map("license_keys")
 }
@@ -834,24 +860,46 @@ model TrialIssue {
   @@map("trial_issues")
 }
 
+/// Vendor-side tunnel slots: one public hostname per client
+/// (client1, client2…) pointing at the CLIENT's own PC via an outbound
+/// connector (Cloudflare Tunnel). The vendor provisions the hostname +
+/// credentials; client data never touches the vendor server, so a vendor
+/// outage never stops a client (LAN + offline keep working).
+model TunnelSlot {
+  id              String   @id @default(cuid())
+  subdomain       String   @unique
+  domain          String
+  label           String?
+  status          String   @default("pending")
+  tunnelId        String?
+  /// Connector token for the client's PC (shown once, admin-only).
+  token           String?
+  clientMachineId String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("tunnel_slots")
+}
+
 // ─── Mobile sync ─────────────────────────────────────────────────────────────
 
 /// One APK device, optionally locked to a van (vanBindingMode = LOCKED).
 model Device {
-  id          String   @id @default(cuid())
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  label       String
-  locationId  String?
-  location    Store?   @relation(fields: [locationId], references: [id], onDelete: SetNull)
-  userId      String?
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  tokenHash   String   @unique
-  lastSyncAt  DateTime?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id         String    @id @default(cuid())
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  label      String
+  locationId String?
+  location   Store?    @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tokenHash  String    @unique
+  lastSyncAt DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
 
-  ops         SyncOp[]
+  ops SyncOp[]
 
   @@index([companyId])
   @@map("devices")
@@ -861,16 +909,20 @@ model Device {
 /// Idempotent offline operation log (opId unique per company).
 /// Failed ops stay visible for owner reconciliation.
 model SyncOp {
-  id        String       @id @default(cuid())
-  companyId String
-  company   Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  deviceId  String?
-  device    Device?      @relation(fields: [deviceId], references: [id], onDelete: SetNull)
-  opId      String
-  kind      String
-  status    String
-  error     String?
-  createdAt DateTime     @default(now())
+  id         String       @id @default(cuid())
+  companyId  String
+  company    Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  deviceId   String?
+  device     Device?      @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  opId       String
+  kind       String
+  status     String
+  error      String?
+  /// Created document id (sale/transfer/payment…) for reconciliation.
+  resultId   String?
+  /// Real action time on the phone (op envelope `occurredAt`), not sync time.
+  occurredAt DateTime?
+  createdAt  DateTime     @default(now())
 
   @@unique([companyId, opId])
   @@index([companyId, deviceId])
@@ -880,26 +932,26 @@ model SyncOp {
 // ─── Purchases ───────────────────────────────────────────────────────────────
 
 model PurchaseInvoice {
-  id          String   @id @default(cuid())
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  seasonId    String?
-  supplierId  String
-  supplier    Supplier @relation(fields: [supplierId], references: [id], onDelete: Restrict)
-  number      String
-  date        DateTime @default(now())
+  id         String   @id @default(cuid())
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId   String?
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  number     String
+  date       DateTime @default(now())
   /// Invoice-level remise (amount). Line remises live on lines.
-  remise      Decimal  @default(0)
-  total       Decimal  @default(0)
+  remise     Decimal  @default(0)
+  total      Decimal  @default(0)
   /// Paid so far via invoice payments (versements linked below).
-  paid        Decimal  @default(0)
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  paid       Decimal  @default(0)
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  lines       PurchaseLine[]
-  returns     SupplierReturn[]
-  payments    Versement[]      @relation("InvoicePayments")
+  lines    PurchaseLine[]
+  returns  SupplierReturn[]
+  payments Versement[]      @relation("InvoicePayments")
 
   @@unique([companyId, number])
   @@index([companyId, supplierId])
@@ -907,23 +959,23 @@ model PurchaseInvoice {
 }
 
 model PurchaseLine {
-  id          String          @id @default(cuid())
-  invoiceId   String
-  invoice     PurchaseInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  productId   String
-  product     Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
-  unitId      String?
+  id         String          @id @default(cuid())
+  invoiceId  String
+  invoice    PurchaseInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
+  unitId     String?
   /// Qty in line unit + free units (supplier gifts).
-  qty         Decimal
-  freeQty     Decimal         @default(0)
+  qty        Decimal
+  freeQty    Decimal         @default(0)
   /// Qty converted to product base unit (qty + freeQty) × factor.
-  baseQty     Decimal
-  unitPrice   Decimal
-  remise      Decimal         @default(0)
-  lineTotal   Decimal
-  expiryDate  DateTime?
-  batchId     String?         @unique
-  batch       StockBatch?     @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  baseQty    Decimal
+  unitPrice  Decimal
+  remise     Decimal         @default(0)
+  lineTotal  Decimal
+  expiryDate DateTime?
+  batchId    String?         @unique
+  batch      StockBatch?     @relation(fields: [batchId], references: [id], onDelete: SetNull)
 
   @@index([invoiceId])
   @@map("purchase_lines")
@@ -931,22 +983,22 @@ model PurchaseLine {
 
 /// FIFO/FEFO stock batches created at purchase (consumed by sales in Phase 5).
 model StockBatch {
-  id          String    @id @default(cuid())
-  companyId   String
-  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  productId   String
-  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id         String    @id @default(cuid())
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   /// Null = main stock (Phase 4 backfills to the main depot).
-  storeId     String?
-  location    Store?    @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  storeId    String?
+  location   Store?    @relation(fields: [storeId], references: [id], onDelete: SetNull)
   /// Set while in-transit (declare→confirm holding).
-  transferId  String?
-  transfer    Transfer? @relation("HoldingBatches", fields: [transferId], references: [id], onDelete: SetNull)
-  qty         Decimal
-  initialQty  Decimal
-  unitCost    Decimal
-  expiryDate  DateTime?
-  createdAt   DateTime  @default(now())
+  transferId String?
+  transfer   Transfer? @relation("HoldingBatches", fields: [transferId], references: [id], onDelete: SetNull)
+  qty        Decimal
+  initialQty Decimal
+  unitCost   Decimal
+  expiryDate DateTime?
+  createdAt  DateTime  @default(now())
 
   purchaseLine PurchaseLine?
 
@@ -957,21 +1009,21 @@ model StockBatch {
 
 /// Returns to supplier: restock reversal + supplier credit note (balance down).
 model SupplierReturn {
-  id          String   @id @default(cuid())
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  seasonId    String?
-  supplierId  String
-  supplier    Supplier @relation(fields: [supplierId], references: [id], onDelete: Restrict)
-  invoiceId   String?
-  invoice     PurchaseInvoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
-  number      String
-  date        DateTime @default(now())
-  total       Decimal  @default(0)
-  notes       String?
-  createdAt   DateTime @default(now())
+  id         String           @id @default(cuid())
+  companyId  String
+  company    Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId   String?
+  supplierId String
+  supplier   Supplier         @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  invoiceId  String?
+  invoice    PurchaseInvoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  number     String
+  date       DateTime         @default(now())
+  total      Decimal          @default(0)
+  notes      String?
+  createdAt  DateTime         @default(now())
 
-  lines       SupplierReturnLine[]
+  lines SupplierReturnLine[]
 
   @@unique([companyId, number])
   @@index([companyId, supplierId])
@@ -993,21 +1045,21 @@ model SupplierReturnLine {
 }
 
 model Expense {
-  id        String   @id @default(cuid())
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  seasonId  String?
-  typeId    String?
-  type      ExpenseType? @relation(fields: [typeId], references: [id], onDelete: SetNull)
+  id          String       @id @default(cuid())
+  companyId   String
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId    String?
+  typeId      String?
+  type        ExpenseType? @relation(fields: [typeId], references: [id], onDelete: SetNull)
   /// Optional van link (fuel / maintenance per van).
-  locationId String?
-  location  Store?   @relation(fields: [locationId], references: [id], onDelete: SetNull)
-  label     String
+  locationId  String?
+  location    Store?       @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  label       String
   description String?
-  amount    Decimal
-  expenseDate DateTime @default(now())
-  createdAt DateTime @default(now())
-  deletedAt DateTime?
+  amount      Decimal
+  expenseDate DateTime     @default(now())
+  createdAt   DateTime     @default(now())
+  deletedAt   DateTime?
 
   @@index([companyId, expenseDate])
   @@index([companyId, typeId])
@@ -1020,29 +1072,33 @@ model Expense {
 /// Cash-only money movements (per plan). Client/supplier payments move balances;
 /// CASH_COLLECTION records van→depot handovers (auto-created on transfer confirm).
 model Versement {
-  id          String        @id @default(cuid())
-  companyId   String
-  company     Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  seasonId    String?
-  kind        String
-  clientId    String?
-  client      Customer?     @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  supplierId  String?
-  supplier    Supplier?     @relation(fields: [supplierId], references: [id], onDelete: SetNull)
-  transferId  String?
-  transfer    Transfer?     @relation(fields: [transferId], references: [id], onDelete: SetNull)
+  id                String           @id @default(cuid())
+  companyId         String
+  company           Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId          String?
+  kind              String
+  clientId          String?
+  client            Customer?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  supplierId        String?
+  supplier          Supplier?        @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  transferId        String?
+  transfer          Transfer?        @relation(fields: [transferId], references: [id], onDelete: SetNull)
   purchaseInvoiceId String?
   purchaseInvoice   PurchaseInvoice? @relation("InvoicePayments", fields: [purchaseInvoiceId], references: [id], onDelete: SetNull)
   /// Van/day attribution (till reconciliation): set when the money moves on
   /// a van — client payment collected on tour, or handover to the depot.
   /// Plain scalars (no FK): history must survive van/tournee cleanup.
-  locationId  String?
-  tourneeId   String?
-  amount      Decimal
-  date        DateTime    @default(now())
-  notes       String?
-  createdAt   DateTime    @default(now())
+  locationId        String?
+  tourneeId         String?
+  amount            Decimal
+  date              DateTime         @default(now())
+  notes             String?
+  createdAt         DateTime         @default(now())
 
+  /// Offline idempotency key: the sync opId that created this payment.
+  opId String?
+
+  @@unique([companyId, opId])
   @@index([companyId, date])
   @@index([companyId, clientId])
   @@index([companyId, supplierId])
@@ -1055,33 +1111,33 @@ model Versement {
 /// submitted his till (pending admin). CLOSED = admin snapshotted + locked.
 
 model DailyClose {
-  id        String   @id @default(cuid())
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  seasonId  String?
-  vanId     String
-  van       Store    @relation(fields: [vanId], references: [id], onDelete: Cascade)
+  id             String           @id @default(cuid())
+  companyId      String
+  company        Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId       String?
+  vanId          String
+  van            Store            @relation(fields: [vanId], references: [id], onDelete: Cascade)
   /// Day at midnight (local). Unique per van-day.
-  date      DateTime
+  date           DateTime
   /// Snapshot taken at close (live-computed while open/declared).
-  expected       Decimal @default(0)
-  collected      Decimal @default(0)
-  clientPayments Decimal @default(0)
-  expenses       Decimal @default(0)
-  returnsCash    Decimal @default(0)
-  dueTotal       Decimal @default(0)
+  expected       Decimal          @default(0)
+  collected      Decimal          @default(0)
+  clientPayments Decimal          @default(0)
+  expenses       Decimal          @default(0)
+  returnsCash    Decimal          @default(0)
+  dueTotal       Decimal          @default(0)
   /// Livreur-counted till, submitted for control.
-  declared   Decimal?
-  declaredById String?
-  declaredAt DateTime?
+  declared       Decimal?
+  declaredById   String?
+  declaredAt     DateTime?
   /// Accepted handover (CASH_COLLECTION versements).
-  remitted   Decimal @default(0)
+  remitted       Decimal          @default(0)
   /// remitted − (collected + clientPayments − expenses − returnsCash).
-  difference Decimal @default(0)
-  status    String @default("DECLARED")
-  closedById String?
-  closedAt  DateTime?
-  notes     String?
+  difference     Decimal          @default(0)
+  status         String @default("DECLARED")
+  closedById     String?
+  closedAt       DateTime?
+  notes          String?
 
   @@unique([companyId, vanId, date])
   @@index([companyId, date])
@@ -1106,12 +1162,12 @@ model Deposit {
 }
 
 model DocumentSequence {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   companyId String
   storeId   String?
   type      String
   year      Int
-  nextNo    Int    @default(1)
+  nextNo    Int     @default(1)
 
   @@unique([companyId, storeId, type, year])
   @@map("document_sequences")

@@ -2,7 +2,7 @@
  * Strategy: cache-first for Next static assets + uploads; network-first for
  * navigations/API with cache fallback. Queued sales live in localStorage
  * (outbox) and survive offline — the SW only keeps the shell loadable. */
-const VERSION = "dili-sw-v3";
+const VERSION = "dili-sw-v4";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 

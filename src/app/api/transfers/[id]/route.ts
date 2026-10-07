@@ -10,7 +10,17 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const row = await prisma.transfer.findFirst({
     where: { id: (await params).id, companyId: session.companyId },
     include: {
-      lines: { include: { product: { include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } } } } },
+      lines: {
+        include: {
+          product: {
+            include: {
+              images: { orderBy: { sortOrder: "asc" }, take: 1 },
+              conversions: { include: { unit: { select: { name: true } } } },
+              baseUnit: { select: { name: true } },
+            },
+          },
+        },
+      },
       fromLocation: true,
       toLocation: true,
     },

@@ -13,6 +13,7 @@ import {
   type ColisDraft,
   type ColisMode,
 } from "@/lib/products/colisage";
+import { compareNatural } from "@/lib/sort";
 import { priceForUnit } from "@/components/products/UnitQty";
 
 
@@ -102,7 +103,7 @@ export function ProductForm({
         return;
       }
       const row = { id: data.id as string, name: data.name as string };
-      setCats((cs) => (cs.some((c) => c.id === row.id) ? cs : [...cs, row].sort((a, b) => a.name.localeCompare(b.name))));
+      setCats((cs) => (cs.some((c) => c.id === row.id) ? cs : [...cs, row].sort((a, b) => compareNatural(a.name, b.name, locale))));
       set("categoryId", row.id);
       setCatName("");
       setShowCat(false);
@@ -134,7 +135,7 @@ export function ProductForm({
         return;
       }
       const row = { id: data.id as string, name: data.name as string };
-      setSups((ss) => (ss.some((s) => s.id === row.id) ? ss : [...ss, row].sort((a, b) => a.name.localeCompare(b.name))));
+      setSups((ss) => (ss.some((s) => s.id === row.id) ? ss : [...ss, row].sort((a, b) => compareNatural(a.name, b.name, locale))));
       set("supplierId", row.id);
       setSupName("");
       setShowSup(false);
@@ -244,6 +245,10 @@ export function ProductForm({
   async function submit() {
     if (!form.name.trim()) {
       setError("name_required");
+      return;
+    }
+    if (!form.supplierId) {
+      setError("supplier_required");
       return;
     }
     if (!unitText.trim()) {
@@ -391,7 +396,7 @@ export function ProductForm({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.supplier}</label>
+              <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.supplier} <span className="text-red-500">*</span></label>
               <div className="flex gap-2">
                 <select value={form.supplierId ?? ""} onChange={(e) => set("supplierId", e.target.value || null)} className={`${inputCls} min-w-0 flex-1`}>
                   <option value="">—</option>
@@ -573,56 +578,83 @@ export function ProductForm({
             unit itself), purchase = largest colis. No selectors needed. */}
       </Card>
 
-      {/* Prices exist only after the first purchase — show this card when
-          modifying an existing product, not when creating a new one. */}
-      {initial.id && (
+      {/* Prices (per smallest colis, like a purchase — stored per base unit).
+          Entered at creation with stock 0, editable anytime later. Enter
+          prices AFTER the colisage above: they convert with its factor. */}
       <Card>
         <h2 className="mb-2 text-sm font-bold">{labels.tierPrices}</h2>
-        {/* Whole colis prices (what the user buys/sells with) — per-base
-            fractions like 0.33/0.5 are never entered, only derived. */}
-        {previewConversions.filter((c) => c.factor >= 1).map((c) => (
-          <div key={c.unitId} className="mb-2 flex items-center justify-between rounded-lg bg-(--brand-500)/10 px-3 py-1.5 text-sm">
-            <span className="font-semibold">{labels.salePrice} / {c.label}</span>
-            <span className="font-black tabular-nums">
-              {form.salePrice ? priceForUnit(form.salePrice, c.factor).toLocaleString(undefined, { maximumFractionDigits: 2 }) : "—"}
-            </span>
-          </div>
-        ))}
-        <div className="mb-2 flex items-center justify-between rounded-lg bg-(--bg-sunken) px-3 py-1.5 text-sm">
-          <span className="font-semibold">{labels.salePrice} / {baseName}</span>
-          <span className="font-black tabular-nums">{form.salePrice ? String(form.salePrice) : "—"}</span>
-        </div>
-        <div className="mb-2 flex items-center justify-between rounded-lg bg-(--bg-sunken) px-3 py-1.5 text-sm">
-          <span className="font-semibold">{labels.costPrice} / {baseName}</span>
-          <span className="font-black tabular-nums">{form.costPrice ? String(form.costPrice) : "—"}</span>
-        </div>
-        {tiers.map((tier) => {
-          const row = form.tierPrices.find((t) => t.tierId === tier.id);
-          return (
-            <div key={tier.id} className="mb-2 flex items-center justify-between gap-2 rounded-lg bg-(--bg-sunken) px-3 py-1.5 text-sm">
-              <span className="min-w-0 flex-1 truncate font-semibold">{tier.name}</span>
+        {(() => {
+          const pack = previewConversions.filter((c) => c.factor >= 1).sort((a, b) => a.factor - b.factor)[0] ?? null;
+          const pf = pack?.factor ?? 1;
+          const plabel = pack?.label ?? baseName;
+          const r2 = (v: number) => Math.round(v * 100) / 100;
+          // Dual price entry: type the piece price OR the colis price —
+          // both derive from the same base value, so each updates the other.
+          const dualInput = (
+            get: number,
+            setBase: (base: number) => void,
+          ) => (
+            <div className="flex shrink-0 items-center gap-1" dir="ltr">
               <input
                 type="number"
                 min={0}
                 step="any"
-                value={row ? row.price : ""}
-                placeholder="—"
-                dir="ltr"
+                value={get ? r2(get) || "" : ""}
+                placeholder={baseName}
+                title={baseName}
                 onChange={(e) => {
                   const v = e.target.value === "" ? null : Number(e.target.value);
-                  setForm((f) => {
-                    const rest = f.tierPrices.filter((t) => t.tierId !== tier.id);
-                    if (v == null || Number.isNaN(v)) return { ...f, tierPrices: rest };
-                    return { ...f, tierPrices: [...rest, { tierId: tier.id, price: v }] };
-                  });
+                  setBase(v == null || Number.isNaN(v) ? 0 : v);
                 }}
-                className="h-9 w-28 shrink-0 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-end font-black tabular-nums outline-none focus:border-(--brand-500)"
+                className="h-9 w-20 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-end font-black tabular-nums outline-none focus:border-(--brand-500)"
+              />
+              <span className="text-xs opacity-40">/</span>
+              <input
+                type="number"
+                min={0}
+                step="any"
+                value={get ? r2(get * pf) || "" : ""}
+                placeholder={plabel}
+                title={plabel}
+                onChange={(e) => {
+                  const v = e.target.value === "" ? null : Number(e.target.value);
+                  setBase(v == null || Number.isNaN(v) ? 0 : v / pf);
+                }}
+                className="h-9 w-24 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-end font-black tabular-nums outline-none focus:border-(--brand-500)"
               />
             </div>
           );
-        })}
+          return (
+            <>
+              {/* Whole colis prices (what the user buys/sells with) — per-base
+                  fractions like 0.33/0.5 are never entered, only derived. */}
+              <div className="mb-2 flex items-center justify-between gap-2 rounded-lg bg-(--bg-sunken) px-3 py-1.5 text-sm">
+                <span className="min-w-0 flex-1 truncate font-semibold">{labels.costPrice}</span>
+                {dualInput(form.costPrice, (base) => setForm((f) => ({ ...f, costPrice: base })))}
+              </div>
+              <div className="mb-2 flex items-center justify-between gap-2 rounded-lg bg-(--brand-500)/10 px-3 py-1.5 text-sm">
+                <span className="min-w-0 flex-1 truncate font-semibold">{labels.salePrice}</span>
+                {dualInput(form.salePrice, (base) => setForm((f) => ({ ...f, salePrice: base })))}
+              </div>
+              {tiers.map((tier) => {
+                const row = form.tierPrices.find((t) => t.tierId === tier.id);
+                return (
+                  <div key={tier.id} className="mb-2 flex items-center justify-between gap-2 rounded-lg bg-(--bg-sunken) px-3 py-1.5 text-sm">
+                    <span className="min-w-0 flex-1 truncate font-semibold">{tier.name}</span>
+                    {dualInput(row ? row.price : 0, (base) => {
+                      setForm((f) => {
+                        const rest = f.tierPrices.filter((t) => t.tierId !== tier.id);
+                        if (!base) return { ...f, tierPrices: rest };
+                        return { ...f, tierPrices: [...rest, { tierId: tier.id, price: base }] };
+                      });
+                    })}
+                  </div>
+                );
+              })}
+            </>
+          );
+        })()}
       </Card>
-      )}
 
       <div className="flex gap-2">
         <Button variant="secondary" onClick={handleClose} className="flex-1">

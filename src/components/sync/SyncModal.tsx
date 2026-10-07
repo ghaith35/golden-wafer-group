@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowDownUp } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { syncNow, getDeviceToken, clearDeviceConfig, type SyncPhase } from "@/lib/sync/client";
-import { DeviceSetup } from "@/components/sync/DeviceSetup";
+import { syncNow, getDeviceToken, getSyncUrl, clearDeviceConfig, failedOps, retryOutboxOp, discardOutboxOp, pendingCount, pendingServers, currentServerOrigin, type SyncPhase, type WebUpdateInfo } from "@/lib/sync/client";
+import { applyWebUpdate } from "@/lib/sync/web-update";
+import type { OutboxRow } from "@/lib/sync/offline-db";
+import { DeviceSetup, serverBaseOf } from "@/components/sync/DeviceSetup";
 import { UpdateChecker } from "@/components/sync/UpdateChecker";
 import { loadHistory, clearHistory, type SyncHistoryEntry } from "@/lib/sync/history";
 import { cn } from "@/lib/utils";
@@ -29,30 +31,63 @@ export function SyncModal({
   const [pct, setPct] = useState(0);
   const [steps, setSteps] = useState<StepState[]>([]);
   const [result, setResult] = useState<{ applied: number; failed: number; remaining: number } | null>(null);
+  /// New web build pulled with this sync — user validates → restart updated.
+  const [webUpdate, setWebUpdate] = useState<WebUpdateInfo | null>(null);
+  const [updating, setUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   /// No device token (fresh phone) → setup mode first, then first sync.
   const [hasToken, setHasToken] = useState(false);
   /// Past syncs (what each one did, exactly).
   const [history, setHistory] = useState<SyncHistoryEntry[]>([]);
+  /// Ops the server rejected — visible until repaired or discarded.
+  const [failed, setFailed] = useState<OutboxRow[]>([]);
+  /// Bound client server (scan once, stay connected).
+  const [serverNow, setServerNow] = useState<string>("");
+  const [pendingTotal, setPendingTotal] = useState(0);
+  const [pendingSrv, setPendingSrv] = useState<string[]>([]);
+  const [changing, setChanging] = useState(false);
   const [showHist, setShowHist] = useState(false);
   const [openHist, setOpenHist] = useState<number | null>(null);
   const runId = useRef(0);
+
+  async function refreshServer() {
+    try {
+      setServerNow(currentServerOrigin() ?? "");
+    } catch {
+      setServerNow("");
+    }
+    try {
+      setPendingTotal(await pendingCount());
+    } catch {
+      setPendingTotal(0);
+    }
+    try {
+      setPendingSrv(await pendingServers());
+    } catch {
+      setPendingSrv([]);
+    }
+  }
 
   useEffect(() => {
     if (open) {
       setPct(0);
       setSteps([]);
       setResult(null);
+      setWebUpdate(null);
+      setUpdating(false);
       setError(null);
       setRunning(false);
       setShowHist(false);
       setOpenHist(null);
+      setChanging(false);
       try {
         setHasToken(!!getDeviceToken());
       } catch {
         setHasToken(false);
       }
       loadHistory().then(setHistory).catch(() => {});
+      failedOps().then(setFailed).catch(() => {});
+      void refreshServer();
     }
   }, [open ]);
 
@@ -70,11 +105,12 @@ export function SyncModal({
     setRunning(true);
     setError(null);
     setResult(null);
+    setWebUpdate(null);
     setSteps([]);
     setPct(2);
     const alive = () => runId.current === id;
     try {
-      await syncNow((p: SyncPhase) => {
+      const res = await syncNow((p: SyncPhase) => {
         if (!alive()) return;
         if (p.phase === "prepare") {
           setStep(labels.upload ?? "upload", "active", `${p.total}`);
@@ -99,6 +135,7 @@ export function SyncModal({
           onDone?.();
         }
       });
+      if (alive() && res.webUpdate?.available) setWebUpdate(res.webUpdate);
     } catch (e) {
       if (!alive()) return;
       setError(e instanceof Error ? e.message : "sync_failed");
@@ -107,23 +144,82 @@ export function SyncModal({
       if (alive()) {
         setRunning(false);
         loadHistory().then(setHistory).catch(() => {});
+        failedOps().then(setFailed).catch(() => {});
+        void refreshServer();
       }
     }
   }
+
+  async function retryFailed(opId: string) {
+    await retryOutboxOp(opId);
+    setFailed(await failedOps());
+    void start();
+  }
+  async function discardFailed(opId: string) {
+    await discardOutboxOp(opId);
+    setFailed(await failedOps());
+    void refreshServer();
+  }
+
+  /// User validated the pulled update: restart into it (outbox + snapshot
+  /// are durable, nothing is lost by the reload).
+  async function validateWeb() {
+    if (!webUpdate || updating) return;
+    setUpdating(true);
+    try {
+      await applyWebUpdate(webUpdate.buildId);
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  /// After a server (re)bind: same server → stay and refresh; a different
+  /// server → jump to it, carrying the fresh token in the URL (localStorage
+  /// is per-origin, so the new server can't read this origin's token).
+  function afterRebind() {
+    void refreshServer().then(() => {
+      try {
+        const token = getDeviceToken() ?? "";
+        const base = serverBaseOf(getSyncUrl());
+        const here = window.location.origin;
+        if (base && base !== here) {
+          const dest = `${base.replace(/\/+$/, "")}/ar/livreur${token ? `?device=${encodeURIComponent(token)}` : ""}`;
+          window.location.href = dest;
+          return;
+        }
+      } catch {
+        /* stay */
+      }
+      setChanging(false);
+      try {
+        setHasToken(!!getDeviceToken());
+      } catch {
+        setHasToken(false);
+      }
+      void refreshServer();
+    });
+  }
+
+  function resetServer() {
+    clearDeviceConfig();
+    window.location.reload();
+  }
+
+  const setupLabels = {
+    setupHint: labels.serverScanHint ?? labels.setupHint, scanSetup: labels.scanSetup, manual: labels.manual,
+    gallery: labels.gallery, qrNotFound: labels.qrNotFound, invalidQr: labels.invalidQr,
+    tokenPh: labels.tokenPh, urlPh: labels.urlPh, tokenRequired: labels.tokenRequired,
+    saveConfig: labels.saveConfig,
+    camNeedHttps: labels.camNeedHttps, camDenied: labels.camDenied, camUnsupported: labels.camUnsupported,
+    directSync: labels.directSync, noVan: labels.noVan,
+  };
 
   return (
     <Modal open={open} onClose={onClose} title={labels.title ?? "sync"} icon={<ArrowDownUp size={18} />} width="sm">
       {!hasToken ? (
         <DeviceSetup
           onConfigured={() => setHasToken(true)}
-          labels={{
-            setupHint: labels.setupHint, scanSetup: labels.scanSetup, manual: labels.manual,
-            gallery: labels.gallery, qrNotFound: labels.qrNotFound, invalidQr: labels.invalidQr,
-            tokenPh: labels.tokenPh, urlPh: labels.urlPh, tokenRequired: labels.tokenRequired,
-            saveConfig: labels.saveConfig,
-            camNeedHttps: labels.camNeedHttps, camDenied: labels.camDenied, camUnsupported: labels.camUnsupported,
-            directSync: labels.directSync, noVan: labels.noVan,
-          }}
+          labels={setupLabels}
         />
       ) : (
       <div className="space-y-3">
@@ -172,6 +268,30 @@ export function SyncModal({
           </div>
         )}
         {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+        {webUpdate?.available && (
+          <div className="rounded-2xl border border-(--brand-500) bg-(--brand-500)/5 p-3">
+            <div className="mb-1 text-sm font-black">⬆️ {labels.webUpdateTitle ?? labels.webNew ?? "update"}</div>
+            {webUpdate.nativeRequired ? (
+              <div className="space-y-2">
+                <p className="text-[11px] font-bold opacity-70">{labels.nativeTitle ?? ""}</p>
+                <a href="/apk/Distribuili-Van.apk" className="flex h-11 items-center justify-center rounded-xl bg-(--brand-500) px-4 text-sm font-black text-white">
+                  {labels.nativeGo ?? labels.downloadApk ?? "download"}
+                </a>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                {!webUpdate.force && (
+                  <Button variant="secondary" onClick={() => setWebUpdate(null)} className="flex-1" disabled={updating}>
+                    {labels.webLater ?? labels.close ?? "later"}
+                  </Button>
+                )}
+                <Button onClick={() => void validateWeb()} disabled={updating} className="flex-[2]">
+                  {updating ? "…" : (labels.webValidate ?? labels.updateNow ?? "update")}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
         <div className="flex gap-2">
           <Button variant="secondary" onClick={onClose} className="flex-1" disabled={running}>
             {labels.close ?? "close"}
@@ -197,6 +317,71 @@ export function SyncModal({
             download: labels.downloadApk, apkHint: labels.apkHint,
           }}
         />
+      )}
+      {hasToken && failed.length > 0 && (
+        <div className="border-t border-(--border-subtle) pt-2">
+          <div className="mb-1.5 text-xs font-black text-red-500">
+            ⚠️ {labels.failed ?? "failed"} ({failed.length})
+          </div>
+          <div className="max-h-48 space-y-1.5 overflow-y-auto">
+            {failed.map((o) => (
+              <div key={o.opId} className="rounded-xl bg-red-500/5 px-2.5 py-2">
+                <div className="flex items-center justify-between gap-2 text-[11px] font-bold">
+                  <span className="font-mono" dir="ltr">{o.kind}</span>
+                  <span className="truncate text-red-500" dir="ltr">{o.error}</span>
+                </div>
+                <div className="mt-1 flex gap-1.5">
+                  <Button variant="secondary" onClick={() => void retryFailed(o.opId)} className="h-8 flex-1 px-2 text-[11px]">
+                    ↻ {labels.retry ?? "retry"}
+                  </Button>
+                  <Button variant="secondary" onClick={() => void discardFailed(o.opId)} className="h-8 flex-1 px-2 text-[11px]">
+                    ✕ {labels.discard ?? "discard"}
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {hasToken && (
+        <div className="border-t border-(--border-subtle) pt-2">
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-xs font-black">🖥️ {labels.serverTitle ?? "server"}</span>
+            {!changing && (
+              <button
+                type="button"
+                onClick={() => setChanging(true)}
+                className="text-[11px] font-bold opacity-60 underline"
+              >
+                {labels.changeServer ?? "change"}
+              </button>
+            )}
+          </div>
+          <div className="mb-1 truncate font-mono text-[11px] opacity-70" dir="ltr" title={serverNow}>
+            {serverNow || "—"}
+          </div>
+          {pendingSrv.length > 0 && pendingSrv.some((s) => s !== serverNow) && (
+            <p className="mb-1 rounded-lg bg-red-500/10 p-2 text-[11px] font-bold text-red-500">
+              {labels.serverQuarantined ?? ""}
+            </p>
+          )}
+          {changing && pendingTotal > 0 ? (
+            <p className="rounded-lg bg-amber-500/10 p-2 text-[11px] font-bold text-amber-600">
+              {labels.serverPendingBlock ?? ""} ({pendingTotal})
+            </p>
+          ) : changing ? (
+            <div className="space-y-2">
+              <DeviceSetup onConfigured={afterRebind} labels={setupLabels} />
+              <button
+                type="button"
+                onClick={() => { resetServer(); }}
+                className="mx-auto block text-[11px] font-bold opacity-50 underline"
+              >
+                {labels.serverReset ?? labels.resetConfig ?? "reset"}
+              </button>
+            </div>
+          ) : null}
+        </div>
       )}
       {hasToken && (
         <div className="border-t border-(--border-subtle) pt-2">

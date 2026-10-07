@@ -20,6 +20,12 @@ export type OutboxRow = {
   error?: string;
   attempts: number;
   nextRetryAt: number;
+  /// Server the op belongs to (origin at queue time). Never upload an op to
+  /// a different server — one phone, one client, no cross-client leakage.
+  server?: string | null;
+  /// Server rejected it permanently (validation) — stop auto-retrying until
+  /// the user repairs or discards it.
+  permanent?: boolean;
 };
 
 export const LEGACY_OUTBOX_KEY = "dili_outbox_v1";
@@ -43,6 +49,8 @@ function normalizeRow(raw: Record<string, unknown>): OutboxRow | null {
     error: typeof raw.error === "string" ? raw.error : undefined,
     attempts: typeof raw.attempts === "number" ? raw.attempts : 0,
     nextRetryAt: typeof raw.nextRetryAt === "number" ? raw.nextRetryAt : 0,
+    server: typeof raw.server === "string" && raw.server ? raw.server : null,
+    permanent: raw.permanent === true,
   };
 }
 
@@ -135,9 +143,14 @@ async function getNativeDb(): Promise<NativeDB> {
           ts INTEGER NOT NULL,
           error TEXT,
           attempts INTEGER NOT NULL DEFAULT 0,
-          nextRetryAt INTEGER NOT NULL DEFAULT 0
+          nextRetryAt INTEGER NOT NULL DEFAULT 0,
+          permanent INTEGER NOT NULL DEFAULT 0,
+          server TEXT
         );
       `);
+      // Upgrade older installs that lack the newer columns.
+      await db.execute("ALTER TABLE outbox ADD COLUMN permanent INTEGER NOT NULL DEFAULT 0;").catch(() => undefined);
+      await db.execute("ALTER TABLE outbox ADD COLUMN server TEXT;").catch(() => undefined);
       nativeDb = db;
       return db;
     })().catch((e) => {
@@ -150,7 +163,7 @@ async function getNativeDb(): Promise<NativeDB> {
 
 async function nativeRows(): Promise<OutboxRow[]> {
   const db = await getNativeDb();
-  const res = await db.query("SELECT opId, kind, payload, ts, error, attempts, nextRetryAt FROM outbox ORDER BY ts ASC;");
+  const res = await db.query("SELECT opId, kind, payload, ts, error, attempts, nextRetryAt, permanent, server FROM outbox ORDER BY ts ASC;");
   const out: OutboxRow[] = [];
   for (const r of res.values ?? []) {
     let payload: Record<string, unknown> = {};
@@ -167,6 +180,8 @@ async function nativeRows(): Promise<OutboxRow[]> {
       error: r.error ?? undefined,
       attempts: Number(r.attempts ?? 0),
       nextRetryAt: Number(r.nextRetryAt ?? 0),
+      permanent: Number(r.permanent ?? 0) === 1,
+      server: typeof r.server === "string" && r.server ? (r.server as string) : null,
     });
     if (row) out.push(row);
   }
@@ -194,8 +209,8 @@ const nativeDriver: Driver = {
   async outboxPut(row) {
     const db = await getNativeDb();
     await db.run(
-      "INSERT OR REPLACE INTO outbox (opId, kind, payload, ts, error, attempts, nextRetryAt) VALUES (?, ?, ?, ?, ?, ?, ?);",
-      [row.opId, row.kind, JSON.stringify(row.payload), row.ts, row.error ?? null, row.attempts, row.nextRetryAt]
+      "INSERT OR REPLACE INTO outbox (opId, kind, payload, ts, error, attempts, nextRetryAt, permanent, server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+      [row.opId, row.kind, JSON.stringify(row.payload), row.ts, row.error ?? null, row.attempts, row.nextRetryAt, row.permanent ? 1 : 0, row.server ?? null]
     );
   },
   async outboxRemove(opId) {

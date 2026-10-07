@@ -7,8 +7,55 @@ import { isLocalMode, localEntitledCached } from "@/lib/license/gate";
 
 const handleI18nRouting = createMiddleware(routing);
 
-const PROTECTED_PREFIXES = ["/dashboard", "/clients", "/suppliers", "/inventory", "/products", "/sales", "/purchases", "/expenses", "/reports", "/settings",   "/pos", "/tournees", "/vans", "/carte", "/cash", "/journal", "/users", "/devices", "/license"];
+const PROTECTED_PREFIXES = ["/dashboard", "/clients", "/suppliers", "/inventory", "/products", "/sales", "/purchases", "/expenses", "/reports", "/settings",   "/pos", "/tournees", "/vans", "/carte", "/cash", "/cash-daily", "/journal", "/users", "/devices", "/license", "/livreur", "/dettes", "/presence", "/suivi", "/commandes"];
 const PORTAL_PREFIXES = ["/portal"];
+
+/// Permanent role-based access control (server-enforced, PWA/offline-safe).
+/// The sidebar only *hides* links — this is what actually blocks staff from
+/// admin pages and admin APIs, even with JS disabled or a cached shell.
+///
+/// Livreur: ONLY his mobile flow under /livreur (day picker, vente,
+/// commande, stock, dashboard-of-the-day, factures). He sees nothing else —
+/// no company dashboard, no standalone lists, no admin sections.
+/// Vendeur: everything except the admin-only sections below.
+/// Admin: everything.
+const LIVREUR_PAGES = ["/livreur"];
+const STAFF_BLOCKED_PAGES = [
+  "/suppliers", "/pos", "/purchases", "/products", "/inventory", "/vans",
+  "/dettes", "/cash", "/cash-daily", "/expenses", "/reports", "/settings",
+  "/license", "/devices", "/users", "/journal",
+];
+
+/// Admin-only API areas (any authenticated staff gets 403).
+/// Method-scoped where staff legitimately use part of the route:
+/// - products: staff read the catalog, only mutations are admin.
+/// - tournees: staff read their day + tick stops, only planning is admin.
+/// - clients: staff create/edit, only delete is admin.
+/// - vans/locations: staff read, only mutations are admin.
+/// Everything not listed stays login-only (operational staff flows).
+const ADMIN_APIS: Array<{ p: string; m: string[] | null }> = [
+  { p: "/api/suppliers", m: null },
+  { p: "/api/purchases", m: null },
+  { p: "/api/supplier-returns", m: null },
+  { p: "/api/products", m: ["POST", "PUT", "PATCH", "DELETE"] },
+  { p: "/api/categories", m: null },
+  { p: "/api/expenses", m: null },
+  { p: "/api/reports", m: null },
+  { p: "/api/journal", m: null },
+  { p: "/api/dashboard", m: null },
+  { p: "/api/inventory", m: null },
+  { p: "/api/transfers", m: null },
+  { p: "/api/counts", m: null },
+  { p: "/api/losses", m: null },
+  { p: "/api/tournees", m: ["POST", "PUT", "DELETE"] },
+  { p: "/api/clients", m: ["DELETE"] },
+  { p: "/api/deposits", m: null },
+  { p: "/api/debts", m: null },
+  { p: "/api/versements", m: null },
+  { p: "/api/users", m: null },
+  { p: "/api/vans", m: ["POST", "PUT", "PATCH", "DELETE"] },
+  { p: "/api/locations", m: ["POST", "PUT", "PATCH", "DELETE"] },
+];
 
 const COOKIE_SECURE =
   process.env.COOKIE_SECURE != null ? process.env.COOKIE_SECURE === "true" : process.env.NODE_ENV === "production";
@@ -102,6 +149,9 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // Match exact route or a full segment ("/pos" must not match "/postal").
+  const isPath = (route: string, prefix: string) => route === prefix || route.startsWith(prefix + "/");
+
   // API + pages alike: an expired access token is refreshed in passing so
   // background fetches never 401 while the refresh cookie lives.
   if (routePath.startsWith("/api")) {
@@ -121,6 +171,14 @@ export async function proxy(request: NextRequest) {
       !localEntitledCached()
     ) {
       return NextResponse.json({ error: "not_entitled" }, { status: 402 });
+    }
+    // Central API authorization (permanent, method-aware). Route-level
+    // requireAdmin calls remain as defense in depth.
+    if (claims && claims.role !== "Admin") {
+      const denied = ADMIN_APIS.some(
+        ({ p, m }) => isPath(routePath, p) && (m === null || m.includes(request.method))
+      );
+      if (denied) return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
     return renewed ? withAccessCookie(NextResponse.next(), renewed) : NextResponse.next();
   }
@@ -157,8 +215,6 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Match exact route or a full segment ("/pos" must not match "/postal").
-  const isPath = (route: string, prefix: string) => route === prefix || route.startsWith(prefix + "/");
   const isProtected = PROTECTED_PREFIXES.some((p) => isPath(routePath, p));
 
   if (isProtected) {
@@ -166,6 +222,15 @@ export async function proxy(request: NextRequest) {
       const loginUrl = new URL(localized("/login"), request.url);
       loginUrl.searchParams.set("from", routePath);
       return NextResponse.redirect(loginUrl);
+    }
+    // Permanent page-level role enforcement (the sidebar only hides links).
+    // Unknown/missing roles default to the most restricted (livreur) view.
+    if (claims.role === "Livreur" || (claims.role !== "Admin" && claims.role !== "Vendeur")) {
+      const ok = LIVREUR_PAGES.some((p) => isPath(routePath, p));
+      if (!ok) return NextResponse.redirect(new URL(localized("/livreur"), request.url));
+    } else if (claims.role !== "Admin") {
+      const blocked = STAFF_BLOCKED_PAGES.some((p) => isPath(routePath, p));
+      if (blocked) return NextResponse.redirect(new URL(localized("/dashboard"), request.url));
     }
     // Must pass through the i18n handler (not plain NextResponse.next()),
     // otherwise the locale is never resolved and every page renders Arabic.

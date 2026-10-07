@@ -21,6 +21,12 @@ export function publicKeyB64(): string {
   return DISTRIBUILI_LICENSE_PUBLIC_KEY_DER_B64;
 }
 
+/// True when the public key was never baked (an explicit ALLOW_UNLICENSED_BUILD
+/// dev build). Production builds with a real key are never dev builds.
+export function isDevBuild(): boolean {
+  return isPlaceholder();
+}
+
 export interface LicensePayload { machineId: string; label: string; key?: string; issuedAt: string; v: 1 }
 export interface TrialPayload { kind: "trial"; machineId: string; trialStart: string; trialEnd: string; v: 1 }
 export interface DeviceSpecs { [k: string]: string | number | undefined }

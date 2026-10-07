@@ -4,8 +4,7 @@ import { useState } from "react";
 import { App } from "@capacitor/app";
 import { Browser } from "@capacitor/browser";
 import { Button } from "@/components/ui/Button";
-
-const WEB_BUILD_KEY = "dili_web_build";
+import { applyWebUpdate, rememberBuild, storedBuild, WEB_BUILD_KEY } from "@/lib/sync/web-update";
 export { WEB_BUILD_KEY };
 
 type Feed = {
@@ -46,20 +45,11 @@ export function UpdateChecker({ labels }: { labels: Record<string, string> }) {
         setMine(null);
       }
       const server = d.web.buildId || "";
-      let known: string | null = null;
-      try {
-        known = localStorage.getItem(WEB_BUILD_KEY);
-      } catch {
-        /* ignore */
-      }
+      const known = storedBuild();
       if (!server) {
         setWebState("fresh");
       } else if (!known) {
-        try {
-          localStorage.setItem(WEB_BUILD_KEY, server);
-        } catch {
-          /* ignore */
-        }
+        rememberBuild(server);
         setWebState("fresh");
       } else if (known !== server) {
         setWebState("new");
@@ -74,22 +64,7 @@ export function UpdateChecker({ labels }: { labels: Record<string, string> }) {
   }
 
   async function updateWeb() {
-    // Forget every cached shell + data page, then load the new build.
-    try {
-      if ("caches" in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.filter((k) => !k.includes("dili-img")).map((k) => caches.delete(k)));
-      }
-      if (feed?.web.buildId) {
-        try {
-          localStorage.setItem(WEB_BUILD_KEY, feed.web.buildId);
-        } catch {
-          /* ignore */
-        }
-      }
-    } finally {
-      window.location.reload();
-    }
+    await applyWebUpdate(feed?.web.buildId ?? "");
   }
 
   async function downloadApk() {

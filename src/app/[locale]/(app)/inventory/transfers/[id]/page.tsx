@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { Card } from "@/components/ui/Card";
 import { BackButton } from "@/components/ui/BackButton";
 import { TransferResolve } from "./TransferResolve";
+import { LineQty } from "./LineQty";
 import { cn } from "@/lib/utils";
 
 const STATUS_COLOR: Record<string, string> = {
@@ -24,7 +25,17 @@ export default async function TransferDetailPage({ params }: { params: Promise<{
   const row = await prisma.transfer.findFirst({
     where: { id, companyId: session.companyId },
     include: {
-      lines: { include: { product: { include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } } } } },
+      lines: {
+        include: {
+          product: {
+            include: {
+              images: { orderBy: { sortOrder: "asc" }, take: 1 },
+              conversions: { include: { unit: { select: { name: true } } } },
+              baseUnit: { select: { name: true } },
+            },
+          },
+        },
+      },
       fromLocation: true,
       toLocation: true,
     },
@@ -92,9 +103,13 @@ export default async function TransferDetailPage({ params }: { params: Promise<{
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-overlay) text-sm">📦</span>
               )}
               <span className="min-w-0 flex-1 truncate text-sm font-bold">{l.product.name}</span>
-              <span className="shrink-0 text-sm font-black tabular-nums" dir="ltr">
-                {String(l.declaredQty)}
-                {l.confirmedQty != null && <span className="opacity-60"> → {String(l.confirmedQty)}</span>}
+              <span className="shrink-0 text-sm tabular-nums" dir="ltr">
+                <LineQty
+                  declared={l.declaredQty}
+                  confirmed={l.confirmedQty}
+                  conversions={l.product.conversions}
+                  baseName={l.product.baseUnit?.name ?? ""}
+                />
               </span>
             </div>
           ))}
@@ -110,11 +125,16 @@ export default async function TransferDetailPage({ params }: { params: Promise<{
       {canResolve && (
         <TransferResolve
           transferId={row.id}
-          lines={JSON.parse(JSON.stringify(row.lines)).map((l: { id: string; declaredQty: unknown; confirmedQty: unknown; product: { name: string; images: Array<{ url: string }> } }) => ({
+          lines={JSON.parse(JSON.stringify(row.lines)).map((l: { id: string; declaredQty: unknown; confirmedQty: unknown; product: { name: string; images: Array<{ url: string }>; conversions: Array<{ unitId: string; factor: unknown; unit: { name: string } }>; baseUnit: { name: string } | null } }) => ({
             id: l.id,
             declaredQty: Number(l.declaredQty),
             confirmedQty: l.confirmedQty != null ? Number(l.confirmedQty) : null,
-            product: { name: l.product.name, imageUrl: l.product.images[0]?.url ?? null },
+            product: {
+              name: l.product.name,
+              imageUrl: l.product.images[0]?.url ?? null,
+              conversions: l.product.conversions ?? [],
+              baseName: l.product.baseUnit?.name ?? "",
+            },
           }))}
           labels={{ confirm: t("confirm"), reject: t("reject"), cancel: t("cancel"), queued: t("queued") }}
         />

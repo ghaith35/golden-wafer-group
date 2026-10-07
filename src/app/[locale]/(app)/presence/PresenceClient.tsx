@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bus, Clock } from "lucide-react";
+import { Bus, Clock, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 import { dz } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +38,7 @@ export function PresenceClient({
   months,
   rows,
   labels,
+  isAdmin,
 }: {
   locale: string;
   year: number;
@@ -44,13 +47,58 @@ export function PresenceClient({
   months: number[];
   rows: Row[];
   labels: Record<string, string>;
+  isAdmin: boolean;
 }) {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [dayIso, setDayIso] = useState("");
+  const [editing, setEditing] = useState<Row | null>(null);
+  const [tStart, setTStart] = useState("");
+  const [tEnd, setTEnd] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   function goSeason(y: number, m: number) {
     router.push(`/${locale}/presence?year=${y}&month=${m}`);
+  }
+
+  const hhmm = (v: string | null): string => {
+    if (!v) return "";
+    const d = new Date(v);
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  };
+
+  function openEdit(r: Row) {
+    setEditing(r);
+    setTStart(hhmm(r.startedAt));
+    setTEnd(hhmm(r.finishedAt));
+    setEditError(null);
+  }
+
+  async function saveTimes() {
+    if (!editing) return;
+    const d = new Date(editing.date as string);
+    const mk = (t: string) => {
+      const [h, mi] = t.split(":").map(Number);
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate(), h || 0, mi || 0).toISOString();
+    };
+    setBusy(true);
+    setEditError(null);
+    try {
+      const res = await fetch(`/api/tournees/${editing.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "times", startedAt: tStart ? mk(tStart) : null, finishedAt: tEnd ? mk(tEnd) : null }),
+      });
+      if (!res.ok) {
+        setEditError((await res.json().catch(() => null))?.error ?? "failed");
+        return;
+      }
+      setEditing(null);
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
   }
 
   const monthName = (m: number) => {
@@ -166,6 +214,16 @@ export function PresenceClient({
               )}>
                 {r.finishedAt ? labels.end : r.startedAt ? labels.open : "—"}
               </span>
+              {isAdmin && (
+                <button
+                  type="button"
+                  aria-label={labels.edit}
+                  onClick={() => openEdit(r)}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-(--border-default) opacity-70 hover:opacity-100"
+                >
+                  <Pencil size={14} />
+                </button>
+              )}
             </div>
             <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
@@ -184,6 +242,31 @@ export function PresenceClient({
           </div>
         ))}
       </div>
+      <Modal open={editing !== null} onClose={() => setEditing(null)} title={labels.edit} icon={<Pencil size={18} />} width="sm">
+        <div className="space-y-3">
+          <div className="rounded-xl bg-(--bg-sunken) px-3 py-2 text-sm font-bold">
+            {editing?.location.name ?? ""} · {editing ? new Date(editing.date as string).toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "short" }) : ""}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="block">
+              <span className="mb-1 block text-[11px] font-bold uppercase opacity-60">{labels.start}</span>
+              <Input type="time" value={tStart} onChange={(e) => setTStart(e.target.value)} dir="ltr" className="text-center tabular-nums" />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[11px] font-bold uppercase opacity-60">{labels.end}</span>
+              <Input type="time" value={tEnd} onChange={(e) => setTEnd(e.target.value)} dir="ltr" className="text-center tabular-nums" />
+            </label>
+          </div>
+          {editError && <p className="rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500" dir="ltr">{editError}</p>}
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setEditing(null)} className="flex-1">{labels.cancel}</Button>
+            <Button variant="secondary" onClick={() => { setTStart(""); setTEnd(""); }} disabled={busy} aria-label="clear">×</Button>
+            <Button onClick={() => void saveTimes()} disabled={busy} className="flex-[2]">
+              {busy ? "…" : labels.save}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

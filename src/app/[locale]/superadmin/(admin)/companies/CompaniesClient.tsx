@@ -13,9 +13,8 @@ type Company = {
   _count: { users: number; stores: number };
 };
 
-const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-3 text-sm outline-none focus:border-(--brand-500)";
-
-/// Vendor companies console: list + provision (company + admin user).
+/// Vendor companies console (repaire-style table): search + count + New,
+/// rows with name/phone, users, stores, created date.
 export function CompaniesClient({ labels }: { labels: Record<string, string> }) {
   const [rows, setRows] = useState<Company[]>([]);
   const [q, setQ] = useState("");
@@ -50,8 +49,11 @@ export function CompaniesClient({ labels }: { labels: Record<string, string> }) 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: name.trim(), phone: phone.trim() || null,
-          adminUsername: adminUser.trim(), adminPassword: adminPass, adminName: adminName.trim() || null,
+          name: name.trim(),
+          phone: phone.trim() || null,
+          adminUsername: adminUser.trim(),
+          adminPassword: adminPass,
+          adminName: adminName.trim() || null,
         }),
       });
       const d = await res.json().catch(() => null);
@@ -72,25 +74,67 @@ export function CompaniesClient({ labels }: { labels: Record<string, string> }) 
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex gap-2">
-        <div className="flex-1">
-          <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-(--text-primary)">{labels.title}</h1>
+          <p className="text-sm text-(--text-secondary)">
+            {labels.countLine
+              .replace("{filtered}", String(rows.length))
+              .replace("{total}", String(rows.length))}
+          </p>
         </div>
-        <Button onClick={() => { setError(null); setCreating(true); }} className="shrink-0">+ {labels.neW}</Button>
+        <Button onClick={() => { setError(null); setCreating(true); }} className="shrink-0">
+          + {labels.neW}
+        </Button>
       </div>
-      <div className="grid items-start gap-2 md:grid-cols-2">
-        {rows.map((c) => (
-          <div key={c.id} className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
-            <div className="truncate text-sm font-black">{c.name}</div>
-            <div className="mt-0.5 text-[11px] opacity-60" dir="ltr">{c.phone ?? ""}</div>
-            <div className="mt-1 text-[11px] opacity-70">
-              {c._count.users} {labels.users} · {c._count.stores} {labels.stores} · <span className="tabular-nums" dir="ltr">{new Date(c.createdAt).toLocaleDateString()}</span>
-            </div>
-          </div>
-        ))}
+
+      <div className="flex gap-2">
+        <div className="max-w-xs flex-1">
+          <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
       </div>
-      {rows.length === 0 && <p className="text-center text-sm opacity-60">{labels.empty}</p>}
+
+      <div className="overflow-x-auto rounded-xl border border-(--border-default) bg-(--bg-overlay) shadow-sm">
+        <table className="w-full min-w-[640px] text-sm">
+          <thead>
+            <tr className="border-b border-(--border-default) bg-(--bg-sunken)">
+              <th className="px-4 py-3 text-start font-medium text-(--text-secondary)">{labels.colName}</th>
+              <th className="px-4 py-3 text-center font-medium text-(--text-secondary)">{labels.colUsers}</th>
+              <th className="px-4 py-3 text-center font-medium text-(--text-secondary)">{labels.colStores}</th>
+              <th className="px-4 py-3 text-start font-medium text-(--text-secondary)">{labels.colCreated}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-(--border-default)">
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-(--text-secondary)">
+                  {labels.empty}
+                </td>
+              </tr>
+            ) : (
+              rows.map((c) => (
+                <tr key={c.id} className="transition-colors hover:bg-(--bg-sunken)/60">
+                  <td className="px-4 py-3">
+                    <div className="font-semibold text-(--text-primary)">{c.name}</div>
+                    {c.phone && (
+                      <p className="text-xs text-(--text-secondary)" dir="ltr">
+                        {c.phone}
+                      </p>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-center text-(--text-primary) tabular-nums">{c._count.users}</td>
+                  <td className="px-4 py-3 text-center text-(--text-primary) tabular-nums">{c._count.stores}</td>
+                  <td className="px-4 py-3 text-xs text-(--text-secondary)" dir="ltr">
+                    {new Date(c.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
       <Modal open={creating} onClose={() => setCreating(false)} title={labels.newTitle} width="sm">
         <div className="space-y-2">
           <div>
@@ -117,8 +161,12 @@ export function CompaniesClient({ labels }: { labels: Record<string, string> }) 
           </div>
           {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{labels[error] ?? error}</p>}
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => setCreating(false)} className="flex-1">{labels.cancel}</Button>
-            <Button onClick={() => void create()} disabled={busy} className="flex-[2]">{labels.save}</Button>
+            <Button variant="secondary" onClick={() => setCreating(false)} className="flex-1">
+              {labels.cancel}
+            </Button>
+            <Button onClick={() => void create()} disabled={busy} className="flex-[2]">
+              {labels.save}
+            </Button>
           </div>
         </div>
       </Modal>

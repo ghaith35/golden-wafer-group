@@ -11,6 +11,7 @@ export default function GeneralSettingsPage() {
   const tc = useTranslations("common");
   const { title, description } = useSectionText("general", "generalDesc");
   const [settings, setSettings] = useState<Settings | null>(null);
+  const [domain, setDomain] = useState<string | null>(null);
 
   useEffect(() => {
     api("/api/settings").then(setSettings).catch(console.error);
@@ -24,6 +25,23 @@ export default function GeneralSettingsPage() {
 
   return (
     <SettingsPanel title={title} description={description}>
+      <Card>
+        <label className="mb-1 block text-sm font-bold">{t("remoteDomain")}</label>
+        <input
+          value={domain ?? String(settings.remoteDomain ?? "")}
+          onChange={(e) => setDomain(e.target.value)}
+          onBlur={() => {
+            if (domain !== null && domain !== String(settings.remoteDomain ?? "")) {
+              patch({ remoteDomain: domain.trim() || null }).catch(console.error);
+            }
+            setDomain(null);
+          }}
+          placeholder="client1.distribuili.khiatadz.com"
+          dir="ltr"
+          className="h-10 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 font-mono text-sm"
+        />
+        <p className="mt-1 text-xs opacity-60">{t("remoteDomainHint")}</p>
+      </Card>
       <Card>
         <label className="mb-1 block text-sm font-bold">{t("costingMethod")}</label>
         <select

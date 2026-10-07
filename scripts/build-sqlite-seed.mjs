@@ -36,6 +36,9 @@ const r = spawnSync("npx", ["tsx", "prisma/seed.ts"], {
     DISTRIBUILI_DB: "local",
     DISTRIBUILI_SQLITE_URL: fileUrl,
     DISTRIBUILI_SQLITE_CLIENT: resolve(ROOT, "src/generated/prisma-sqlite"),
+    // Desktop ships reference data only — the owner creates their own
+    // company + admin credentials via the first-run /onboard wizard.
+    SEED_DEMO: "0",
   },
 });
 if (r.status !== 0) process.exit(r.status ?? 1);

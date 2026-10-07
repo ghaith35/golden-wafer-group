@@ -2,6 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
+import { sortByName } from "@/lib/sort";
 import { TourneesClient } from "./TourneesClient";
 
 export default async function TourneesPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -39,7 +40,7 @@ export default async function TourneesPage({ params }: { params: Promise<{ local
     <TourneesClient
       locale={locale}
       initial={JSON.parse(JSON.stringify(rows))}
-      vans={vans}
+      vans={sortByName(vans, locale)}
       isAdmin={session.role === "Admin"}
       labels={{
         title: t("title"), neW: t("new"), empty: t("empty"), search: tc("search"),

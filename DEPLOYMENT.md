@@ -47,6 +47,41 @@ sync (`https://domain/api/sync`) and portal work.
 **Backups:** `bash scripts/backup-docker.sh` (pg_dump → `./backups`, newest 14).
 Restore command is printed at the bottom of that script.
 
+## One client = one stack = one database
+
+Each client gets a fully isolated deployment (own containers, network,
+volumes, PostgreSQL, secrets, host port) from the same repo checkout:
+
+```bash
+# Scaffold (server, repo dir): writes deploy/clients/<client>.env (gitignored
+# secrets) + registry entry + rendered nginx vhost.
+bash scripts/new-client.sh client1 client1.distribuili.khiatadz.com
+
+# DNS: CNAME client1.distribuili.khiatadz.com -> server (Cloudflare proxy ON).
+sudo cp deploy/clients/client1.nginx.conf /etc/nginx/sites-enabled/client1.conf
+sudo nginx -t && sudo systemctl reload nginx   # certbot adds the 443 block
+
+# First deploy: migrations + seed (own DB), then start.
+bash scripts/deploy-client.sh client1 --seed
+
+# Later deploys / backups / auto-redeploy:
+bash scripts/deploy-client.sh client1
+bash scripts/backup-docker.sh client1
+sudo cp deploy/distribuili-client@.service deploy/distribuili-client@.timer /etc/systemd/system/
+sudo systemctl enable --now distribuili-client@client1.timer
+```
+
+How isolation works: `scripts/deploy-client.sh` runs
+`docker compose -p <client> --env-file deploy/clients/<client>.env` with
+`CLIENT_ENV` exported, so `docker-compose.prod.yml` loads the **client** env
+(`env_file: ${CLIENT_ENV:-.env}`) and prefixes every container/network/volume
+(`client1_pgdata`, `client1_uploads`). The main deployment is untouched
+(`CLIENT_ENV` unset → `.env`, port 3002). Registry: `deploy/clients.conf`.
+
+Point the client's apps at their URL (`https://client1.distribuili.khiatadz.com`):
+desktop via `node scripts/set-mode.mjs server <url>` + `electron:dist:server:*`;
+APK via `capacitor.config.ts` `server.url` + `allowNavigation`, then rebuild.
+
 ## Desktop (Electron)
 
 Two products from one codebase (selected by `build-mode.json` at pack time):

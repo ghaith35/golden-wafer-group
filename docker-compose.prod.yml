@@ -30,7 +30,9 @@ services:
       context: .
       target: runner
     restart: unless-stopped
-    env_file: .env
+    # Per-client override: deploy-client.sh exports CLIENT_ENV=deploy/clients/<client>.env.
+    # Unset (main deployment) → falls back to .env — behavior unchanged.
+    env_file: ${CLIENT_ENV:-.env}
     environment:
       DATABASE_URL: postgresql://distribuili:${POSTGRES_PASSWORD}@db:5432/distribuili
       NODE_ENV: production
@@ -55,7 +57,7 @@ services:
     build:
       context: .
       target: builder
-    env_file: .env
+    env_file: ${CLIENT_ENV:-.env}
     environment:
       DATABASE_URL: postgresql://distribuili:${POSTGRES_PASSWORD}@db:5432/distribuili
     command: sh -c "npx prisma migrate deploy"
@@ -64,14 +66,17 @@ services:
         condition: service_healthy
 
   # One-shot: first deploy only — migrations + demo company + admin user.
+  # Real client installs set SEED_DEMO=0 (deploy-client.sh does): reference
+  # data only, the owner creates credentials via /onboard.
   seed:
     profiles: ["tools"]
     build:
       context: .
       target: builder
-    env_file: .env
+    env_file: ${CLIENT_ENV:-.env}
     environment:
       DATABASE_URL: postgresql://distribuili:${POSTGRES_PASSWORD}@db:5432/distribuili
+      SEED_DEMO: ${SEED_DEMO:-1}
     command: sh -c "npx prisma migrate deploy && npx tsx prisma/seed.ts"
     depends_on:
       db:

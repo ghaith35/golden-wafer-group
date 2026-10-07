@@ -51,7 +51,8 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ loc
           unitPriceL: t("unitPriceL"), packPriceL: t("packPriceL"), product: t("product"),
           qtyPack: t("qtyPack"), qtyPiece: t("qtyPiece"), assign: t("assign"),
           confirmOrderT: t("confirmOrderT"), confirmOrderM: t("confirmOrderM"),
-          invoiceT: t("invoiceT"), invoiceM: t("invoiceM"),
+          invoiceT: t("invoiceT"), invoiceM: t("invoiceM"), cancelT: t("cancelT"), cancelM: t("cancelM"),
+          redeliverT: t("redeliverT"), redeliverM: t("redeliverM"),
           assignT: t("assignT"), deliverT: t("deliverT"), van: t("van"),
           confirmLoad: t("confirmLoad"), confirmLoadT: t("confirmLoadT"), confirmLoadM: t("confirmLoadM"),
         }}

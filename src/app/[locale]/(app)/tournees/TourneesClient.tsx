@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
+import { compareNatural } from "@/lib/sort";
 import { TourneeDay } from "./[id]/TourneeDay";
 import { TourneeForm } from "./TourneeForm";
 import { OrderedStops } from "./OrderedStops";
@@ -176,8 +177,9 @@ export function TourneesClient({
   );
   const totalStops = weekRows.reduce((s, r) => s + r.stops.length, 0);
   const shownVans = useMemo(
-    () => vans.filter((v) => !q || v.name.includes(q) || (v.matricule ?? "").includes(q)),
-    [vans, q]
+    () => vans.filter((v) => !q || v.name.includes(q) || (v.matricule ?? "").includes(q))
+      .sort((a, b) => compareNatural(a.name, b.name, locale)),
+    [vans, q, locale]
   );
 
   const fmtDay = new Intl.DateTimeFormat(locale, { weekday: "long" });

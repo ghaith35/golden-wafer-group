@@ -86,7 +86,7 @@ export function SaleActions({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   /// Popup form replacing the old JS confirm(): which action awaits approval.
-  const [modal, setModal] = useState<null | "load" | "assign" | "deliver" | "invoice">(null);
+  const [modal, setModal] = useState<null | "load" | "assign" | "deliver" | "invoice" | "cancel" | "uncancel">(null);
   /// Depot availability for the load preview (fetched when opening it).
   const [depotMap, setDepotMap] = useState<Record<string, number> | null>(null);
 
@@ -314,6 +314,12 @@ export function SaleActions({
         {sale.kind === "DELIVERY" && sale.status === "DELIVERED" && (
           <Button onClick={() => setModal("invoice")} disabled={busy}>{labels.invoice}</Button>
         )}
+        {((sale.kind === "TICKET" || sale.kind === "DELIVERY") && sale.status === "DELIVERED") && (
+          <Button variant="secondary" onClick={() => setModal("cancel")} disabled={busy} className="text-red-500">{labels.cancelT ?? labels.cancel}</Button>
+        )}
+        {sale.kind === "DELIVERY" && sale.status === "CANCELLED" && (
+          <Button onClick={() => setModal("uncancel")} disabled={busy}>{labels.redeliverT ?? labels.deliver}</Button>
+        )}
         {(sale.kind === "DELIVERY" || sale.kind === "TICKET") && (
           <Link href={`/${locale}/sales/${sale.id}/print`}>
             <Button variant="secondary">{labels.print} BL</Button>
@@ -385,6 +391,22 @@ export function SaleActions({
           </div>
         </div>
       </Modal>
+      <ConfirmDialog
+        open={modal === "cancel"}
+        onClose={() => setModal(null)}
+        onConfirm={() => act("cancel")}
+        title={labels.cancelT ?? labels.cancel}
+        message={`${labels.cancelM ?? ""}\n${sale.number} · ${num(total)}`}
+        confirmLabel={labels.cancelT ?? labels.cancel}
+      />
+      <ConfirmDialog
+        open={modal === "uncancel"}
+        onClose={() => setModal(null)}
+        onConfirm={() => act("uncancel")}
+        title={labels.redeliverT ?? labels.deliver}
+        message={`${labels.redeliverM ?? ""}\n${sale.number} · ${num(total)}`}
+        confirmLabel={labels.redeliverT ?? labels.deliver}
+      />
       <ConfirmDialog
         open={modal === "invoice"}
         onClose={() => setModal(null)}

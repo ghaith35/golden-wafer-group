@@ -75,7 +75,7 @@ const GROUPS: Array<{ label: string; items: Item[]; adminOnly?: boolean }> = [
 
 /// Mobile bottom tab bar — fixed keys so sidebar regroups never shift it.
 const TAB_KEYS = ["dashboard", "clients", "suppliers", "sales"];
-const TAB_KEYS_LIVREUR = ["livreur", "commandes", "dashboard"];
+const TAB_KEYS_LIVREUR = ["livreur"];
 const TABS: Item[] = TAB_KEYS.flatMap((k) => GROUPS.flatMap((g) => g.items).filter((i) => i.key === k));
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -133,7 +133,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   // Staff role: Vendeur gets the reduced menu, Livreur gets ONLY Tournée
   // vente (dedicated mobile sections replace the desktop sidebar).
-  // Defaults to full (admin) until the check returns.
+  // Unknown role (still loading, offline PWA shell, fetch failed) defaults
+  // to the most restricted livreur view — never the full admin menu.
   const [role, setRole] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   useEffect(() => {
@@ -145,8 +146,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       })
       .catch(() => {});
   }, []);
-  const isStaff = role === "Vendeur" || role === "Livreur";
-  const isLivreur = role === "Livreur";
+  const isStaff = role !== "Admin";
+  const isLivreur = role !== "Admin" && role !== "Vendeur";
 
   const visibleGroups = (isLivreur
     ? [{
@@ -175,11 +176,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <VanTracker />
       {/* Silent web updates + native APK banner (phones). No-op when fresh. */}
       <AutoUpdate />
-      {/* Desktop sidebar — hidden on the Journée picker until a day is chosen */}
+      {/* Desktop sidebar — hidden on the Journée picker until a day is chosen.
+          print:hidden everywhere: print pages (ticket, sheets) output only
+          their document, never the app chrome. */}
       {!hideChrome && (
       <aside
         className={cn(
-          "fixed inset-y-0 start-0 hidden flex-col border-e border-(--border-default) bg-(--bg-overlay) transition-all duration-300 ease-in-out lg:flex",
+          "fixed inset-y-0 start-0 hidden flex-col border-e border-(--border-default) bg-(--bg-overlay) transition-all duration-300 ease-in-out print:hidden lg:flex",
           collapsed ? "w-[68px] overflow-visible p-2" : "w-60 overflow-hidden p-3"
         )}
       >
@@ -197,7 +200,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile drawer — always expanded */}
       {!hideChrome && navOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50 print:hidden lg:hidden">
           <button
             type="button"
             aria-label={t("closeMenu")}
@@ -223,7 +226,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <TopBar onMenuClick={() => setNavOpen(true)} onLogout={logout} syncLabels={syncLabels} hideMenu={hideChrome} username={username} />
         <main className={hideChrome ? "" : "pb-20 lg:pb-0"}>{children}</main>
         {!hideChrome && visibleTabs.length > 0 && (
-        <nav className="fixed inset-x-0 bottom-0 flex border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)] lg:hidden">
+        <nav className="fixed inset-x-0 bottom-0 flex border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)] print:hidden lg:hidden">
           {visibleTabs.map(({ key, href, Icon }) => (
             <Link key={key} href={`/${locale}/${href}`} className="flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold leading-tight opacity-70">
               <Icon size={19} />

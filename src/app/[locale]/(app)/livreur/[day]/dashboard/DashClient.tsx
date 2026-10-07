@@ -155,6 +155,7 @@ export function DashClient({
     { key: "stock", label: labels.stock, Icon: Package, cls: "bg-amber-500/15 text-amber-600", go: () => router.push(`/${locale}/livreur/${day}/stock`) },
     { key: "till", label: labels.declare, Icon: Banknote, cls: "bg-lime-500/15 text-lime-600", go: () => { setTillOpen(true); setTillMsg(null); } },
     { key: "client", label: labels.newClient, Icon: UserPlus, cls: "bg-teal-500/15 text-teal-600", go: () => router.push(`/${locale}/livreur/${day}/clients/new`) },
+    { key: "dayClients", label: labels.clients, Icon: UserRound, cls: "bg-cyan-500/15 text-cyan-600", go: () => router.push(`/${locale}/livreur/${day}`) },
   ];
 
   return (
@@ -302,6 +303,11 @@ export function DashClient({
           gallery: labels.syncGallery, qrNotFound: labels.syncQrNotFound, invalidQr: labels.syncInvalidQr,
           tokenPh: labels.syncTokenPh, urlPh: labels.syncUrlPh, tokenRequired: labels.syncTokenRequired,
           saveConfig: labels.syncSaveConfig, resetConfig: labels.syncResetConfig,
+          serverTitle: labels.syncServerTitle, changeServer: labels.syncChangeServer,
+          serverScanHint: labels.syncServerScanHint, serverPendingBlock: labels.syncServerPendingBlock,
+          serverQuarantined: labels.syncServerQuarantined, serverReset: labels.syncServerReset,
+          webUpdateTitle: labels.syncWebUpdateTitle, webLater: labels.syncWebLater, webValidate: labels.syncWebValidate,
+          nativeTitle: labels.syncNativeTitle, nativeGo: labels.syncNativeGo,
           history: labels.syncHistory, noHistory: labels.syncNoHistory, clearHistory: labels.syncClearHistory,
           camNeedHttps: labels.syncCamNeedHttps, camDenied: labels.syncCamDenied, camUnsupported: labels.syncCamUnsupported,
           directSync: labels.syncDirectSync, noVan: labels.syncNoVan,

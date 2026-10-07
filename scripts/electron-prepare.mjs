@@ -64,9 +64,17 @@ if (existsSync(licenseJs)) {
   const src = readFileSync(licenseJs, "utf8");
   if (src.includes(PLACEHOLDER)) {
     if (!pubB64) {
-      console.error(
-        "!! No LICENSE_PUBLIC_KEY (or LICENSE_PRIVATE_KEY) in env — packaged EXE will be LICENSE-INERT (dev bypass).",
-      );
+      if (process.env.ALLOW_UNLICENSED_BUILD === "1") {
+        console.error(
+          "!! ALLOW_UNLICENSED_BUILD=1 — packaged EXE will be LICENSE-INERT (dev bypass).",
+        );
+      } else {
+        console.error(
+          "!! No LICENSE_PUBLIC_KEY (or LICENSE_PRIVATE_KEY) in env — refusing to package an\n" +
+            "!! unlicensed build. Set the key, or pass ALLOW_UNLICENSED_BUILD=1 for a dev build.",
+        );
+        process.exit(1);
+      }
     } else {
       writeFileSync(licenseJs, src.split(PLACEHOLDER).join(pubB64), "utf8");
       console.log("✓ license public key baked into electron/dist/license.js");

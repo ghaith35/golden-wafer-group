@@ -1,7 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { getSuperAdminSession } from "@/lib/superadmin/session";
-import { SuperAdminNav } from "../SuperAdminNav";
+import { SuperAdminShell } from "../SuperAdminShell";
 
 /// Guard: everything under (admin) requires a live vendor session.
 /// The proxy already redirects strangers to /login; this is the second wall.
@@ -18,16 +18,25 @@ export default async function SuperAdminLayout({
   if (!session) redirect(`/${locale}/superadmin/login`);
   const t = await getTranslations("superadmin");
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-4 p-5 md:p-6">
-      <SuperAdminNav
-        locale={locale}
-        username={session.username}
-        labels={{
-          dashboard: t("dashboard"), licenses: t("licenses"), companies: t("companies"),
-          audit: t("audit"), logout: t("logout"),
-        }}
-      />
+    <SuperAdminShell
+      locale={locale}
+      username={session.username}
+      labels={{
+        dashboard: t("dashboard"),
+        licenses: t("licenses"),
+        companies: t("companies"),
+        audit: t("audit"),
+        tunnels: t("tunnels"),
+        sectionOverview: t("sectionOverview"),
+        sectionMgmt: t("sectionMgmt"),
+        sectionSystem: t("sectionSystem"),
+        header: t("header"),
+        logout: t("logout"),
+        collapse: t("collapse"),
+        expand: t("expand"),
+      }}
+    >
       {children}
-    </div>
+    </SuperAdminShell>
   );
 }

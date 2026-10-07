@@ -85,6 +85,9 @@ export function VansClient({
     chauffeur: labels.chauffeur, noChauffeur: labels.noChauffeur,
     addImage: labels.addImage, removeImage: labels.removeImage,
     save: labels.save, cancel: labels.cancel,
+    newDriver: labels.newDriver, fullName: labels.fullName, username: labels.username,
+    password: labels.password, role: labels.role,
+    roleLivreur: labels.roleLivreur, roleVendeur: labels.roleVendeur,
   };
 
   return (

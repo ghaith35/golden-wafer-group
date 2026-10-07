@@ -21,7 +21,12 @@ async function locationsOrThrow(companyId: string, fromId: string, toId: string)
 
 /// DECLARE: consume source FIFO/FEFO into in-transit holding batches.
 /// Stock leaves source availability immediately; nothing reaches the dest yet.
-export async function declareTransfer(companyId: string, userId: string, input: TransferInput) {
+export async function declareTransfer(
+  companyId: string,
+  userId: string,
+  input: TransferInput,
+  opts?: { opId?: string | null; occurredAt?: Date | null },
+) {
   const settings = await getOrCreateSettings(companyId);
   const { from, to } = await locationsOrThrow(companyId, input.fromLocationId, input.toLocationId);
   // Vendeurs in LOCKED mode move stock only out of their own van.
@@ -60,7 +65,7 @@ export async function declareTransfer(companyId: string, userId: string, input: 
     }
   }
 
-  const date = new Date();
+  const date = opts?.occurredAt ?? new Date();
   const season = await ensureSeasonFor(companyId, date);
   return prisma.$transaction(async (tx) => {
     const number = await nextDocNumber(tx, companyId, "transfer", date.getFullYear(), "TRF");
@@ -75,6 +80,7 @@ export async function declareTransfer(companyId: string, userId: string, input: 
         notes: input.notes ?? null,
         declaredById: userId,
         date,
+        opId: opts?.opId ?? null,
       },
     });
 
@@ -228,6 +234,14 @@ export async function resolveTransfer(companyId: string, userId: string, transfe
     include: { lines: true },
   });
   if (!transfer) throw Object.assign(new Error("not_found"), { status: 404 });
+  // Idempotent confirm: a retried/duplicated offline confirm for an already
+  // confirmed transfer is a success, not an error (crash-safe exactly-once).
+  if (transfer.status === "CONFIRMED" && input.action === "confirm") {
+    return prisma.transfer.findUniqueOrThrow({
+      where: { id: transfer.id },
+      include: { lines: { include: { product: true } }, fromLocation: true, toLocation: true },
+    });
+  }
   if (transfer.status !== "DECLARED") throw Object.assign(new Error("bad_status"), { status: 400 });
   if (input.action === "confirm") {
     const actor = await prisma.user.findFirst({ where: { id: userId, companyId }, include: { assignedVans: { select: { id: true } } } });

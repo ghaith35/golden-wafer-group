@@ -107,6 +107,7 @@ export default async function PurchasesPage({ params }: { params: Promise<{ loca
         cancel: tc("cancel"), stock: tp("stock"), locations: ti("locations"),
         barcode: tp("barcode"), salePrice: tp("salePrice"),
         paid: t("paid"), remaining: t("remaining"), overpayment: t("overpayment"),
+        bulkAdd: t("bulkAdd"), selectAll: t("selectAll"), addSelected: t("addSelected"),
         currency: formData.settings.currency === "DZD" ? "DA" : formData.settings.currency,
         phone: ts("phone"),
       }}

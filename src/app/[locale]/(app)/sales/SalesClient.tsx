@@ -10,6 +10,7 @@ import { SaleDocForm } from "./SaleDocForm";
 import { SaleActions, type SaleDetail } from "./[id]/SaleActions";
 import type { SaleFormData } from "./saleRefs";
 import { dzMoney } from "@/lib/format";
+import { compareNatural } from "@/lib/sort";
 import { cn } from "@/lib/utils";
 
 type Row = {
@@ -93,9 +94,9 @@ export function SalesClient({
         total: agg.get(l.id)?.total ?? 0,
       }))
       .sort((a, b) =>
-        a.kind === b.kind ? a.name.localeCompare(b.name) : a.kind === "VAN" ? -1 : 1
+        a.kind === b.kind ? compareNatural(a.name, b.name, locale) : a.kind === "VAN" ? -1 : 1
       );
-  }, [rows, formData.locations]);
+  }, [rows, formData.locations, locale]);
   const visible = rows.filter(
     (r) =>
       (!fVan || r.location?.id === fVan) &&

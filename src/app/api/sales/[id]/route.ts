@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { deliverSchema } from "@/lib/sales/validation";
-import { confirmOrder, deliverOrder, createInvoice, cancelSale, moveSale, assignOrder, confirmAndLoadOrder } from "@/lib/sales/service";
+import { confirmOrder, deliverOrder, createInvoice, cancelSale, uncancelDelivery, reopenOrder, moveSale, assignOrder, confirmAndLoadOrder } from "@/lib/sales/service";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -43,6 +43,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
     if (action === "cancel") {
       return NextResponse.json(await cancelSale(session.companyId, id));
+    }
+    if (action === "uncancel") {
+      return NextResponse.json(await uncancelDelivery(session.companyId, id));
+    }
+    if (action === "reopen") {
+      return NextResponse.json(await reopenOrder(session.companyId, id));
     }
     if (action === "move") {
       const parsed = z.object({ locationId: z.string().min(1) }).safeParse(body);

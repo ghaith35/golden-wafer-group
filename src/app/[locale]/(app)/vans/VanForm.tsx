@@ -34,6 +34,13 @@ export function VanForm({
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /// Inline driver creation: name + login for a new staff account, created
+  /// and permanently linked to this van in the same save (no second section).
+  const [newDriver, setNewDriver] = useState(false);
+  const [dFull, setDFull] = useState("");
+  const [dUser, setDUser] = useState("");
+  const [dPass, setDPass] = useState("");
+  const [dRole, setDRole] = useState<"Livreur" | "Vendeur">("Livreur");
 
   function set<K extends keyof VanData>(k: K, v: VanData[K]) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -63,21 +70,70 @@ export function VanForm({
       setError("fields_required");
       return;
     }
+    if (newDriver && (!dFull.trim() || !dUser.trim() || dPass.length < 6)) {
+      setError("fields_required");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
-      const payload = {
-        kind: "VAN",
-        name: form.name.trim(),
-        marque: form.marque.trim(),
-        matricule: form.matricule.trim(),
-        imageUrl: form.imageUrl || null,
-        userId: form.userId || null,
-      };
-      const res = await fetch(form.id ? `/api/locations/${form.id}` : "/api/locations", {
-        method: form.id ? "PATCH" : "POST",
+      let vanId: string | null = form.id ?? null;
+      if (!vanId) {
+        // Create the van first (driverless), so a fresh id exists to link.
+        const res = await fetch("/api/locations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            kind: "VAN",
+            name: form.name.trim(),
+            marque: form.marque.trim(),
+            matricule: form.matricule.trim(),
+            imageUrl: form.imageUrl || null,
+            userId: null,
+          }),
+        });
+        if (!res.ok) {
+          setError((await res.json()).error ?? "save_failed");
+          return;
+        }
+        vanId = (await res.json()).id as string;
+      }
+      let userId: string | null = form.userId || null;
+      if (newDriver && vanId) {
+        // Create the staff account already linked to this van (atomic in
+        // the users route: user + store.userId in one transaction).
+        const res = await fetch("/api/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName: dFull.trim(),
+            username: dUser.trim(),
+            password: dPass,
+            role: dRole,
+            vanId,
+          }),
+        });
+        if (!res.ok) {
+          // All-or-nothing on create: drop the driverless van we just made
+          // so no half-created pair is left behind.
+          if (!form.id) {
+            await fetch(`/api/locations/${vanId}`, { method: "DELETE" }).catch(() => {});
+          }
+          setError((await res.json()).error ?? "save_failed");
+          return;
+        }
+        userId = (await res.json()).id as string;
+      }
+      const res = await fetch(form.id ? `/api/locations/${form.id}` : `/api/locations/${vanId}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          name: form.name.trim(),
+          marque: form.marque.trim(),
+          matricule: form.matricule.trim(),
+          imageUrl: form.imageUrl || null,
+          userId,
+        }),
       });
       if (!res.ok) {
         setError((await res.json()).error ?? "save_failed");
@@ -138,13 +194,51 @@ export function VanForm({
           </div>
           <div>
             <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.chauffeur}</label>
-            <select value={form.userId} onChange={(e) => set("userId", e.target.value)} className={inputCls}>
+            <select
+              value={newDriver ? "__new__" : form.userId}
+              onChange={(e) => {
+                if (e.target.value === "__new__") {
+                  setNewDriver(true);
+                  set("userId", "");
+                } else {
+                  setNewDriver(false);
+                  set("userId", e.target.value);
+                }
+              }}
+              className={inputCls}
+            >
               <option value="">— {labels.noChauffeur}</option>
               {users.map((u) => (
                 <option key={u.id} value={u.id}>{u.fullName} · {u.username}</option>
               ))}
+              <option value="__new__">+ {labels.newDriver}</option>
             </select>
           </div>
+          {newDriver && (
+            <div className="space-y-3 rounded-xl border border-(--brand-500)/30 bg-(--brand-500)/5 p-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2">
+                  <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.fullName} <span className="text-red-500">*</span></label>
+                  <Input value={dFull} onChange={(e) => setDFull(e.target.value)} />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.username} <span className="text-red-500">*</span></label>
+                  <Input value={dUser} onChange={(e) => setDUser(e.target.value)} dir="ltr" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.password} <span className="text-red-500">*</span></label>
+                  <Input type="password" value={dPass} onChange={(e) => setDPass(e.target.value)} dir="ltr" />
+                </div>
+                <div className="col-span-2">
+                  <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.role}</label>
+                  <select value={dRole} onChange={(e) => setDRole(e.target.value as "Livreur" | "Vendeur")} className={inputCls}>
+                    <option value="Livreur">{labels.roleLivreur}</option>
+                    <option value="Vendeur">{labels.roleVendeur}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </Card>
       <div className="flex gap-2">

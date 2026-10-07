@@ -20,6 +20,7 @@ const HINTS: Record<string, string> = {
   transferConfirmRequired: "transferConfirmHint",
   qrStrictMode: "qrHint",
   gpsEnabled: "gpsHint",
+  supplierFilterEnabled: "supplierFilterHint",
 } as const;
 
 const BOOL_TOGGLES = [
@@ -36,6 +37,7 @@ const BOOL_TOGGLES = [
   "transferConfirmRequired",
   "qrStrictMode",
   "gpsEnabled",
+  "supplierFilterEnabled",
 ] as const;
 
 export default function SalesSettingsPage() {
@@ -65,6 +67,52 @@ export default function SalesSettingsPage() {
           hint={t(HINTS[key])}
         />
       ))}
+      {/* Thermal ticket language (Arabic RTL / French LTR) */}
+      <div className="flex items-center justify-between gap-3 rounded-xl border border-(--border-default) px-3 py-2.5">
+        <div className="min-w-0">
+          <div className="text-sm font-bold">{t("ticketLang")}</div>
+          <div className="text-xs opacity-60">{t("ticketLangHint")}</div>
+        </div>
+        <div className="flex shrink-0 gap-1 rounded-lg bg-(--bg-sunken) p-1" dir="ltr">
+          {(["ar", "fr"] as const).map((l) => (
+            <button
+              key={l}
+              type="button"
+              onClick={() => patch({ ticketLang: l })}
+              className={
+                String(settings.ticketLang ?? "fr") === l
+                  ? "rounded-md bg-(--brand-500) px-3 py-1 text-xs font-black text-white"
+                  : "rounded-md px-3 py-1 text-xs font-bold opacity-60 hover:opacity-100"
+              }
+            >
+              {l === "ar" ? "عربي" : "Français"}
+            </button>
+          ))}
+        </div>
+      </div>
+      {/* Thermal ticket paper width (58mm / 80mm) */}
+      <div className="flex items-center justify-between gap-3 rounded-xl border border-(--border-default) px-3 py-2.5">
+        <div className="min-w-0">
+          <div className="text-sm font-bold">{t("ticketWidth")}</div>
+          <div className="text-xs opacity-60">{t("ticketWidthHint")}</div>
+        </div>
+        <div className="flex shrink-0 gap-1 rounded-lg bg-(--bg-sunken) p-1" dir="ltr">
+          {(["58", "80"] as const).map((w) => (
+            <button
+              key={w}
+              type="button"
+              onClick={() => patch({ ticketWidth: w })}
+              className={
+                String(settings.ticketWidth ?? "80") === w
+                  ? "rounded-md bg-(--brand-500) px-3 py-1 text-xs font-black text-white"
+                  : "rounded-md px-3 py-1 text-xs font-bold opacity-60 hover:opacity-100"
+              }
+            >
+              {w}mm
+            </button>
+          ))}
+        </div>
+      </div>
     </SettingsPanel>
   );
 }

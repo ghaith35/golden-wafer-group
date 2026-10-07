@@ -11,55 +11,137 @@ import { updateStop } from "@/lib/tournees/service";
 import { ensureSeasonFor } from "@/lib/docs/sequences";
 import { z } from "zod";
 import { syncSchema } from "@/lib/sync/validation";
+import { getApkMeta, getMinNativeVersion, getWebBuildId, isForceWebUpdate } from "@/lib/update-feed";
 
 type SyncInput = z.infer<typeof syncSchema>;
-type OpResult = { opId: string; ok: boolean; id?: string; error?: string };
+type OpResult = { opId: string; ok: boolean; id?: string; error?: string; permanent?: boolean };
+
+/// Apply order: dependencies first (client before its ticket/order), then
+/// movements, then day stamps. Stable within a kind (preserves outbox order).
+const KIND_PRIORITY: Record<string, number> = {
+  client: 0,
+  "day-start": 1,
+  ticket: 2,
+  order: 2,
+  "client-return": 2,
+  "transfer-declare": 3,
+  "transfer-confirm": 4,
+  versement: 5,
+  "cash-declare": 6,
+  "stop-update": 7,
+  "day-finish": 8,
+};
+
+function sortOps<T extends { kind: string }>(ops: T[]): T[] {
+  return ops
+    .map((op, i) => ({ op, i }))
+    .sort((a, b) => (KIND_PRIORITY[a.op.kind] ?? 99) - (KIND_PRIORITY[b.op.kind] ?? 99) || a.i - b.i)
+    .map((x) => x.op);
+}
+
+/// Prisma unique-constraint violation (P2002) — our exactly-once signal.
+function isUniqueViolation(e: unknown): boolean {
+  const err = e as { code?: string; message?: string };
+  if (err?.code === "P2002") return true;
+  return /unique constraint|UNIQUE constraint/i.test(err?.message ?? "");
+}
+
+/// Fetch the document already created by this opId (after a unique collision).
+async function existingByOpId(companyId: string, kind: string, opId: string): Promise<string | null> {
+  switch (kind) {
+    case "ticket":
+    case "order": {
+      const r = await prisma.sale.findFirst({ where: { companyId, opId }, select: { id: true } });
+      return r?.id ?? null;
+    }
+    case "client": {
+      const r = await prisma.customer.findFirst({ where: { companyId, opId }, select: { id: true } });
+      return r?.id ?? null;
+    }
+    case "versement": {
+      const r = await prisma.versement.findFirst({ where: { companyId, opId }, select: { id: true } });
+      return r?.id ?? null;
+    }
+    case "client-return": {
+      const r = await prisma.clientReturn.findFirst({ where: { companyId, opId }, select: { id: true } });
+      return r?.id ?? null;
+    }
+    case "transfer-declare": {
+      const r = await prisma.transfer.findFirst({ where: { companyId, opId }, select: { id: true } });
+      return r?.id ?? null;
+    }
+    default:
+      return null;
+  }
+}
+
+/// Resolve the op's real action time (phone clock) with sane bounds, so a
+/// wrong device clock can't move a sale to next month. Falls back to now.
+function resolveOccurredAt(raw: unknown): Date {
+  const now = Date.now();
+  if (typeof raw !== "number" || !Number.isFinite(raw)) return new Date();
+  const t = Math.trunc(raw);
+  const FIVE_MIN = 5 * 60 * 1000;
+  const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;
+  if (t > now + FIVE_MIN) return new Date(now);
+  if (t < now - NINETY_DAYS) return new Date(now);
+  return new Date(t);
+}
 
 async function applyOp(
   companyId: string,
   deviceId: string,
   userId: string,
   vanId: string | null,
-  op: { opId: string; kind: string; payload: Record<string, unknown> },
+  op: { opId: string; kind: string; payload: Record<string, unknown>; occurredAt?: number },
 ): Promise<OpResult> {
   const done = await prisma.syncOp.findUnique({ where: { companyId_opId: { companyId, opId: op.opId } } });
   if (done) {
     return done.status === "APPLIED"
-      ? { opId: op.opId, ok: true }
-      : { opId: op.opId, ok: false, error: done.error ?? "failed" };
+      ? { opId: op.opId, ok: true, id: done.resultId ?? undefined }
+      : { opId: op.opId, ok: false, error: done.error ?? "failed", permanent: true };
   }
+  const occurredAt = resolveOccurredAt(op.occurredAt);
   try {
     let id: string | undefined;
     const p = op.payload;
     if (op.kind === "ticket") {
-      const row = await createTicket(companyId, userId, {
-        clientId: (p.clientId as string) ?? null,
-        locationId: ((p.locationId as string) ?? vanId) as string,
-        tierId: (p.tierId as string) ?? null,
-        channel: "VAN",
-        qrScanned: Boolean(p.qrScanned),
-        tourneeId: (p.tourneeId as string) ?? null,
-        remise: Number(p.remise ?? 0),
-        paid: p.paid == null ? null : Number(p.paid),
-        notes: (p.notes as string) ?? null,
-        lines: p.lines as never,
-      });
+      const row = await createTicket(
+        companyId,
+        userId,
+        {
+          clientId: (p.clientId as string) ?? null,
+          locationId: ((p.locationId as string) ?? vanId) as string,
+          tierId: (p.tierId as string) ?? null,
+          channel: (p.channel as "VAN" | "POS" | "DEPOT") ?? "VAN",
+          qrScanned: Boolean(p.qrScanned),
+          tourneeId: (p.tourneeId as string) ?? null,
+          remise: Number(p.remise ?? 0),
+          paid: p.paid == null ? null : Number(p.paid),
+          notes: (p.notes as string) ?? null,
+          lines: p.lines as never,
+        },
+        { opId: op.opId, occurredAt },
+      );
       id = row.id;
     } else if (op.kind === "order") {
       // Bon de commande from the van: lands as DRAFT ORDER attributed to the
       // van (locationId) so the admin sees whose vendeur took it.
-      const { createOrder } = await import("@/lib/sales/service");
-      const row = await createOrder(companyId, {
-        clientId: p.clientId as string,
-        tierId: (p.tierId as string) ?? null,
-        locationId: ((p.locationId as string) ?? vanId) as string | undefined,
-        channel: "VAN",
-        tourneeId: (p.tourneeId as string) ?? null,
-        remise: Number(p.remise ?? 0),
-        paid: p.paid == null ? 0 : Number(p.paid),
-        notes: (p.notes as string) ?? null,
-        lines: p.lines as never,
-      }, { createdBy: userId });
+      const row = await createOrder(
+        companyId,
+        {
+          clientId: p.clientId as string,
+          tierId: (p.tierId as string) ?? null,
+          locationId: ((p.locationId as string) ?? vanId) as string | undefined,
+          channel: (p.channel as "VAN" | "POS" | "DEPOT") ?? "VAN",
+          tourneeId: (p.tourneeId as string) ?? null,
+          remise: Number(p.remise ?? 0),
+          paid: p.paid == null ? 0 : Number(p.paid),
+          notes: (p.notes as string) ?? null,
+          lines: p.lines as never,
+        },
+        { createdBy: userId, opId: op.opId, occurredAt },
+      );
       id = row.id;
     } else if (op.kind === "client") {
       // New client created on the van: same rules as POST /api/clients.
@@ -109,58 +191,87 @@ async function applyOp(
             gpsLng: d.gpsLng ?? null,
             portalSecretHash: await bcrypt.hash(secret, 10),
             isActive: d.isActive ?? true,
+            opId: op.opId,
           },
         });
       });
       id = row.id;
     } else if (op.kind === "versement") {
-      const clientId = p.clientId as string;
+      // Client (or supplier) payment collected offline. Company-scoped:
+      // the party MUST belong to this company.
+      const kind = (p.kind as string) === "SUPPLIER_PAYMENT" ? "SUPPLIER_PAYMENT" : "CLIENT_PAYMENT";
       const amount = Number(p.amount);
-      const date = new Date();
-      const season = await ensureSeasonFor(companyId, date);
-      id = await prisma.$transaction(async (tx) => {
-        const v = await tx.versement.create({
-          data: { companyId, seasonId: season.id, kind: "CLIENT_PAYMENT", clientId, amount, date, notes: (p.notes as string) ?? null, locationId: vanId ?? null },
+      if (!Number.isFinite(amount) || amount <= 0) throw Object.assign(new Error("bad_amount"), { status: 400 });
+      const season = await ensureSeasonFor(companyId, occurredAt);
+      if (kind === "CLIENT_PAYMENT") {
+        const clientId = p.clientId as string;
+        const client = await prisma.customer.findFirst({ where: { id: clientId, companyId }, select: { id: true } });
+        if (!client) throw Object.assign(new Error("bad_client"), { status: 400 });
+        id = await prisma.$transaction(async (tx) => {
+          const v = await tx.versement.create({
+            data: { companyId, seasonId: season.id, kind, clientId: client.id, amount, date: occurredAt, notes: (p.notes as string) ?? null, locationId: vanId ?? null, opId: op.opId },
+          });
+          await tx.customer.update({ where: { id: client.id }, data: { balance: { decrement: amount } } });
+          return v.id;
         });
-        await tx.customer.update({ where: { id: clientId }, data: { balance: { decrement: amount } } });
-        return v.id;
-      });
+      } else {
+        const supplierId = p.supplierId as string;
+        const supplier = await prisma.supplier.findFirst({ where: { id: supplierId, companyId }, select: { id: true } });
+        if (!supplier) throw Object.assign(new Error("bad_supplier"), { status: 400 });
+        id = await prisma.$transaction(async (tx) => {
+          const v = await tx.versement.create({
+            data: { companyId, seasonId: season.id, kind, supplierId: supplier.id, amount, date: occurredAt, notes: (p.notes as string) ?? null, locationId: vanId ?? null, opId: op.opId },
+          });
+          await tx.supplier.update({ where: { id: supplier.id }, data: { balance: { decrement: amount } } });
+          return v.id;
+        });
+      }
     } else if (op.kind === "day-start" || op.kind === "day-finish") {
       // Offline day stamps: applied with the device owner's role.
       const { startDay, finishDay } = await import("@/lib/tournees/service");
       const staffer = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
       const row = op.kind === "day-start"
-        ? await startDay(companyId, userId, staffer?.role ?? "Vendeur", p.tourneeId as string)
-        : await finishDay(companyId, userId, staffer?.role ?? "Vendeur", p.tourneeId as string);
+        ? await startDay(companyId, userId, staffer?.role ?? "Vendeur", p.tourneeId as string, occurredAt)
+        : await finishDay(companyId, userId, staffer?.role ?? "Vendeur", p.tourneeId as string, occurredAt);
       id = row.id;
     } else if (op.kind === "cash-declare") {
       // Offline till declaration: lands as DECLARED unless already closed.
       const { declareCash } = await import("@/lib/cash/daily");
+      const staffer = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
       const row = await declareCash(
-        companyId, userId, "Vendeur",
+        companyId, userId, staffer?.role ?? "Vendeur",
         (p.vanId as string) ?? vanId ?? "",
         p.dateIso as string, Number(p.amount), (p.notes as string) ?? null
       );
       id = row.id;
     } else if (op.kind === "client-return") {
       const { createClientReturn } = await import("@/lib/sales/service");
-      const row = await createClientReturn(companyId, {
-        clientId: p.clientId as string,
-        saleId: (p.saleId as string) ?? null,
-        locationId: ((p.locationId as string) ?? vanId) as string,
-        refundType: (p.refundType as "CASH" | "DEBT_CREDIT") ?? "DEBT_CREDIT",
-        notes: (p.notes as string) ?? null,
-        lines: p.lines as never,
-      });
+      const row = await createClientReturn(
+        companyId,
+        {
+          clientId: p.clientId as string,
+          saleId: (p.saleId as string) ?? null,
+          locationId: ((p.locationId as string) ?? vanId) as string,
+          refundType: (p.refundType as "CASH" | "DEBT_CREDIT") ?? "DEBT_CREDIT",
+          notes: (p.notes as string) ?? null,
+          lines: p.lines as never,
+        },
+        { opId: op.opId, occurredAt },
+      );
       id = row.id;
     } else if (op.kind === "transfer-declare") {
-      const row = await declareTransfer(companyId, userId, {
-        fromLocationId: ((p.fromLocationId as string) ?? vanId) as string,
-        toLocationId: p.toLocationId as string,
-        cashAmount: Number(p.cashAmount ?? 0),
-        notes: (p.notes as string) ?? null,
-        lines: p.lines as never,
-      });
+      const row = await declareTransfer(
+        companyId,
+        userId,
+        {
+          fromLocationId: ((p.fromLocationId as string) ?? vanId) as string,
+          toLocationId: p.toLocationId as string,
+          cashAmount: Number(p.cashAmount ?? 0),
+          notes: (p.notes as string) ?? null,
+          lines: p.lines as never,
+        },
+        { opId: op.opId, occurredAt },
+      );
       id = row.id;
     } else if (op.kind === "transfer-confirm") {
       const { resolveTransfer } = await import("@/lib/inventory/service");
@@ -181,14 +292,31 @@ async function applyOp(
     } else {
       throw Object.assign(new Error("bad_kind"), { status: 400 });
     }
-    await prisma.syncOp.create({ data: { companyId, deviceId, opId: op.opId, kind: op.kind, status: "APPLIED" } });
+    await prisma.syncOp.create({
+      data: { companyId, deviceId, opId: op.opId, kind: op.kind, status: "APPLIED", resultId: id ?? null, occurredAt },
+    }).catch((e) => {
+      // Concurrent attempt already recorded it — that's fine.
+      if (!isUniqueViolation(e)) throw e;
+    });
     return { opId: op.opId, ok: true, id };
   } catch (e) {
-    const err = e as Error;
+    // A unique collision on the entity's opId means a concurrent/earlier
+    // attempt already created the document → exactly-once, treat as success.
+    if (isUniqueViolation(e)) {
+      const existing = await existingByOpId(companyId, op.kind, op.opId);
+      if (existing) {
+        await prisma.syncOp.create({
+          data: { companyId, deviceId, opId: op.opId, kind: op.kind, status: "APPLIED", resultId: existing, occurredAt },
+        }).catch(() => {});
+        return { opId: op.opId, ok: true, id: existing };
+      }
+    }
+    const err = e as Error & { status?: number };
+    const permanent = typeof err.status === "number" && err.status >= 400 && err.status < 500;
     await prisma.syncOp.create({
-      data: { companyId, deviceId, opId: op.opId, kind: op.kind, status: "FAILED", error: err.message.slice(0, 500) },
-    });
-    return { opId: op.opId, ok: false, error: err.message };
+      data: { companyId, deviceId, opId: op.opId, kind: op.kind, status: "FAILED", error: err.message.slice(0, 500), occurredAt },
+    }).catch(() => {});
+    return { opId: op.opId, ok: false, error: err.message, permanent };
   }
 }
 
@@ -217,8 +345,10 @@ export async function handleSync(input: SyncInput) {
   const userId = device.userId;
   if (!userId) throw Object.assign(new Error("device_no_user"), { status: 400 });
 
+  // Dependency-ordered application (client before its ticket, etc.).
+  const ordered = sortOps(input.ops ?? []);
   const applied: OpResult[] = [];
-  for (const op of input.ops ?? []) {
+  for (const op of ordered) {
     applied.push(await applyOp(companyId, device.id, userId, vanId, op));
   }
 
@@ -227,12 +357,12 @@ export async function handleSync(input: SyncInput) {
   // batches + held-for-commandes + assigned confirmed orders to deliver.
   // First sync seeds the whole offline catalog: products (+categories,
   // packs, tier prices, photos), clients, secteurs/wilayas, both stocks.
-  const [products, units, tiers, categories, secteurs, wilayas, clients, batches, depotBatches, transfers, tournees, vans, assignedOrders, holds, company] = await Promise.all([
+  // No silent caps — completeness matters more than payload size here.
+  const [products, units, tiers, categories, secteurs, wilayas, clients, batches, depotBatches, transfers, tournees, vans, assignedOrders, holds, company, webBuildId, apkMeta] = await Promise.all([
     prisma.product.findMany({
       where: { companyId, isActive: true },
       include: { images: { orderBy: { sortOrder: "asc" } }, tierPrices: true, conversions: { include: { unit: true } }, baseUnit: true },
       orderBy: { name: "asc" },
-      take: 1000,
     }),
     prisma.unit.findMany({ where: { companyId, isActive: true } }),
     prisma.priceTier.findMany({ where: { companyId, isActive: true } }),
@@ -246,7 +376,6 @@ export async function handleSync(input: SyncInput) {
         wilayaCode: true, tierId: true, balance: true, creditLimit: true,
         secteurId: true, gpsLat: true, gpsLng: true,
       },
-      take: 2000,
     }),
     vanId
       ? prisma.stockBatch.groupBy({
@@ -264,7 +393,8 @@ export async function handleSync(input: SyncInput) {
       ? prisma.transfer.findMany({
           where: { companyId, status: "DECLARED", OR: [{ fromLocationId: vanId }, { toLocationId: vanId }] },
           include: { lines: { include: { product: { select: { id: true, name: true } } } }, fromLocation: { select: { name: true } }, toLocation: { select: { name: true } } },
-          take: 50,
+          orderBy: { date: "desc" },
+          take: 200,
         })
       : [],
     vanId
@@ -272,7 +402,7 @@ export async function handleSync(input: SyncInput) {
           where: { companyId, locationId: vanId, status: "OPEN" },
           include: { stops: { include: { client: { select: { id: true, name: true, code: true, gpsLat: true, gpsLng: true, tierId: true } } }, orderBy: { position: "asc" } } },
           orderBy: { date: "desc" },
-          take: 10,
+          take: 30,
         })
       : [],
     prisma.store.findMany({ where: { companyId, kind: "VAN", isActive: true }, select: { id: true, name: true, matricule: true } }),
@@ -284,7 +414,7 @@ export async function handleSync(input: SyncInput) {
             lines: { include: { product: { select: { id: true, name: true, baseUnitId: true } } } },
           },
           orderBy: { createdAt: "asc" },
-          take: 100,
+          take: 500,
         })
       : [],
     vanId ? vanHolds(companyId, vanId).then((h) => h.holds) : [],
@@ -292,6 +422,8 @@ export async function handleSync(input: SyncInput) {
       where: { id: companyId },
       select: { name: true, phone: true, address: true, rc: true, nif: true, ai: true, logoUrl: true },
     }),
+    getWebBuildId(),
+    getApkMeta(),
   ]);
 
   await prisma.device.update({ where: { id: device.id }, data: { lastSyncAt: new Date(), ...(vanId ? { locationId: vanId } : {}) } });
@@ -301,6 +433,14 @@ export async function handleSync(input: SyncInput) {
     serverTime: new Date().toISOString(),
     device: { id: device.id, locationId: vanId, binding: settings.vanBindingMode },
     pulled: {
+      // Update channel: the phone compares webBuildId on every sync and
+      // prompts for a one-tap web update (no APK reinstall for web changes).
+      web: {
+        buildId: webBuildId,
+        minNative: getMinNativeVersion(),
+        force: isForceWebUpdate(),
+        apk: apkMeta,
+      },
       settings: {
         remiseEnabled: settings.remiseEnabled,
         creditSalesEnabled: settings.creditSalesEnabled,
@@ -309,6 +449,7 @@ export async function handleSync(input: SyncInput) {
         expiryEnabled: settings.expiryEnabled,
         transferConfirmRequired: settings.transferConfirmRequired,
         pieceSalesEnabled: settings.pieceSalesEnabled,
+        debtTrackingEnabled: settings.debtTrackingEnabled,
       },
       company: company
         ? {

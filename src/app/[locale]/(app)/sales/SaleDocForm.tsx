@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { UnitQty, PackInfo, factorOf, baseNameOf, priceForUnit, saleUnits } from "@/components/products/UnitQty";
 import { cn } from "@/lib/utils";
-import { getVanSnapshot, type VanSnapshot } from "@/lib/sync/client";
+import { getVanSnapshot, getOutbox, type VanSnapshot } from "@/lib/sync/client";
 import { queueOp } from "@/lib/sync/client";
+import { checkOfflineSale } from "@/lib/sync/offline-rules";
+import type { OutboxRow } from "@/lib/sync/offline-db";
 
 export type DocClient = { id: string; name: string; code: string; tierId: string | null; balance: unknown };
 export type DocProduct = {
@@ -86,6 +88,9 @@ export function SaleDocForm({
   const [queued, setQueued] = useState(false);
   const [online, setOnline] = useState(() => typeof navigator === "undefined" || navigator.onLine);
   const [snap, setSnap] = useState<VanSnapshot | null>(null);
+  const [ops, setOps] = useState<OutboxRow[]>([]);
+  /// Synchronous double-tap guard.
+  const busyRef = useRef(false);
   /// Main-depot availability (order mode only — commandes are prepared
   /// from the depot, never the van). Online API first, snapshot fallback.
   /// null = unknown (fetch failed); {} = known, missing product means 0.
@@ -99,6 +104,9 @@ export function SaleDocForm({
     let live = true;
     getVanSnapshot().then((s) => {
       if (live) setSnap(s);
+    });
+    getOutbox().then((o) => {
+      if (live) setOps(o);
     });
     return () => {
       live = false;
@@ -186,6 +194,7 @@ export function SaleDocForm({
     : effClients.slice(0, 30);
 
   async function submit() {
+    if (busyRef.current) return;
     setError(null);
     const valid = lines.filter((l) => l.productId && l.qty > 0);
     if (!valid.length) {
@@ -200,6 +209,32 @@ export function SaleDocForm({
       setError("location_required");
       return;
     }
+    // Mirror the server's ticket rules locally (QR/credit/stock/remise) so an
+    // offline sale the PC would reject is caught before it's queued.
+    if (mode === "ticket") {
+      const check = checkOfflineSale({
+        snap,
+        ops,
+        channel: channel ?? "VAN",
+        clientId: clientId || null,
+        lines: valid.map((l) => ({
+          productId: l.productId,
+          unitId: l.unitId || null,
+          qty: l.qty,
+          unitPrice: l.unitPrice === "" ? (effProducts.find((x) => x.id === l.productId) ? priceFor(effProducts.find((x) => x.id === l.productId)!, l.unitId) : 0) : Number(l.unitPrice),
+          remise: l.remise,
+        })),
+        remise: docRemise,
+        paid: paidNum,
+        qrScanned,
+        vanId: locationId,
+      });
+      if (!check.ok) {
+        setError(check.error);
+        return;
+      }
+    }
+    busyRef.current = true;
     setBusy(true);
     try {
       const url = mode === "order" ? "/api/sales/orders" : "/api/sales/tickets";
@@ -246,6 +281,7 @@ export function SaleDocForm({
           if (mode === "ticket" || mode === "order") {
             try {
               await queueOp(mode, body as Record<string, unknown>);
+              setOps(await getOutbox());
             } catch {
               setError("save_failed");
               return null;
@@ -269,6 +305,7 @@ export function SaleDocForm({
         router.refresh();
       }
     } finally {
+      busyRef.current = false;
       setBusy(false);
     }
   }

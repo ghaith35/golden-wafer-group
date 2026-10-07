@@ -8,7 +8,7 @@ function invoke(channel: string): Handler {
 
 // Present only inside the desktop shell. Web builds see `undefined`.
 contextBridge.exposeInMainWorld("distribuili", {
-  version: "0.1.0",
+  version: "0.1.1",
   isDesktop: true,
   licenseStatus: invoke("license-status"),
   licenseRegister: invoke("license-register"),

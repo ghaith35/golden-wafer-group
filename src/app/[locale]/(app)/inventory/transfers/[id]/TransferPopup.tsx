@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Truck, Warehouse } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { TransferResolve } from "./TransferResolve";
+import { LineQty } from "./LineQty";
 import { cn } from "@/lib/utils";
 
 const STATUS_COLOR: Record<string, string> = {
@@ -17,7 +18,13 @@ type ApiLine = {
   id: string;
   declaredQty: number | string;
   confirmedQty: number | string | null;
-  product: { id: string; name: string; images?: Array<{ url: string }> };
+  product: {
+    id: string;
+    name: string;
+    images?: Array<{ url: string }>;
+    conversions?: Array<{ unitId: string; factor: unknown; unit: { name: string } }>;
+    baseUnit?: { name: string } | null;
+  };
 };
 
 type ApiTransfer = {
@@ -133,9 +140,13 @@ export function TransferPopup({
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-overlay) text-sm">📦</span>
               )}
               <span className="min-w-0 flex-1 truncate text-sm font-bold">{l.product.name}</span>
-              <span className="shrink-0 text-sm font-black tabular-nums" dir="ltr">
-                {String(l.declaredQty)}
-                {l.confirmedQty != null && <span className="opacity-60"> → {String(l.confirmedQty)}</span>}
+              <span className="shrink-0 text-sm tabular-nums" dir="ltr">
+                <LineQty
+                  declared={l.declaredQty}
+                  confirmed={l.confirmedQty}
+                  conversions={l.product.conversions ?? []}
+                  baseName={l.product.baseUnit?.name ?? ""}
+                />
               </span>
             </div>
           ))}
@@ -149,7 +160,12 @@ export function TransferPopup({
             id: l.id,
             declaredQty: Number(l.declaredQty),
             confirmedQty: l.confirmedQty != null ? Number(l.confirmedQty) : null,
-            product: { name: l.product.name, imageUrl: l.product.images?.[0]?.url ?? null },
+            product: {
+              name: l.product.name,
+              imageUrl: l.product.images?.[0]?.url ?? null,
+              conversions: l.product.conversions ?? [],
+              baseName: l.product.baseUnit?.name ?? "",
+            },
           }))}
           labels={{
             confirm: labels.confirm ?? "confirm",

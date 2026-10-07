@@ -48,16 +48,17 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const lowStock = await prisma.product.findMany({ where: { companyId, isActive: true }, select: { stockQty: true, minStock: true } })
     .then((rows) => rows.filter((p) => Number(p.stockQty) <= Number(p.minStock)).length);
 
+  const isAdmin = session.role === "Admin";
   const actions = [
-    { href: "pos", label: tn("pos"), Icon: Store, cls: "bg-gradient-brand text-white" },
-    { href: "sales/tickets/new", label: tn("sales"), Icon: ShoppingCart, cls: "bg-sky-500/15 text-sky-600" },
-    { href: "clients", label: tn("clients"), Icon: Users, cls: "bg-emerald-500/15 text-emerald-600" },
-    { href: "products", label: tn("inventory"), Icon: Boxes, cls: "bg-violet-500/15 text-violet-500" },
-    { href: "inventory/transfers", label: ti("transfers"), Icon: ArrowLeftRight, cls: "bg-amber-500/15 text-amber-600" },
-    { href: "expenses", label: tn("expenses"), Icon: Wallet, cls: "bg-red-500/15 text-red-500" },
-    { href: "journal", label: tr("journal"), Icon: NotebookPen, cls: "bg-teal-500/15 text-teal-600" },
-    { href: "reports", label: tr("title"), Icon: BarChart3, cls: "bg-indigo-500/15 text-indigo-500" },
-  ];
+    { href: "pos", label: tn("pos"), Icon: Store, cls: "bg-gradient-brand text-white", adminOnly: true },
+    { href: "sales/tickets/new", label: tn("sales"), Icon: ShoppingCart, cls: "bg-sky-500/15 text-sky-600", adminOnly: false },
+    { href: "clients", label: tn("clients"), Icon: Users, cls: "bg-emerald-500/15 text-emerald-600", adminOnly: false },
+    { href: "products", label: tn("inventory"), Icon: Boxes, cls: "bg-violet-500/15 text-violet-500", adminOnly: true },
+    { href: "inventory/transfers", label: ti("transfers"), Icon: ArrowLeftRight, cls: "bg-amber-500/15 text-amber-600", adminOnly: true },
+    { href: "expenses", label: tn("expenses"), Icon: Wallet, cls: "bg-red-500/15 text-red-500", adminOnly: true },
+    { href: "journal", label: tr("journal"), Icon: NotebookPen, cls: "bg-teal-500/15 text-teal-600", adminOnly: true },
+    { href: "reports", label: tr("title"), Icon: BarChart3, cls: "bg-indigo-500/15 text-indigo-500", adminOnly: true },
+  ].filter((a) => isAdmin || !a.adminOnly);
 
   return (
     <div className="space-y-5 p-5 md:p-6">

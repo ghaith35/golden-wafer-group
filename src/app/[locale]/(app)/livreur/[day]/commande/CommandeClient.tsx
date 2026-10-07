@@ -63,6 +63,8 @@ export function CommandeClient({
   const [qtyPacks, setQtyPacks] = useState(1);
   const [qtyUnits, setQtyUnits] = useState(0);
   const [saving, setSaving] = useState(false);
+  /// Synchronous double-tap guard.
+  const savingRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<null | { queued: boolean }>(null);
   const [gallery, setGallery] = useState<Prod | null>(null);
@@ -214,7 +216,8 @@ export function CommandeClient({
   }
 
   async function sendRequest() {
-    if (!lines.length || !client || saving) return;
+    if (!lines.length || !client || saving || savingRef.current) return;
+    savingRef.current = true;
     setSaving(true);
     setError(null);
     const body = {
@@ -259,6 +262,7 @@ export function CommandeClient({
       setNotes("");
       setShowRecap(false);
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }

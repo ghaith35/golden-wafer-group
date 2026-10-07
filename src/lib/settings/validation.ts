@@ -18,6 +18,11 @@ export const settingsPatchSchema = z.object({
   transferConfirmRequired: z.boolean().optional(),
   qrStrictMode: z.boolean().optional(),
   gpsEnabled: z.boolean().optional(),
+  ticketWidth: z.enum(["58", "80"]).optional(),
+  ticketLang: z.enum(["ar", "fr"]).optional(),
+  supplierFilterEnabled: z.boolean().optional(),
+  /// Public internet domain for this install's phones (bare host or URL).
+  remoteDomain: z.string().trim().max(120).nullish(),
 });
 
 export type SettingsPatch = z.infer<typeof settingsPatchSchema>;

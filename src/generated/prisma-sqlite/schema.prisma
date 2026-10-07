@@ -88,6 +88,16 @@ model CompanySettings {
   transferConfirmRequired Boolean @default(true)
   gpsEnabled              Boolean @default(true)
   qrStrictMode            Boolean @default(true)
+  /// Thermal ticket paper width in mm (admin setting: "58" or "80").
+  ticketWidth             String  @default("80")
+  /// Thermal ticket language (admin setting: "ar" or "fr", default French).
+  ticketLang              String  @default("fr")
+  /// Purchase picker: only the chosen supplier's products (default ON).
+  supplierFilterEnabled   Boolean @default(true)
+  /// Public internet domain for this install's phones
+  /// (e.g. client1.distribuili.khiatadz.com, no scheme). The Devices setup QR
+  /// uses it when set, so vans reach the PC through the tunnel from anywhere.
+  remoteDomain            String?
 
   @@map("company_settings")
 }
@@ -218,12 +228,32 @@ model RefreshToken {
 }
 
 model SuperAdminUser {
-  id           String   @id @default(cuid())
-  username     String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+  id                String    @id @default(cuid())
+  username          String    @unique
+  passwordHash      String
+  isActive          Boolean   @default(true)
+  passwordChangedAt DateTime?
+  createdAt         DateTime  @default(now())
+
+  audits SuperAdminAudit[]
 
   @@map("super_admin_users")
+}
+
+/// Every superadmin action (who did what to which machine/key, when, from where).
+model SuperAdminAudit {
+  id         String         @id @default(cuid())
+  adminId    String
+  admin      SuperAdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  action     String
+  targetType String?
+  targetId   String?
+  meta       Json?
+  ip         String?
+  createdAt  DateTime       @default(now())
+
+  @@index([adminId, createdAt])
+  @@map("super_admin_audits")
 }
 
 // ─── Distribution domain (minimal foundation) ────────────────────────────────
@@ -297,7 +327,11 @@ model Transfer {
   holdingBatches StockBatch[]   @relation("HoldingBatches")
   versements     Versement[]
 
+  /// Offline idempotency key: the sync opId that declared this transfer.
+  opId String?
+
   @@unique([companyId, number])
+  @@unique([companyId, opId])
   @@index([companyId, status])
   @@map("transfers")
 }
@@ -414,6 +448,9 @@ model Customer {
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
 
+  /// Offline idempotency key: the sync opId that created this client.
+  opId String?
+
   distances ClientDistance[]
 
   sales        Sale[]
@@ -424,6 +461,7 @@ model Customer {
 
   @@unique([companyId, code])
   @@unique([companyId, phone])
+  @@unique([companyId, opId])
   @@index([companyId, name])
   @@index([companyId, secteurId])
   @@map("customers")
@@ -604,7 +642,12 @@ model Sale {
   lines   SaleLine[]
   returns ClientReturn[]
 
+  /// Offline idempotency key: the sync opId that created this document.
+  /// Unique per company → an offline sale can never be double-applied.
+  opId String?
+
   @@unique([companyId, kind, number])
+  @@unique([companyId, opId])
   @@index([companyId, clientId])
   @@index([companyId, status])
   @@map("sales")
@@ -651,7 +694,11 @@ model ClientReturn {
 
   lines ClientReturnLine[]
 
+  /// Offline idempotency key: the sync opId that created this return.
+  opId String?
+
   @@unique([companyId, number])
+  @@unique([companyId, opId])
   @@index([companyId, clientId])
   @@map("client_returns")
 }
@@ -716,28 +763,78 @@ model TourneeStop {
 // ─── Desktop licensing (server side — self-hosted, single business) ─────────
 
 /// Known machines (informational registration from the desktop app).
+/// status drives the poll: pending | activated | revoked. A machine row is
+/// the server-side counterpart of the client's .lic files.
 model Machine {
-  id        String   @id @default(cuid())
-  machineId String   @unique
-  label     String?
-  phone     String?
-  specs     Json?
-  lastSeen  DateTime @default(now())
+  id                  String    @id @default(cuid())
+  machineId           String    @unique
+  label               String?
+  phone               String?
+  specs               Json?
+  status              String    @default("pending")
+  token               String?
+  activationKey       String?
+  activationType      String    @default("machine")
+  consumedByMachineId String?
+  trialStart          DateTime?
+  trialEnd            DateTime?
+  activatedAt         DateTime?
+  contactName         String?
+  city                String?
+  workshop            String?
+  email               String?
+  deviceSpecs         Json?
+  trialIp             String?
+  lastIp              String?
+  lastSeen            DateTime  @default(now())
+  createdAt           DateTime  @default(now())
+
+  subscription MachineSubscription?
+
+  @@index([status, createdAt])
+  @@map("machines")
+}
+
+/// Billing posture per machine (manual for now — no payment provider).
+/// expiry/suspension flips the same lock path as a manual revoke.
+model MachineSubscription {
+  id          String    @id @default(cuid())
+  machineId   String    @unique
+  machine     Machine   @relation(fields: [machineId], references: [machineId], onDelete: Cascade)
+  plan        String    @default("standard")
+  status      String    @default("trial")
+  expiresAt   DateTime?
+  graceEndsAt DateTime?
+  activatedBy String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("machine_subscriptions")
+}
+
+/// Manually blocked IPs (abuse control). Blocks register/trial only —
+/// never breaks an already-entitled install.
+model BlockedIp {
+  ip        String   @id
+  reason    String?
   createdAt DateTime @default(now())
 
-  @@map("machines")
+  @@map("blocked_ips")
 }
 
 /// Human-readable activation keys (DILI-XXXX-XXXX-XXXX). Pool keys bind to
 /// the first machine that redeems them; revoked keys kill the install.
 model LicenseKey {
-  id        String   @id @default(cuid())
-  machineId String?
-  label     String?
-  humanKey  String   @unique
-  revoked   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  machineId           String?
+  label               String?
+  humanKey            String   @unique
+  revoked             Boolean  @default(false)
+  /// Pool key consumed by another machine (resetKey restores it).
+  consumedByMachineId String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   @@map("license_keys")
 }
@@ -750,6 +847,28 @@ model TrialIssue {
   createdAt DateTime @default(now())
 
   @@map("trial_issues")
+}
+
+/// Vendor-side tunnel slots: one public hostname per client
+/// (client1, client2…) pointing at the CLIENT's own PC via an outbound
+/// connector (Cloudflare Tunnel). The vendor provisions the hostname +
+/// credentials; client data never touches the vendor server, so a vendor
+/// outage never stops a client (LAN + offline keep working).
+model TunnelSlot {
+  id              String   @id @default(cuid())
+  subdomain       String   @unique
+  domain          String
+  label           String?
+  status          String   @default("pending")
+  tunnelId        String?
+  /// Connector token for the client's PC (shown once, admin-only).
+  token           String?
+  clientMachineId String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("tunnel_slots")
 }
 
 // ─── Mobile sync ─────────────────────────────────────────────────────────────
@@ -778,16 +897,20 @@ model Device {
 /// Idempotent offline operation log (opId unique per company).
 /// Failed ops stay visible for owner reconciliation.
 model SyncOp {
-  id        String   @id @default(cuid())
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  deviceId  String?
-  device    Device?  @relation(fields: [deviceId], references: [id], onDelete: SetNull)
-  opId      String
-  kind      String
-  status    String
-  error     String?
-  createdAt DateTime @default(now())
+  id         String    @id @default(cuid())
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  deviceId   String?
+  device     Device?   @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  opId       String
+  kind       String
+  status     String
+  error      String?
+  /// Created document id (sale/transfer/payment…) for reconciliation.
+  resultId   String?
+  /// Real action time on the phone (op envelope `occurredAt`), not sync time.
+  occurredAt DateTime?
+  createdAt  DateTime  @default(now())
 
   @@unique([companyId, opId])
   @@index([companyId, deviceId])
@@ -959,6 +1082,10 @@ model Versement {
   notes             String?
   createdAt         DateTime         @default(now())
 
+  /// Offline idempotency key: the sync opId that created this payment.
+  opId String?
+
+  @@unique([companyId, opId])
   @@index([companyId, date])
   @@index([companyId, clientId])
   @@index([companyId, supplierId])

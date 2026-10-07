@@ -65,6 +65,30 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
   }
 
+  // Company-scope every referenced FK (PATCH accepts them from the body).
+  if (d.categoryId) {
+    const c = await prisma.productCategory.findFirst({ where: { id: d.categoryId, companyId: session.companyId }, select: { id: true } });
+    if (!c) return NextResponse.json({ error: "bad_category" }, { status: 400 });
+  }
+  if (d.supplierId) {
+    const s = await prisma.supplier.findFirst({ where: { id: d.supplierId, companyId: session.companyId }, select: { id: true } });
+    if (!s) return NextResponse.json({ error: "bad_supplier" }, { status: 400 });
+  }
+  if (d.baseUnitId) {
+    const u = await prisma.unit.findFirst({ where: { id: d.baseUnitId, companyId: session.companyId }, select: { id: true } });
+    if (!u) return NextResponse.json({ error: "bad_unit" }, { status: 400 });
+  }
+  if (d.conversions) {
+    const ids = [...new Set(d.conversions.map((c) => c.unitId))];
+    const units = await prisma.unit.findMany({ where: { id: { in: ids }, companyId: session.companyId }, select: { id: true } });
+    if (units.length !== ids.length) return NextResponse.json({ error: "bad_unit" }, { status: 400 });
+  }
+  if (d.tierPrices) {
+    const ids = [...new Set(d.tierPrices.map((t) => t.tierId))];
+    const tiers = await prisma.priceTier.findMany({ where: { id: { in: ids }, companyId: session.companyId }, select: { id: true } });
+    if (tiers.length !== ids.length) return NextResponse.json({ error: "bad_tier" }, { status: 400 });
+  }
+
   await prisma.$transaction(async (tx) => {
     await tx.product.update({
       where: { id },

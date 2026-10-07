@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Test phase (WiFi-local): trust the Mac's self-signed server cert in
-     addition to system CAs, and allow cleartext for LAN use. Production
-     (public domain + real cert): remove the @raw anchor + cleartext. -->
+<!-- Production: HTTPS only, system CAs only. Do NOT trust a custom CA or
+     permit cleartext here — that would let anyone holding the dev CA key
+     MITM every van.
+
+     For WiFi-local testing against a self-signed LAN server, create a
+     SEPARATE debug build that adds:
+       <base-config cleartextTrafficPermitted="true">
+         <trust-anchors><certificates src="@raw/distribuili_ca" />
+                        <certificates src="system" /></trust-anchors>
+       </base-config>
+     Never ship that debug build to clients. -->
 <network-security-config>
-  <base-config cleartextTrafficPermitted="true">
+  <base-config cleartextTrafficPermitted="false">
     <trust-anchors>
-      <certificates src="@raw/distribuili_ca" />
       <certificates src="system" />
     </trust-anchors>
   </base-config>

@@ -56,7 +56,7 @@ export default async function LivreurVentePage({
     }),
     prisma.companySettings.findUnique({
       where: { companyId: session.companyId },
-      select: { pieceSalesEnabled: true },
+      select: { pieceSalesEnabled: true, ticketLang: true },
     }),
     prisma.tournee.findMany({
       where: { companyId: session.companyId, locationId: van.id, status: "OPEN" },
@@ -67,6 +67,10 @@ export default async function LivreurVentePage({
   const tour = tournees.find((x) => sameDay(new Date(x.date), date)) ?? null;
   const stockMap: Record<string, number> = {};
   for (const b of vanStock) stockMap[b.productId] = Number(b._sum.qty ?? 0);
+  // Ticket labels follow the admin ticket language (default French),
+  // not the UI locale the livreur browses in.
+  const ticketLang = settings?.ticketLang === "ar" ? "ar" : "fr";
+  const tt = await getTranslations({ locale: ticketLang, namespace: "sales" });
 
   return (
     <VenteClient
@@ -93,6 +97,13 @@ export default async function LivreurVentePage({
         camDenied: t("camDenied"), camUnsupported: t("camUnsupported"), held: t("held"),
         ticketQueued: t("ticketQueued"),
       }}
+      ticketLabels={{
+        total: tt("total"), paid: tt("paid"), due: tt("due"), remise: tt("remise"),
+        thanks: tt("thanks"), seller: tt("seller"), client: tt("client"), share: tt("share"),
+        packs: tt("packs"), articles: tt("articles"), oldDebt: tt("oldDebt"), newDebt: tt("newDebt"),
+        design: tt("product"), qty: tt("qty"), price: tt("price"), unitPrice: tt("unitPrice"),
+      }}
+      ticketLang={ticketLang}
     />
   );
 }

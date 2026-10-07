@@ -176,19 +176,48 @@ async function assertCanStamp(companyId: string, userId: string, role: string, t
   return tournee;
 }
 
-export async function startDay(companyId: string, userId: string, role: string, tourneeId: string) {
+export async function startDay(
+  companyId: string,
+  userId: string,
+  role: string,
+  tourneeId: string,
+  occurredAt?: Date | null,
+) {
   const tournee = await assertCanStamp(companyId, userId, role, tourneeId);
+  // Idempotent: a retried/duplicated offline stamp is a success, not an error.
+  if (tournee.startedAt) return tournee;
   if (tournee.status !== "OPEN") throw Object.assign(new Error("bad_status"), { status: 400 });
-  if (tournee.startedAt) throw Object.assign(new Error("already_started"), { status: 400 });
-  return prisma.tournee.update({ where: { id: tournee.id }, data: { startedAt: new Date() } });
+  return prisma.tournee.update({ where: { id: tournee.id }, data: { startedAt: occurredAt ?? new Date() } });
 }
 
-export async function finishDay(companyId: string, userId: string, role: string, tourneeId: string) {
+export async function finishDay(
+  companyId: string,
+  userId: string,
+  role: string,
+  tourneeId: string,
+  occurredAt?: Date | null,
+) {
   const tournee = await assertCanStamp(companyId, userId, role, tourneeId);
+  if (tournee.finishedAt) return tournee;
   if (tournee.status !== "OPEN") throw Object.assign(new Error("bad_status"), { status: 400 });
   if (!tournee.startedAt) throw Object.assign(new Error("not_started"), { status: 400 });
-  if (tournee.finishedAt) throw Object.assign(new Error("already_finished"), { status: 400 });
-  return prisma.tournee.update({ where: { id: tournee.id }, data: { finishedAt: new Date() } });
+  return prisma.tournee.update({ where: { id: tournee.id }, data: { finishedAt: occurredAt ?? new Date() } });
+}
+
+/// Admin manual correction of départ / fin de journée (presence board).
+/// Null clears that stamp. Finished must not precede started.
+export async function setTourneeTimes(
+  companyId: string,
+  tourneeId: string,
+  startedAt: Date | null,
+  finishedAt: Date | null
+) {
+  const tournee = await prisma.tournee.findFirst({ where: { id: tourneeId, companyId } });
+  if (!tournee) throw Object.assign(new Error("not_found"), { status: 404 });
+  if (startedAt && Number.isNaN(startedAt.getTime())) throw Object.assign(new Error("bad_time"), { status: 400 });
+  if (finishedAt && Number.isNaN(finishedAt.getTime())) throw Object.assign(new Error("bad_time"), { status: 400 });
+  if (startedAt && finishedAt && finishedAt < startedAt) throw Object.assign(new Error("bad_range"), { status: 400 });
+  return prisma.tournee.update({ where: { id: tournee.id }, data: { startedAt, finishedAt } });
 }
 
 export { tourneeStopsSchema };

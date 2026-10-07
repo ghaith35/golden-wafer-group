@@ -88,7 +88,14 @@ async function priceLines(
   return { priced, tierId: tier?.id ?? null };
 }
 
-/// Credit guard: unpaid amounts need credit ON + client + within limit (0 = cash only).
+/// Money tolerance: anything within half a centime is float dust from price
+/// divisions (e.g. 1150/12), never a real overpayment. Only paying MORE than
+/// the invoice total raises `overpaid`.
+const MONEY_EPS = 0.005;
+const isOverpaid = (paid: number, total: number): boolean => paid - total > MONEY_EPS;
+
+/// Credit guard: unpaid amounts need credit ON + client. A positive ceiling
+/// caps the debt; 0 means unlimited (no cap).
 async function checkCredit(
   companyId: string,
   clientId: string | null,
@@ -102,13 +109,16 @@ async function checkCredit(
   const client = await prisma.customer.findFirst({ where: { id: clientId, companyId } });
   if (!client) throw Object.assign(new Error("bad_client"), { status: 400 });
   const limit = Number(client.creditLimit);
-  if (limit <= 0) throw Object.assign(new Error("no_credit_allowed"), { status: 400 });
-  if (Number(client.balance) + due > limit + 1e-9) {
+  if (limit > 0 && Number(client.balance) + due > limit + 1e-9) {
     throw Object.assign(new Error("credit_limit_exceeded"), { status: 400 });
   }
 }
 
-export async function createOrder(companyId: string, input: OrderInput, opts?: { portal?: boolean; createdBy?: string }) {
+export async function createOrder(
+  companyId: string,
+  input: OrderInput,
+  opts?: { portal?: boolean; createdBy?: string; opId?: string | null; occurredAt?: Date | null },
+) {
   const settings = await getOrCreateSettings(companyId);
   const client = await prisma.customer.findFirst({ where: { id: input.clientId, companyId } });
   if (!client || !client.isActive) throw Object.assign(new Error("bad_client"), { status: 400 });
@@ -118,12 +128,12 @@ export async function createOrder(companyId: string, input: OrderInput, opts?: {
   const total = Math.max(0, linesTotal - (input.remise ?? 0));
   if ((input.remise ?? 0) > 0 && !settings.remiseEnabled) throw Object.assign(new Error("remise_disabled"), { status: 400 });
   const paid = input.paid ?? 0;
-  if (paid > total + 1e-9) throw Object.assign(new Error("overpaid"), { status: 400 });
+  if (isOverpaid(paid, total)) throw Object.assign(new Error("overpaid"), { status: 400 });
   // No credit check here: a DRAFT order is a pure product request — the
   // client owes nothing yet. The money guard runs at deliver (which books
   // the debt), where it belongs.
 
-  const date = new Date();
+  const date = opts?.occurredAt ?? new Date();
   const season = await ensureSeasonFor(companyId, date);
   // Van attribution: orders taken by a vendeur carry their van (sidebar,
   // van loading, debts). Validated when present, otherwise plain depot order.
@@ -149,6 +159,7 @@ export async function createOrder(companyId: string, input: OrderInput, opts?: {
         tourneeId: input.tourneeId ?? null,
         isPortal: opts?.portal ?? false,
         createdById: opts?.createdBy ?? null,
+        opId: opts?.opId ?? null,
         remise: input.remise ?? 0,
         total,
         paid,
@@ -212,7 +223,7 @@ export async function deliverOrder(companyId: string, saleId: string, locationId
   if (!location) throw Object.assign(new Error("bad_location"), { status: 400 });
 
   const paid = Number(order.paid) + extraPaid;
-  if (paid > Number(order.total) + 1e-9) throw Object.assign(new Error("overpaid"), { status: 400 });
+  if (isOverpaid(paid, Number(order.total))) throw Object.assign(new Error("overpaid"), { status: 400 });
   await checkCredit(companyId, order.clientId, Number(order.total) - paid, settings);
 
   const date = new Date();
@@ -305,15 +316,21 @@ export async function deliverOrder(companyId: string, saleId: string, locationId
 }
 
 /// Immediate van/POS/depot ticket: stock out + cash + debt in one step.
-export async function createTicket(companyId: string, userId: string, input: TicketInput) {
+export async function createTicket(
+  companyId: string,
+  userId: string,
+  input: TicketInput,
+  opts?: { opId?: string | null; occurredAt?: Date | null },
+) {
   const settings = await getOrCreateSettings(companyId);
   const channel = input.channel ?? "VAN";
   if (channel === "POS" && !settings.posEnabled) throw Object.assign(new Error("pos_disabled"), { status: 400 });
 
-  // Role rules: Livreurs deliver, they don't sell. Vendeurs in LOCKED mode
+  // Role rules: Livreurs sell on their tournée van (one driver may run a
+  // different van each day of the weekly round, so no single-van binding
+  // for them — the open tournée scopes the sale). Vendeurs in LOCKED mode
   // sell only from their assigned van.
   const actor = await prisma.user.findFirst({ where: { id: userId, companyId }, include: { assignedVans: { select: { id: true } } } });
-  if (actor && actor.role === "Livreur") throw Object.assign(new Error("forbidden_role"), { status: 403 });
   if (actor && actor.role === "Vendeur" && settings.vanBindingMode === "LOCKED" && channel === "VAN") {
     const allowed = actor.assignedVans.some((v) => v.id === input.locationId);
     if (!allowed) throw Object.assign(new Error("van_not_assigned"), { status: 403 });
@@ -322,14 +339,15 @@ export async function createTicket(companyId: string, userId: string, input: Tic
   const location = await prisma.store.findFirst({ where: { id: input.locationId, companyId } });
   if (!location) throw Object.assign(new Error("bad_location"), { status: 400 });
 
-  let client = input.clientId
+  const client = input.clientId
     ? await prisma.customer.findFirst({ where: { id: input.clientId, companyId } })
     : null;
   if (input.clientId && (!client || !client.isActive)) throw Object.assign(new Error("bad_client"), { status: 400 });
 
-  // QR rule on van sales: strict blocks unscanned, lenient flags offList.
+  // QR rule on van sales only: the main depot (and POS/depot channels)
+  // never requires a client QR scan — no QR round exists there.
   let offList = false;
-  if (channel === "VAN" && client) {
+  if (channel === "VAN" && location.kind === "VAN" && client) {
     if (!input.qrScanned) {
       if (settings.qrStrictMode) throw Object.assign(new Error("qr_required"), { status: 400 });
       offList = true;
@@ -349,10 +367,10 @@ export async function createTicket(companyId: string, userId: string, input: Tic
   const total = Math.max(0, linesTotal - (input.remise ?? 0));
   if ((input.remise ?? 0) > 0 && !settings.remiseEnabled) throw Object.assign(new Error("remise_disabled"), { status: 400 });
   const paid = input.paid ?? total;
-  if (paid > total + 1e-9) throw Object.assign(new Error("overpaid"), { status: 400 });
+  if (isOverpaid(paid, total)) throw Object.assign(new Error("overpaid"), { status: 400 });
   await checkCredit(companyId, client?.id ?? null, total - paid, settings);
 
-  const date = new Date();
+  const date = opts?.occurredAt ?? new Date();
   const season = await ensureSeasonFor(companyId, date);
   return prisma.$transaction(async (tx) => {
     const number = await nextDocNumber(tx, companyId, "sale_ticket", date.getFullYear(), SERIES.TICKET);
@@ -393,6 +411,7 @@ export async function createTicket(companyId: string, userId: string, input: Tic
         tierId,
         tourneeId: input.tourneeId ?? null,
         createdById: userId,
+        opId: opts?.opId ?? null,
         remise: input.remise ?? 0,
         total,
         paid,
@@ -413,7 +432,7 @@ export async function createTicket(companyId: string, userId: string, input: Tic
           })),
         },
       },
-      include: { lines: { include: { product: true } }, client: true, location: true },
+      include: { lines: { include: { product: true } }, client: { include: { tier: true } }, location: true },
     });
 
     const due = total - paid;
@@ -514,6 +533,102 @@ export async function cancelSale(companyId: string, saleId: string) {
       }
     }
     await tx.sale.update({ where: { id: sale.id }, data: { status: "CANCELLED" } });
+    return { ok: true };
+  });
+}
+
+/// Reopen a DELIVERED order back to "still to be delivered" (CONFIRMED):
+/// cancels its delivered children (stock back, debt reversed — same reversal
+/// as cancelSale) and reverts the order itself. The livreur toggles an order
+/// this way when a delivery must be redone.
+export async function reopenOrder(companyId: string, saleId: string) {
+  const settings = await getOrCreateSettings(companyId);
+  const order = await prisma.sale.findFirst({
+    where: { id: saleId, companyId, kind: "ORDER" },
+    include: { lines: true },
+  });
+  if (!order) throw Object.assign(new Error("not_found"), { status: 404 });
+  if (order.status !== "DELIVERED") throw Object.assign(new Error("bad_status"), { status: 400 });
+  const deliveredChildren = await prisma.sale.findMany({
+    where: { companyId, kind: "DELIVERY", sourceId: order.id, status: "DELIVERED" },
+    include: { lines: true },
+  });
+  return prisma.$transaction(async (tx) => {
+    for (const del of deliveredChildren) {
+      if (del.locationId) {
+        for (const l of del.lines) {
+          await addStock(tx, {
+            companyId,
+            locationId: del.locationId,
+            productId: l.productId,
+            qty: Number(l.baseQty),
+            unitCost: Number(l.unitCost),
+          });
+          await tx.product.update({ where: { id: l.productId }, data: { stockQty: { increment: Number(l.baseQty) } } });
+        }
+      }
+      const due = Number(del.total) - Number(del.paid);
+      if (due > 1e-9 && del.clientId && settings.debtTrackingEnabled) {
+        await tx.customer.update({ where: { id: del.clientId }, data: { balance: { decrement: due } } });
+      }
+      await tx.sale.update({ where: { id: del.id }, data: { status: "CANCELLED" } });
+    }
+    await tx.sale.update({ where: { id: order.id }, data: { status: "CONFIRMED" } });
+    return { ok: true };
+  });
+}
+
+/// Undo a mistaken cancellation of a DELIVERY: re-consume the stock (FIFO,
+/// same oversell rules as deliverOrder), re-book the debt, back to DELIVERED.
+/// Only CANCELLED deliveries qualify — tickets/orders stay cancelled, and
+/// the original number/date are kept (no new document).
+export async function uncancelDelivery(companyId: string, saleId: string) {
+  const settings = await getOrCreateSettings(companyId);
+  const sale = await prisma.sale.findFirst({
+    where: { id: saleId, companyId },
+    include: { lines: true },
+  });
+  if (!sale) throw Object.assign(new Error("not_found"), { status: 404 });
+  if (sale.kind !== "DELIVERY" || sale.status !== "CANCELLED") throw Object.assign(new Error("bad_status"), { status: 400 });
+  if (!sale.locationId) throw Object.assign(new Error("bad_location"), { status: 400 });
+  const location = await prisma.store.findFirst({ where: { id: sale.locationId, companyId } });
+  if (!location) throw Object.assign(new Error("bad_location"), { status: 400 });
+  const due = Number(sale.total) - Number(sale.paid);
+  await checkCredit(companyId, sale.clientId, due, settings);
+  return prisma.$transaction(async (tx) => {
+    const costs: number[] = [];
+    for (const l of sale.lines) {
+      try {
+        const consumed = await consumeStock(tx, {
+          companyId,
+          locationId: sale.locationId!,
+          productId: l.productId,
+          qty: Number(l.baseQty),
+          fefo: settings.expiryEnabled,
+        });
+        costs.push(weightedCost(consumed));
+      } catch (e) {
+        if ((e as Error).message === "insufficient_stock" && settings.oversellAllowed && location.kind === "VAN") {
+          const avail = (e as Error & { available?: number }).available ?? 0;
+          if (avail > 1e-9) {
+            const consumed = await consumeStock(tx, { companyId, locationId: sale.locationId!, productId: l.productId, qty: avail, fefo: settings.expiryEnabled });
+            costs.push(weightedCost(consumed));
+          } else {
+            costs.push(0);
+          }
+          const p = await tx.product.findUniqueOrThrow({ where: { id: l.productId } });
+          await addStock(tx, { companyId, locationId: sale.locationId!, productId: l.productId, qty: -(Number(l.baseQty) - avail), unitCost: Number(p.costPrice) });
+        } else {
+          throw e;
+        }
+      }
+      await tx.product.update({ where: { id: l.productId }, data: { stockQty: { decrement: Number(l.baseQty) } } });
+      await tx.saleLine.update({ where: { id: l.id }, data: { unitCost: costs[costs.length - 1] ?? 0 } });
+    }
+    if (due > 1e-9 && sale.clientId && settings.debtTrackingEnabled) {
+      await tx.customer.update({ where: { id: sale.clientId }, data: { balance: { increment: due } } });
+    }
+    await tx.sale.update({ where: { id: sale.id }, data: { status: "DELIVERED" } });
     return { ok: true };
   });
 }
@@ -648,7 +763,11 @@ export async function assignOrder(companyId: string, saleId: string, locationId:
 }
 
 /// Client return: restock location + refund cash or credit the debt.
-export async function createClientReturn(companyId: string, input: ReturnInput) {
+export async function createClientReturn(
+  companyId: string,
+  input: ReturnInput,
+  opts?: { opId?: string | null; occurredAt?: Date | null },
+) {
   const settings = await getOrCreateSettings(companyId);
   void settings;
   const [client, location] = await Promise.all([
@@ -661,7 +780,7 @@ export async function createClientReturn(companyId: string, input: ReturnInput) 
   if (products.length !== productIds.length) throw Object.assign(new Error("bad_product"), { status: 400 });
 
   const total = input.lines.reduce((s, l) => s + l.baseQty * l.unitPrice, 0);
-  const date = new Date();
+  const date = opts?.occurredAt ?? new Date();
   const season = await ensureSeasonFor(companyId, date);
   return prisma.$transaction(async (tx) => {
     const number = await nextDocNumber(tx, companyId, "client_return", date.getFullYear(), "RC");
@@ -677,6 +796,7 @@ export async function createClientReturn(companyId: string, input: ReturnInput) 
         total,
         notes: input.notes ?? null,
         date,
+        opId: opts?.opId ?? null,
       },
     });
     for (const l of input.lines) {

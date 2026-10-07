@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/lib/utils";
+import { normalizeDomain } from "@/lib/sync/urls";
 
 type Device = {
   id: string;
@@ -56,6 +57,15 @@ export function DevicesClient({
   }
   useEffect(() => {
     reload().catch(() => {});
+    // Prefer the configured public domain (tunnel) for the setup QR so vans
+    // reach the PC from anywhere; the field stays editable per device.
+    fetch("/api/settings", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((s) => {
+        const d = s?.remoteDomain ? normalizeDomain(s.remoteDomain) : "";
+        if (d) setSetupUrl((prev) => prev || d);
+      })
+      .catch(() => {});
   }, []);
 
   async function create() {
@@ -80,7 +90,7 @@ export function DevicesClient({
       setToken(data.token as string);
       setTokenVan(van);
       setTokenLabel(label.trim());
-      setSetupUrl(`${window.location.origin}/api/sync`);
+      setSetupUrl(window.location.origin);
       setLabel("");
       setVan("");
       setUser("");
@@ -91,16 +101,21 @@ export function DevicesClient({
     }
   }
 
-  // Setup QR: token + phone-reachable URL in one scan (shown once).
+  // Setup QR: token + phone-reachable server URL in one scan (shown once).
+  // The URL is the server ORIGIN (https://client1.…) — the phone's launcher
+  // and Settings normalize it to /api/sync for syncing.
   useEffect(() => {
     if (!token) {
       setSetupQr("");
       return;
     }
+    const raw = (setupUrl || "").trim().replace(/\/+$/, "").split("/api/sync")[0];
+    // Never emit an empty URL — fall back to this origin.
+    const base = raw || (typeof window !== "undefined" ? window.location.origin : "");
     const payload = JSON.stringify({
       app: "distribuili",
       type: "device-setup",
-      url: setupUrl || "/api/sync",
+      url: base,
       token,
       van: tokenVan,
       label: tokenLabel,

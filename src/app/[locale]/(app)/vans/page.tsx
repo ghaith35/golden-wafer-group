@@ -2,6 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
+import { sortByName } from "@/lib/sort";
 import { VansClient } from "./VansClient";
 
 export default async function VansPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -27,7 +28,7 @@ export default async function VansPage({ params }: { params: Promise<{ locale: s
   return (
     <VansClient
       locale={locale}
-      initial={JSON.parse(JSON.stringify(vans))}
+      initial={JSON.parse(JSON.stringify(sortByName(vans, locale)))}
       users={users}
       labels={{
         title: t("title"), neW: t("new"), search: tc("search"), empty: t("empty"),
@@ -35,6 +36,8 @@ export default async function VansPage({ params }: { params: Promise<{ locale: s
         deleteTitle: tc("deleteTitle"), deleteMessage: tc("deleteMessage"),
         name: t("name"), marque: t("marque"), matricule: t("matricule"),
         chauffeur: t("chauffeur"), noChauffeur: t("noChauffeur"),
+        newDriver: t("newDriver"), fullName: t("fullName"), username: t("username"),
+        password: t("password"), role: t("role"), roleLivreur: t("roleLivreur"), roleVendeur: t("roleVendeur"),
         addImage: t("addImage"), removeImage: t("removeImage"),
         save: tc("save"), cancel: tc("cancel"), stockBoard: t("stockBoard"),
         driverBusy: t("driverBusy"),

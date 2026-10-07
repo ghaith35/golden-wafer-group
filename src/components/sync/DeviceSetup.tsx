@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { CameraBox } from "@/components/scan/CameraBox";
 import { setDeviceToken, setSyncUrl, setVanId } from "@/lib/sync/client";
+import { serverBaseOf, syncEndpointOf } from "@/lib/sync/urls";
 import { cn } from "@/lib/utils";
 
 export type SetupPayload = {
@@ -31,6 +32,12 @@ export function parseSetupPayload(text: string): SetupPayload | null {
   }
   return null;
 }
+
+/// Server origin from any setup URL form: bare origin AND legacy payloads
+/// carrying the full `/api/sync` endpoint both resolve to the origin.
+export { serverBaseOf };
+/// Sync endpoint from any setup URL form (same-origin default kept as-is).
+export { syncEndpointOf };
 
 /// First-sync setup: scan the admin's setup QR (or type the token + URL),
 /// save device config, then the caller runs the first sync.
@@ -78,7 +85,7 @@ export function DeviceSetup({
     setSaving(true);
     try {
       setDeviceToken(p.token);
-      setSyncUrl(p.url || "/api/sync");
+      setSyncUrl(syncEndpointOf(p.url || "/api/sync"));
       onConfigured();
     } finally {
       setSaving(false);

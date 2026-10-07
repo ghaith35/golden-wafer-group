@@ -7,14 +7,28 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { queueOp } from "@/lib/sync/client";
+import { packBreakdown } from "@/components/products/UnitQty";
 import { cn } from "@/lib/utils";
 
 export type TLine = {
   id: string;
   declaredQty: number;
   confirmedQty: number | null;
-  product: { name: string; imageUrl?: string | null };
+  product: {
+    name: string;
+    imageUrl?: string | null;
+    conversions?: Array<{ unitId: string; factor: unknown; unit: { name: string } }>;
+    baseName?: string;
+  };
 };
+
+/// Pack hint under the product name ("15 كرتون"), or "" without packs.
+function packHint(l: TLine): string {
+  const convs = (l.product.conversions ?? []).map((c) => ({ unitId: c.unitId, factor: Number(c.factor) }));
+  if (!convs.some((c) => c.factor > 1)) return "";
+  const uname = (id: string) => l.product.conversions?.find((c) => c.unitId === id)?.unit.name ?? "";
+  return packBreakdown(Number(l.declaredQty), convs, uname, l.product.baseName ?? "");
+}
 
 export function TransferResolve({
   transferId,
@@ -107,7 +121,12 @@ export function TransferResolve({
                 <Package size={15} className="opacity-60" />
               </span>
             )}
-            <span className="min-w-0 flex-1 truncate text-sm font-bold">{l.product.name}</span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-bold">{l.product.name}</span>
+              {packHint(l) !== "" && (
+                <span className="block truncate text-[11px] font-bold text-(--brand-600)" dir="ltr">{packHint(l)}</span>
+              )}
+            </span>
             <span className="shrink-0 text-xs tabular-nums opacity-60" dir="ltr">
               {l.declaredQty.toLocaleString()}
             </span>

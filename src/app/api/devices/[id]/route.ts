@@ -24,6 +24,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const existing = await prisma.device.findFirst({ where: { id, companyId: auth.session.companyId } });
   if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
   const body = (await req.json().catch(() => ({}))) as { label?: string; isActive?: boolean; locationId?: string | null };
+  if (body.locationId != null) {
+    const loc = await prisma.store.findFirst({ where: { id: body.locationId, companyId: auth.session.companyId }, select: { id: true } });
+    if (!loc) return NextResponse.json({ error: "bad_location" }, { status: 400 });
+  }
   const row = await prisma.device.update({
     where: { id },
     data: {

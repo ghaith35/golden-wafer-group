@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDownToLine, ArrowUpFromLine, ArrowRightLeft, Bus, TriangleAlert, WifiOff, Printer } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, ArrowRightLeft, Bus, TriangleAlert, WifiOff, Printer, Warehouse } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { BackButton } from "@/components/ui/BackButton";
@@ -13,12 +13,14 @@ import { TransferForm } from "../../inventory/transfers/TransferForm";
 import { VanSheet } from "./VanSheet";
 import { packBreakdown } from "@/components/products/UnitQty";
 import { mixedColisTotal } from "@/lib/products/colisage";
+import { compareNatural } from "@/lib/sort";
 import { cn } from "@/lib/utils";
 import { dz, dzMoney } from "@/lib/format";
 
 type Van = {
   id: string;
   name: string;
+  kind: string;
   marque: string | null;
   matricule: string | null;
   imageUrl: string | null;
@@ -85,6 +87,7 @@ function timeAgo(iso: string | null, locale: string): string {
 export function StockBoard({
   locale,
   vans,
+  depots,
   levels,
   products,
   transfers,
@@ -100,6 +103,8 @@ export function StockBoard({
 }: {
   locale: string;
   vans: Van[];
+  /// General depot(s) — always pinned at the top of the sidebar, above the vans.
+  depots: Van[];
   levels: Level[];
   products: BoardProduct[];
   transfers: BoardTransfer[];
@@ -117,7 +122,7 @@ export function StockBoard({
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<"name" | "units" | "value" | "low">("name");
   const [driver, setDriver] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(vans[0]?.id ?? null);
+  const [selectedId, setSelectedId] = useState<string | null>(depots[0]?.id ?? vans[0]?.id ?? null);
   const [popup, setPopup] = useState<{ vanId: string; dir: "load" | "unload" | "van2van" } | null>(null);
   const [sheetVanId, setSheetVanId] = useState<string | null>(null);
   const [refs, setRefs] = useState<{
@@ -134,7 +139,7 @@ export function StockBoard({
 
   const stats = useMemo(() => {
     const m = new Map<string, { units: number; skus: number; low: number; transit: number }>();
-    for (const v of vans) {
+    for (const v of [...depots, ...vans]) {
       const lv = levels.filter((l) => l.storeId === v.id);
       m.set(v.id, {
         units: lv.reduce((s, l) => s + l.qty, 0),
@@ -147,7 +152,7 @@ export function StockBoard({
       });
     }
     return m;
-  }, [vans, levels, transfers, byProduct]);
+  }, [depots, vans, levels, transfers, byProduct]);
 
   const filtered = useMemo(() => {
     const list = vans.filter(
@@ -159,7 +164,7 @@ export function StockBoard({
     const unitsOf = (id: string) => stats.get(id)?.units ?? 0;
     const lowOf = (id: string) => stats.get(id)?.low ?? 0;
     const by: Record<typeof sort, (a: Van, b: Van) => number> = {
-      name: (a, b) => a.name.localeCompare(b.name, locale),
+      name: (a, b) => compareNatural(a.name, b.name, locale),
       units: (a, b) => unitsOf(b.id) - unitsOf(a.id),
       value: (a, b) => valOf(b.id) - valOf(a.id),
       low: (a, b) => lowOf(b.id) - lowOf(a.id),
@@ -167,8 +172,8 @@ export function StockBoard({
     return [...list].sort(by[sort]);
   }, [vans, needle, driver, sort, stats, valueByVan, locale]);
   const selected = useMemo(
-    () => filtered.find((v) => v.id === selectedId) ?? filtered[0] ?? null,
-    [filtered, selectedId]
+    () => [...depots, ...filtered].find((v) => v.id === selectedId) ?? depots[0] ?? filtered[0] ?? null,
+    [depots, filtered, selectedId]
   );
 
   const detailLevels = useMemo(
@@ -251,10 +256,10 @@ export function StockBoard({
     }
   }
 
-  const popupVan = popup ? vans.find((v) => v.id === popup.vanId) : undefined;
+  const popupVan = popup ? [...depots, ...vans].find((v) => v.id === popup.vanId) : undefined;
   const mainDepotId = refs?.locations.find((l) => l.kind === "DEPOT")?.id ?? "";
 
-  const sheetVan = sheetVanId ? (vans.find((v) => v.id === sheetVanId) ?? null) : null;
+  const sheetVan = sheetVanId ? ([...depots, ...vans].find((v) => v.id === sheetVanId) ?? null) : null;
   const sheetRows = useMemo(() => {
     if (!sheetVan) return [];
     const vVals = new Map((valueByVan.get(sheetVan.id)?.perProduct ?? []).map((p) => [p.productId, p]));
@@ -272,13 +277,79 @@ export function StockBoard({
           value: vVals.get(l.productId)?.value ?? 0,
         };
       })
-      .sort((a, b) => a.name.localeCompare(b.name, locale));
+      .sort((a, b) => compareNatural(a.name, b.name, locale));
   }, [sheetVan, levels, byProduct, valueByVan, locale]);
   const sheetTotals = useMemo(() => {
     const units = levels.filter((l) => sheetVan && l.storeId === sheetVan.id).reduce((s, l) => s + l.qty, 0);
     const value = sheetVan ? (valueByVan.get(sheetVan.id)?.value ?? 0) : 0;
     return { units, value };
   }, [levels, sheetVan, valueByVan]);
+
+  const renderCard = (v: Van) => {
+    const s = stats.get(v.id) ?? { units: 0, skus: 0, low: 0, transit: 0 };
+    const dev = devices.find((d) => d.locationId === v.id);
+    const active = selected?.id === v.id;
+    const isDepot = v.kind === "DEPOT";
+    return (
+      <button
+        key={v.id}
+        type="button"
+        onClick={() => setSelectedId(v.id)}
+        className={cn(
+          "flex w-full items-center gap-2.5 rounded-xl border p-2 text-start transition-colors",
+          active ? "border-(--brand-500) bg-(--brand-500)/5" : "border-(--border-default) hover:border-(--brand-500)"
+        )}
+      >
+        {v.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={v.imageUrl} alt={v.name} className="h-11 w-16 shrink-0 rounded-lg object-cover" loading="lazy" />
+        ) : (
+          <span className="flex h-11 w-16 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-(--text-secondary)">
+            {isDepot ? <Warehouse size={20} /> : <Bus size={20} />}
+          </span>
+        )}
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[13px] font-bold">
+            {v.name}
+            {isDepot && (
+              <span className="ms-1.5 rounded-md bg-(--brand-500)/10 px-1.5 py-0.5 align-middle text-[10px] font-black text-(--brand-600)">
+                {labels.depot}
+              </span>
+            )}
+          </span>
+          {!isDepot && (
+            <span className="block truncate text-[11px] opacity-60" dir="ltr">
+              {v.matricule ?? ""}{v.user ? ` · ${v.user.fullName}` : ""}
+            </span>
+          )}
+          <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-black tabular-nums">
+            <span><bdi dir="ltr">{dz(s.units)}</bdi> {isDepot ? labels.inDepot : labels.onVan}</span>
+            <span className="text-(--brand-600)" dir="ltr">{fmtMoney(valueByVan.get(v.id)?.value ?? 0)}</span>
+            {s.low > 0 && (
+              <span className="flex items-center gap-0.5 text-amber-600">
+                <TriangleAlert size={11} />
+                {s.low} {labels.low}
+              </span>
+            )}
+            {s.transit > 0 && <span className="text-amber-600">· {labels.inTransit}</span>}
+            {(dev?._count.ops ?? 0) > 0 && <span className="text-red-500">· {dev!._count.ops}</span>}
+          </span>
+          {!isDepot && (
+            <span className="mt-0.5 flex items-center gap-1 text-[10px] opacity-60">
+              {dev?.lastSyncAt ? (
+                <>{labels.lastSync}: <bdi className="font-black">{timeAgo(dev.lastSyncAt, locale)}</bdi></>
+              ) : (
+                <>
+                  <WifiOff size={11} />
+                  {labels.neverSynced}
+                </>
+              )}
+            </span>
+          )}
+        </span>
+      </button>
+    );
+  };
 
   return (
     <div className="flex flex-col gap-4 p-5 md:p-6 lg:h-[calc(100vh-2rem)] lg:overflow-hidden">
@@ -322,60 +393,10 @@ export function StockBoard({
             </label>
           </div>
           <div className="max-h-[40vh] flex-1 space-y-1.5 overflow-y-auto lg:max-h-none lg:min-h-0">
-            {filtered.length === 0 && <p className="py-6 text-center text-sm opacity-60">{labels.empty}</p>}
-            {filtered.map((v) => {
-              const s = stats.get(v.id) ?? { units: 0, skus: 0, low: 0, transit: 0 };
-              const dev = devices.find((d) => d.locationId === v.id);
-              const active = selected?.id === v.id;
-              return (
-                <button
-                  key={v.id}
-                  type="button"
-                  onClick={() => setSelectedId(v.id)}
-                  className={cn(
-                    "flex w-full items-center gap-2.5 rounded-xl border p-2 text-start transition-colors",
-                    active ? "border-(--brand-500) bg-(--brand-500)/5" : "border-(--border-default) hover:border-(--brand-500)"
-                  )}
-                >
-                  {v.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={v.imageUrl} alt={v.name} className="h-11 w-16 shrink-0 rounded-lg object-cover" loading="lazy" />
-                  ) : (
-                    <span className="flex h-11 w-16 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-(--text-secondary)">
-                      <Bus size={20} />
-                    </span>
-                  )}
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] font-bold">{v.name}</span>
-                    <span className="block truncate text-[11px] opacity-60" dir="ltr">
-                      {v.matricule ?? ""}{v.user ? ` · ${v.user.fullName}` : ""}
-                    </span>
-                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-black tabular-nums">
-                      <span><bdi dir="ltr">{dz(s.units)}</bdi> {labels.onVan}</span>
-                      <span className="text-(--brand-600)" dir="ltr">{fmtMoney(valueByVan.get(v.id)?.value ?? 0)}</span>
-                      {s.low > 0 && (
-                        <span className="flex items-center gap-0.5 text-amber-600">
-                          <TriangleAlert size={11} />
-                          {s.low} {labels.low}
-                        </span>
-                      )}
-                      {s.transit > 0 && <span className="text-amber-600">· {labels.inTransit}</span>}
-                      {(dev?._count.ops ?? 0) > 0 && <span className="text-red-500">· {dev!._count.ops}</span>}
-                    </span>
-                    <span className="mt-0.5 flex items-center gap-1 text-[10px] opacity-60">
-                      {dev?.lastSyncAt ? (
-                        <>{labels.lastSync}: <bdi className="font-black">{timeAgo(dev.lastSyncAt, locale)}</bdi></>
-                      ) : (
-                        <>
-                          <WifiOff size={11} />
-                          {labels.neverSynced}
-                        </>
-                      )}
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
+            {/* General depot — always pinned at the top */}
+            {depots.map(renderCard)}
+            {depots.length === 0 && filtered.length === 0 && <p className="py-6 text-center text-sm opacity-60">{labels.empty}</p>}
+            {filtered.map(renderCard)}
           </div>
         </div>
 
@@ -401,6 +422,7 @@ export function StockBoard({
               van={{
                 id: selected.id,
                 name: selected.name,
+                kind: selected.kind,
                 marque: selected.marque,
                 matricule: selected.matricule,
                 imageUrl: selected.imageUrl,

@@ -4,7 +4,6 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { listSeasons } from "@/lib/season/seasons";
 import { PresenceClient } from "./PresenceClient";
-
 /// Admin view: départ / fin de journée per van and day, with month filter.
 export default async function PresencePage({
   params,
@@ -19,6 +18,7 @@ export default async function PresencePage({
   const session = await getSession();
   if (!session) redirect(`/${locale}/login`);
   const t = await getTranslations("presence");
+  const tc = await getTranslations("common");
   const now = new Date();
   const seasons = await listSeasons(session.companyId);
   const years = [...new Set(seasons.map((s) => s.year))].sort((a, b) => b - a);
@@ -45,10 +45,12 @@ export default async function PresencePage({
       years={years.length ? years : [now.getFullYear()]}
       months={months}
       rows={JSON.parse(JSON.stringify(rows))}
+      isAdmin={session.role === "Admin"}
       labels={{
         title: t("title"), van: t("van"), driver: t("driver"), start: t("start"),
         end: t("end"), duration: t("duration"), empty: t("empty"), open: t("open"),
         week: t("week"), allDays: t("allDays"),
+        edit: tc("edit"), save: tc("save"), cancel: tc("cancel"),
       }}
     />
   );

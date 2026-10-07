@@ -51,8 +51,16 @@ export function localEntitlement(): LocalEntitlement {
   if (!isLocalMode()) return { entitled: true, reason: "bypass" };
   const dir = process.env.DISTRIBUILI_USERDATA;
   const machineId = process.env.DISTRIBUILI_MACHINE_ID;
+  // Not an Electron install → never gated (central/vendor/dev servers).
+  if (!dir || !machineId) return { entitled: true, reason: "bypass" };
   const pubkey = publicKey();
-  if (!dir || !machineId || !pubkey) return { entitled: true, reason: "bypass" };
+  // Local install with no baked public key must FAIL CLOSED — otherwise a
+  // release built without the key would be license-inert (everyone entitled).
+  // Dev override: DISTRIBUILI_LICENSE_BYPASS=1.
+  if (!pubkey) {
+    if (process.env.DISTRIBUILI_LICENSE_BYPASS === "1") return { entitled: true, reason: "bypass" };
+    return { entitled: false, reason: "no-key" };
+  }
   if (readTrim(path.join(dir, "revoked.flag"))) return { entitled: false, reason: "locked" };
   const act = readTrim(path.join(dir, "activation.lic"));
   if (act) {

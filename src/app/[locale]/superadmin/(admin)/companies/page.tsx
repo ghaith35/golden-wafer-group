@@ -7,17 +7,26 @@ export default async function SuperAdminCompaniesPage({ params }: { params: Prom
   const t = await getTranslations("superadmin");
   const tc = await getTranslations("common");
   return (
-    <div>
-      <h1 className="mb-3 text-xl font-black">{t("companies")}</h1>
-      <CompaniesClient
-        labels={{
-          search: tc("search"), empty: t("empty"), neW: t("neW"),
-          newTitle: t("companyNew"), name: t("companyName"), phone: t("phone"),
-          adminUser: t("adminUser"), adminName: t("adminName"), adminPass: t("adminPass"),
-          users: t("users"), stores: t("stores"),
-          save: tc("save"), cancel: tc("cancel"),
-        }}
-      />
-    </div>
+    <CompaniesClient
+      labels={{
+        title: t("companies"),
+        countLine: t.raw("companiesCount"),
+        search: tc("search"),
+        empty: t("empty"),
+        neW: t("neW"),
+        colName: t("colName"),
+        colUsers: t("colUsers"),
+        colStores: t("colStores"),
+        colCreated: t("colCreated"),
+        newTitle: t("companyNew"),
+        name: t("companyName"),
+        phone: t("phone"),
+        adminUser: t("adminUser"),
+        adminName: t("adminName"),
+        adminPass: t("adminPass"),
+        save: tc("save"),
+        cancel: tc("cancel"),
+      }}
+    />
   );
 }

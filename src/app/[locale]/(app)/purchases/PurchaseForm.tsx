@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { ListChecks, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
@@ -11,7 +11,8 @@ import { ProductForm } from "../products/ProductForm";
 import { PackInfo, factorOf, baseNameOf, describePack } from "@/components/products/UnitQty";
 import { ProductPicker } from "@/components/products/ProductPicker";
 import { breakdownNested } from "@/lib/products/colisage";
-import { dz, dzMoney } from "@/lib/format";
+import { compareNatural } from "@/lib/sort";
+import { dzMoney } from "@/lib/format";
 
 export type SupplierOpt = { id: string; name: string };
 export type ProductOpt = {
@@ -22,6 +23,7 @@ export type ProductOpt = {
   baseUnitId: string | null;
   baseUnit: { id: string; name: string } | null;
   purchaseUnitId: string | null;
+  supplierId?: string | null;
   conversions: Array<{ unitId: string; factor: number; barcode?: string | null; unit: { id: string; name: string } }>;
   costPrice: number;
   salePrice: number;
@@ -35,8 +37,8 @@ export type Line = {
   unitId: string;
   qty: number;
   freeQty: number;
-  /// Empty until typed IN the purchase: the purchase SETS the price, so a
-  /// per-piece cost must never be prefilled as a pack price.
+  /// Empty until typed IN the purchase (or prefilled from the product on
+  /// select, converted to the line unit).
   unitPrice: number | "";
   salePrice: number | "";
   tierPrices: Record<string, number | "">;
@@ -100,6 +102,7 @@ export function PurchaseForm({
   remiseEnabled,
   expiryEnabled,
   multiDepot,
+  supplierFilter = true,
   labels,
   editingId,
   initial,
@@ -117,6 +120,9 @@ export function PurchaseForm({
   remiseEnabled: boolean;
   expiryEnabled: boolean;
   multiDepot: boolean;
+  /// Admin setting: when on (default), the picker shows only the chosen
+  /// supplier's products; when off, all products always.
+  supplierFilter?: boolean;
   labels: Record<string, string>;
   /// Full-modify mode: prefill from an existing invoice, PATCH on save.
   editingId?: string | null;
@@ -131,8 +137,10 @@ export function PurchaseForm({
   };
   const handleSuccess = onSuccess ?? goList;
   const handleClose = onClose ?? goList;
-  // Single depot + multi-depot off → straight to the main depot, no selector.
-  const mainDepot = locations.find((l) => l.kind === "DEPOT")?.id ?? locations[0]?.id ?? "";
+  // Purchases always land in the main depot — never silently default to a van.
+  // With no depot yet this stays empty, the form posts null, and the server
+  // creates the depot itself (see createPurchase/updatePurchase).
+  const mainDepot = locations.find((l) => l.kind === "DEPOT")?.id ?? "";
   const showLocation = multiDepot && locations.length > 1;
   const [suppliers, setSuppliers] = useState(initialSuppliers);
   const [supplierId, setSupplierId] = useState(initial?.supplierId ?? "");
@@ -172,6 +180,24 @@ export function PurchaseForm({
     const seen = new Set<string>();
     return [...extra, ...products].filter((x) => (seen.has(x.id) ? false : (seen.add(x.id), true)));
   }, [extra, products]);
+  /// Picker options follow the chosen supplier (their products only) when
+  /// the admin filter is on. Already-added lines stay visible so their
+  /// cards keep rendering.
+  const pickerProducts = useMemo(() => {
+    if (!supplierId || !supplierFilter) return allProducts;
+    const lineIds = new Set(lines.map((l) => l.productId));
+    return allProducts.filter((p) => p.supplierId === supplierId || lineIds.has(p.id));
+  }, [allProducts, supplierId, supplierFilter, lines]);
+  /// This supplier's catalog for the bulk-add panel.
+  const supplierProducts = useMemo(
+    () => (supplierId ? allProducts.filter((p) => p.supplierId === supplierId) : []),
+    [allProducts, supplierId]
+  );
+  /// Bulk panel list follows the admin filter switch: supplier-only when
+  /// filtering is on, the whole catalog when off.
+  const bulkList = supplierFilter && supplierId ? supplierProducts : allProducts;
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkChecked, setBulkChecked] = useState<Set<string>>(new Set());
 
   const productUnits = (p: ProductOpt | undefined) => {
     if (!p) return [];
@@ -206,8 +232,9 @@ export function PurchaseForm({
     setLines((ls) => ls.map((l, j) => (j === i ? { ...l, ...patch } : l)));
   }
 
-  /// Switching the purchase unit keeps the same per-base value: the price
-  /// auto-converts proportionally — type the price once, in any level.
+  /// Switching the purchase unit keeps the same per-base value: every price
+  /// (cost, sale, tiers) auto-converts proportionally — type the price once,
+  /// in any level (piece or colis).
   function switchUnit(i: number, nextUnitId: string) {
     setLines((ls) =>
       ls.map((l, j) => {
@@ -215,27 +242,81 @@ export function PurchaseForm({
         const p = allProducts.find((x) => x.id === l.productId);
         const oldF = p ? factorOf(p, l.unitId) : 1;
         const nextF = p ? factorOf(p, nextUnitId) : 1;
-        const cur = Number(l.unitPrice || 0);
-        const conv = oldF > 0 && nextF > 0 && oldF !== nextF && cur > 0
-          ? Math.round((cur / oldF) * nextF * 1000) / 1000
-          : l.unitPrice;
-        return { ...l, unitId: nextUnitId, unitPrice: conv };
+        const conv = (v: number | "") => {
+          const cur = Number(v || 0);
+          return oldF > 0 && nextF > 0 && oldF !== nextF && cur > 0
+            ? Math.round((cur / oldF) * nextF * 1000) / 1000
+            : v;
+        };
+        const tiers: Record<string, number | ""> = {};
+        for (const [k, v] of Object.entries(l.tierPrices)) tiers[k] = conv(v);
+        return { ...l, unitId: nextUnitId, unitPrice: conv(l.unitPrice), salePrice: conv(l.salePrice), tierPrices: tiers };
       })
     );
   }
 
-  function pickProduct(i: number, np: ProductOpt) {
+  /// Blank line for a product (default purchase unit + prices prefilled
+  /// from the product, converted to the line unit). Shared by single pick
+  /// and bulk add so both behave identically.
+  function lineForProduct(np: ProductOpt): Line {
     const allowed = buyableUnits(np);
     const def = np.purchaseUnitId && allowed.some((u) => u.id === np.purchaseUnitId)
       ? np.purchaseUnitId
       : (allowed[allowed.length - 1]?.id ?? np.baseUnitId ?? "");
-    setLine(i, {
+    const f = factorOf(np, def) || 1;
+    const r3 = (v: number) => Math.round(v * 1000) / 1000;
+    const tiers: Record<string, number | ""> = {};
+    for (const t of np.tierPrices ?? []) {
+      const v = r3(Number(t.price ?? 0) * f);
+      if (v > 0) tiers[t.tierId] = v;
+    }
+    return {
       productId: np.id,
       unitId: def,
-      // Leave empty: the buyer types the real purchase price per selected
-      // unit here (never a prefilled per-piece cost shown as pack price).
-      unitPrice: "",
+      qty: 1,
+      freeQty: 0,
+      unitPrice: Number(np.costPrice ?? 0) > 0 ? r3(Number(np.costPrice ?? 0) * f) : "",
+      salePrice: Number(np.salePrice ?? 0) > 0 ? r3(Number(np.salePrice ?? 0) * f) : "",
+      tierPrices: tiers,
+      remise: 0,
+      expiryDate: "",
+    };
+  }
+
+  function pickProduct(i: number, np: ProductOpt) {
+    const line = lineForProduct(np);
+    setLine(i, {
+      productId: line.productId,
+      unitId: line.unitId,
+      unitPrice: line.unitPrice,
+      salePrice: line.salePrice,
+      tierPrices: line.tierPrices,
     });
+  }
+
+  /// Bulk add: every checked product becomes a line at once
+  /// (already-added ones are skipped, never duplicated).
+  function confirmBulk() {
+    const have = new Set(lines.map((l) => l.productId).filter(Boolean));
+    const fresh = [...bulkChecked]
+      .map((id) => bulkList.find((p) => p.id === id))
+      .filter((p): p is ProductOpt => !!p && !have.has(p.id))
+      .map((p) => lineForProduct(p));
+    if (!fresh.length) {
+      setBulkOpen(false);
+      return;
+    }
+    setLines((ls) => {
+      const out = [...ls];
+      for (const line of fresh) {
+        const idx = out.findIndex((x) => !x.productId);
+        if (idx >= 0) out[idx] = { ...out[idx], ...line };
+        else out.push(line);
+      }
+      return out;
+    });
+    setBulkChecked(new Set());
+    setBulkOpen(false);
   }
 
   /// A product was just created via the + popup: add it to the picker and
@@ -298,7 +379,7 @@ export function PurchaseForm({
         setError(data.error ?? "save_failed");
         return;
       }
-      setSuppliers((s) => [...s, { id: data.id, name: data.name }].sort((a, b) => a.name.localeCompare(b.name)));
+      setSuppliers((s) => [...s, { id: data.id, name: data.name }].sort((a, b) => compareNatural(a.name, b.name, locale)));
       setSupplierId(data.id);
       setSupName("");
       setSupPhone("");
@@ -366,6 +447,39 @@ export function PurchaseForm({
     }
   }
 
+  /// Dual price input (piece + colis): both edit the same per-line-unit
+  /// value, so typing either side updates the other instantly. Each field
+  /// is labeled with its unit: "prix carton", "prix pièce", …
+  const dualPrice = (
+    i: number,
+    lineVal: number | "",
+    setVal: (v: number | "") => void,
+    f: number,
+    packName: string,
+    baseName: string,
+    title: string,
+    cls: string,
+  ) => {
+    const ff = f > 0 ? f : 1;
+    const piece = lineVal === "" ? "" : Math.round((Number(lineVal) / ff) * 1000) / 1000;
+    return (
+      <div className="space-y-1">
+        <Input
+          type="number" min={0} step="any" value={lineVal}
+          title={`${title} ${packName}`} placeholder={`${title} ${packName}`}
+          onChange={(e) => setVal(e.target.value === "" ? "" : Number(e.target.value))}
+          className={cls}
+        />
+        <Input
+          type="number" min={0} step="any" value={piece}
+          title={`${title} ${baseName}`} placeholder={`${title} ${baseName}`}
+          onChange={(e) => setVal(e.target.value === "" ? "" : Math.round(Number(e.target.value) * ff * 1000) / 1000)}
+          className="h-8 text-xs opacity-80"
+        />
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
@@ -423,6 +537,18 @@ export function PurchaseForm({
                   >
                     <Plus size={14} />
                   </button>
+                  {supplierId && supplierProducts.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => { setBulkChecked(new Set()); setBulkOpen(true); }}
+                      title={labels.bulkAdd ?? ""}
+                      aria-label={labels.bulkAdd ?? ""}
+                      className="flex h-6 items-center gap-1 rounded-lg bg-(--brand-500)/10 px-2 text-[11px] font-black text-(--brand-600) transition-colors hover:bg-(--brand-500)/20"
+                    >
+                      <ListChecks size={14} />
+                      {supplierFilter ? supplierProducts.length : allProducts.length}
+                    </button>
+                  )}
                 </span>
                 <span>{labels.qty}</span>
                 <span>{labels.unit}</span>
@@ -438,7 +564,7 @@ export function PurchaseForm({
             <div className="flex flex-wrap items-start gap-2 lg:grid" style={{ gridTemplateColumns: lineCols }}>
               <div className="min-w-44 flex-1">
                 <ProductPicker
-                  products={allProducts}
+                  products={pickerProducts}
                   value={l.productId}
                   onPick={(np) => pickProduct(i, np)}
                   placeholder={labels.product}
@@ -476,41 +602,19 @@ export function PurchaseForm({
                 ))}
               </select>
               <div className="w-28 shrink-0">
-                <Input type="number" min={0} step="any" value={l.unitPrice} title={`${labels.price} (DA)`} placeholder={`${labels.price} (DA)`} onChange={(e) => setLine(i, { unitPrice: e.target.value === "" ? "" : Number(e.target.value) })} className="font-black" />
-                {p && l.unitId && f !== 1 && (
-                  <div className="mt-0.5 truncate text-[11px] font-bold opacity-60">
-                    = <bdi dir="ltr">{dz(Number(l.unitPrice || 0) ? Math.round((Number(l.unitPrice || 0) / (f || 1)) * 1000) / 1000 : 0)} DA</bdi>/<bdi>{baseNameOf(p)}</bdi>
-                  </div>
-                )}
+                {dualPrice(i, l.unitPrice, (v) => setLine(i, { unitPrice: v }), f,
+                  buyableUnits(p).find((u) => u.id === l.unitId)?.name ?? "", baseNameOf(p), labels.price, "font-black")}
               </div>
               <div className="w-28 shrink-0">
-                <Input
-                  type="number" min={0} step="any" value={l.salePrice} title={labels.salePrice}
-                  placeholder={labels.salePrice}
-                  onChange={(e) => setLine(i, { salePrice: e.target.value === "" ? "" : Number(e.target.value) })}
-                />
-                {p && l.unitId && f !== 1 && l.salePrice !== "" && (
-                  <div className="mt-0.5 truncate text-[11px] font-bold opacity-60">
-                    = <bdi dir="ltr">{dz(Math.round((Number(l.salePrice) / (f || 1)) * 1000) / 1000)} DA</bdi>/<bdi>{baseNameOf(p)}</bdi>
-                  </div>
-                )}
+                {dualPrice(i, l.salePrice, (v) => setLine(i, { salePrice: v }), f,
+                  buyableUnits(p).find((u) => u.id === l.unitId)?.name ?? "", baseNameOf(p), labels.salePrice, "")}
               </div>
               {p && tiers.map((tr) => {
                 const typed = l.tierPrices[tr.id];
                 return (
                   <div key={tr.id} className="w-24 shrink-0">
-                    <Input
-                      type="number" min={0} step="any"
-                      value={typed ?? ""}
-                      title={tr.name}
-                      placeholder={tr.name}
-                      onChange={(e) => setLine(i, { tierPrices: { ...l.tierPrices, [tr.id]: e.target.value === "" ? "" : Number(e.target.value) } })}
-                    />
-                    {l.unitId && f !== 1 && typed !== "" && typed != null && (
-                      <div className="mt-0.5 truncate text-[11px] font-bold opacity-60">
-                        = <bdi dir="ltr">{dz(Math.round((Number(typed) / (f || 1)) * 1000) / 1000)} DA</bdi>/<bdi>{baseNameOf(p)}</bdi>
-                      </div>
-                    )}
+                    {dualPrice(i, typed ?? "", (v) => setLine(i, { tierPrices: { ...l.tierPrices, [tr.id]: v } }), f,
+                      buyableUnits(p).find((u) => u.id === l.unitId)?.name ?? "", baseNameOf(p), tr.name, "")}
                   </div>
                 );
               })}
@@ -576,7 +680,7 @@ export function PurchaseForm({
       <Modal open={showProduct} onClose={() => setShowProduct(false)} title={productLabels.newProduct ?? labels.product} icon="+" width="lg">
         <ProductForm
           key={showProduct ? "new" : "closed"}
-          initial={{ name: "", minStock: 0, salePrice: 0, costPrice: 0, images: [], conversions: [], tierPrices: [], saleUnitId: null, purchaseUnitId: null }}
+          initial={{ name: "", minStock: 0, salePrice: 0, costPrice: 0, images: [], conversions: [], tierPrices: [], saleUnitId: null, purchaseUnitId: null, supplierId: supplierId || null }}
           categories={categories}
           suppliers={suppliers}
           units={units ?? []}
@@ -598,6 +702,71 @@ export function PurchaseForm({
               {labels.cancel}
             </Button>
             <Button onClick={createSupplier} disabled={supBusy}>{supBusy ? "…" : labels.save}</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Bulk add: this supplier's products with checkboxes + select-all.
+          Everything checked becomes a purchase line at once. */}
+      <Modal open={bulkOpen} onClose={() => setBulkOpen(false)} title={labels.bulkAdd ?? labels.product} icon={<ListChecks size={18} />} width="lg">
+        <div className="space-y-2">
+          <label className="flex cursor-pointer items-center gap-2.5 rounded-xl bg-(--bg-sunken) px-3 py-2.5 text-sm font-black">
+            <input
+              type="checkbox"
+              className="h-5 w-5 accent-(--brand-500)"
+              checked={bulkList.length > 0 && bulkList.every((p) => bulkChecked.has(p.id))}
+              onChange={(e) => {
+                if (e.target.checked) setBulkChecked(new Set(bulkList.map((p) => p.id)));
+                else setBulkChecked(new Set());
+              }}
+            />
+            {labels.selectAll ?? ""}
+          </label>
+          <div className="max-h-[50vh] space-y-1.5 overflow-y-auto">
+            {bulkList.map((p) => {
+              const inLines = lines.some((l) => l.productId === p.id);
+              const checked = bulkChecked.has(p.id);
+              return (
+                <label
+                  key={p.id}
+                  className={`flex cursor-pointer items-center gap-2.5 rounded-xl border p-2 ${checked ? "border-(--brand-500) bg-(--brand-500)/5" : "border-(--border-default)"} ${inLines ? "opacity-60" : ""}`}
+                >
+                  <input
+                    type="checkbox"
+                    className="h-5 w-5 shrink-0 accent-(--brand-500)"
+                    checked={checked}
+                    disabled={inLines}
+                    onChange={(e) => {
+                      setBulkChecked((prev) => {
+                        const next = new Set(prev);
+                        if (e.target.checked) next.add(p.id);
+                        else next.delete(p.id);
+                        return next;
+                      });
+                    }}
+                  />
+                  {p.images[0] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.images[0].url} alt={p.name} className="h-10 w-10 shrink-0 rounded-lg object-cover" loading="lazy" />
+                  ) : (
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-lg">📦</span>
+                  )}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[13px] font-bold">{p.name}</span>
+                    <span className="block truncate text-[11px] opacity-60">
+                      {p.colisage ?? ""}{inLines ? ` · ✓` : ""}
+                    </span>
+                  </span>
+                </label>
+              );
+            })}
+            {bulkList.length === 0 && <p className="py-6 text-center text-sm opacity-60">{labels.empty ?? "—"}</p>}
+          </div>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setBulkOpen(false)} className="flex-1">{labels.cancel}</Button>
+            <Button onClick={() => confirmBulk()} className="flex-[2]">
+              {labels.addSelected ?? labels.save} ({bulkChecked.size})
+            </Button>
           </div>
         </div>
       </Modal>

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { App } from "@capacitor/app";
 import { Browser } from "@capacitor/browser";
 import { pendingCount } from "@/lib/sync/client";
-import { WEB_BUILD_KEY } from "@/components/sync/UpdateChecker";
+import { applyWebUpdate, rememberBuild, storedBuild } from "@/lib/sync/web-update";
 
 /// Fully automatic updater, mounted once globally:
 /// - Web UI: if the logiciel has a newer build AND the outbox is empty
@@ -28,34 +28,13 @@ export function AutoUpdate() {
         // 1. Silent web update when safe.
         const server: string = d.web?.buildId || "";
         if (server) {
-          let known: string | null = null;
-          try {
-            known = localStorage.getItem(WEB_BUILD_KEY);
-          } catch {
-            /* ignore */
-          }
+          const known = storedBuild();
           if (!known) {
-            try {
-              localStorage.setItem(WEB_BUILD_KEY, server);
-            } catch {
-              /* ignore */
-            }
+            rememberBuild(server);
           } else if (known !== server) {
             const pending = await pendingCount().catch(() => 1);
             if (pending === 0 && !dead) {
-              try {
-                if ("caches" in window) {
-                  const keys = await caches.keys();
-                  await Promise.all(keys.filter((k) => !k.includes("dili-img")).map((k) => caches.delete(k)));
-                }
-                try {
-                  localStorage.setItem(WEB_BUILD_KEY, server);
-                } catch {
-                  /* ignore */
-                }
-              } finally {
-                window.location.reload();
-              }
+              await applyWebUpdate(server).catch(() => {});
               return;
             }
           }

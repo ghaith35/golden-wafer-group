@@ -36,6 +36,14 @@ async function main() {
     await prisma.wilaya.upsert({ where: { code }, update: { nameFr, nameAr }, create: { code, nameFr, nameAr } });
   }
 
+  // Real client installs (desktop seed DB, per-client deploys) ship WITHOUT
+  // demo data: the owner creates their own company + admin via /onboard.
+  // SEED_DEMO=0 keeps reference data only. Default (dev) keeps demo.
+  if (process.env.SEED_DEMO === "0") {
+    console.log("Seed reference only (SEED_DEMO=0) — no demo company.");
+    return;
+  }
+
   const company = await prisma.company.upsert({
     where: { id: "demo-company" },
     update: {},

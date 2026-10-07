@@ -34,7 +34,7 @@ export function TopBar({
   const locale = useLocale();
 
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-(--border-default) bg-(--bg-overlay) px-3 py-2 md:px-5 md:h-14 md:py-0">
+    <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-(--border-default) bg-(--bg-overlay) px-3 py-2 print:hidden md:px-5 md:h-14 md:py-0">
       <DesktopBackButton />
       {!hideMenu && (
       <button

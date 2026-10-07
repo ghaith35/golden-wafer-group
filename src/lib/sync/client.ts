@@ -6,6 +6,7 @@
 /// The APK embeds its device token once (Settings → paste, or ?device= URL).
 
 import { db, type OutboxRow } from "./offline-db";
+import { sortOutbox } from "./offline-rules";
 
 const SNAP_KEY = "dili_snapshot_v1";
 const TOKEN_KEY = "dili_device_token";
@@ -62,6 +63,7 @@ export type VanSnapshot = {
     expiryEnabled: boolean;
     transferConfirmRequired: boolean;
     pieceSalesEnabled: boolean;
+    debtTrackingEnabled?: boolean;
   };
   products: SnapshotProduct[];
   units: Array<{ id: string; name: string }>;
@@ -143,6 +145,29 @@ export function getSyncUrl(): string {
   return readSync(SYNC_URL_KEY) || "/api/sync";
 }
 
+/// Origin this install currently syncs to (the bound client server).
+export function currentServerOrigin(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const u = getSyncUrl();
+    if (/^https?:\/\//i.test(u)) return new URL(u).origin;
+    return window.location.origin;
+  } catch {
+    try {
+      return window.location.origin;
+    } catch {
+      return null;
+    }
+  }
+}
+
+/// Distinct servers owning queued ops (normally 0–1; >1 means a rebind
+/// happened with a non-empty outbox — those rows stay quarantined).
+export async function pendingServers(): Promise<string[]> {
+  const rows = await getOutbox();
+  return [...new Set(rows.map((r) => r.server).filter((s): s is string => !!s))];
+}
+
 export function getVanId(): string | null {
   return typeof window === "undefined" ? null : readSync(VAN_KEY);
 }
@@ -168,9 +193,35 @@ export async function failedCount(): Promise<number> {
   return (await getOutbox()).filter((o) => o.error).length;
 }
 
+/// Ops the server rejected and that need attention (repair/retry/discard).
+export async function failedOps(): Promise<OutboxRow[]> {
+  return (await getOutbox()).filter((o) => o.error);
+}
+
+/// Reset a failed op so the next sync retries it (after the cause is fixed).
+export async function retryOutboxOp(opId: string): Promise<void> {
+  const rows = await db.outboxList();
+  const row = rows.find((r) => r.opId === opId);
+  if (!row) return;
+  await db.outboxPut({ ...row, attempts: 0, nextRetryAt: 0, error: undefined, permanent: false });
+}
+
+/// Replace a failed op's payload (repair) and make it retryable.
+export async function updateOutboxPayload(opId: string, payload: Record<string, unknown>): Promise<void> {
+  const rows = await db.outboxList();
+  const row = rows.find((r) => r.opId === opId);
+  if (!row) return;
+  await db.outboxPut({ ...row, payload, attempts: 0, nextRetryAt: 0, error: undefined, permanent: false });
+}
+
+/// Drop a failed op the owner chose to abandon.
+export async function discardOutboxOp(opId: string): Promise<void> {
+  await db.outboxRemove(opId);
+}
+
 export async function queueOp(kind: string, payload: Record<string, unknown>): Promise<string> {
   const opId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
-  const row: OutboxRow = { opId, kind, payload, ts: Date.now(), attempts: 0, nextRetryAt: 0 };
+  const row: OutboxRow = { opId, kind, payload, ts: Date.now(), attempts: 0, nextRetryAt: 0, server: currentServerOrigin() };
   await db.outboxPut(row);
   return opId;
 }
@@ -230,14 +281,25 @@ async function precacheSnapshotImages(
   }
 }
 
-function backoffMs(attempts: number): number {
+export function backoffMs(attempts: number): number {
   return Math.min(5 * 60 * 1000, 30 * 1000 * 2 ** Math.min(attempts, 4));
 }
 
+export type WebUpdateInfo = {
+  available: boolean;
+  buildId: string;
+  force: boolean;
+  nativeRequired: boolean;
+  minNative: number;
+};
+
 export type SyncResult = {
-  applied: Array<{ opId: string; ok: boolean; id?: string; error?: string }>;
+  applied: Array<{ opId: string; ok: boolean; id?: string; error?: string; permanent?: boolean }>;
   pulled?: unknown;
   serverTime?: string;
+  /// Set when the server moved to a newer web build (or mandates a native
+  /// floor): the UI prompts once, the user validates, the app restarts updated.
+  webUpdate?: WebUpdateInfo | null;
 };
 
 export type SyncPhase =
@@ -249,20 +311,36 @@ export type SyncPhase =
   | { phase: "done"; applied: number; failed: number; remaining: number };
 
 export async function syncNow(onProgress?: (p: SyncPhase) => void): Promise<SyncResult> {
-  const t0 = Date.now();
-  try {
-    return await syncNowInner(onProgress, t0);
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "sync_failed";
-    const { appendHistory } = await import("./history");
-    await appendHistory({
-      ts: t0, ok: false, ms: Date.now() - t0,
-      uploaded: 0, applied: 0, failed: 0, kinds: {}, errors: [],
-      products: 0, clients: 0, images: 0, error: msg,
-    });
-    throw e;
-  }
+  // Single-flight: auto-flush (SyncBadge), the manual modal and the dashboard
+  // tile can all fire at once — they must never run two syncs concurrently
+  // (that was the source of duplicate documents).
+  if (inFlight) return inFlight;
+  const run = (async () => {
+    const t0 = Date.now();
+    try {
+      // Cross-tab lock when available (one sync per device across all tabs).
+      const nav = typeof navigator !== "undefined" ? (navigator as Navigator & { locks?: LockManager }) : undefined;
+      if (nav?.locks?.request) {
+        return await nav.locks.request("dili-sync", { mode: "exclusive" }, () => syncNowInner(onProgress, t0));
+      }
+      return await syncNowInner(onProgress, t0);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "sync_failed";
+      const { appendHistory } = await import("./history");
+      await appendHistory({
+        ts: t0, ok: false, ms: Date.now() - t0,
+        uploaded: 0, applied: 0, failed: 0, kinds: {}, errors: [],
+        products: 0, clients: 0, images: 0, error: msg,
+      });
+      throw e;
+    }
+  })().finally(() => {
+    if (inFlight === run) inFlight = null;
+  });
+  inFlight = run;
+  return run;
 }
+let inFlight: Promise<SyncResult> | null = null;
 
 async function syncNowInner(
   onProgress: ((p: SyncPhase) => void) | undefined,
@@ -272,33 +350,48 @@ async function syncNowInner(
   if (!token) throw new Error("no_device_token");
   const now = Date.now();
   const outbox = await getOutbox();
-  const due = outbox.filter((o) => (o.nextRetryAt ?? 0) <= now);
-  onProgress?.({ phase: "prepare", total: due.length });
-  onProgress?.({ phase: "upload", sent: due.length, total: due.length });
+  // Only this server's ops go up. Rows tagged for another server stay
+  // quarantined (rebind with a non-empty outbox); legacy untagged rows are
+  // grandfathered to the current server.
+  const target = currentServerOrigin();
+  const due = outbox.filter(
+    (o) => (o.nextRetryAt ?? 0) <= now && (!o.server || !target || o.server === target)
+  );
+  // Send in dependency order (client before its ticket, declare before confirm).
+  const ordered = sortOutbox(due);
+  onProgress?.({ phase: "prepare", total: ordered.length });
+  onProgress?.({ phase: "upload", sent: ordered.length, total: ordered.length });
   const res = await fetch(getSyncUrl(), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       deviceToken: token,
       locationId: getVanId(),
-      ops: due.map(({ opId, kind, payload }) => ({ opId, kind, payload })),
+      ops: ordered.map(({ opId, kind, payload, ts }) => ({ opId, kind, payload, occurredAt: ts })),
     }),
   });
   if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "sync_failed");
   const data = (await res.json()) as SyncResult & { pulled?: unknown; serverTime?: string };
   const okIds = new Set(data.applied.filter((a) => a.ok).map((a) => a.opId));
-  const failed = new Map(data.applied.filter((a) => !a.ok).map((a) => [a.opId, a.error ?? "failed"]));
+  const failed = new Map(
+    data.applied
+      .filter((a) => !a.ok)
+      .map((a) => [a.opId, { error: a.error ?? "failed", permanent: Boolean(a.permanent) }] as const),
+  );
   let n = 0;
   for (const o of due) {
     if (okIds.has(o.opId)) {
       await db.outboxRemove(o.opId);
     } else if (failed.has(o.opId)) {
+      const f = failed.get(o.opId)!;
       const attempts = (o.attempts ?? 0) + 1;
       await db.outboxPut({
         ...o,
         attempts,
-        nextRetryAt: Date.now() + backoffMs(attempts),
-        error: failed.get(o.opId),
+        error: f.error,
+        permanent: f.permanent,
+        // Permanent (validation) failures stop auto-retrying until repaired.
+        nextRetryAt: f.permanent ? Number.MAX_SAFE_INTEGER : Date.now() + backoffMs(attempts),
       });
     }
     // Ops the server never answered stay untouched for the next attempt.
@@ -327,7 +420,7 @@ async function syncNowInner(
       const k = kindOf.get(id) ?? "unknown";
       kinds[k] = (kinds[k] ?? 0) + 1;
     }
-    const errors = [...failed.entries()].map(([opId, error]) => ({ kind: kindOf.get(opId) ?? "unknown", error }));
+    const errors = [...failed.entries()].map(([opId, f]) => ({ kind: kindOf.get(opId) ?? "unknown", error: f.error }));
     const { appendHistory } = await import("./history");
     await appendHistory({
       ts: t0, ok: failed.size === 0, ms: Date.now() - t0,
@@ -342,7 +435,7 @@ async function syncNowInner(
       const k = kindOf.get(id) ?? "unknown";
       kinds[k] = (kinds[k] ?? 0) + 1;
     }
-    const errors = [...failed.entries()].map(([opId, error]) => ({ kind: kindOf.get(opId) ?? "unknown", error }));
+    const errors = [...failed.entries()].map(([opId, f]) => ({ kind: kindOf.get(opId) ?? "unknown", error: f.error }));
     const { appendHistory } = await import("./history");
     await appendHistory({
       ts: t0, ok: failed.size === 0, ms: Date.now() - t0,
@@ -355,7 +448,47 @@ async function syncNowInner(
   } catch {
     /* ignore */
   }
+  // Update channel: did the server move to a newer web build since we last
+  // saw it? First sighting records silently; afterwards the UI prompts once
+  // and the user validates → restart, update, reopen (no APK reinstall).
+  const webUpdate = await detectWebUpdate(data.pulled);
   const remaining = (await getOutbox()).length;
   onProgress?.({ phase: "done", applied: okIds.size, failed: failed.size, remaining });
-  return data;
+  return { ...data, webUpdate };
+}
+
+/// Compare the pulled web build against the last one this install ran.
+/// Pure apart from storage + installed-shell lookup.
+export async function detectWebUpdate(pulled: unknown): Promise<WebUpdateInfo | null> {
+  try {
+    const web = (pulled as { web?: { buildId?: string; minNative?: number; force?: boolean } } | null | undefined)?.web;
+    const serverBuild = web?.buildId || "";
+    if (!serverBuild) return null;
+    const { storedBuild, rememberBuild, shouldPromptWebUpdate } = await import("./web-update");
+    const known = storedBuild();
+    if (!known) {
+      rememberBuild(serverBuild);
+      return null;
+    }
+    if (!shouldPromptWebUpdate(known, serverBuild)) return null;
+    let mine: number | null = null;
+    try {
+      const { App } = await import("@capacitor/app");
+      const info = await App.getInfo();
+      const n = Number(info.build);
+      mine = Number.isFinite(n) && n > 0 ? n : null;
+    } catch {
+      mine = null;
+    }
+    const minNative = Number(web?.minNative ?? 0);
+    return {
+      available: true,
+      buildId: serverBuild,
+      force: !!web?.force,
+      nativeRequired: mine != null && minNative > 0 && mine < minNative,
+      minNative,
+    };
+  } catch {
+    return null;
+  }
 }

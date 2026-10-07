@@ -307,27 +307,27 @@ function registerLicenseIpc(): void {
   });
   ipcMain.handle("license-start-trial", async (_e, info: license.TrialInfo) => {
     const r = await license.requestTrial(licenseServerUrl(), machineId, info || {});
-    if (r.token) { clearRevoked(); license.writeTrial(userDataDir, r.token); }
+    if (r.token) { clearLockFlag(); license.writeTrial(userDataDir, r.token); }
     if (r.activated) {
       const t = await license.issueActivation(licenseServerUrl(), machineId);
-      if (t) { clearRevoked(); license.writeActivation(userDataDir, t); }
+      if (t) { clearLockFlag(); license.writeActivation(userDataDir, t); }
     }
     return { ...license.getEntitlement(userDataDir, machineId), machineId, error: r.error, revoked: r.revoked };
   });
   ipcMain.handle("license-check", async () => {
     const t = await license.issueActivation(licenseServerUrl(), machineId);
-    if (t) { clearRevoked(); license.writeActivation(userDataDir, t); }
+    if (t) { clearLockFlag(); license.writeActivation(userDataDir, t); }
     return { ...license.getEntitlement(userDataDir, machineId), machineId };
   });
   ipcMain.handle("license-enter-key", (_e, token: string) => {
     const tok = String(token || "").trim();
-    if (license.verifyActivationToken(tok, machineId)) { clearRevoked(); license.writeActivation(userDataDir, tok); }
-    else if (license.verifyTrialToken(tok, machineId)) { clearRevoked(); license.writeTrial(userDataDir, tok); }
+    if (license.verifyActivationToken(tok, machineId)) { clearLockFlag(); license.writeActivation(userDataDir, tok); }
+    else if (license.verifyTrialToken(tok, machineId)) { clearLockFlag(); license.writeTrial(userDataDir, tok); }
     return { ...license.getEntitlement(userDataDir, machineId), machineId };
   });
   ipcMain.handle("license-redeem-key", async (_e, key: string, label?: string) => {
     const r = await license.redeemActivationKey(licenseServerUrl(), machineId, String(key || "").trim(), String(label ?? ""));
-    if (r.token) { clearRevoked(); license.writeActivation(userDataDir, r.token); }
+    if (r.token) { clearLockFlag(); license.writeActivation(userDataDir, r.token); }
     return { ...license.getEntitlement(userDataDir, machineId), machineId, error: r.error };
   });
 }
@@ -338,10 +338,16 @@ function registerUpdaterIpc(log: (m: string) => void): void {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { autoUpdater } = require("electron-updater") as typeof import("electron-updater");
       const res = await autoUpdater.checkForUpdates();
-      return { ok: true, version: res?.updateInfo?.version ?? null };
+      const notes = res?.updateInfo?.releaseNotes;
+      return {
+        ok: true,
+        currentVersion: app.getVersion(),
+        version: res?.updateInfo?.version ?? null,
+        releaseNotes: typeof notes === "string" ? notes : Array.isArray(notes) ? notes.map((n) => n.note ?? "").join("\n") : null,
+      };
     } catch (e) {
       log(`[updater] check failed: ${e}`);
-      return { ok: false, error: String(e) };
+      return { ok: false, currentVersion: app.getVersion(), error: String(e) };
     }
   });
   ipcMain.handle("update-download", async (e) => {
@@ -550,7 +556,10 @@ function dbFile(): string {
   return join(app.getPath("userData"), "distribuili.db");
 }
 function dbUrl(): string {
-  return `file:${dbFile().replace(/\\/g, "/")}`;
+  // Encode spaces / # / ? so Windows profile paths (e.g. "C:\Users\John Doe"
+  // or non-ASCII/Arabic usernames) don't break the libSQL URL parser.
+  const p = dbFile().replace(/\\/g, "/");
+  return `file:${encodeURI(p).replace(/#/g, "%23").replace(/\?/g, "%3F")}`;
 }
 
 // First-run: copy the bundled pre-seeded DB; fall back to empty schema from
@@ -613,6 +622,9 @@ async function startServer(log: (m: string) => void): Promise<number> {
       // Same public key the main process verifies with → the bundled Next
       // server enforces the identical gate (direct-Chrome bypass closed).
       DISTRIBUILI_LICENSE_PUBLIC_KEY: license.publicKeyB64(),
+      // Explicit dev builds (ALLOW_UNLICENSED_BUILD) have no baked key; unlock
+      // them so they're usable. Real builds keep the server gate fail-closed.
+      ...(license.isDevBuild() ? { DISTRIBUILI_LICENSE_BYPASS: "1" } : {}),
     },
   });
   void child;

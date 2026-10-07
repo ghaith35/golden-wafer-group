@@ -12,6 +12,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const parsed = expenseSchema.partial().safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return NextResponse.json({ error: "validation_error", issues: parsed.error.issues }, { status: 400 });
   const d = parsed.data;
+  if (d.typeId) {
+    const t = await prisma.expenseType.findFirst({ where: { id: d.typeId, companyId: session.companyId }, select: { id: true } });
+    if (!t) return NextResponse.json({ error: "bad_type" }, { status: 400 });
+  }
+  if (d.locationId) {
+    const l = await prisma.store.findFirst({ where: { id: d.locationId, companyId: session.companyId }, select: { id: true } });
+    if (!l) return NextResponse.json({ error: "bad_location" }, { status: 400 });
+  }
   const row = await prisma.expense.update({
     where: { id },
     data: {

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { getOrCreateSettings } from "@/lib/settings/helpers";
 import { prisma } from "@/lib/db";
+import { sortByName } from "@/lib/sort";
 import { StockBoard } from "./StockBoard";
 
 export default async function VanStockBoardPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -29,21 +30,28 @@ export default async function VanStockBoardPage({ params }: { params: Promise<{ 
     orderBy: { name: "asc" },
     take: 100,
   });
-  const vanIds = vans.map((v) => v.id);
+  // General depot(s) — always shown pinned at the top of the board.
+  const depots = await prisma.store.findMany({
+    where: { companyId: session.companyId, kind: "DEPOT", isActive: true },
+    include: { user: { select: { id: true, fullName: true, username: true } } },
+    orderBy: { createdAt: "asc" },
+    take: 10,
+  });
+  const locIds = [...depots, ...vans].map((v) => v.id);
 
   const [levels, transfers, devices, batches, users] = await Promise.all([
-    vanIds.length
+    locIds.length
       ? prisma.stockBatch.groupBy({
           by: ["productId", "storeId"],
-          where: { companyId: session.companyId, storeId: { in: vanIds }, transferId: null, qty: { gt: 0 } },
+          where: { companyId: session.companyId, storeId: { in: locIds }, transferId: null, qty: { gt: 0 } },
           _sum: { qty: true },
         })
       : [],
-    vanIds.length
+    locIds.length
       ? prisma.transfer.findMany({
           where: {
             companyId: session.companyId,
-            OR: [{ fromLocationId: { in: vanIds } }, { toLocationId: { in: vanIds } }],
+            OR: [{ fromLocationId: { in: locIds } }, { toLocationId: { in: locIds } }],
           },
           include: {
             lines: { include: { product: { select: { id: true, name: true } } } },
@@ -54,9 +62,9 @@ export default async function VanStockBoardPage({ params }: { params: Promise<{ 
           take: 200,
         })
       : [],
-    vanIds.length
+    locIds.length
       ? prisma.device.findMany({
-          where: { companyId: session.companyId, locationId: { in: vanIds }, isActive: true },
+          where: { companyId: session.companyId, locationId: { in: locIds }, isActive: true },
           select: {
             locationId: true,
             label: true,
@@ -65,9 +73,9 @@ export default async function VanStockBoardPage({ params }: { params: Promise<{ 
           },
         })
       : [],
-    vanIds.length
+    locIds.length
       ? prisma.stockBatch.findMany({
-          where: { companyId: session.companyId, storeId: { in: vanIds }, transferId: null, qty: { gt: 0 } },
+          where: { companyId: session.companyId, storeId: { in: locIds }, transferId: null, qty: { gt: 0 } },
           select: { productId: true, storeId: true, qty: true, unitCost: true },
         })
       : [],
@@ -114,7 +122,8 @@ export default async function VanStockBoardPage({ params }: { params: Promise<{ 
   return (
     <StockBoard
       locale={locale}
-      vans={JSON.parse(JSON.stringify(vans))}
+      vans={JSON.parse(JSON.stringify(sortByName(vans, locale)))}
+      depots={JSON.parse(JSON.stringify(depots))}
       levels={JSON.parse(JSON.stringify(levels)).map((l: { _sum: { qty: unknown } }) => ({ ...l, qty: Number(l._sum.qty ?? 0) }))}
       products={JSON.parse(JSON.stringify(products)).map((p: { minStock: unknown; conversions: Array<{ factor: unknown }> }) => ({
         ...p,
@@ -167,6 +176,8 @@ export default async function VanStockBoardPage({ params }: { params: Promise<{ 
         sortValue: t("sortValue"),
         sortLow: t("sortLow"),
         driver: t("driver"),
+        depot: t("depot"),
+        inDepot: t("inDepot"),
         allDrivers: t("allDrivers"),
         noChauffeur: t("noChauffeur"),
       }}
@@ -179,7 +190,7 @@ export default async function VanStockBoardPage({ params }: { params: Promise<{ 
         loadingStock: ti("loadingStock"), emptyLocation: ti("emptyLocation"), addAll: ti("addAll"),
       }}
       detailLabels={{
-        load: t("load"), unload: t("unload"), onVan: t("onVan"), value: t("value"),
+        load: t("load"), unload: t("unload"), onVan: t("onVan"), inDepot: t("inDepot"), depot: t("depot"), value: t("value"),
         levels: ti("levels"), lowStock: ti("lowStock"), inTransit: ti("inTransit"),
         search: tc("search"), empty: t("empty"), total: tc("total"),
         history: t("history"), transfers: ti("transfers"), confirm: ti("confirm"),

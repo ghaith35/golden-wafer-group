@@ -7,8 +7,11 @@ export default async function SuperAdminLicensesPage({ params }: { params: Promi
   const t = await getTranslations("superadmin");
   const tc = await getTranslations("common");
   return (
-    <div>
-      <h1 className="mb-3 text-xl font-black">{t("licenses")}</h1>
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-xl font-bold tracking-tight text-(--text-primary)">{t("licenses")}</h1>
+        <p className="mt-0.5 text-sm text-(--text-secondary)">{t("licensesSubtitle")}</p>
+      </div>
       <LicensesClient
         labels={{
           tab_machines: t("tabMachines"), tab_keys: t("tabKeys"), tab_ips: t("tabIps"),
@@ -24,6 +27,7 @@ export default async function SuperAdminLicensesPage({ params }: { params: Promi
           mint: t("mint"), mintTitle: t("mintTitle"), count: t("count"), label: t("label"),
           editTitle: t("editTitle"), plan: t("plan"),
           reason: t("reason"), block: t("block"), unblock: t("unblock"),
+          neW: t("neW"), phone: t("phone"), search_label: tc("search"),
         }}
       />
     </div>

@@ -4,6 +4,9 @@ export const syncOpSchema = z.object({
   opId: z.string().min(8).max(64),
   kind: z.enum(["ticket", "order", "client", "versement", "client-return", "transfer-declare", "transfer-confirm", "stop-update", "cash-declare", "day-start", "day-finish"]),
   payload: z.record(z.string(), z.unknown()),
+  /// Real action time on the phone (epoch ms). The server stores this instead
+  /// of sync time so offline sales land on the right day.
+  occurredAt: z.number().int().optional(),
 });
 
 export const syncSchema = z.object({

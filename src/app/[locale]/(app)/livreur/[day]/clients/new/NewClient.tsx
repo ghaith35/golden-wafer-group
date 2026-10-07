@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Crosshair, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { queueOp, getVanSnapshot } from "@/lib/sync/client";
+import { queueOp, getVanSnapshot, getOutbox } from "@/lib/sync/client";
+import { checkOfflineClient } from "@/lib/sync/offline-rules";
 import { clientQrPayload, generateOfflineClientCode } from "@/lib/clients/validation";
+import { compareNatural } from "@/lib/sort";
 import QRCode from "qrcode";
 import { cn } from "@/lib/utils";
 
@@ -52,6 +54,8 @@ export function NewClient({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [queued, setQueued] = useState(false);
+  /// Synchronous double-tap guard.
+  const savingRef = useRef(false);
   /// Offline ref fallbacks (wilayas/secteurs/tiers from the last sync).
   const [snapRefs, setSnapRefs] = useState<{ wilayas: typeof wilayas; secteurs: typeof secteurs; tiers: typeof tiers } | null>(null);
   useEffect(() => {
@@ -91,7 +95,7 @@ export function NewClient({
         return;
       }
       const row = { id: data.id as string, name: data.name as string, wilayaCode: Number(data.wilayaCode) };
-      setSecteurList((ss) => [...ss, row].sort((a, b) => a.name.localeCompare(b.name)));
+      setSecteurList((ss) => [...ss, row].sort((a, b) => compareNatural(a.name, b.name, locale)));
       setSecteur(row.id);
       setSecteurName("");
       setShowSecteur(false);
@@ -125,9 +129,23 @@ export function NewClient({
   }
 
   async function save() {
-    if (!name.trim() || saving) return;
+    if (!name.trim() || saving || savingRef.current) return;
+    savingRef.current = true;
     setSaving(true);
     setError(null);
+    // Mirror the server's client validation BEFORE minting the QR, so we never
+    // hand out a code the server will reject on sync.
+    try {
+      const [s, o] = await Promise.all([getVanSnapshot(), getOutbox()]);
+      const check = checkOfflineClient(s, o, { phone });
+      if (!check.ok) {
+        setError(check.error);
+        savingRef.current = false;
+        return;
+      }
+    } catch {
+      /* no snapshot yet → let the server decide */
+    }
     // Mint the account code on the phone: unique per device (time+random),
     // honored by the server — the QR below is final, online or offline.
     const code = generateOfflineClientCode();
@@ -151,6 +169,7 @@ export function NewClient({
     } catch {
       setError("save_failed");
       setSaving(false);
+      savingRef.current = false;
       return;
     }
     try {
@@ -162,6 +181,7 @@ export function NewClient({
       if (!res.ok) {
         const d = await res.json().catch(() => null);
         setError(d?.error ?? "failed");
+        savingRef.current = false;
         return;
       }
       setCreated({ code, name: name.trim(), qr, offline: false });
@@ -174,6 +194,7 @@ export function NewClient({
         setError("save_failed");
       }
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }

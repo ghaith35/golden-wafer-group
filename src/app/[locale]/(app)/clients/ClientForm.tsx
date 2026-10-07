@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { ClientQrCard } from "./ClientQrCard";
+import { compareNatural } from "@/lib/sort";
 
 export type ClientData = {
   id?: string;
@@ -165,7 +166,7 @@ export function ClientForm({
         return;
       }
       const row = { id: data.id as string, name: data.name as string, wilayaCode: Number(data.wilayaCode) };
-      setSecteurList((ss) => [...ss, row].sort((a, b) => a.name.localeCompare(b.name)));
+      setSecteurList((ss) => [...ss, row].sort((a, b) => compareNatural(a.name, b.name, locale)));
       set("secteurId", row.id);
       setSecteurName("");
       setShowSecteur(false);

@@ -3,13 +3,14 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowDownToLine, ArrowUpFromLine, Bus, Check, ChevronRight, Package, ReceiptText } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, Bus, Check, ChevronRight, Package, ReceiptText, Warehouse } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { TransferPopup } from "../../inventory/transfers/[id]/TransferPopup";
 import { packBreakdown } from "@/components/products/UnitQty";
 import { mixedColisTotal } from "@/lib/products/colisage";
+import { compareNatural } from "@/lib/sort";
 import { dz } from "@/lib/format";
 import { VanJournal } from "./VanJournal";
 import { cn } from "@/lib/utils";
@@ -66,7 +67,7 @@ export function VanDetailClient({
   currency,
 }: {
   locale: string;
-  van: { id: string; name: string; marque: string | null; matricule: string | null; imageUrl: string | null; user: { fullName: string } | null };
+  van: { id: string; name: string; kind?: string | null; marque: string | null; matricule: string | null; imageUrl: string | null; user: { fullName: string } | null };
   levels: Level[];
   transfers: Transfer[];
   labels: Record<string, string>;
@@ -88,8 +89,8 @@ export function VanDetailClient({
     () =>
       levels
         .filter((l) => !q || (l.product?.name ?? "").includes(q))
-        .sort((a, b) => (a.product?.name ?? "").localeCompare(b.product?.name ?? "")),
-    [levels, q]
+        .sort((a, b) => compareNatural(a.product?.name ?? "", b.product?.name ?? "", locale)),
+    [levels, q, locale]
   );
 
   const totalUnits = useMemo(() => levels.reduce((s, l) => s + l.qty, 0), [levels]);
@@ -137,15 +138,24 @@ export function VanDetailClient({
           <img src={van.imageUrl} alt={van.name} className="h-14 w-20 rounded-xl object-cover" />
         ) : (
           <div className="flex h-14 w-20 items-center justify-center rounded-xl bg-(--bg-sunken) text-(--text-secondary)">
-            <Bus size={24} />
+            {van.kind === "DEPOT" ? <Warehouse size={24} /> : <Bus size={24} />}
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-xl font-bold">{van.name}</h1>
-          <div className="truncate text-xs opacity-60">
-            <span className="font-mono" dir="ltr">{van.matricule ?? ""}</span>
-            {van.user ? ` · 👨‍✈️ ${van.user.fullName}` : ""}
-          </div>
+          <h1 className="truncate text-xl font-bold">
+            {van.name}
+            {van.kind === "DEPOT" && labels.depot && (
+              <span className="ms-2 rounded-md bg-(--brand-500)/10 px-1.5 py-0.5 align-middle text-[11px] font-black text-(--brand-600)">
+                {labels.depot}
+              </span>
+            )}
+          </h1>
+          {van.kind !== "DEPOT" && (
+            <div className="truncate text-xs opacity-60">
+              <span className="font-mono" dir="ltr">{van.matricule ?? ""}</span>
+              {van.user ? ` · 👨‍✈️ ${van.user.fullName}` : ""}
+            </div>
+          )}
         </div>
         <div className="flex gap-2">
           {onLoad ? (
@@ -180,7 +190,7 @@ export function VanDetailClient({
       <div className={cn("grid gap-2", value != null ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-4")}>
         <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) px-3 py-2.5 text-center">
           <div className="text-lg font-black tabular-nums">{fmt(totalUnits)}</div>
-          <div className="text-[11px] font-bold opacity-60">{labels.onVan}</div>
+          <div className="text-[11px] font-bold opacity-60">{van.kind === "DEPOT" ? (labels.inDepot ?? labels.onVan) : labels.onVan}</div>
         </div>
         {value != null && (
           <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) px-3 py-2.5 text-center">

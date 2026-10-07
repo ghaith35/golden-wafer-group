@@ -7,9 +7,18 @@ files:
   - electron/dist/**/*
   - build-mode.json
   - package.json
+# main.ts reads build-mode.json from process.resourcesPath (OUTSIDE asar) —
+# files above land inside app.asar, so ship it as an extra resource too.
+# Without this the app falls back to local mode and dies (no server bundled).
+extraResources:
+  - from: build-mode.json
+    to: build-mode.json
 mac:
+  target: dmg
   category: public.app-category.business
   icon: build/icon.icns
+dmg:
+  artifactName: Distribuili-Server-${version}-${arch}.${ext}
 win:
   icon: build/icon.ico
   target: [nsis]
@@ -17,7 +26,9 @@ nsis:
   oneClick: false
   perMachine: false
   allowToChangeInstallationDirectory: true
+  differentialPackage: true
+  artifactName: Distribuili-Server-Setup-${version}.${ext}
 publish:
   provider: generic
-  url: https://updates.distribuili.dz/server
+  url: https://distribuili.khiatadz.com/updates/server
   channel: latest

@@ -41,8 +41,13 @@ asarUnpack:
   - "node_modules/@libsql/**"
 
 mac:
+  target: dmg
   category: public.app-category.business
   icon: build/icon.icns
+dmg:
+  # Space-free names (repaire parity): the default "Distribuili Local …" names
+  # break URLs and the generic-provider update feed.
+  artifactName: Distribuili-Local-${version}-${arch}.${ext}
 win:
   icon: build/icon.ico
   target: [nsis]
@@ -52,8 +57,14 @@ nsis:
   # so the always-on setup below can run without extra steps.
   perMachine: true
   allowToChangeInstallationDirectory: true
+  differentialPackage: true
+  artifactName: Distribuili-Local-Setup-${version}.${ext}
+  # "App already running — close it?" guard (prevents installs stalling on
+  # locked files mid-extraction).
   include: build/installer.nsh
+  # Never wipe the shop data (SQLite DB + backups in %APPDATA%) on uninstall.
+  deleteAppDataOnUninstall: false
 publish:
   provider: generic
-  url: https://updates.distribuili.dz/local
+  url: https://distribuili.khiatadz.com/updates/local
   channel: latest

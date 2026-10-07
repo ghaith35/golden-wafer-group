@@ -7,9 +7,19 @@ export default async function SuperAdminAuditPage({ params }: { params: Promise<
   const t = await getTranslations("superadmin");
   const tc = await getTranslations("common");
   return (
-    <div>
-      <h1 className="mb-3 text-xl font-black">{t("audit")}</h1>
-      <AuditClient labels={{ search: tc("search"), empty: t("empty") }} />
-    </div>
+    <AuditClient
+      labels={{
+        title: t("audit"),
+        entriesLine: t.raw("entriesLine"),
+        search: tc("search"),
+        filter: t("auditFilter"),
+        empty: t("empty"),
+        colWhen: t("colWhen"),
+        colUser: t("colUser"),
+        colAction: t("colAction"),
+        colEntity: t("colEntity"),
+        colDetails: t("colDetails"),
+      }}
+    />
   );
 }

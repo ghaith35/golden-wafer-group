@@ -2,19 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 
-/// Live camera QR scanner (native BarcodeDetector, no dependency).
+/// Live camera QR scanner.
+/// Uses the native BarcodeDetector where available (Android/desktop),
+/// and falls back to live jsQR frame decoding where it isn't (iPhone:
+/// iOS WebKit has no BarcodeDetector, but getUserMedia works over https).
 /// Calls onDetect once per distinct code while mounted.
 /// Plus: decodeQrImage() + QrGalleryButton — scan a QR from a saved image
-/// (e.g. the client QR the livreur saved as PNG). Tries BarcodeDetector
-/// first, falls back to jsQR so it works even where the camera API is
-/// missing (older WebViews / iOS).
+/// (e.g. the client QR the livreur saved as PNG).
+/// jsQR frame decoder signature (lazy-loaded only where BarcodeDetector
+/// is missing, e.g. iPhone).
+type JsQRFn = (d: Uint8ClampedArray, w: number, h: number) => { data: string } | null;
+
 export function QrScanner({
   onDetect,
   onError,
   className,
 }: {
   onDetect: (text: string) => void;
-  /// Reason the camera can't run: unsupported (no BarcodeDetector),
+  /// Reason the camera can't run: unsupported (no camera / no decoder),
   /// denied (permission), insecure (plain http:// — camera needs https).
   onError?: (reason: "unsupported" | "denied" | "insecure") => void;
   className?: string;
@@ -43,13 +48,40 @@ export function QrScanner({
       fail("insecure");
       return;
     }
-    const BD = (window as unknown as { BarcodeDetector?: new (opts: { formats: string[] }) => { detect(v: HTMLVideoElement): Promise<Array<{ rawValue: string }>> } }).BarcodeDetector;
-    if (!BD) {
-      fail("unsupported");
-      return;
-    }
-    const detector = new BD({ formats: ["qr_code"] });
     (async () => {
+      const BD = (window as unknown as { BarcodeDetector?: new (opts: { formats: string[] }) => { detect(v: HTMLVideoElement): Promise<Array<{ rawValue: string }>> } }).BarcodeDetector;
+      // No BarcodeDetector (iPhone / older WebViews): decode video frames
+      // with jsQR instead of giving up. Loaded lazily, only when needed.
+      let jsQR: JsQRFn | null = null;
+      if (!BD) {
+        try {
+          jsQR = (await import("jsqr")).default as unknown as JsQRFn;
+        } catch {
+          fail("unsupported");
+          return;
+        }
+      }
+      const detector = BD ? new BD({ formats: ["qr_code"] }) : null;
+      // Reused offscreen canvas for the jsQR frame path.
+      const frame = document.createElement("canvas");
+      const fctx = frame.getContext("2d", { willReadFrequently: true });
+      const scanFrame = (): string => {
+        const el = videoRef.current;
+        if (!el || !fctx || !jsQR) return "";
+        const vw = el.videoWidth;
+        const vh = el.videoHeight;
+        if (!vw || !vh || el.readyState < 2) return "";
+        const scale = Math.min(1, 640 / vw);
+        frame.width = Math.round(vw * scale);
+        frame.height = Math.round(vh * scale);
+        fctx.drawImage(el, 0, 0, frame.width, frame.height);
+        try {
+          const data = fctx.getImageData(0, 0, frame.width, frame.height);
+          return jsQR(data.data, data.width, data.height)?.data ?? "";
+        } catch {
+          return "";
+        }
+      };
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
       } catch {
@@ -62,13 +94,23 @@ export function QrScanner({
       }
       const video = videoRef.current;
       if (!video) return;
+      // Set imperatively: React's muted/playsInline props don't stick on
+      // iOS Safari, and without both the video never plays there.
+      video.muted = true;
+      video.setAttribute("playsinline", "true");
+      video.setAttribute("muted", "");
       video.srcObject = stream;
       await video.play().catch(() => {});
       const tick = async () => {
         if (stopped) return;
         try {
-          const codes = await detector.detect(video);
-          const v = codes.length > 0 ? codes[0].rawValue : "";
+          let v = "";
+          if (detector) {
+            const codes = await detector.detect(video);
+            v = codes.length > 0 ? codes[0].rawValue : "";
+          } else {
+            v = scanFrame();
+          }
           if (v && v !== last) {
             last = v;
             onDetectRef.current(v);

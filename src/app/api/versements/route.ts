@@ -64,6 +64,15 @@ export async function POST(req: Request) {
       });
       tourneeId = tour?.id ?? null;
     }
+    // Body-supplied location/tournee must belong to this company.
+    if (locationId) {
+      const loc = await prisma.store.findFirst({ where: { id: locationId, companyId: session.companyId }, select: { id: true } });
+      if (!loc) return NextResponse.json({ error: "bad_location" }, { status: 400 });
+    }
+    if (tourneeId) {
+      const t = await prisma.tournee.findFirst({ where: { id: tourneeId, companyId: session.companyId }, select: { id: true } });
+      if (!t) return NextResponse.json({ error: "bad_tournee" }, { status: 400 });
+    }
     const row = await prisma.$transaction(async (tx) => {
       const v = await tx.versement.create({
         data: {

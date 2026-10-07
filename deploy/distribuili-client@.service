@@ -1,0 +1,10 @@
+[Unit]
+Description=Distribuili client %i auto-redeploy (polls main, migrate, rebuild, health-check)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+# Adjust to the repo path on your server (same checkout serves all clients):
+WorkingDirectory=/home/ubuntu/distribuili
+ExecStart=/usr/bin/bash /home/ubuntu/distribuili/scripts/deploy-client.sh %i

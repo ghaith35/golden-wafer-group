@@ -14,6 +14,7 @@ export default function UpdatesSettingsPage() {
         labels={{
           title: tl("updates"), check: tl("check"), download: tl("download"), install: tl("install"),
           available: tl("available"), uptodate: tl("uptodate"), downloaded: tl("downloaded"),
+          current: tl("currentVersion"),
         }}
       />
     </SettingsPanel>

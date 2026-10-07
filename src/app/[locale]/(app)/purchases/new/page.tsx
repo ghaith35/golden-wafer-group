@@ -48,6 +48,7 @@ export default async function NewPurchasePage({ params }: { params: Promise<{ lo
         remiseEnabled={d.settings.remiseEnabled}
         expiryEnabled={d.settings.expiryEnabled}
         multiDepot={d.settings.multiDepotEnabled}
+        supplierFilter={d.settings.supplierFilterEnabled ?? true}
         categories={d.categories}
         productLabels={productLabels}
         labels={{
@@ -57,6 +58,7 @@ export default async function NewPurchasePage({ params }: { params: Promise<{ lo
           cancel: tc("cancel"), stock: tp("stock"), locations: ti("locations"),
           barcode: tp("barcode"), salePrice: tp("salePrice"),
           paid: t("paid"), remaining: t("remaining"), overpayment: t("overpayment"),
+        bulkAdd: t("bulkAdd"), selectAll: t("selectAll"), addSelected: t("addSelected"),
           currency: d.settings.currency === "DZD" ? "DA" : d.settings.currency,
           phone: ts("phone"),
         }}

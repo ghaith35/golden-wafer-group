@@ -39,6 +39,10 @@ CREATE TABLE "company_settings" (
     "transferConfirmRequired" BOOLEAN NOT NULL DEFAULT true,
     "gpsEnabled" BOOLEAN NOT NULL DEFAULT true,
     "qrStrictMode" BOOLEAN NOT NULL DEFAULT true,
+    "ticketWidth" TEXT NOT NULL DEFAULT '80',
+    "ticketLang" TEXT NOT NULL DEFAULT 'fr',
+    "supplierFilterEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "remoteDomain" TEXT,
     CONSTRAINT "company_settings_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -181,6 +185,7 @@ CREATE TABLE "transfers" (
     "date" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
+    "opId" TEXT,
     CONSTRAINT "transfers_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "transfers_fromLocationId_fkey" FOREIGN KEY ("fromLocationId") REFERENCES "stores" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "transfers_toLocationId_fkey" FOREIGN KEY ("toLocationId") REFERENCES "stores" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
@@ -272,6 +277,7 @@ CREATE TABLE "customers" (
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
+    "opId" TEXT,
     CONSTRAINT "customers_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "customers_wilayaCode_fkey" FOREIGN KEY ("wilayaCode") REFERENCES "Wilaya" ("code") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "customers_secteurId_fkey" FOREIGN KEY ("secteurId") REFERENCES "secteurs" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
@@ -392,6 +398,7 @@ CREATE TABLE "sales" (
     "date" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
+    "opId" TEXT,
     CONSTRAINT "sales_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "sales_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "customers" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "sales_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "stores" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
@@ -431,6 +438,7 @@ CREATE TABLE "client_returns" (
     "notes" TEXT,
     "date" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "opId" TEXT,
     CONSTRAINT "client_returns_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "client_returns_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "customers" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "client_returns_saleId_fkey" FOREIGN KEY ("saleId") REFERENCES "sales" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
@@ -497,6 +505,8 @@ CREATE TABLE "machines" (
     "activatedAt" DATETIME,
     "contactName" TEXT,
     "city" TEXT,
+    "workshop" TEXT,
+    "email" TEXT,
     "deviceSpecs" JSONB,
     "trialIp" TEXT,
     "lastIp" TEXT,
@@ -547,6 +557,21 @@ CREATE TABLE "trial_issues" (
 );
 
 -- CreateTable
+CREATE TABLE "tunnel_slots" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "subdomain" TEXT NOT NULL,
+    "domain" TEXT NOT NULL,
+    "label" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "tunnelId" TEXT,
+    "token" TEXT,
+    "clientMachineId" TEXT,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
 CREATE TABLE "devices" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "companyId" TEXT NOT NULL,
@@ -571,6 +596,8 @@ CREATE TABLE "sync_ops" (
     "kind" TEXT NOT NULL,
     "status" TEXT NOT NULL,
     "error" TEXT,
+    "resultId" TEXT,
+    "occurredAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "sync_ops_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "sync_ops_deviceId_fkey" FOREIGN KEY ("deviceId") REFERENCES "devices" ("id") ON DELETE SET NULL ON UPDATE CASCADE
@@ -694,6 +721,7 @@ CREATE TABLE "versements" (
     "date" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "notes" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "opId" TEXT,
     CONSTRAINT "versements_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "versements_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "customers" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "versements_supplierId_fkey" FOREIGN KEY ("supplierId") REFERENCES "suppliers" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
@@ -814,6 +842,9 @@ CREATE INDEX "transfers_companyId_status_idx" ON "transfers"("companyId", "statu
 CREATE UNIQUE INDEX "transfers_companyId_number_key" ON "transfers"("companyId", "number");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "transfers_companyId_opId_key" ON "transfers"("companyId", "opId");
+
+-- CreateIndex
 CREATE INDEX "transfer_lines_transferId_idx" ON "transfer_lines"("transferId");
 
 -- CreateIndex
@@ -842,6 +873,9 @@ CREATE UNIQUE INDEX "customers_companyId_code_key" ON "customers"("companyId", "
 
 -- CreateIndex
 CREATE UNIQUE INDEX "customers_companyId_phone_key" ON "customers"("companyId", "phone");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "customers_companyId_opId_key" ON "customers"("companyId", "opId");
 
 -- CreateIndex
 CREATE INDEX "suppliers_companyId_name_idx" ON "suppliers"("companyId", "name");
@@ -883,6 +917,9 @@ CREATE INDEX "sales_companyId_status_idx" ON "sales"("companyId", "status");
 CREATE UNIQUE INDEX "sales_companyId_kind_number_key" ON "sales"("companyId", "kind", "number");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "sales_companyId_opId_key" ON "sales"("companyId", "opId");
+
+-- CreateIndex
 CREATE INDEX "sale_lines_saleId_idx" ON "sale_lines"("saleId");
 
 -- CreateIndex
@@ -890,6 +927,9 @@ CREATE INDEX "client_returns_companyId_clientId_idx" ON "client_returns"("compan
 
 -- CreateIndex
 CREATE UNIQUE INDEX "client_returns_companyId_number_key" ON "client_returns"("companyId", "number");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "client_returns_companyId_opId_key" ON "client_returns"("companyId", "opId");
 
 -- CreateIndex
 CREATE INDEX "client_return_lines_returnId_idx" ON "client_return_lines"("returnId");
@@ -914,6 +954,9 @@ CREATE UNIQUE INDEX "machine_subscriptions_machineId_key" ON "machine_subscripti
 
 -- CreateIndex
 CREATE UNIQUE INDEX "license_keys_humanKey_key" ON "license_keys"("humanKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tunnel_slots_subdomain_key" ON "tunnel_slots"("subdomain");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "devices_tokenHash_key" ON "devices"("tokenHash");
@@ -971,6 +1014,9 @@ CREATE INDEX "versements_companyId_supplierId_idx" ON "versements"("companyId", 
 
 -- CreateIndex
 CREATE INDEX "versements_companyId_locationId_date_idx" ON "versements"("companyId", "locationId", "date");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "versements_companyId_opId_key" ON "versements"("companyId", "opId");
 
 -- CreateIndex
 CREATE INDEX "daily_closes_companyId_date_idx" ON "daily_closes"("companyId", "date");

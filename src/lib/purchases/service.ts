@@ -6,6 +6,11 @@ import { purchaseSchema, supplierReturnSchema } from "@/lib/products/validation"
 
 type PurchaseInput = z.infer<typeof purchaseSchema>;
 
+/// Name for the auto-created main depot (programmed fallback — never seed data).
+function mainDepotName(settings: { defaultLocale?: string | null }): string {
+  return settings.defaultLocale === "ar" ? "المستودع الرئيسي" : "Dépôt principal";
+}
+
 /// Direct supplier invoice entry → batches + stock + supplier debt.
 /// Costing follows Settings.costingMethod (LAST / AVERAGE / FIFO).
 export async function createPurchase(companyId: string, input: PurchaseInput) {
@@ -22,7 +27,7 @@ export async function createPurchase(companyId: string, input: PurchaseInput) {
     ? await prisma.store.findFirst({ where: { id: input.locationId, companyId } })
     : await prisma.store.findFirst({ where: { companyId, kind: "DEPOT" }, orderBy: { createdAt: "asc" } });
   if (!location && !input.locationId) {
-    location = await prisma.store.create({ data: { companyId, name: "Dépôt principal", kind: "DEPOT" } });
+    location = await prisma.store.create({ data: { companyId, name: mainDepotName(settings), kind: "DEPOT" } });
   }
   if (!location) throw Object.assign(new Error("bad_location"), { status: 400 });
 
@@ -277,7 +282,7 @@ export async function updatePurchase(companyId: string, id: string, input: Purch
     ? await prisma.store.findFirst({ where: { id: input.locationId, companyId } })
     : await prisma.store.findFirst({ where: { companyId, kind: "DEPOT" }, orderBy: { createdAt: "asc" } });
   if (!location && !input.locationId) {
-    location = await prisma.store.create({ data: { companyId, name: "Dépôt principal", kind: "DEPOT" } });
+    location = await prisma.store.create({ data: { companyId, name: mainDepotName(settings), kind: "DEPOT" } });
   }
   if (!location) throw Object.assign(new Error("bad_location"), { status: 400 });
 

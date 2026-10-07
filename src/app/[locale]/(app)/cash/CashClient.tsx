@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { Plus, ArrowDownToLine, ArrowUpFromLine, HandCoins } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -64,6 +64,8 @@ export function CashClient({
   const [queued, setQueued] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /// Synchronous double-tap guard.
+  const submittingRef = useRef(false);
 
   async function reload() {
     setRows(await fetch("/api/versements").then((r) => r.json()));
@@ -74,10 +76,12 @@ export function CashClient({
   }, []);
 
   async function submit() {
+    if (submittingRef.current) return;
     if (!amount || Number(amount) <= 0 || !party) {
       setError("missing_fields");
       return;
     }
+    submittingRef.current = true;
     setSaving(true);
     setError(null);
     try {
@@ -96,10 +100,16 @@ export function CashClient({
           body: JSON.stringify(body),
         });
       } catch {
-        // Offline van collection: queue the client payment, sync on reconnect.
-        if (kind !== "CLIENT_PAYMENT") throw new Error("offline");
+        // Offline collection: queue the payment (client OR supplier) with its
+        // real date; the server applies it with the phone's occurredAt.
         try {
-          await queueOp("versement", { clientId: party, amount: Number(amount) } as Record<string, unknown>);
+          await queueOp("versement", {
+            kind,
+            clientId: kind === "CLIENT_PAYMENT" ? party : null,
+            supplierId: kind === "SUPPLIER_PAYMENT" ? party : null,
+            amount: Number(amount),
+            date,
+          } as Record<string, unknown>);
         } catch {
           setError("failed");
           return;
@@ -121,6 +131,7 @@ export function CashClient({
     } catch {
       setError("failed");
     } finally {
+      submittingRef.current = false;
       setSaving(false);
     }
   }

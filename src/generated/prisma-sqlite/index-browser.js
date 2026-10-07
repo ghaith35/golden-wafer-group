@@ -155,7 +155,11 @@ exports.Prisma.CompanySettingsScalarFieldEnum = {
   pieceSalesEnabled: 'pieceSalesEnabled',
   transferConfirmRequired: 'transferConfirmRequired',
   gpsEnabled: 'gpsEnabled',
-  qrStrictMode: 'qrStrictMode'
+  qrStrictMode: 'qrStrictMode',
+  ticketWidth: 'ticketWidth',
+  ticketLang: 'ticketLang',
+  supplierFilterEnabled: 'supplierFilterEnabled',
+  remoteDomain: 'remoteDomain'
 };
 
 exports.Prisma.UnitScalarFieldEnum = {
@@ -227,6 +231,19 @@ exports.Prisma.SuperAdminUserScalarFieldEnum = {
   id: 'id',
   username: 'username',
   passwordHash: 'passwordHash',
+  isActive: 'isActive',
+  passwordChangedAt: 'passwordChangedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SuperAdminAuditScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  action: 'action',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  meta: 'meta',
+  ip: 'ip',
   createdAt: 'createdAt'
 };
 
@@ -263,7 +280,8 @@ exports.Prisma.TransferScalarFieldEnum = {
   confirmedById: 'confirmedById',
   date: 'date',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  opId: 'opId'
 };
 
 exports.Prisma.TransferLineScalarFieldEnum = {
@@ -335,7 +353,8 @@ exports.Prisma.CustomerScalarFieldEnum = {
   balance: 'balance',
   isActive: 'isActive',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  opId: 'opId'
 };
 
 exports.Prisma.SupplierScalarFieldEnum = {
@@ -430,7 +449,8 @@ exports.Prisma.SaleScalarFieldEnum = {
   notes: 'notes',
   date: 'date',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  opId: 'opId'
 };
 
 exports.Prisma.SaleLineScalarFieldEnum = {
@@ -458,7 +478,8 @@ exports.Prisma.ClientReturnScalarFieldEnum = {
   total: 'total',
   notes: 'notes',
   date: 'date',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  opId: 'opId'
 };
 
 exports.Prisma.ClientReturnLineScalarFieldEnum = {
@@ -500,7 +521,41 @@ exports.Prisma.MachineScalarFieldEnum = {
   label: 'label',
   phone: 'phone',
   specs: 'specs',
+  status: 'status',
+  token: 'token',
+  activationKey: 'activationKey',
+  activationType: 'activationType',
+  consumedByMachineId: 'consumedByMachineId',
+  trialStart: 'trialStart',
+  trialEnd: 'trialEnd',
+  activatedAt: 'activatedAt',
+  contactName: 'contactName',
+  city: 'city',
+  workshop: 'workshop',
+  email: 'email',
+  deviceSpecs: 'deviceSpecs',
+  trialIp: 'trialIp',
+  lastIp: 'lastIp',
   lastSeen: 'lastSeen',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.MachineSubscriptionScalarFieldEnum = {
+  id: 'id',
+  machineId: 'machineId',
+  plan: 'plan',
+  status: 'status',
+  expiresAt: 'expiresAt',
+  graceEndsAt: 'graceEndsAt',
+  activatedBy: 'activatedBy',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BlockedIpScalarFieldEnum = {
+  ip: 'ip',
+  reason: 'reason',
   createdAt: 'createdAt'
 };
 
@@ -510,6 +565,7 @@ exports.Prisma.LicenseKeyScalarFieldEnum = {
   label: 'label',
   humanKey: 'humanKey',
   revoked: 'revoked',
+  consumedByMachineId: 'consumedByMachineId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -519,6 +575,20 @@ exports.Prisma.TrialIssueScalarFieldEnum = {
   start: 'start',
   end: 'end',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.TunnelSlotScalarFieldEnum = {
+  id: 'id',
+  subdomain: 'subdomain',
+  domain: 'domain',
+  label: 'label',
+  status: 'status',
+  tunnelId: 'tunnelId',
+  token: 'token',
+  clientMachineId: 'clientMachineId',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.DeviceScalarFieldEnum = {
@@ -541,6 +611,8 @@ exports.Prisma.SyncOpScalarFieldEnum = {
   kind: 'kind',
   status: 'status',
   error: 'error',
+  resultId: 'resultId',
+  occurredAt: 'occurredAt',
   createdAt: 'createdAt'
 };
 
@@ -637,7 +709,8 @@ exports.Prisma.VersementScalarFieldEnum = {
   amount: 'amount',
   date: 'date',
   notes: 'notes',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  opId: 'opId'
 };
 
 exports.Prisma.DailyCloseScalarFieldEnum = {
@@ -734,6 +807,7 @@ exports.Prisma.ModelName = {
   User: 'User',
   RefreshToken: 'RefreshToken',
   SuperAdminUser: 'SuperAdminUser',
+  SuperAdminAudit: 'SuperAdminAudit',
   Store: 'Store',
   Transfer: 'Transfer',
   TransferLine: 'TransferLine',
@@ -755,8 +829,11 @@ exports.Prisma.ModelName = {
   Tournee: 'Tournee',
   TourneeStop: 'TourneeStop',
   Machine: 'Machine',
+  MachineSubscription: 'MachineSubscription',
+  BlockedIp: 'BlockedIp',
   LicenseKey: 'LicenseKey',
   TrialIssue: 'TrialIssue',
+  TunnelSlot: 'TunnelSlot',
   Device: 'Device',
   SyncOp: 'SyncOp',
   PurchaseInvoice: 'PurchaseInvoice',
