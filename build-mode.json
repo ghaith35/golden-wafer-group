@@ -1,4 +1,5 @@
 {
   "mode": "local",
-  "serverUrl": "https://votre-domaine.com"
+  "serverUrl": "https://votre-domaine.com",
+  "bundleUpdates": "manual"
 }

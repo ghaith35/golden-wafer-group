@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../../_data";
 import { parseDay } from "../../_days";
+import { vanDayCash } from "@/lib/cash/daily";
 import { DashClient } from "./DashClient";
 
 /// Step 3 — Dashboard hub: sale, factures, commande, commandes, stock, sync.
@@ -38,7 +39,7 @@ export default async function LivreurDashPage({
   dayStart.setHours(0, 0, 0, 0);
   const dayEnd = new Date(date);
   dayEnd.setHours(23, 59, 59, 999);
-  const [today, readyCount, tournee] = await Promise.all([
+  const [today, readyCount, tournee, till] = await Promise.all([
     prisma.sale.aggregate({
       where: {
         companyId: session.companyId,
@@ -57,6 +58,8 @@ export default async function LivreurDashPage({
       select: { id: true, status: true, startedAt: true, finishedAt: true },
       orderBy: { createdAt: "desc" },
     }),
+    // Live till math for the auto-filled declaration (from his sales).
+    vanDayCash(session.companyId, van.id, date).catch(() => null),
   ]);
 
   return (
@@ -70,6 +73,12 @@ export default async function LivreurDashPage({
       dayTotal={Number(today._sum.total ?? 0)}
       readyCount={readyCount}
       tournee={tournee ? JSON.parse(JSON.stringify(tournee)) : null}
+      dueCash={till ? till.collected + till.clientPayments - till.expenses - till.returnsCash : 0}
+      declared={(() => {
+        const d = (till?.closeRow as { declared?: unknown } | null)?.declared;
+        return d == null ? null : Number(d);
+      })()}
+      role={session.role}
       labels={{
         title: t("title"), newSale: t("newSale"), factures: t("factures"),
         clients: t("clients"), total: t("total"), stock: t("stock"),
@@ -93,12 +102,20 @@ export default async function LivreurDashPage({
         syncServerTitle: tc("serverTitle"), syncChangeServer: tc("changeServer"),
         syncServerScanHint: tc("serverScanHint"), syncServerPendingBlock: tc("serverPendingBlock"),
         syncServerQuarantined: tc("serverQuarantined"), syncServerReset: tc("serverReset"),
+        syncOfflineReady: tc("offlineReady"), syncOfflineNotReady: tc("offlineNotReady"),
         syncWebUpdateTitle: tc("webUpdateTitle"), syncWebLater: tc("webLater"), syncWebValidate: tc("webValidate"),
         syncNativeTitle: tc("nativeTitle"), syncNativeGo: tc("nativeGo"),
         newClient: t("newClient"), startDay: t("startDay"), finishDay: t("finishDay"), elapsed: t("elapsed"),
+        online: t("online"), offline: t("offline"),
         dayQueued: t("dayQueued"), noTournee: t("noTournee"),
         declare: t("declare"), declaredOk: t("declaredOk"), queuedOk: t("queuedOk"),
+        recapSales: t("recapSales"), recapDue: t("recapDue"), recapDeclared: t("recapDeclared"),
+        recapNotDeclared: t("recapNotDeclared"), recapPending: t("recapPending"),
+        expense: t("expense"), expenseLabel: t("expenseLabel"), dueHint: t("dueHint"),
         amount: tm("amount"), notes: tm("notes"), save: tm("save"), cancel: tm("cancel"),
+        transferts: t("transferts"), reject: t("reject"), errSaveFailed: t("errSaveFailed"),
+        noTransfers: t("noTransfers"), restock: t("restock"),
+        syncClockSkew: tc("clockSkew"),
       }}
     />
   );

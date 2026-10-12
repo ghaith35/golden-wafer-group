@@ -1,6 +1,6 @@
 {
   "name": "distribuili",
-  "version": "0.1.1",
+  "version": "0.1.6",
   "description": "Distribuili — wholesale distribution ERP (Algeria)",
   "author": "Distribuili",
   "private": true,
@@ -31,12 +31,17 @@
     "db:sqlite:build": "npm run db:sqlite:schema && npm run db:sqlite:generate && npm run db:sqlite:ddl",
     "electron:dist:mac": "npm run electron:dist -- --mac --publish never",
     "electron:dist:win": "npm run electron:dist -- --win --x64 --publish never",
-    "electron:dist:local:mac": "node scripts/set-mode.mjs local && npm run db:sqlite:build && npm run electron:build && npm run electron:build:seed && npm run electron:prepare && electron-builder --mac --config electron-builder.local.yml --publish never",
-    "electron:dist:local:win": "node scripts/set-mode.mjs local && npm run db:sqlite:build && npm run electron:build && npm run electron:build:seed && npm run electron:prepare && electron-builder --win --x64 --config electron-builder.local.yml --publish never",
+    "electron:dist:local:mac": "node scripts/set-mode.mjs local && npm run db:sqlite:build && npm run electron:build && npm run electron:build:seed && node scripts/electron-prepare.mjs --target=mac && electron-builder --mac --config electron-builder.local.yml --publish never",
+    "electron:dist:local:win": "node scripts/set-mode.mjs local && npm run db:sqlite:build && npm run electron:build && npm run electron:build:seed && node scripts/fix-standalone-win.mjs --target=win && node scripts/electron-prepare.mjs --target=win && electron-builder --win --x64 --config electron-builder.local.yml --publish never",
+    "dist:client:mac": "node scripts/dist-client.mjs --target=mac",
+    "dist:client:win": "node scripts/dist-client.mjs --target=win",
+    "fetch:cloudflared": "node scripts/fetch-cloudflared.mjs",
     "electron:dist:server:mac": "node scripts/set-mode.mjs server https://votre-domaine.com && npm run electron:build:main && electron-builder --mac --config electron-builder.server.yml --publish never",
     "electron:dist:server:win": "node scripts/set-mode.mjs server https://votre-domaine.com && npm run electron:build:main && electron-builder --win --x64 --config electron-builder.server.yml --publish never",
     "license:keys": "node scripts/gen-license-keys.mjs",
     "update:publish": "node scripts/upload-update.mjs",
+    "bundle:publish": "node scripts/publish-bundle.mjs",
+    "bundle:trial": "node scripts/trial-bundle.mjs",
     "deploy": "bash scripts/deploy.sh",
     "backup": "bash scripts/backup-docker.sh"
   },
@@ -83,6 +88,7 @@
     "react-hook-form": "^7.75.0",
     "react-leaflet": "^5.0.0",
     "tailwind-merge": "^3.5.0",
+    "xlsx": "^0.18.5",
     "zod": "^4.4.2"
   },
   "devDependencies": {

@@ -247,15 +247,23 @@ export function TransferForm({
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<Array<{ productId: string; unitId: string; qty: number }>>([{ productId: "", unitId: "", qty: 1 }]);
   const [avail, setAvail] = useState<Record<string, number>>({});
+  /// True when avail comes from the last sync (offline): numbers may be stale.
+  const [snapAvail, setSnapAvail] = useState(false);
   const [availLoaded, setAvailLoaded] = useState(!presetFrom);
   const [stockByLoc, setStockByLoc] = useState<Record<string, { units: number; skus: number }>>({});
   const [stockKnown, setStockKnown] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [queued, setQueued] = useState(false);
+  /// Multi-select: tick several products at once instead of adding lines
+  /// one by one (van loading). Each checked product becomes one line.
+  const [multi, setMulti] = useState(false);
+  const [checked, setChecked] = useState<string[]>([]);
+  const [mQuery, setMQuery] = useState("");
 
   // Available qty at the source location (server is authoritative).
   // Loaded on mount + whenever the source changes via pickFrom below.
+  // Offline fallback: the synced snapshot (van stock or depot stock by kind).
   useEffect(() => {
     if (!from) return;
     let cancelled = false;
@@ -268,12 +276,32 @@ export function TransferForm({
         setAvail(m);
         setAvailLoaded(true);
       })
-      .catch(() => {
-        if (!cancelled) setAvailLoaded(true);
+      .catch(async () => {
+        if (cancelled) return;
+        try {
+          const { getVanSnapshot, getVanId } = await import("@/lib/sync/client");
+          const s = await getVanSnapshot();
+          const fromKind = locations.find((l) => l.id === from)?.kind;
+          // Snapshot only covers this device's van + depot aggregate: never
+          // show another van's numbers as this source's (worse than empty).
+          if (fromKind === "VAN" && from !== getVanId()) return;
+          const rows = fromKind === "DEPOT" ? (s?.depotStock ?? []) : (s?.stock ?? []);
+          const m: Record<string, number> = {};
+          for (const r of rows) m[r.productId] = Number(r.qty ?? 0);
+          if (!cancelled && Object.keys(m).length) {
+            setAvail(m);
+            setSnapAvail(true);
+          }
+        } catch {
+          /* stay unloaded */
+        } finally {
+          if (!cancelled) setAvailLoaded(true);
+        }
       });
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [from]);
 
   // Fleet-wide totals per location (one request) so empty places can be
@@ -303,6 +331,7 @@ export function TransferForm({
   function pickFrom(id: string) {
     setFrom(id);
     setAvail({});
+    setSnapAvail(false);
     setAvailLoaded(!id);
     // Source changed → previously picked products may not exist there.
     setLines([{ productId: "", unitId: "", qty: 1 }]);
@@ -322,6 +351,20 @@ export function TransferForm({
     const p = products.find((x) => x.id === l.productId);
     return l.qty * factorOf(p, l.unitId || p?.baseUnitId || "");
   };
+  /// Stock label without the silly "1 000 قطعة (1 000 قطعة)" duplication:
+  /// products with no pack units show the base qty once, others show the
+  /// pack breakdown + the exact base total.
+  const hasPackUnits = (p: { conversions: Array<{ factor: number }> } | undefined) =>
+    !!p && p.conversions.some((c) => Number(c.factor) !== 1);
+  const stockText = (
+    p: { conversions: Array<{ unitId: string; factor: number; unit: { name: string } }>; baseUnit?: { name: string } | null } | undefined,
+    q: number
+  ) => {
+    const base = p?.baseUnit?.name ?? "";
+    if (!p || !hasPackUnits(p)) return `${q.toLocaleString(undefined, { maximumFractionDigits: 0 })}${base ? ` ${base}` : ""}`;
+    const uname = (id: string) => p.conversions.find((c) => c.unitId === id)?.unit.name ?? "";
+    return `${packBreakdown(q, p.conversions, uname, base)} (${q.toLocaleString(undefined, { maximumFractionDigits: 0 })}${base ? ` ${base}` : ""})`;
+  };
   const totalUnits = valid.reduce((s, l) => s + baseQtyOf(l), 0);
   const overLine = valid.find((l) => (avail[l.productId] ?? Infinity) < baseQtyOf(l));
 
@@ -330,8 +373,7 @@ export function TransferForm({
   /// otherwise the exact base qty (22 pieces) — never a rounded fraction
   /// that would leave dust behind. The user can then adjust quantities,
   /// units or remove lines.
-  function addAllFromSource() {
-    setError(null);
+  function addAllFromSource() {    setError(null);
     setLines(
       sourceProducts.map((p) => {
         const saleId = p.saleUnitId ?? p.baseUnitId ?? "";
@@ -341,6 +383,29 @@ export function TransferForm({
         return { productId: p.id, unitId: p.baseUnitId ?? saleId, qty: avail[p.id] ?? 0 };
       })
     );
+  }
+
+  /// Add one line (qty 1 in sale unit) per checked product, skipping
+  /// products already on the document. The user adjusts quantities after.
+  function addSelected() {
+    setError(null);
+    const have = new Set(lines.map((l) => l.productId).filter(Boolean));
+    const fresh = checked.filter((id) => id && !have.has(id));
+    if (!fresh.length) {
+      setMulti(false);
+      setChecked([]);
+      return;
+    }
+    setLines((ls) => [
+      ...ls,
+      ...fresh.map((id) => {
+        const p = products.find((x) => x.id === id);
+        const saleId = (p as { saleUnitId?: string | null } | undefined)?.saleUnitId ?? p?.baseUnitId ?? "";
+        return { productId: id, unitId: saleId, qty: 1 };
+      }),
+    ]);
+    setChecked([]);
+    setMulti(false);
   }
 
   function nextFromRoute() {
@@ -440,7 +505,7 @@ export function TransferForm({
               className={cn(
                 "flex shrink-0 items-center gap-2 rounded-2xl px-3 py-2 text-sm font-black transition-colors",
                 i === step
-                  ? "bg-gradient-brand text-white shadow-lg"
+                  ? "bg-gradient-brand text-(--brand-contrast) shadow-lg"
                   : i < step
                     ? "bg-(--brand-500)/10 text-(--brand-600)"
                     : "bg-(--bg-sunken) opacity-60"
@@ -528,6 +593,7 @@ export function TransferForm({
             <div className="flex items-center justify-between gap-2 rounded-xl bg-(--brand-500)/5 px-3 py-2 text-xs font-black">
               <span className="truncate opacity-80">
                 {labels.onlyAvailable ?? ""} · {fromLoc?.name ?? ""}
+                {snapAvail && <span className="opacity-60"> · ⏳</span>}
               </span>
               <span className="shrink-0 tabular-nums text-(--brand-600)">
                 {availLoaded ? sourceProducts.length : "…"}
@@ -538,6 +604,66 @@ export function TransferForm({
             <Button type="button" variant="secondary" onClick={addAllFromSource} className="h-12 w-full text-sm font-black">
               📦 {labels.addAll ?? "addAll"} ({sourceProducts.length})
             </Button>
+          )}
+          {from && availLoaded && sourceProducts.length > 0 && !multi && (
+            <Button type="button" variant="secondary" onClick={() => { setChecked([]); setMQuery(""); setMulti(true); }} className="h-12 w-full text-sm font-black">
+              ☑️ {labels.multiSelect ?? "multi-select"}
+            </Button>
+          )}
+          {multi && (
+            <Card>
+              <div className="relative mb-2">
+                <Search size={15} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 opacity-50" />
+                <input
+                  value={mQuery}
+                  onChange={(e) => setMQuery(e.target.value)}
+                  placeholder={labels.search ?? ""}
+                  className="h-11 w-full rounded-lg border border-(--border-default) bg-transparent py-2 pe-3 ps-9 text-sm outline-none"
+                />
+              </div>
+              <div className="max-h-72 space-y-1 overflow-y-auto">
+                {sourceProducts
+                  .filter((p) => {
+                    const nq = mQuery.trim().toLowerCase();
+                    return !nq || p.name.toLowerCase().includes(nq) || (p.barcode ?? "").toLowerCase().includes(nq);
+                  })
+                  .map((p) => {
+                    const on = checked.includes(p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setChecked((c) => (on ? c.filter((x) => x !== p.id) : [...c, p.id]))}
+                        className={cn(
+                          "flex w-full items-center gap-2.5 rounded-lg p-2 text-start transition-colors",
+                          on ? "bg-(--brand-500)/10" : "hover:bg-(--bg-sunken)"
+                        )}
+                      >
+                        <span className={cn(
+                          "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
+                          on ? "border-(--brand-500) bg-(--brand-500) text-(--brand-contrast)" : "border-(--border-default)"
+                        )}>
+                          {on && <Check size={14} strokeWidth={3} />}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[13px] font-bold">{p.name}</span>
+                          <span className="block truncate text-[11px] tabular-nums opacity-60" dir="auto">
+                            {fromLoc?.name ?? ""}: {stockText(p, avail[p.id] ?? 0)}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+              </div>
+              <div className="mt-2 flex gap-2">
+                <Button type="button" variant="secondary" onClick={() => { setMulti(false); setChecked([]); }} className="flex-1">
+                  {labels.back}
+                </Button>
+                <Button type="button" onClick={addSelected} disabled={checked.length === 0} className="flex-[2]">
+                  {labels.addSelected ?? "add"} ({checked.length})
+                </Button>
+              </div>
+            </Card>
           )}
           {from && !availLoaded ? (
             <Card>
@@ -578,15 +704,10 @@ export function TransferForm({
                       renderMeta={(x) => {
                         if (!from) return undefined;
                         const q = avail[x.id] ?? 0;
-                        const uname = (id: string) => x.conversions.find((c) => c.unitId === id)?.unit.name ?? "";
-                        const base = x.baseUnit?.name ?? "—";
                         return (
                           <span className="flex min-w-0 items-center gap-1.5 text-[11px] opacity-60">
                             <bdi className="shrink-0 font-black tabular-nums text-(--brand-600)">
-                              {fromLoc?.name ?? ""}: {packBreakdown(q, x.conversions, uname, base)}{" "}
-                              <span className="font-bold opacity-70">
-                                ({q.toLocaleString(undefined, { maximumFractionDigits: 0 })} {base})
-                              </span>
+                              {fromLoc?.name ?? ""}: {stockText(x, q)}
                             </bdi>
                           </span>
                         );
@@ -617,16 +738,7 @@ export function TransferForm({
                   <div className="mt-2">
                     <div className="flex items-center justify-between text-[11px] font-bold">
                       <span className="opacity-60">
-                        <bdi>{fromLoc?.name ?? ""}</bdi>: <bdi className="tabular-nums">{packBreakdown(
-                          av,
-                          p.conversions,
-                          (id) => p.conversions.find((c) => c.unitId === id)?.unit.name ?? "",
-                          p.baseUnit?.name ?? "—"
-                        )}{" "}
-                          <span className="opacity-70">
-                            ({av.toLocaleString(undefined, { maximumFractionDigits: 0 })} {p.baseUnit?.name ?? ""})
-                          </span>
-                        </bdi>
+                        <bdi>{fromLoc?.name ?? ""}</bdi>: <bdi className="tabular-nums">{stockText(p, av)}</bdi>
                       </span>
                       <span className={cn("tabular-nums", over ? "text-red-500" : "text-(--brand-600)")}>
                         {base.toLocaleString(undefined, { maximumFractionDigits: 2 })}
@@ -688,6 +800,8 @@ export function TransferForm({
               const uname = l.unitId === p?.baseUnitId
                 ? (p?.baseUnit?.name ?? "")
                 : (p?.conversions.find((c) => c.unitId === l.unitId)?.unit.name ?? "");
+              const baseName = p?.baseUnit?.name ?? "";
+              const sameUnit = !p || !hasPackUnits(p) || uname === baseName;
               return (
                 <div key={i} className="flex items-center gap-2 rounded-xl bg-(--bg-sunken) px-3 py-2">
                   {p?.images[0] ? (
@@ -698,10 +812,9 @@ export function TransferForm({
                   )}
                   <span className="min-w-0 flex-1 truncate text-sm font-bold">{p?.name ?? ""}</span>
                   <span className="shrink-0 text-sm font-black tabular-nums" dir="ltr">
-                    {l.qty.toLocaleString()} {uname}
-                  </span>
-                  <span className="shrink-0 text-[11px] font-bold tabular-nums opacity-60" dir="ltr">
-                    = {baseQtyOf(l).toLocaleString(undefined, { maximumFractionDigits: 0 })} {p?.baseUnit?.name ?? ""}
+                    {sameUnit
+                      ? `${l.qty.toLocaleString()}${baseName ? ` ${baseName}` : ""}`
+                      : `${l.qty.toLocaleString()} ${uname} = ${baseQtyOf(l).toLocaleString(undefined, { maximumFractionDigits: 0 })}${baseName ? ` ${baseName}` : ""}`}
                   </span>
                 </div>
               );

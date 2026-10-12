@@ -3,6 +3,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
 import { LoginForm } from "./LoginForm";
 import { LanguageSwitcher } from "@/components/layout/TopBar";
+import pkg from "../../../../../package.json";
 
 export default async function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -11,57 +12,51 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
   if ((await prisma.company.count()) === 0) redirect(`/${locale}/onboard`);
   const t = await getTranslations("app");
   return (
-    <main className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background gradient — deep lime night */}
-      <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #0d1804 0%, #243d0b 45%, #0e1c05 100%)" }} />
-
-      {/* Decorative grid pattern */}
+    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden">
+      {/* Drenched olive night — lighter core, near-black edges */}
       <div
-        className="absolute inset-0 opacity-[0.04]"
+        className="absolute inset-0"
+        style={{ background: "radial-gradient(120% 90% at 50% 18%, #36451d 0%, #232c12 48%, #11160a 100%)" }}
+      />
+
+      {/* Subtle plus-pattern texture */}
+      <div
+        className="absolute inset-0 opacity-[0.05]"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0h-2v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          backgroundSize: "60px 60px",
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0h-2v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundSize: "56px 56px",
         }}
       />
 
-      {/* Decorative glowing orbs */}
-      <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full opacity-25 blur-[120px]" style={{ background: "radial-gradient(circle, #84cc16 0%, transparent 70%)" }} />
-      <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] rounded-full opacity-20 blur-[100px]" style={{ background: "radial-gradient(circle, #65a30d 0%, transparent 70%)" }} />
-
-      <div className="relative z-10 w-full max-w-[420px] px-5 py-12">
+      <div className="relative z-10 w-full max-w-[400px] px-5 py-10 2xl:max-w-[430px]">
         {/* Brand header */}
-        <div className="mb-10 text-center">
-          {/* Logo mark — the real app icon */}
+        <div className="mb-7 text-center 2xl:mb-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/icons/logo-192.png"
             alt="Distribuili"
-            className="inline-block h-20 w-20 rounded-[22px] mb-5"
-            style={{ boxShadow: "0 0 50px -10px rgba(132,204,22,0.55)" }}
+            className="mb-5 inline-block h-16 w-16 rounded-[20px] 2xl:h-20 2xl:w-20"
+            style={{ boxShadow: "0 0 55px -8px rgba(181,220,99,0.6), 0 0 0 1px rgba(181,220,99,0.25)" }}
           />
-
-          <h1 className="text-4xl font-extrabold tracking-tight text-white" dir="ltr">
+          <h1 className="text-[2rem] font-extrabold leading-none tracking-tight text-white 2xl:text-4xl" dir="ltr">
             <span>DISTRIB</span>
-            <span
-              style={{
-                background: "linear-gradient(135deg, #d9f99d, #84cc16 50%, #65a30d)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >UILI</span>
+            <span className="text-[#b5dc63]">UILI</span>
           </h1>
-          <p className="mt-2 text-sm text-lime-100/60">
+          <p className="mt-2.5 text-sm text-white/55">
             {t("tagline")}
           </p>
         </div>
 
-        {/* Login card */}
+        {/* Language pill */}
         <div className="mb-4 flex justify-center">
-          <LanguageSwitcher />
+          <LanguageSwitcher tone="onDark" />
         </div>
-        <div className="rounded-2xl border border-white/10 p-6"
+
+        {/* Login card */}
+        <div
+          className="rounded-2xl border border-white/10 p-5 sm:p-6"
           style={{
-            background: "rgba(255,255,255,0.05)",
+            background: "rgba(255,255,255,0.045)",
             backdropFilter: "blur(24px)",
             WebkitBackdropFilter: "blur(24px)",
             boxShadow: "0 0 0 1px rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.45)",
@@ -71,8 +66,8 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
         </div>
 
         {/* Footer */}
-        <p className="mt-6 text-center text-xs text-lime-100/40" dir="ltr">
-          Distribuili · v0.1.0
+        <p className="mt-5 text-center text-xs text-white/35" dir="ltr">
+          Distribuili · v{pkg.version}
         </p>
       </div>
     </main>

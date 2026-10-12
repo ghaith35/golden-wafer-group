@@ -19,6 +19,7 @@ export function TunnelsClient({ labels }: { labels: Record<string, string> }) {
   const [rows, setRows] = useState<Slot[]>([]);
   const [cf, setCf] = useState(false);
   const [label, setLabel] = useState("");
+  const [subdomain, setSubdomain] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [shown, setShown] = useState<string | null>(null);
@@ -39,13 +40,14 @@ export function TunnelsClient({ labels }: { labels: Record<string, string> }) {
       const res = await fetch("/api/superadmin/tunnels", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ label: label.trim() || undefined }),
+        body: JSON.stringify({ label: label.trim() || undefined, subdomain: subdomain.trim().toLowerCase() || undefined }),
       });
       const d = await res.json().catch(() => null);
       if (!res.ok) {
         setError(d?.error ?? "failed");
         return;
       }
+      setSubdomain("");
       setLabel("");
       await reload();
     } finally {
@@ -67,6 +69,17 @@ export function TunnelsClient({ labels }: { labels: Record<string, string> }) {
     }
   }
 
+  async function remove(id: string) {
+    if (!window.confirm(labels.tunnelDeleteConfirm ?? "Delete this slot permanently?")) return;
+    setBusy(true);
+    try {
+      await fetch(`/api/superadmin/tunnels/${id}`, { method: "DELETE" });
+      await reload();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const pill = (s: string) =>
     s === "active" ? "bg-emerald-500/10 text-emerald-600"
     : s === "revoked" ? "bg-red-500/10 text-red-500"
@@ -81,14 +94,21 @@ export function TunnelsClient({ labels }: { labels: Record<string, string> }) {
       )}
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
       <Card>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Input value={subdomain} onChange={(e) => setSubdomain(e.target.value)} placeholder={labels.tunnelSubdomain} className="flex-1" dir="ltr" />
           <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder={labels.tunnelLabel} className="flex-1" />
           <Button onClick={() => void allocate()} disabled={busy} className="shrink-0">
             {busy ? "…" : labels.tunnelAllocate}
           </Button>
         </div>
+        <p className="mt-2 text-[11px] opacity-60">{labels.tunnelHint}</p>
       </Card>
-      {rows.length === 0 && <p className="text-sm opacity-60">{labels.tunnelEmpty}</p>}
+      {rows.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-(--border-default) p-6 text-center">
+          <p className="text-sm font-black">{labels.tunnelEmpty}</p>
+          <p className="mx-auto mt-1 max-w-md text-xs opacity-60">{labels.tunnelHint}</p>
+        </div>
+      )}
       <div className="space-y-2">
         {rows.map((r) => (
           <Card key={r.id}>
@@ -117,9 +137,29 @@ export function TunnelsClient({ labels }: { labels: Record<string, string> }) {
               </div>
             )}
             {r.status !== "revoked" && (
-              <div className="mt-2 flex justify-end">
+              <div className="mt-2 flex justify-end gap-1.5">
                 <Button variant="secondary" onClick={() => void revoke(r.id)} disabled={busy} className="h-9 px-3 text-xs">
                   {labels.tunnelRevoke}
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => void remove(r.id)}
+                  disabled={busy}
+                  className="h-9 px-3 text-xs text-red-500"
+                >
+                  {labels.delete ?? "Delete"}
+                </Button>
+              </div>
+            )}
+            {r.status === "revoked" && (
+              <div className="mt-2 flex justify-end">
+                <Button
+                  variant="secondary"
+                  onClick={() => void remove(r.id)}
+                  disabled={busy}
+                  className="h-9 px-3 text-xs text-red-500"
+                >
+                  {labels.delete ?? "Delete"}
                 </Button>
               </div>
             )}

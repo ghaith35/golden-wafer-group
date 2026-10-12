@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+/// Bundled STATICALLY (not lazy): the camera fallback and the gallery decoder
+/// must work fully offline — including on old phones without BarcodeDetector
+/// whose service-worker chunk cache never warmed (a lazy chunk is a network
+/// fetch, and offline that fetch fails exactly when the driver needs to scan).
+/// ~100KB inside the warmed journée pages; reliability over bytes on the van.
+import jsQRBundle from "jsqr";
 
 /// Live camera QR scanner.
 /// Uses the native BarcodeDetector where available (Android/desktop),
@@ -36,6 +42,12 @@ export function QrScanner({
     let stream: MediaStream | null = null;
     let timer = 0;
     let last = "";
+    let watchdog = 0;
+    // Native detect() throws on some phones (blacklisted WebViews, odd
+    // drivers) while the preview runs fine — after N consecutive errors,
+    // fall over to jsQR frames instead of spinning silently forever.
+    let nativeErrors = 0;
+    let useJsQR = false;
     const fail = (reason: "unsupported" | "denied" | "insecure") => {
       if (!stopped) {
         setError(true);
@@ -50,24 +62,25 @@ export function QrScanner({
     }
     (async () => {
       const BD = (window as unknown as { BarcodeDetector?: new (opts: { formats: string[] }) => { detect(v: HTMLVideoElement): Promise<Array<{ rawValue: string }>> } }).BarcodeDetector;
-      // No BarcodeDetector (iPhone / older WebViews): decode video frames
-      // with jsQR instead of giving up. Loaded lazily, only when needed.
-      let jsQR: JsQRFn | null = null;
-      if (!BD) {
+      // No BarcodeDetector (old WebViews): decode video frames with the
+      // statically-bundled jsQR instead of giving up — no network needed.
+      type BDType = { detect(v: HTMLVideoElement): Promise<Array<{ rawValue: string }>> };
+      const jsQR = jsQRBundle as unknown as JsQRFn;
+      let detector: BDType | null = null;
+      if (BD) {
         try {
-          jsQR = (await import("jsqr")).default as unknown as JsQRFn;
+          detector = new BD({ formats: ["qr_code"] });
         } catch {
-          fail("unsupported");
-          return;
+          detector = null; // broken constructor → jsQR path below
         }
       }
-      const detector = BD ? new BD({ formats: ["qr_code"] }) : null;
+      useJsQR = !detector;
       // Reused offscreen canvas for the jsQR frame path.
       const frame = document.createElement("canvas");
       const fctx = frame.getContext("2d", { willReadFrequently: true });
       const scanFrame = (): string => {
         const el = videoRef.current;
-        if (!el || !fctx || !jsQR) return "";
+        if (!el || !fctx) return "";
         const vw = el.videoWidth;
         const vh = el.videoHeight;
         if (!vw || !vh || el.readyState < 2) return "";
@@ -82,11 +95,17 @@ export function QrScanner({
           return "";
         }
       };
+      // Some phones reject the environment constraint outright — fall back
+      // to any camera rather than reporting "denied".
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } } });
       } catch {
-        fail("denied");
-        return;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        } catch {
+          fail("denied");
+          return;
+        }
       }
       if (stopped) {
         stream.getTracks().forEach((tr) => tr.stop());
@@ -101,13 +120,40 @@ export function QrScanner({
       video.setAttribute("muted", "");
       video.srcObject = stream;
       await video.play().catch(() => {});
+      // Black/frozen-preview watchdog: a stream that never renders (stuck
+      // permission, backgrounded WebView, zombie track, refused play())
+      // must surface the retry UI instead of sitting black forever.
+      window.clearTimeout(watchdog);
+      watchdog = window.setTimeout(() => {
+        const el = videoRef.current;
+        if (!stopped && el && (el.readyState < 2 || el.videoWidth === 0 || el.paused)) {
+          stream?.getTracks().forEach((tr) => tr.stop());
+          fail("unsupported");
+        }
+      }, 4000);
       const tick = async () => {
         if (stopped) return;
+        // Frozen frame (autoplay refused after the watchdog window):
+        // nudge playback instead of decoding the same pixels forever.
+        if (video.paused) {
+          await video.play().catch(() => {});
+        }
         try {
           let v = "";
-          if (detector) {
-            const codes = await detector.detect(video);
-            v = codes.length > 0 ? codes[0].rawValue : "";
+          if (!useJsQR && detector) {
+            try {
+              const codes = await detector.detect(video);
+              v = codes.length > 0 ? codes[0].rawValue : "";
+              nativeErrors = 0;
+            } catch {
+              nativeErrors += 1;
+              if (nativeErrors >= 10) {
+                // Native path broken on this phone — switch to jsQR frames
+                // (statically bundled, always available).
+                useJsQR = true;
+                detector = null;
+              }
+            }
           } else {
             v = scanFrame();
           }
@@ -123,13 +169,23 @@ export function QrScanner({
     return () => {
       stopped = true;
       window.clearTimeout(timer);
+      window.clearTimeout(watchdog);
       stream?.getTracks().forEach((tr) => tr.stop());
       if (videoRef.current) videoRef.current.srcObject = null;
     };
   }, []);
 
   if (error) return null;
-  return <video ref={videoRef} className={className ?? "h-56 w-full rounded-xl bg-black object-cover"} muted playsInline />;
+  return (
+    <video
+      ref={videoRef}
+      className={className ?? "h-56 w-full rounded-xl bg-black object-cover"}
+      muted
+      playsInline
+      autoPlay
+      disablePictureInPicture
+    />
+  );
 }
 
 /// Decode a QR code from an image file (gallery pick / saved client QR).
@@ -148,7 +204,8 @@ export async function decodeQrImage(file: File): Promise<string | null> {
       }
     }
   } catch { /* fall through to jsQR */ }
-  // 2. jsQR fallback: full pixel scan, no camera API needed.
+  // 2. jsQR fallback: full pixel scan, no camera API needed (statically
+  // bundled — works offline on every phone).
   try {
     const bmp = await loadBitmap(file, 1280);
     if (!bmp) return null;
@@ -160,8 +217,7 @@ export async function decodeQrImage(file: File): Promise<string | null> {
     ctx.drawImage(bmp, 0, 0);
     bmp.close?.();
     const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const { default: jsQR } = await import("jsqr");
-    const hit = (jsQR as (d: Uint8ClampedArray, w: number, h: number) => { data: string } | null)(
+    const hit = (jsQRBundle as unknown as (d: Uint8ClampedArray, w: number, h: number) => { data: string } | null)(
       data.data, data.width, data.height
     );
     return hit?.data ?? null;

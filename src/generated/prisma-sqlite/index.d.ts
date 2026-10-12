@@ -211,6 +211,20 @@ export type TrialIssue = $Result.DefaultSelection<Prisma.$TrialIssuePayload>
  */
 export type TunnelSlot = $Result.DefaultSelection<Prisma.$TunnelSlotPayload>
 /**
+ * Model ClientDeployment
+ * Vendor-side client deployments: one row per sold client version. The
+ * worker (scripts/provision-worker) picks up `pending` rows and builds the
+ * server side automatically: subdomain + port + database + nginx vhost +
+ * tunnel pairing, then flips the row to `active` (or `failed`).
+ * Domain rules (owner decisions, enforced below + in the API):
+ * - `domain` (the FIRST/baked domain) is vendor-only: never returned to the
+ * client, never editable, never deletable — the row itself has no DELETE
+ * endpoint, only activate/deactivate.
+ * - The client may set ONE override domain with their activation code only
+ * (`domainOverride`); flipping `overrideActive` chooses which one serves.
+ */
+export type ClientDeployment = $Result.DefaultSelection<Prisma.$ClientDeploymentPayload>
+/**
  * Model Device
  * One APK device, optionally locked to a van (vanBindingMode = LOCKED).
  */
@@ -769,6 +783,16 @@ export class PrismaClient<
     * ```
     */
   get tunnelSlot(): Prisma.TunnelSlotDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.clientDeployment`: Exposes CRUD operations for the **ClientDeployment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ClientDeployments
+    * const clientDeployments = await prisma.clientDeployment.findMany()
+    * ```
+    */
+  get clientDeployment(): Prisma.ClientDeploymentDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.device`: Exposes CRUD operations for the **Device** model.
@@ -1383,6 +1407,7 @@ export namespace Prisma {
     LicenseKey: 'LicenseKey',
     TrialIssue: 'TrialIssue',
     TunnelSlot: 'TunnelSlot',
+    ClientDeployment: 'ClientDeployment',
     Device: 'Device',
     SyncOp: 'SyncOp',
     PurchaseInvoice: 'PurchaseInvoice',
@@ -1411,7 +1436,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance"
+      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4153,6 +4178,80 @@ export namespace Prisma {
           }
         }
       }
+      ClientDeployment: {
+        payload: Prisma.$ClientDeploymentPayload<ExtArgs>
+        fields: Prisma.ClientDeploymentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ClientDeploymentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClientDeploymentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ClientDeploymentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClientDeploymentPayload>
+          }
+          findFirst: {
+            args: Prisma.ClientDeploymentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClientDeploymentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ClientDeploymentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClientDeploymentPayload>
+          }
+          findMany: {
+            args: Prisma.ClientDeploymentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClientDeploymentPayload>[]
+          }
+          create: {
+            args: Prisma.ClientDeploymentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClientDeploymentPayload>
+          }
+          createMany: {
+            args: Prisma.ClientDeploymentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ClientDeploymentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClientDeploymentPayload>[]
+          }
+          delete: {
+            args: Prisma.ClientDeploymentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClientDeploymentPayload>
+          }
+          update: {
+            args: Prisma.ClientDeploymentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClientDeploymentPayload>
+          }
+          deleteMany: {
+            args: Prisma.ClientDeploymentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ClientDeploymentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ClientDeploymentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClientDeploymentPayload>[]
+          }
+          upsert: {
+            args: Prisma.ClientDeploymentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClientDeploymentPayload>
+          }
+          aggregate: {
+            args: Prisma.ClientDeploymentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateClientDeployment>
+          }
+          groupBy: {
+            args: Prisma.ClientDeploymentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ClientDeploymentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ClientDeploymentCountArgs<ExtArgs>
+            result: $Utils.Optional<ClientDeploymentCountAggregateOutputType> | number
+          }
+        }
+      }
       Device: {
         payload: Prisma.$DevicePayload<ExtArgs>
         fields: Prisma.DeviceFieldRefs
@@ -5275,6 +5374,7 @@ export namespace Prisma {
     licenseKey?: LicenseKeyOmit
     trialIssue?: TrialIssueOmit
     tunnelSlot?: TunnelSlotOmit
+    clientDeployment?: ClientDeploymentOmit
     device?: DeviceOmit
     syncOp?: SyncOpOmit
     purchaseInvoice?: PurchaseInvoiceOmit
@@ -6548,6 +6648,37 @@ export namespace Prisma {
    */
   export type TourneeCountOutputTypeCountSalesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SaleWhereInput
+  }
+
+
+  /**
+   * Count Type TunnelSlotCountOutputType
+   */
+
+  export type TunnelSlotCountOutputType = {
+    deployments: number
+  }
+
+  export type TunnelSlotCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    deployments?: boolean | TunnelSlotCountOutputTypeCountDeploymentsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TunnelSlotCountOutputType without action
+   */
+  export type TunnelSlotCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TunnelSlotCountOutputType
+     */
+    select?: TunnelSlotCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TunnelSlotCountOutputType without action
+   */
+  export type TunnelSlotCountOutputTypeCountDeploymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClientDeploymentWhereInput
   }
 
 
@@ -8617,8 +8748,18 @@ export namespace Prisma {
 
   export type AggregateCompanySettings = {
     _count: CompanySettingsCountAggregateOutputType | null
+    _avg: CompanySettingsAvgAggregateOutputType | null
+    _sum: CompanySettingsSumAggregateOutputType | null
     _min: CompanySettingsMinAggregateOutputType | null
     _max: CompanySettingsMaxAggregateOutputType | null
+  }
+
+  export type CompanySettingsAvgAggregateOutputType = {
+    maxDayHours: number | null
+  }
+
+  export type CompanySettingsSumAggregateOutputType = {
+    maxDayHours: number | null
   }
 
   export type CompanySettingsMinAggregateOutputType = {
@@ -8644,6 +8785,8 @@ export namespace Prisma {
     ticketWidth: string | null
     ticketLang: string | null
     supplierFilterEnabled: boolean | null
+    workStartAt: string | null
+    maxDayHours: number | null
     remoteDomain: string | null
   }
 
@@ -8670,6 +8813,8 @@ export namespace Prisma {
     ticketWidth: string | null
     ticketLang: string | null
     supplierFilterEnabled: boolean | null
+    workStartAt: string | null
+    maxDayHours: number | null
     remoteDomain: string | null
   }
 
@@ -8696,10 +8841,20 @@ export namespace Prisma {
     ticketWidth: number
     ticketLang: number
     supplierFilterEnabled: number
+    workStartAt: number
+    maxDayHours: number
     remoteDomain: number
     _all: number
   }
 
+
+  export type CompanySettingsAvgAggregateInputType = {
+    maxDayHours?: true
+  }
+
+  export type CompanySettingsSumAggregateInputType = {
+    maxDayHours?: true
+  }
 
   export type CompanySettingsMinAggregateInputType = {
     id?: true
@@ -8724,6 +8879,8 @@ export namespace Prisma {
     ticketWidth?: true
     ticketLang?: true
     supplierFilterEnabled?: true
+    workStartAt?: true
+    maxDayHours?: true
     remoteDomain?: true
   }
 
@@ -8750,6 +8907,8 @@ export namespace Prisma {
     ticketWidth?: true
     ticketLang?: true
     supplierFilterEnabled?: true
+    workStartAt?: true
+    maxDayHours?: true
     remoteDomain?: true
   }
 
@@ -8776,6 +8935,8 @@ export namespace Prisma {
     ticketWidth?: true
     ticketLang?: true
     supplierFilterEnabled?: true
+    workStartAt?: true
+    maxDayHours?: true
     remoteDomain?: true
     _all?: true
   }
@@ -8818,6 +8979,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: CompanySettingsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CompanySettingsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: CompanySettingsMinAggregateInputType
@@ -8848,6 +9021,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: CompanySettingsCountAggregateInputType | true
+    _avg?: CompanySettingsAvgAggregateInputType
+    _sum?: CompanySettingsSumAggregateInputType
     _min?: CompanySettingsMinAggregateInputType
     _max?: CompanySettingsMaxAggregateInputType
   }
@@ -8875,8 +9050,12 @@ export namespace Prisma {
     ticketWidth: string
     ticketLang: string
     supplierFilterEnabled: boolean
+    workStartAt: string | null
+    maxDayHours: number | null
     remoteDomain: string | null
     _count: CompanySettingsCountAggregateOutputType | null
+    _avg: CompanySettingsAvgAggregateOutputType | null
+    _sum: CompanySettingsSumAggregateOutputType | null
     _min: CompanySettingsMinAggregateOutputType | null
     _max: CompanySettingsMaxAggregateOutputType | null
   }
@@ -8918,6 +9097,8 @@ export namespace Prisma {
     ticketWidth?: boolean
     ticketLang?: boolean
     supplierFilterEnabled?: boolean
+    workStartAt?: boolean
+    maxDayHours?: boolean
     remoteDomain?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["companySettings"]>
@@ -8945,6 +9126,8 @@ export namespace Prisma {
     ticketWidth?: boolean
     ticketLang?: boolean
     supplierFilterEnabled?: boolean
+    workStartAt?: boolean
+    maxDayHours?: boolean
     remoteDomain?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["companySettings"]>
@@ -8972,6 +9155,8 @@ export namespace Prisma {
     ticketWidth?: boolean
     ticketLang?: boolean
     supplierFilterEnabled?: boolean
+    workStartAt?: boolean
+    maxDayHours?: boolean
     remoteDomain?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["companySettings"]>
@@ -8999,10 +9184,12 @@ export namespace Prisma {
     ticketWidth?: boolean
     ticketLang?: boolean
     supplierFilterEnabled?: boolean
+    workStartAt?: boolean
+    maxDayHours?: boolean
     remoteDomain?: boolean
   }
 
-  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultLocale" | "currency" | "expiryEnabled" | "creditSalesEnabled" | "debtTrackingEnabled" | "remiseEnabled" | "depositsEnabled" | "multiDepotEnabled" | "costingMethod" | "facturePro" | "posEnabled" | "vanBindingMode" | "oversellAllowed" | "pieceSalesEnabled" | "transferConfirmRequired" | "gpsEnabled" | "qrStrictMode" | "ticketWidth" | "ticketLang" | "supplierFilterEnabled" | "remoteDomain", ExtArgs["result"]["companySettings"]>
+  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultLocale" | "currency" | "expiryEnabled" | "creditSalesEnabled" | "debtTrackingEnabled" | "remiseEnabled" | "depositsEnabled" | "multiDepotEnabled" | "costingMethod" | "facturePro" | "posEnabled" | "vanBindingMode" | "oversellAllowed" | "pieceSalesEnabled" | "transferConfirmRequired" | "gpsEnabled" | "qrStrictMode" | "ticketWidth" | "ticketLang" | "supplierFilterEnabled" | "workStartAt" | "maxDayHours" | "remoteDomain", ExtArgs["result"]["companySettings"]>
   export type CompanySettingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }
@@ -9054,6 +9241,14 @@ export namespace Prisma {
        * Purchase picker: only the chosen supplier's products (default ON).
        */
       supplierFilterEnabled: boolean
+      /**
+       * Expected départ time for vans ("HH:MM", null = no late flag).
+       */
+      workStartAt: string | null
+      /**
+       * A journée longer than this (hours) flags overtime on presence.
+       */
+      maxDayHours: number | null
       /**
        * Public internet domain for this install's phones
        * (e.g. client1.distribuili.khiatadz.com, no scheme). The Devices setup QR
@@ -9506,6 +9701,8 @@ export namespace Prisma {
     readonly ticketWidth: FieldRef<"CompanySettings", 'String'>
     readonly ticketLang: FieldRef<"CompanySettings", 'String'>
     readonly supplierFilterEnabled: FieldRef<"CompanySettings", 'Boolean'>
+    readonly workStartAt: FieldRef<"CompanySettings", 'String'>
+    readonly maxDayHours: FieldRef<"CompanySettings", 'Float'>
     readonly remoteDomain: FieldRef<"CompanySettings", 'String'>
   }
     
@@ -43084,8 +43281,24 @@ export namespace Prisma {
 
   export type AggregateTournee = {
     _count: TourneeCountAggregateOutputType | null
+    _avg: TourneeAvgAggregateOutputType | null
+    _sum: TourneeSumAggregateOutputType | null
     _min: TourneeMinAggregateOutputType | null
     _max: TourneeMaxAggregateOutputType | null
+  }
+
+  export type TourneeAvgAggregateOutputType = {
+    startedLat: number | null
+    startedLng: number | null
+    finishedLat: number | null
+    finishedLng: number | null
+  }
+
+  export type TourneeSumAggregateOutputType = {
+    startedLat: number | null
+    startedLng: number | null
+    finishedLat: number | null
+    finishedLng: number | null
   }
 
   export type TourneeMinAggregateOutputType = {
@@ -43098,6 +43311,10 @@ export namespace Prisma {
     notes: string | null
     startedAt: Date | null
     finishedAt: Date | null
+    startedLat: number | null
+    startedLng: number | null
+    finishedLat: number | null
+    finishedLng: number | null
     createdAt: Date | null
   }
 
@@ -43111,6 +43328,10 @@ export namespace Prisma {
     notes: string | null
     startedAt: Date | null
     finishedAt: Date | null
+    startedLat: number | null
+    startedLng: number | null
+    finishedLat: number | null
+    finishedLng: number | null
     createdAt: Date | null
   }
 
@@ -43124,10 +43345,28 @@ export namespace Prisma {
     notes: number
     startedAt: number
     finishedAt: number
+    startedLat: number
+    startedLng: number
+    finishedLat: number
+    finishedLng: number
     createdAt: number
     _all: number
   }
 
+
+  export type TourneeAvgAggregateInputType = {
+    startedLat?: true
+    startedLng?: true
+    finishedLat?: true
+    finishedLng?: true
+  }
+
+  export type TourneeSumAggregateInputType = {
+    startedLat?: true
+    startedLng?: true
+    finishedLat?: true
+    finishedLng?: true
+  }
 
   export type TourneeMinAggregateInputType = {
     id?: true
@@ -43139,6 +43378,10 @@ export namespace Prisma {
     notes?: true
     startedAt?: true
     finishedAt?: true
+    startedLat?: true
+    startedLng?: true
+    finishedLat?: true
+    finishedLng?: true
     createdAt?: true
   }
 
@@ -43152,6 +43395,10 @@ export namespace Prisma {
     notes?: true
     startedAt?: true
     finishedAt?: true
+    startedLat?: true
+    startedLng?: true
+    finishedLat?: true
+    finishedLng?: true
     createdAt?: true
   }
 
@@ -43165,6 +43412,10 @@ export namespace Prisma {
     notes?: true
     startedAt?: true
     finishedAt?: true
+    startedLat?: true
+    startedLng?: true
+    finishedLat?: true
+    finishedLng?: true
     createdAt?: true
     _all?: true
   }
@@ -43207,6 +43458,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: TourneeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TourneeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: TourneeMinAggregateInputType
@@ -43237,6 +43500,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: TourneeCountAggregateInputType | true
+    _avg?: TourneeAvgAggregateInputType
+    _sum?: TourneeSumAggregateInputType
     _min?: TourneeMinAggregateInputType
     _max?: TourneeMaxAggregateInputType
   }
@@ -43251,8 +43516,14 @@ export namespace Prisma {
     notes: string | null
     startedAt: Date | null
     finishedAt: Date | null
+    startedLat: number | null
+    startedLng: number | null
+    finishedLat: number | null
+    finishedLng: number | null
     createdAt: Date
     _count: TourneeCountAggregateOutputType | null
+    _avg: TourneeAvgAggregateOutputType | null
+    _sum: TourneeSumAggregateOutputType | null
     _min: TourneeMinAggregateOutputType | null
     _max: TourneeMaxAggregateOutputType | null
   }
@@ -43281,6 +43552,10 @@ export namespace Prisma {
     notes?: boolean
     startedAt?: boolean
     finishedAt?: boolean
+    startedLat?: boolean
+    startedLng?: boolean
+    finishedLat?: boolean
+    finishedLng?: boolean
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
@@ -43300,6 +43575,10 @@ export namespace Prisma {
     notes?: boolean
     startedAt?: boolean
     finishedAt?: boolean
+    startedLat?: boolean
+    startedLng?: boolean
+    finishedLat?: boolean
+    finishedLng?: boolean
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
@@ -43316,6 +43595,10 @@ export namespace Prisma {
     notes?: boolean
     startedAt?: boolean
     finishedAt?: boolean
+    startedLat?: boolean
+    startedLng?: boolean
+    finishedLat?: boolean
+    finishedLng?: boolean
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
@@ -43332,10 +43615,14 @@ export namespace Prisma {
     notes?: boolean
     startedAt?: boolean
     finishedAt?: boolean
+    startedLat?: boolean
+    startedLng?: boolean
+    finishedLat?: boolean
+    finishedLng?: boolean
     createdAt?: boolean
   }
 
-  export type TourneeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "date" | "locationId" | "secteurId" | "status" | "notes" | "startedAt" | "finishedAt" | "createdAt", ExtArgs["result"]["tournee"]>
+  export type TourneeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "date" | "locationId" | "secteurId" | "status" | "notes" | "startedAt" | "finishedAt" | "startedLat" | "startedLng" | "finishedLat" | "finishedLng" | "createdAt", ExtArgs["result"]["tournee"]>
   export type TourneeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
@@ -43377,6 +43664,13 @@ export namespace Prisma {
        */
       startedAt: Date | null
       finishedAt: Date | null
+      /**
+       * GPS position captured at each stamp (best-effort, null when denied).
+       */
+      startedLat: number | null
+      startedLng: number | null
+      finishedLat: number | null
+      finishedLng: number | null
       createdAt: Date
     }, ExtArgs["result"]["tournee"]>
     composites: {}
@@ -43815,6 +44109,10 @@ export namespace Prisma {
     readonly notes: FieldRef<"Tournee", 'String'>
     readonly startedAt: FieldRef<"Tournee", 'DateTime'>
     readonly finishedAt: FieldRef<"Tournee", 'DateTime'>
+    readonly startedLat: FieldRef<"Tournee", 'Float'>
+    readonly startedLng: FieldRef<"Tournee", 'Float'>
+    readonly finishedLat: FieldRef<"Tournee", 'Float'>
+    readonly finishedLng: FieldRef<"Tournee", 'Float'>
     readonly createdAt: FieldRef<"Tournee", 'DateTime'>
   }
     
@@ -51060,6 +51358,8 @@ export namespace Prisma {
     notes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    deployments?: boolean | TunnelSlot$deploymentsArgs<ExtArgs>
+    _count?: boolean | TunnelSlotCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tunnelSlot"]>
 
   export type TunnelSlotSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -51105,10 +51405,18 @@ export namespace Prisma {
   }
 
   export type TunnelSlotOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "subdomain" | "domain" | "label" | "status" | "tunnelId" | "token" | "clientMachineId" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["tunnelSlot"]>
+  export type TunnelSlotInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    deployments?: boolean | TunnelSlot$deploymentsArgs<ExtArgs>
+    _count?: boolean | TunnelSlotCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type TunnelSlotIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type TunnelSlotIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $TunnelSlotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "TunnelSlot"
-    objects: {}
+    objects: {
+      deployments: Prisma.$ClientDeploymentPayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       subdomain: string
@@ -51518,6 +51826,7 @@ export namespace Prisma {
    */
   export interface Prisma__TunnelSlotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    deployments<T extends TunnelSlot$deploymentsArgs<ExtArgs> = {}>(args?: Subset<T, TunnelSlot$deploymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientDeploymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -51575,6 +51884,10 @@ export namespace Prisma {
      */
     omit?: TunnelSlotOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TunnelSlotInclude<ExtArgs> | null
+    /**
      * Filter, which TunnelSlot to fetch.
      */
     where: TunnelSlotWhereUniqueInput
@@ -51593,6 +51906,10 @@ export namespace Prisma {
      */
     omit?: TunnelSlotOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TunnelSlotInclude<ExtArgs> | null
+    /**
      * Filter, which TunnelSlot to fetch.
      */
     where: TunnelSlotWhereUniqueInput
@@ -51610,6 +51927,10 @@ export namespace Prisma {
      * Omit specific fields from the TunnelSlot
      */
     omit?: TunnelSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TunnelSlotInclude<ExtArgs> | null
     /**
      * Filter, which TunnelSlot to fetch.
      */
@@ -51659,6 +51980,10 @@ export namespace Prisma {
      */
     omit?: TunnelSlotOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TunnelSlotInclude<ExtArgs> | null
+    /**
      * Filter, which TunnelSlot to fetch.
      */
     where?: TunnelSlotWhereInput
@@ -51706,6 +52031,10 @@ export namespace Prisma {
      * Omit specific fields from the TunnelSlot
      */
     omit?: TunnelSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TunnelSlotInclude<ExtArgs> | null
     /**
      * Filter, which TunnelSlots to fetch.
      */
@@ -51755,6 +52084,10 @@ export namespace Prisma {
      */
     omit?: TunnelSlotOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TunnelSlotInclude<ExtArgs> | null
+    /**
      * The data needed to create a TunnelSlot.
      */
     data: XOR<TunnelSlotCreateInput, TunnelSlotUncheckedCreateInput>
@@ -51800,6 +52133,10 @@ export namespace Prisma {
      * Omit specific fields from the TunnelSlot
      */
     omit?: TunnelSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TunnelSlotInclude<ExtArgs> | null
     /**
      * The data needed to update a TunnelSlot.
      */
@@ -51867,6 +52204,10 @@ export namespace Prisma {
      */
     omit?: TunnelSlotOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TunnelSlotInclude<ExtArgs> | null
+    /**
      * The filter to search for the TunnelSlot to update in case it exists.
      */
     where: TunnelSlotWhereUniqueInput
@@ -51893,6 +52234,10 @@ export namespace Prisma {
      */
     omit?: TunnelSlotOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TunnelSlotInclude<ExtArgs> | null
+    /**
      * Filter which TunnelSlot to delete.
      */
     where: TunnelSlotWhereUniqueInput
@@ -51913,6 +52258,30 @@ export namespace Prisma {
   }
 
   /**
+   * TunnelSlot.deployments
+   */
+  export type TunnelSlot$deploymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentInclude<ExtArgs> | null
+    where?: ClientDeploymentWhereInput
+    orderBy?: ClientDeploymentOrderByWithRelationInput | ClientDeploymentOrderByWithRelationInput[]
+    cursor?: ClientDeploymentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ClientDeploymentScalarFieldEnum | ClientDeploymentScalarFieldEnum[]
+  }
+
+  /**
    * TunnelSlot without action
    */
   export type TunnelSlotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -51924,6 +52293,1200 @@ export namespace Prisma {
      * Omit specific fields from the TunnelSlot
      */
     omit?: TunnelSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TunnelSlotInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ClientDeployment
+   */
+
+  export type AggregateClientDeployment = {
+    _count: ClientDeploymentCountAggregateOutputType | null
+    _min: ClientDeploymentMinAggregateOutputType | null
+    _max: ClientDeploymentMaxAggregateOutputType | null
+  }
+
+  export type ClientDeploymentMinAggregateOutputType = {
+    id: string | null
+    client: string | null
+    version: string | null
+    domain: string | null
+    domainOverride: string | null
+    overrideActive: boolean | null
+    machineId: string | null
+    tunnelSlotId: string | null
+    status: string | null
+    lastError: string | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ClientDeploymentMaxAggregateOutputType = {
+    id: string | null
+    client: string | null
+    version: string | null
+    domain: string | null
+    domainOverride: string | null
+    overrideActive: boolean | null
+    machineId: string | null
+    tunnelSlotId: string | null
+    status: string | null
+    lastError: string | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ClientDeploymentCountAggregateOutputType = {
+    id: number
+    client: number
+    version: number
+    domain: number
+    domainOverride: number
+    overrideActive: number
+    machineId: number
+    tunnelSlotId: number
+    status: number
+    lastError: number
+    notes: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ClientDeploymentMinAggregateInputType = {
+    id?: true
+    client?: true
+    version?: true
+    domain?: true
+    domainOverride?: true
+    overrideActive?: true
+    machineId?: true
+    tunnelSlotId?: true
+    status?: true
+    lastError?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ClientDeploymentMaxAggregateInputType = {
+    id?: true
+    client?: true
+    version?: true
+    domain?: true
+    domainOverride?: true
+    overrideActive?: true
+    machineId?: true
+    tunnelSlotId?: true
+    status?: true
+    lastError?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ClientDeploymentCountAggregateInputType = {
+    id?: true
+    client?: true
+    version?: true
+    domain?: true
+    domainOverride?: true
+    overrideActive?: true
+    machineId?: true
+    tunnelSlotId?: true
+    status?: true
+    lastError?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ClientDeploymentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClientDeployment to aggregate.
+     */
+    where?: ClientDeploymentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClientDeployments to fetch.
+     */
+    orderBy?: ClientDeploymentOrderByWithRelationInput | ClientDeploymentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ClientDeploymentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClientDeployments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClientDeployments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ClientDeployments
+    **/
+    _count?: true | ClientDeploymentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ClientDeploymentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ClientDeploymentMaxAggregateInputType
+  }
+
+  export type GetClientDeploymentAggregateType<T extends ClientDeploymentAggregateArgs> = {
+        [P in keyof T & keyof AggregateClientDeployment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateClientDeployment[P]>
+      : GetScalarType<T[P], AggregateClientDeployment[P]>
+  }
+
+
+
+
+  export type ClientDeploymentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClientDeploymentWhereInput
+    orderBy?: ClientDeploymentOrderByWithAggregationInput | ClientDeploymentOrderByWithAggregationInput[]
+    by: ClientDeploymentScalarFieldEnum[] | ClientDeploymentScalarFieldEnum
+    having?: ClientDeploymentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ClientDeploymentCountAggregateInputType | true
+    _min?: ClientDeploymentMinAggregateInputType
+    _max?: ClientDeploymentMaxAggregateInputType
+  }
+
+  export type ClientDeploymentGroupByOutputType = {
+    id: string
+    client: string
+    version: string
+    domain: string
+    domainOverride: string | null
+    overrideActive: boolean
+    machineId: string | null
+    tunnelSlotId: string | null
+    status: string
+    lastError: string | null
+    notes: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ClientDeploymentCountAggregateOutputType | null
+    _min: ClientDeploymentMinAggregateOutputType | null
+    _max: ClientDeploymentMaxAggregateOutputType | null
+  }
+
+  type GetClientDeploymentGroupByPayload<T extends ClientDeploymentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ClientDeploymentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ClientDeploymentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ClientDeploymentGroupByOutputType[P]>
+            : GetScalarType<T[P], ClientDeploymentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ClientDeploymentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    client?: boolean
+    version?: boolean
+    domain?: boolean
+    domainOverride?: boolean
+    overrideActive?: boolean
+    machineId?: boolean
+    tunnelSlotId?: boolean
+    status?: boolean
+    lastError?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tunnelSlot?: boolean | ClientDeployment$tunnelSlotArgs<ExtArgs>
+  }, ExtArgs["result"]["clientDeployment"]>
+
+  export type ClientDeploymentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    client?: boolean
+    version?: boolean
+    domain?: boolean
+    domainOverride?: boolean
+    overrideActive?: boolean
+    machineId?: boolean
+    tunnelSlotId?: boolean
+    status?: boolean
+    lastError?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tunnelSlot?: boolean | ClientDeployment$tunnelSlotArgs<ExtArgs>
+  }, ExtArgs["result"]["clientDeployment"]>
+
+  export type ClientDeploymentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    client?: boolean
+    version?: boolean
+    domain?: boolean
+    domainOverride?: boolean
+    overrideActive?: boolean
+    machineId?: boolean
+    tunnelSlotId?: boolean
+    status?: boolean
+    lastError?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tunnelSlot?: boolean | ClientDeployment$tunnelSlotArgs<ExtArgs>
+  }, ExtArgs["result"]["clientDeployment"]>
+
+  export type ClientDeploymentSelectScalar = {
+    id?: boolean
+    client?: boolean
+    version?: boolean
+    domain?: boolean
+    domainOverride?: boolean
+    overrideActive?: boolean
+    machineId?: boolean
+    tunnelSlotId?: boolean
+    status?: boolean
+    lastError?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ClientDeploymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "client" | "version" | "domain" | "domainOverride" | "overrideActive" | "machineId" | "tunnelSlotId" | "status" | "lastError" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["clientDeployment"]>
+  export type ClientDeploymentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tunnelSlot?: boolean | ClientDeployment$tunnelSlotArgs<ExtArgs>
+  }
+  export type ClientDeploymentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tunnelSlot?: boolean | ClientDeployment$tunnelSlotArgs<ExtArgs>
+  }
+  export type ClientDeploymentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tunnelSlot?: boolean | ClientDeployment$tunnelSlotArgs<ExtArgs>
+  }
+
+  export type $ClientDeploymentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ClientDeployment"
+    objects: {
+      tunnelSlot: Prisma.$TunnelSlotPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      client: string
+      version: string
+      domain: string
+      domainOverride: string | null
+      overrideActive: boolean
+      /**
+       * Shop PC bound to this deployment (activation-code changes resolve here).
+       */
+      machineId: string | null
+      tunnelSlotId: string | null
+      /**
+       * pending → provisioning | active | failed | deactivated
+       */
+      status: string
+      lastError: string | null
+      notes: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["clientDeployment"]>
+    composites: {}
+  }
+
+  type ClientDeploymentGetPayload<S extends boolean | null | undefined | ClientDeploymentDefaultArgs> = $Result.GetResult<Prisma.$ClientDeploymentPayload, S>
+
+  type ClientDeploymentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ClientDeploymentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ClientDeploymentCountAggregateInputType | true
+    }
+
+  export interface ClientDeploymentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ClientDeployment'], meta: { name: 'ClientDeployment' } }
+    /**
+     * Find zero or one ClientDeployment that matches the filter.
+     * @param {ClientDeploymentFindUniqueArgs} args - Arguments to find a ClientDeployment
+     * @example
+     * // Get one ClientDeployment
+     * const clientDeployment = await prisma.clientDeployment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ClientDeploymentFindUniqueArgs>(args: SelectSubset<T, ClientDeploymentFindUniqueArgs<ExtArgs>>): Prisma__ClientDeploymentClient<$Result.GetResult<Prisma.$ClientDeploymentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ClientDeployment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ClientDeploymentFindUniqueOrThrowArgs} args - Arguments to find a ClientDeployment
+     * @example
+     * // Get one ClientDeployment
+     * const clientDeployment = await prisma.clientDeployment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ClientDeploymentFindUniqueOrThrowArgs>(args: SelectSubset<T, ClientDeploymentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ClientDeploymentClient<$Result.GetResult<Prisma.$ClientDeploymentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ClientDeployment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClientDeploymentFindFirstArgs} args - Arguments to find a ClientDeployment
+     * @example
+     * // Get one ClientDeployment
+     * const clientDeployment = await prisma.clientDeployment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ClientDeploymentFindFirstArgs>(args?: SelectSubset<T, ClientDeploymentFindFirstArgs<ExtArgs>>): Prisma__ClientDeploymentClient<$Result.GetResult<Prisma.$ClientDeploymentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ClientDeployment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClientDeploymentFindFirstOrThrowArgs} args - Arguments to find a ClientDeployment
+     * @example
+     * // Get one ClientDeployment
+     * const clientDeployment = await prisma.clientDeployment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ClientDeploymentFindFirstOrThrowArgs>(args?: SelectSubset<T, ClientDeploymentFindFirstOrThrowArgs<ExtArgs>>): Prisma__ClientDeploymentClient<$Result.GetResult<Prisma.$ClientDeploymentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ClientDeployments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClientDeploymentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ClientDeployments
+     * const clientDeployments = await prisma.clientDeployment.findMany()
+     * 
+     * // Get first 10 ClientDeployments
+     * const clientDeployments = await prisma.clientDeployment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const clientDeploymentWithIdOnly = await prisma.clientDeployment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ClientDeploymentFindManyArgs>(args?: SelectSubset<T, ClientDeploymentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientDeploymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ClientDeployment.
+     * @param {ClientDeploymentCreateArgs} args - Arguments to create a ClientDeployment.
+     * @example
+     * // Create one ClientDeployment
+     * const ClientDeployment = await prisma.clientDeployment.create({
+     *   data: {
+     *     // ... data to create a ClientDeployment
+     *   }
+     * })
+     * 
+     */
+    create<T extends ClientDeploymentCreateArgs>(args: SelectSubset<T, ClientDeploymentCreateArgs<ExtArgs>>): Prisma__ClientDeploymentClient<$Result.GetResult<Prisma.$ClientDeploymentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ClientDeployments.
+     * @param {ClientDeploymentCreateManyArgs} args - Arguments to create many ClientDeployments.
+     * @example
+     * // Create many ClientDeployments
+     * const clientDeployment = await prisma.clientDeployment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ClientDeploymentCreateManyArgs>(args?: SelectSubset<T, ClientDeploymentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ClientDeployments and returns the data saved in the database.
+     * @param {ClientDeploymentCreateManyAndReturnArgs} args - Arguments to create many ClientDeployments.
+     * @example
+     * // Create many ClientDeployments
+     * const clientDeployment = await prisma.clientDeployment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ClientDeployments and only return the `id`
+     * const clientDeploymentWithIdOnly = await prisma.clientDeployment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ClientDeploymentCreateManyAndReturnArgs>(args?: SelectSubset<T, ClientDeploymentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientDeploymentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ClientDeployment.
+     * @param {ClientDeploymentDeleteArgs} args - Arguments to delete one ClientDeployment.
+     * @example
+     * // Delete one ClientDeployment
+     * const ClientDeployment = await prisma.clientDeployment.delete({
+     *   where: {
+     *     // ... filter to delete one ClientDeployment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ClientDeploymentDeleteArgs>(args: SelectSubset<T, ClientDeploymentDeleteArgs<ExtArgs>>): Prisma__ClientDeploymentClient<$Result.GetResult<Prisma.$ClientDeploymentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ClientDeployment.
+     * @param {ClientDeploymentUpdateArgs} args - Arguments to update one ClientDeployment.
+     * @example
+     * // Update one ClientDeployment
+     * const clientDeployment = await prisma.clientDeployment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ClientDeploymentUpdateArgs>(args: SelectSubset<T, ClientDeploymentUpdateArgs<ExtArgs>>): Prisma__ClientDeploymentClient<$Result.GetResult<Prisma.$ClientDeploymentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ClientDeployments.
+     * @param {ClientDeploymentDeleteManyArgs} args - Arguments to filter ClientDeployments to delete.
+     * @example
+     * // Delete a few ClientDeployments
+     * const { count } = await prisma.clientDeployment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ClientDeploymentDeleteManyArgs>(args?: SelectSubset<T, ClientDeploymentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ClientDeployments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClientDeploymentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ClientDeployments
+     * const clientDeployment = await prisma.clientDeployment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ClientDeploymentUpdateManyArgs>(args: SelectSubset<T, ClientDeploymentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ClientDeployments and returns the data updated in the database.
+     * @param {ClientDeploymentUpdateManyAndReturnArgs} args - Arguments to update many ClientDeployments.
+     * @example
+     * // Update many ClientDeployments
+     * const clientDeployment = await prisma.clientDeployment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ClientDeployments and only return the `id`
+     * const clientDeploymentWithIdOnly = await prisma.clientDeployment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ClientDeploymentUpdateManyAndReturnArgs>(args: SelectSubset<T, ClientDeploymentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientDeploymentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ClientDeployment.
+     * @param {ClientDeploymentUpsertArgs} args - Arguments to update or create a ClientDeployment.
+     * @example
+     * // Update or create a ClientDeployment
+     * const clientDeployment = await prisma.clientDeployment.upsert({
+     *   create: {
+     *     // ... data to create a ClientDeployment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ClientDeployment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ClientDeploymentUpsertArgs>(args: SelectSubset<T, ClientDeploymentUpsertArgs<ExtArgs>>): Prisma__ClientDeploymentClient<$Result.GetResult<Prisma.$ClientDeploymentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ClientDeployments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClientDeploymentCountArgs} args - Arguments to filter ClientDeployments to count.
+     * @example
+     * // Count the number of ClientDeployments
+     * const count = await prisma.clientDeployment.count({
+     *   where: {
+     *     // ... the filter for the ClientDeployments we want to count
+     *   }
+     * })
+    **/
+    count<T extends ClientDeploymentCountArgs>(
+      args?: Subset<T, ClientDeploymentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ClientDeploymentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ClientDeployment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClientDeploymentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ClientDeploymentAggregateArgs>(args: Subset<T, ClientDeploymentAggregateArgs>): Prisma.PrismaPromise<GetClientDeploymentAggregateType<T>>
+
+    /**
+     * Group by ClientDeployment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClientDeploymentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ClientDeploymentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ClientDeploymentGroupByArgs['orderBy'] }
+        : { orderBy?: ClientDeploymentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ClientDeploymentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetClientDeploymentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ClientDeployment model
+   */
+  readonly fields: ClientDeploymentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ClientDeployment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ClientDeploymentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tunnelSlot<T extends ClientDeployment$tunnelSlotArgs<ExtArgs> = {}>(args?: Subset<T, ClientDeployment$tunnelSlotArgs<ExtArgs>>): Prisma__TunnelSlotClient<$Result.GetResult<Prisma.$TunnelSlotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ClientDeployment model
+   */
+  interface ClientDeploymentFieldRefs {
+    readonly id: FieldRef<"ClientDeployment", 'String'>
+    readonly client: FieldRef<"ClientDeployment", 'String'>
+    readonly version: FieldRef<"ClientDeployment", 'String'>
+    readonly domain: FieldRef<"ClientDeployment", 'String'>
+    readonly domainOverride: FieldRef<"ClientDeployment", 'String'>
+    readonly overrideActive: FieldRef<"ClientDeployment", 'Boolean'>
+    readonly machineId: FieldRef<"ClientDeployment", 'String'>
+    readonly tunnelSlotId: FieldRef<"ClientDeployment", 'String'>
+    readonly status: FieldRef<"ClientDeployment", 'String'>
+    readonly lastError: FieldRef<"ClientDeployment", 'String'>
+    readonly notes: FieldRef<"ClientDeployment", 'String'>
+    readonly createdAt: FieldRef<"ClientDeployment", 'DateTime'>
+    readonly updatedAt: FieldRef<"ClientDeployment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ClientDeployment findUnique
+   */
+  export type ClientDeploymentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentInclude<ExtArgs> | null
+    /**
+     * Filter, which ClientDeployment to fetch.
+     */
+    where: ClientDeploymentWhereUniqueInput
+  }
+
+  /**
+   * ClientDeployment findUniqueOrThrow
+   */
+  export type ClientDeploymentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentInclude<ExtArgs> | null
+    /**
+     * Filter, which ClientDeployment to fetch.
+     */
+    where: ClientDeploymentWhereUniqueInput
+  }
+
+  /**
+   * ClientDeployment findFirst
+   */
+  export type ClientDeploymentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentInclude<ExtArgs> | null
+    /**
+     * Filter, which ClientDeployment to fetch.
+     */
+    where?: ClientDeploymentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClientDeployments to fetch.
+     */
+    orderBy?: ClientDeploymentOrderByWithRelationInput | ClientDeploymentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClientDeployments.
+     */
+    cursor?: ClientDeploymentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClientDeployments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClientDeployments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClientDeployments.
+     */
+    distinct?: ClientDeploymentScalarFieldEnum | ClientDeploymentScalarFieldEnum[]
+  }
+
+  /**
+   * ClientDeployment findFirstOrThrow
+   */
+  export type ClientDeploymentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentInclude<ExtArgs> | null
+    /**
+     * Filter, which ClientDeployment to fetch.
+     */
+    where?: ClientDeploymentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClientDeployments to fetch.
+     */
+    orderBy?: ClientDeploymentOrderByWithRelationInput | ClientDeploymentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClientDeployments.
+     */
+    cursor?: ClientDeploymentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClientDeployments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClientDeployments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClientDeployments.
+     */
+    distinct?: ClientDeploymentScalarFieldEnum | ClientDeploymentScalarFieldEnum[]
+  }
+
+  /**
+   * ClientDeployment findMany
+   */
+  export type ClientDeploymentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentInclude<ExtArgs> | null
+    /**
+     * Filter, which ClientDeployments to fetch.
+     */
+    where?: ClientDeploymentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClientDeployments to fetch.
+     */
+    orderBy?: ClientDeploymentOrderByWithRelationInput | ClientDeploymentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ClientDeployments.
+     */
+    cursor?: ClientDeploymentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClientDeployments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClientDeployments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClientDeployments.
+     */
+    distinct?: ClientDeploymentScalarFieldEnum | ClientDeploymentScalarFieldEnum[]
+  }
+
+  /**
+   * ClientDeployment create
+   */
+  export type ClientDeploymentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ClientDeployment.
+     */
+    data: XOR<ClientDeploymentCreateInput, ClientDeploymentUncheckedCreateInput>
+  }
+
+  /**
+   * ClientDeployment createMany
+   */
+  export type ClientDeploymentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ClientDeployments.
+     */
+    data: ClientDeploymentCreateManyInput | ClientDeploymentCreateManyInput[]
+  }
+
+  /**
+   * ClientDeployment createManyAndReturn
+   */
+  export type ClientDeploymentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * The data used to create many ClientDeployments.
+     */
+    data: ClientDeploymentCreateManyInput | ClientDeploymentCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ClientDeployment update
+   */
+  export type ClientDeploymentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ClientDeployment.
+     */
+    data: XOR<ClientDeploymentUpdateInput, ClientDeploymentUncheckedUpdateInput>
+    /**
+     * Choose, which ClientDeployment to update.
+     */
+    where: ClientDeploymentWhereUniqueInput
+  }
+
+  /**
+   * ClientDeployment updateMany
+   */
+  export type ClientDeploymentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ClientDeployments.
+     */
+    data: XOR<ClientDeploymentUpdateManyMutationInput, ClientDeploymentUncheckedUpdateManyInput>
+    /**
+     * Filter which ClientDeployments to update
+     */
+    where?: ClientDeploymentWhereInput
+    /**
+     * Limit how many ClientDeployments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ClientDeployment updateManyAndReturn
+   */
+  export type ClientDeploymentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * The data used to update ClientDeployments.
+     */
+    data: XOR<ClientDeploymentUpdateManyMutationInput, ClientDeploymentUncheckedUpdateManyInput>
+    /**
+     * Filter which ClientDeployments to update
+     */
+    where?: ClientDeploymentWhereInput
+    /**
+     * Limit how many ClientDeployments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ClientDeployment upsert
+   */
+  export type ClientDeploymentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ClientDeployment to update in case it exists.
+     */
+    where: ClientDeploymentWhereUniqueInput
+    /**
+     * In case the ClientDeployment found by the `where` argument doesn't exist, create a new ClientDeployment with this data.
+     */
+    create: XOR<ClientDeploymentCreateInput, ClientDeploymentUncheckedCreateInput>
+    /**
+     * In case the ClientDeployment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ClientDeploymentUpdateInput, ClientDeploymentUncheckedUpdateInput>
+  }
+
+  /**
+   * ClientDeployment delete
+   */
+  export type ClientDeploymentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentInclude<ExtArgs> | null
+    /**
+     * Filter which ClientDeployment to delete.
+     */
+    where: ClientDeploymentWhereUniqueInput
+  }
+
+  /**
+   * ClientDeployment deleteMany
+   */
+  export type ClientDeploymentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClientDeployments to delete
+     */
+    where?: ClientDeploymentWhereInput
+    /**
+     * Limit how many ClientDeployments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ClientDeployment.tunnelSlot
+   */
+  export type ClientDeployment$tunnelSlotArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TunnelSlot
+     */
+    select?: TunnelSlotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TunnelSlot
+     */
+    omit?: TunnelSlotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TunnelSlotInclude<ExtArgs> | null
+    where?: TunnelSlotWhereInput
+  }
+
+  /**
+   * ClientDeployment without action
+   */
+  export type ClientDeploymentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientDeployment
+     */
+    select?: ClientDeploymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientDeployment
+     */
+    omit?: ClientDeploymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientDeploymentInclude<ExtArgs> | null
   }
 
 
@@ -60464,6 +62027,7 @@ export namespace Prisma {
     expenseDate: Date | null
     createdAt: Date | null
     deletedAt: Date | null
+    opId: string | null
   }
 
   export type ExpenseMaxAggregateOutputType = {
@@ -60478,6 +62042,7 @@ export namespace Prisma {
     expenseDate: Date | null
     createdAt: Date | null
     deletedAt: Date | null
+    opId: string | null
   }
 
   export type ExpenseCountAggregateOutputType = {
@@ -60492,6 +62057,7 @@ export namespace Prisma {
     expenseDate: number
     createdAt: number
     deletedAt: number
+    opId: number
     _all: number
   }
 
@@ -60516,6 +62082,7 @@ export namespace Prisma {
     expenseDate?: true
     createdAt?: true
     deletedAt?: true
+    opId?: true
   }
 
   export type ExpenseMaxAggregateInputType = {
@@ -60530,6 +62097,7 @@ export namespace Prisma {
     expenseDate?: true
     createdAt?: true
     deletedAt?: true
+    opId?: true
   }
 
   export type ExpenseCountAggregateInputType = {
@@ -60544,6 +62112,7 @@ export namespace Prisma {
     expenseDate?: true
     createdAt?: true
     deletedAt?: true
+    opId?: true
     _all?: true
   }
 
@@ -60645,6 +62214,7 @@ export namespace Prisma {
     expenseDate: Date
     createdAt: Date
     deletedAt: Date | null
+    opId: string | null
     _count: ExpenseCountAggregateOutputType | null
     _avg: ExpenseAvgAggregateOutputType | null
     _sum: ExpenseSumAggregateOutputType | null
@@ -60678,6 +62248,7 @@ export namespace Prisma {
     expenseDate?: boolean
     createdAt?: boolean
     deletedAt?: boolean
+    opId?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     type?: boolean | Expense$typeArgs<ExtArgs>
     location?: boolean | Expense$locationArgs<ExtArgs>
@@ -60695,6 +62266,7 @@ export namespace Prisma {
     expenseDate?: boolean
     createdAt?: boolean
     deletedAt?: boolean
+    opId?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     type?: boolean | Expense$typeArgs<ExtArgs>
     location?: boolean | Expense$locationArgs<ExtArgs>
@@ -60712,6 +62284,7 @@ export namespace Prisma {
     expenseDate?: boolean
     createdAt?: boolean
     deletedAt?: boolean
+    opId?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     type?: boolean | Expense$typeArgs<ExtArgs>
     location?: boolean | Expense$locationArgs<ExtArgs>
@@ -60729,9 +62302,10 @@ export namespace Prisma {
     expenseDate?: boolean
     createdAt?: boolean
     deletedAt?: boolean
+    opId?: boolean
   }
 
-  export type ExpenseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "seasonId" | "typeId" | "locationId" | "label" | "description" | "amount" | "expenseDate" | "createdAt" | "deletedAt", ExtArgs["result"]["expense"]>
+  export type ExpenseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "seasonId" | "typeId" | "locationId" | "label" | "description" | "amount" | "expenseDate" | "createdAt" | "deletedAt" | "opId", ExtArgs["result"]["expense"]>
   export type ExpenseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     type?: boolean | Expense$typeArgs<ExtArgs>
@@ -60770,6 +62344,10 @@ export namespace Prisma {
       expenseDate: Date
       createdAt: Date
       deletedAt: Date | null
+      /**
+       * Offline idempotency key: the sync opId that created this expense.
+       */
+      opId: string | null
     }, ExtArgs["result"]["expense"]>
     composites: {}
   }
@@ -61207,6 +62785,7 @@ export namespace Prisma {
     readonly expenseDate: FieldRef<"Expense", 'DateTime'>
     readonly createdAt: FieldRef<"Expense", 'DateTime'>
     readonly deletedAt: FieldRef<"Expense", 'DateTime'>
+    readonly opId: FieldRef<"Expense", 'String'>
   }
     
 
@@ -67786,6 +69365,8 @@ export namespace Prisma {
     ticketWidth: 'ticketWidth',
     ticketLang: 'ticketLang',
     supplierFilterEnabled: 'supplierFilterEnabled',
+    workStartAt: 'workStartAt',
+    maxDayHours: 'maxDayHours',
     remoteDomain: 'remoteDomain'
   };
 
@@ -68212,6 +69793,10 @@ export namespace Prisma {
     notes: 'notes',
     startedAt: 'startedAt',
     finishedAt: 'finishedAt',
+    startedLat: 'startedLat',
+    startedLng: 'startedLng',
+    finishedLat: 'finishedLat',
+    finishedLng: 'finishedLng',
     createdAt: 'createdAt'
   };
 
@@ -68324,6 +69909,25 @@ export namespace Prisma {
   };
 
   export type TunnelSlotScalarFieldEnum = (typeof TunnelSlotScalarFieldEnum)[keyof typeof TunnelSlotScalarFieldEnum]
+
+
+  export const ClientDeploymentScalarFieldEnum: {
+    id: 'id',
+    client: 'client',
+    version: 'version',
+    domain: 'domain',
+    domainOverride: 'domainOverride',
+    overrideActive: 'overrideActive',
+    machineId: 'machineId',
+    tunnelSlotId: 'tunnelSlotId',
+    status: 'status',
+    lastError: 'lastError',
+    notes: 'notes',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ClientDeploymentScalarFieldEnum = (typeof ClientDeploymentScalarFieldEnum)[keyof typeof ClientDeploymentScalarFieldEnum]
 
 
   export const DeviceScalarFieldEnum: {
@@ -68448,7 +70052,8 @@ export namespace Prisma {
     amount: 'amount',
     expenseDate: 'expenseDate',
     createdAt: 'createdAt',
-    deletedAt: 'deletedAt'
+    deletedAt: 'deletedAt',
+    opId: 'opId'
   };
 
   export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]
@@ -68611,6 +70216,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -68628,13 +70240,6 @@ export namespace Prisma {
    * Reference to a field of type 'QueryMode'
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
 
@@ -68862,6 +70467,8 @@ export namespace Prisma {
     ticketWidth?: StringFilter<"CompanySettings"> | string
     ticketLang?: StringFilter<"CompanySettings"> | string
     supplierFilterEnabled?: BoolFilter<"CompanySettings"> | boolean
+    workStartAt?: StringNullableFilter<"CompanySettings"> | string | null
+    maxDayHours?: FloatNullableFilter<"CompanySettings"> | number | null
     remoteDomain?: StringNullableFilter<"CompanySettings"> | string | null
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
   }
@@ -68889,6 +70496,8 @@ export namespace Prisma {
     ticketWidth?: SortOrder
     ticketLang?: SortOrder
     supplierFilterEnabled?: SortOrder
+    workStartAt?: SortOrderInput | SortOrder
+    maxDayHours?: SortOrderInput | SortOrder
     remoteDomain?: SortOrderInput | SortOrder
     company?: CompanyOrderByWithRelationInput
   }
@@ -68919,6 +70528,8 @@ export namespace Prisma {
     ticketWidth?: StringFilter<"CompanySettings"> | string
     ticketLang?: StringFilter<"CompanySettings"> | string
     supplierFilterEnabled?: BoolFilter<"CompanySettings"> | boolean
+    workStartAt?: StringNullableFilter<"CompanySettings"> | string | null
+    maxDayHours?: FloatNullableFilter<"CompanySettings"> | number | null
     remoteDomain?: StringNullableFilter<"CompanySettings"> | string | null
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
   }, "id" | "companyId">
@@ -68946,10 +70557,14 @@ export namespace Prisma {
     ticketWidth?: SortOrder
     ticketLang?: SortOrder
     supplierFilterEnabled?: SortOrder
+    workStartAt?: SortOrderInput | SortOrder
+    maxDayHours?: SortOrderInput | SortOrder
     remoteDomain?: SortOrderInput | SortOrder
     _count?: CompanySettingsCountOrderByAggregateInput
+    _avg?: CompanySettingsAvgOrderByAggregateInput
     _max?: CompanySettingsMaxOrderByAggregateInput
     _min?: CompanySettingsMinOrderByAggregateInput
+    _sum?: CompanySettingsSumOrderByAggregateInput
   }
 
   export type CompanySettingsScalarWhereWithAggregatesInput = {
@@ -68978,6 +70593,8 @@ export namespace Prisma {
     ticketWidth?: StringWithAggregatesFilter<"CompanySettings"> | string
     ticketLang?: StringWithAggregatesFilter<"CompanySettings"> | string
     supplierFilterEnabled?: BoolWithAggregatesFilter<"CompanySettings"> | boolean
+    workStartAt?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+    maxDayHours?: FloatNullableWithAggregatesFilter<"CompanySettings"> | number | null
     remoteDomain?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   }
 
@@ -71369,6 +72986,10 @@ export namespace Prisma {
     notes?: StringNullableFilter<"Tournee"> | string | null
     startedAt?: DateTimeNullableFilter<"Tournee"> | Date | string | null
     finishedAt?: DateTimeNullableFilter<"Tournee"> | Date | string | null
+    startedLat?: FloatNullableFilter<"Tournee"> | number | null
+    startedLng?: FloatNullableFilter<"Tournee"> | number | null
+    finishedLat?: FloatNullableFilter<"Tournee"> | number | null
+    finishedLng?: FloatNullableFilter<"Tournee"> | number | null
     createdAt?: DateTimeFilter<"Tournee"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     location?: XOR<StoreScalarRelationFilter, StoreWhereInput>
@@ -71387,6 +73008,10 @@ export namespace Prisma {
     notes?: SortOrderInput | SortOrder
     startedAt?: SortOrderInput | SortOrder
     finishedAt?: SortOrderInput | SortOrder
+    startedLat?: SortOrderInput | SortOrder
+    startedLng?: SortOrderInput | SortOrder
+    finishedLat?: SortOrderInput | SortOrder
+    finishedLng?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
     location?: StoreOrderByWithRelationInput
@@ -71408,6 +73033,10 @@ export namespace Prisma {
     notes?: StringNullableFilter<"Tournee"> | string | null
     startedAt?: DateTimeNullableFilter<"Tournee"> | Date | string | null
     finishedAt?: DateTimeNullableFilter<"Tournee"> | Date | string | null
+    startedLat?: FloatNullableFilter<"Tournee"> | number | null
+    startedLng?: FloatNullableFilter<"Tournee"> | number | null
+    finishedLat?: FloatNullableFilter<"Tournee"> | number | null
+    finishedLng?: FloatNullableFilter<"Tournee"> | number | null
     createdAt?: DateTimeFilter<"Tournee"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     location?: XOR<StoreScalarRelationFilter, StoreWhereInput>
@@ -71426,10 +73055,16 @@ export namespace Prisma {
     notes?: SortOrderInput | SortOrder
     startedAt?: SortOrderInput | SortOrder
     finishedAt?: SortOrderInput | SortOrder
+    startedLat?: SortOrderInput | SortOrder
+    startedLng?: SortOrderInput | SortOrder
+    finishedLat?: SortOrderInput | SortOrder
+    finishedLng?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: TourneeCountOrderByAggregateInput
+    _avg?: TourneeAvgOrderByAggregateInput
     _max?: TourneeMaxOrderByAggregateInput
     _min?: TourneeMinOrderByAggregateInput
+    _sum?: TourneeSumOrderByAggregateInput
   }
 
   export type TourneeScalarWhereWithAggregatesInput = {
@@ -71445,6 +73080,10 @@ export namespace Prisma {
     notes?: StringNullableWithAggregatesFilter<"Tournee"> | string | null
     startedAt?: DateTimeNullableWithAggregatesFilter<"Tournee"> | Date | string | null
     finishedAt?: DateTimeNullableWithAggregatesFilter<"Tournee"> | Date | string | null
+    startedLat?: FloatNullableWithAggregatesFilter<"Tournee"> | number | null
+    startedLng?: FloatNullableWithAggregatesFilter<"Tournee"> | number | null
+    finishedLat?: FloatNullableWithAggregatesFilter<"Tournee"> | number | null
+    finishedLng?: FloatNullableWithAggregatesFilter<"Tournee"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"Tournee"> | Date | string
   }
 
@@ -71915,6 +73554,7 @@ export namespace Prisma {
     notes?: StringNullableFilter<"TunnelSlot"> | string | null
     createdAt?: DateTimeFilter<"TunnelSlot"> | Date | string
     updatedAt?: DateTimeFilter<"TunnelSlot"> | Date | string
+    deployments?: ClientDeploymentListRelationFilter
   }
 
   export type TunnelSlotOrderByWithRelationInput = {
@@ -71929,6 +73569,7 @@ export namespace Prisma {
     notes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    deployments?: ClientDeploymentOrderByRelationAggregateInput
   }
 
   export type TunnelSlotWhereUniqueInput = Prisma.AtLeast<{
@@ -71946,6 +73587,7 @@ export namespace Prisma {
     notes?: StringNullableFilter<"TunnelSlot"> | string | null
     createdAt?: DateTimeFilter<"TunnelSlot"> | Date | string
     updatedAt?: DateTimeFilter<"TunnelSlot"> | Date | string
+    deployments?: ClientDeploymentListRelationFilter
   }, "id" | "subdomain">
 
   export type TunnelSlotOrderByWithAggregationInput = {
@@ -71980,6 +73622,101 @@ export namespace Prisma {
     notes?: StringNullableWithAggregatesFilter<"TunnelSlot"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"TunnelSlot"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"TunnelSlot"> | Date | string
+  }
+
+  export type ClientDeploymentWhereInput = {
+    AND?: ClientDeploymentWhereInput | ClientDeploymentWhereInput[]
+    OR?: ClientDeploymentWhereInput[]
+    NOT?: ClientDeploymentWhereInput | ClientDeploymentWhereInput[]
+    id?: StringFilter<"ClientDeployment"> | string
+    client?: StringFilter<"ClientDeployment"> | string
+    version?: StringFilter<"ClientDeployment"> | string
+    domain?: StringFilter<"ClientDeployment"> | string
+    domainOverride?: StringNullableFilter<"ClientDeployment"> | string | null
+    overrideActive?: BoolFilter<"ClientDeployment"> | boolean
+    machineId?: StringNullableFilter<"ClientDeployment"> | string | null
+    tunnelSlotId?: StringNullableFilter<"ClientDeployment"> | string | null
+    status?: StringFilter<"ClientDeployment"> | string
+    lastError?: StringNullableFilter<"ClientDeployment"> | string | null
+    notes?: StringNullableFilter<"ClientDeployment"> | string | null
+    createdAt?: DateTimeFilter<"ClientDeployment"> | Date | string
+    updatedAt?: DateTimeFilter<"ClientDeployment"> | Date | string
+    tunnelSlot?: XOR<TunnelSlotNullableScalarRelationFilter, TunnelSlotWhereInput> | null
+  }
+
+  export type ClientDeploymentOrderByWithRelationInput = {
+    id?: SortOrder
+    client?: SortOrder
+    version?: SortOrder
+    domain?: SortOrder
+    domainOverride?: SortOrderInput | SortOrder
+    overrideActive?: SortOrder
+    machineId?: SortOrderInput | SortOrder
+    tunnelSlotId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    lastError?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    tunnelSlot?: TunnelSlotOrderByWithRelationInput
+  }
+
+  export type ClientDeploymentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    client?: string
+    AND?: ClientDeploymentWhereInput | ClientDeploymentWhereInput[]
+    OR?: ClientDeploymentWhereInput[]
+    NOT?: ClientDeploymentWhereInput | ClientDeploymentWhereInput[]
+    version?: StringFilter<"ClientDeployment"> | string
+    domain?: StringFilter<"ClientDeployment"> | string
+    domainOverride?: StringNullableFilter<"ClientDeployment"> | string | null
+    overrideActive?: BoolFilter<"ClientDeployment"> | boolean
+    machineId?: StringNullableFilter<"ClientDeployment"> | string | null
+    tunnelSlotId?: StringNullableFilter<"ClientDeployment"> | string | null
+    status?: StringFilter<"ClientDeployment"> | string
+    lastError?: StringNullableFilter<"ClientDeployment"> | string | null
+    notes?: StringNullableFilter<"ClientDeployment"> | string | null
+    createdAt?: DateTimeFilter<"ClientDeployment"> | Date | string
+    updatedAt?: DateTimeFilter<"ClientDeployment"> | Date | string
+    tunnelSlot?: XOR<TunnelSlotNullableScalarRelationFilter, TunnelSlotWhereInput> | null
+  }, "id" | "client">
+
+  export type ClientDeploymentOrderByWithAggregationInput = {
+    id?: SortOrder
+    client?: SortOrder
+    version?: SortOrder
+    domain?: SortOrder
+    domainOverride?: SortOrderInput | SortOrder
+    overrideActive?: SortOrder
+    machineId?: SortOrderInput | SortOrder
+    tunnelSlotId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    lastError?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ClientDeploymentCountOrderByAggregateInput
+    _max?: ClientDeploymentMaxOrderByAggregateInput
+    _min?: ClientDeploymentMinOrderByAggregateInput
+  }
+
+  export type ClientDeploymentScalarWhereWithAggregatesInput = {
+    AND?: ClientDeploymentScalarWhereWithAggregatesInput | ClientDeploymentScalarWhereWithAggregatesInput[]
+    OR?: ClientDeploymentScalarWhereWithAggregatesInput[]
+    NOT?: ClientDeploymentScalarWhereWithAggregatesInput | ClientDeploymentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ClientDeployment"> | string
+    client?: StringWithAggregatesFilter<"ClientDeployment"> | string
+    version?: StringWithAggregatesFilter<"ClientDeployment"> | string
+    domain?: StringWithAggregatesFilter<"ClientDeployment"> | string
+    domainOverride?: StringNullableWithAggregatesFilter<"ClientDeployment"> | string | null
+    overrideActive?: BoolWithAggregatesFilter<"ClientDeployment"> | boolean
+    machineId?: StringNullableWithAggregatesFilter<"ClientDeployment"> | string | null
+    tunnelSlotId?: StringNullableWithAggregatesFilter<"ClientDeployment"> | string | null
+    status?: StringWithAggregatesFilter<"ClientDeployment"> | string
+    lastError?: StringNullableWithAggregatesFilter<"ClientDeployment"> | string | null
+    notes?: StringNullableWithAggregatesFilter<"ClientDeployment"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ClientDeployment"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ClientDeployment"> | Date | string
   }
 
   export type DeviceWhereInput = {
@@ -72619,6 +74356,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFilter<"Expense"> | Date | string
     createdAt?: DateTimeFilter<"Expense"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Expense"> | Date | string | null
+    opId?: StringNullableFilter<"Expense"> | string | null
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     type?: XOR<ExpenseTypeNullableScalarRelationFilter, ExpenseTypeWhereInput> | null
     location?: XOR<StoreNullableScalarRelationFilter, StoreWhereInput> | null
@@ -72636,6 +74374,7 @@ export namespace Prisma {
     expenseDate?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
+    opId?: SortOrderInput | SortOrder
     company?: CompanyOrderByWithRelationInput
     type?: ExpenseTypeOrderByWithRelationInput
     location?: StoreOrderByWithRelationInput
@@ -72643,6 +74382,7 @@ export namespace Prisma {
 
   export type ExpenseWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    companyId_opId?: ExpenseCompanyIdOpIdCompoundUniqueInput
     AND?: ExpenseWhereInput | ExpenseWhereInput[]
     OR?: ExpenseWhereInput[]
     NOT?: ExpenseWhereInput | ExpenseWhereInput[]
@@ -72656,10 +74396,11 @@ export namespace Prisma {
     expenseDate?: DateTimeFilter<"Expense"> | Date | string
     createdAt?: DateTimeFilter<"Expense"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Expense"> | Date | string | null
+    opId?: StringNullableFilter<"Expense"> | string | null
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     type?: XOR<ExpenseTypeNullableScalarRelationFilter, ExpenseTypeWhereInput> | null
     location?: XOR<StoreNullableScalarRelationFilter, StoreWhereInput> | null
-  }, "id">
+  }, "id" | "companyId_opId">
 
   export type ExpenseOrderByWithAggregationInput = {
     id?: SortOrder
@@ -72673,6 +74414,7 @@ export namespace Prisma {
     expenseDate?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
+    opId?: SortOrderInput | SortOrder
     _count?: ExpenseCountOrderByAggregateInput
     _avg?: ExpenseAvgOrderByAggregateInput
     _max?: ExpenseMaxOrderByAggregateInput
@@ -72695,6 +74437,7 @@ export namespace Prisma {
     expenseDate?: DateTimeWithAggregatesFilter<"Expense"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"Expense"> | Date | string
     deletedAt?: DateTimeNullableWithAggregatesFilter<"Expense"> | Date | string | null
+    opId?: StringNullableWithAggregatesFilter<"Expense"> | string | null
   }
 
   export type VersementWhereInput = {
@@ -73440,6 +75183,8 @@ export namespace Prisma {
     ticketWidth?: string
     ticketLang?: string
     supplierFilterEnabled?: boolean
+    workStartAt?: string | null
+    maxDayHours?: number | null
     remoteDomain?: string | null
     company: CompanyCreateNestedOneWithoutSettingsInput
   }
@@ -73467,6 +75212,8 @@ export namespace Prisma {
     ticketWidth?: string
     ticketLang?: string
     supplierFilterEnabled?: boolean
+    workStartAt?: string | null
+    maxDayHours?: number | null
     remoteDomain?: string | null
   }
 
@@ -73492,6 +75239,8 @@ export namespace Prisma {
     ticketWidth?: StringFieldUpdateOperationsInput | string
     ticketLang?: StringFieldUpdateOperationsInput | string
     supplierFilterEnabled?: BoolFieldUpdateOperationsInput | boolean
+    workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
+    maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutSettingsNestedInput
   }
@@ -73519,6 +75268,8 @@ export namespace Prisma {
     ticketWidth?: StringFieldUpdateOperationsInput | string
     ticketLang?: StringFieldUpdateOperationsInput | string
     supplierFilterEnabled?: BoolFieldUpdateOperationsInput | boolean
+    workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
+    maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -73545,6 +75296,8 @@ export namespace Prisma {
     ticketWidth?: string
     ticketLang?: string
     supplierFilterEnabled?: boolean
+    workStartAt?: string | null
+    maxDayHours?: number | null
     remoteDomain?: string | null
   }
 
@@ -73570,6 +75323,8 @@ export namespace Prisma {
     ticketWidth?: StringFieldUpdateOperationsInput | string
     ticketLang?: StringFieldUpdateOperationsInput | string
     supplierFilterEnabled?: BoolFieldUpdateOperationsInput | boolean
+    workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
+    maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -73596,6 +75351,8 @@ export namespace Prisma {
     ticketWidth?: StringFieldUpdateOperationsInput | string
     ticketLang?: StringFieldUpdateOperationsInput | string
     supplierFilterEnabled?: BoolFieldUpdateOperationsInput | boolean
+    workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
+    maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -76094,6 +77851,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     location: StoreCreateNestedOneWithoutTourneesInput
@@ -76112,6 +77873,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
@@ -76124,6 +77889,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
@@ -76142,6 +77911,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
@@ -76157,6 +77930,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
   }
 
@@ -76167,6 +77944,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -76180,6 +77961,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -76707,6 +78492,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    deployments?: ClientDeploymentCreateNestedManyWithoutTunnelSlotInput
   }
 
   export type TunnelSlotUncheckedCreateInput = {
@@ -76721,6 +78507,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    deployments?: ClientDeploymentUncheckedCreateNestedManyWithoutTunnelSlotInput
   }
 
   export type TunnelSlotUpdateInput = {
@@ -76735,6 +78522,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deployments?: ClientDeploymentUpdateManyWithoutTunnelSlotNestedInput
   }
 
   export type TunnelSlotUncheckedUpdateInput = {
@@ -76749,6 +78537,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deployments?: ClientDeploymentUncheckedUpdateManyWithoutTunnelSlotNestedInput
   }
 
   export type TunnelSlotCreateManyInput = {
@@ -76788,6 +78577,117 @@ export namespace Prisma {
     tunnelId?: NullableStringFieldUpdateOperationsInput | string | null
     token?: NullableStringFieldUpdateOperationsInput | string | null
     clientMachineId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClientDeploymentCreateInput = {
+    id?: string
+    client: string
+    version: string
+    domain: string
+    domainOverride?: string | null
+    overrideActive?: boolean
+    machineId?: string | null
+    status?: string
+    lastError?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tunnelSlot?: TunnelSlotCreateNestedOneWithoutDeploymentsInput
+  }
+
+  export type ClientDeploymentUncheckedCreateInput = {
+    id?: string
+    client: string
+    version: string
+    domain: string
+    domainOverride?: string | null
+    overrideActive?: boolean
+    machineId?: string | null
+    tunnelSlotId?: string | null
+    status?: string
+    lastError?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ClientDeploymentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    client?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    domainOverride?: NullableStringFieldUpdateOperationsInput | string | null
+    overrideActive?: BoolFieldUpdateOperationsInput | boolean
+    machineId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tunnelSlot?: TunnelSlotUpdateOneWithoutDeploymentsNestedInput
+  }
+
+  export type ClientDeploymentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    client?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    domainOverride?: NullableStringFieldUpdateOperationsInput | string | null
+    overrideActive?: BoolFieldUpdateOperationsInput | boolean
+    machineId?: NullableStringFieldUpdateOperationsInput | string | null
+    tunnelSlotId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClientDeploymentCreateManyInput = {
+    id?: string
+    client: string
+    version: string
+    domain: string
+    domainOverride?: string | null
+    overrideActive?: boolean
+    machineId?: string | null
+    tunnelSlotId?: string | null
+    status?: string
+    lastError?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ClientDeploymentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    client?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    domainOverride?: NullableStringFieldUpdateOperationsInput | string | null
+    overrideActive?: BoolFieldUpdateOperationsInput | boolean
+    machineId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClientDeploymentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    client?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    domainOverride?: NullableStringFieldUpdateOperationsInput | string | null
+    overrideActive?: BoolFieldUpdateOperationsInput | boolean
+    machineId?: NullableStringFieldUpdateOperationsInput | string | null
+    tunnelSlotId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -77437,6 +79337,7 @@ export namespace Prisma {
     expenseDate?: Date | string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    opId?: string | null
     company: CompanyCreateNestedOneWithoutExpensesInput
     type?: ExpenseTypeCreateNestedOneWithoutExpensesInput
     location?: StoreCreateNestedOneWithoutExpenseLinksInput
@@ -77454,6 +79355,7 @@ export namespace Prisma {
     expenseDate?: Date | string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    opId?: string | null
   }
 
   export type ExpenseUpdateInput = {
@@ -77465,6 +79367,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutExpensesNestedInput
     type?: ExpenseTypeUpdateOneWithoutExpensesNestedInput
     location?: StoreUpdateOneWithoutExpenseLinksNestedInput
@@ -77482,6 +79385,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ExpenseCreateManyInput = {
@@ -77496,6 +79400,7 @@ export namespace Prisma {
     expenseDate?: Date | string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    opId?: string | null
   }
 
   export type ExpenseUpdateManyMutationInput = {
@@ -77507,6 +79412,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ExpenseUncheckedUpdateManyInput = {
@@ -77521,6 +79427,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type VersementCreateInput = {
@@ -78448,6 +80355,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type CompanyScalarRelationFilter = {
     is?: CompanyWhereInput
     isNot?: CompanyWhereInput
@@ -78476,7 +80394,13 @@ export namespace Prisma {
     ticketWidth?: SortOrder
     ticketLang?: SortOrder
     supplierFilterEnabled?: SortOrder
+    workStartAt?: SortOrder
+    maxDayHours?: SortOrder
     remoteDomain?: SortOrder
+  }
+
+  export type CompanySettingsAvgOrderByAggregateInput = {
+    maxDayHours?: SortOrder
   }
 
   export type CompanySettingsMaxOrderByAggregateInput = {
@@ -78502,6 +80426,8 @@ export namespace Prisma {
     ticketWidth?: SortOrder
     ticketLang?: SortOrder
     supplierFilterEnabled?: SortOrder
+    workStartAt?: SortOrder
+    maxDayHours?: SortOrder
     remoteDomain?: SortOrder
   }
 
@@ -78528,7 +80454,13 @@ export namespace Prisma {
     ticketWidth?: SortOrder
     ticketLang?: SortOrder
     supplierFilterEnabled?: SortOrder
+    workStartAt?: SortOrder
+    maxDayHours?: SortOrder
     remoteDomain?: SortOrder
+  }
+
+  export type CompanySettingsSumOrderByAggregateInput = {
+    maxDayHours?: SortOrder
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -78537,6 +80469,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -78981,17 +80929,6 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
-  export type FloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-  }
-
   export type UserNullableScalarRelationFilter = {
     is?: UserWhereInput | null
     isNot?: UserWhereInput | null
@@ -79067,22 +81004,6 @@ export namespace Prisma {
   export type StoreSumOrderByAggregateInput = {
     lastLat?: SortOrder
     lastLng?: SortOrder
-  }
-
-  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type DecimalFilter<$PrismaModel = never> = {
@@ -80265,7 +82186,18 @@ export namespace Prisma {
     notes?: SortOrder
     startedAt?: SortOrder
     finishedAt?: SortOrder
+    startedLat?: SortOrder
+    startedLng?: SortOrder
+    finishedLat?: SortOrder
+    finishedLng?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type TourneeAvgOrderByAggregateInput = {
+    startedLat?: SortOrder
+    startedLng?: SortOrder
+    finishedLat?: SortOrder
+    finishedLng?: SortOrder
   }
 
   export type TourneeMaxOrderByAggregateInput = {
@@ -80278,6 +82210,10 @@ export namespace Prisma {
     notes?: SortOrder
     startedAt?: SortOrder
     finishedAt?: SortOrder
+    startedLat?: SortOrder
+    startedLng?: SortOrder
+    finishedLat?: SortOrder
+    finishedLng?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -80291,7 +82227,18 @@ export namespace Prisma {
     notes?: SortOrder
     startedAt?: SortOrder
     finishedAt?: SortOrder
+    startedLat?: SortOrder
+    startedLng?: SortOrder
+    finishedLat?: SortOrder
+    finishedLng?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type TourneeSumOrderByAggregateInput = {
+    startedLat?: SortOrder
+    startedLng?: SortOrder
+    finishedLat?: SortOrder
+    finishedLng?: SortOrder
   }
 
   export type TourneeScalarRelationFilter = {
@@ -80539,6 +82486,16 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type ClientDeploymentListRelationFilter = {
+    every?: ClientDeploymentWhereInput
+    some?: ClientDeploymentWhereInput
+    none?: ClientDeploymentWhereInput
+  }
+
+  export type ClientDeploymentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type TunnelSlotCountOrderByAggregateInput = {
     id?: SortOrder
     subdomain?: SortOrder
@@ -80576,6 +82533,59 @@ export namespace Prisma {
     tunnelId?: SortOrder
     token?: SortOrder
     clientMachineId?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TunnelSlotNullableScalarRelationFilter = {
+    is?: TunnelSlotWhereInput | null
+    isNot?: TunnelSlotWhereInput | null
+  }
+
+  export type ClientDeploymentCountOrderByAggregateInput = {
+    id?: SortOrder
+    client?: SortOrder
+    version?: SortOrder
+    domain?: SortOrder
+    domainOverride?: SortOrder
+    overrideActive?: SortOrder
+    machineId?: SortOrder
+    tunnelSlotId?: SortOrder
+    status?: SortOrder
+    lastError?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ClientDeploymentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    client?: SortOrder
+    version?: SortOrder
+    domain?: SortOrder
+    domainOverride?: SortOrder
+    overrideActive?: SortOrder
+    machineId?: SortOrder
+    tunnelSlotId?: SortOrder
+    status?: SortOrder
+    lastError?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ClientDeploymentMinOrderByAggregateInput = {
+    id?: SortOrder
+    client?: SortOrder
+    version?: SortOrder
+    domain?: SortOrder
+    domainOverride?: SortOrder
+    overrideActive?: SortOrder
+    machineId?: SortOrder
+    tunnelSlotId?: SortOrder
+    status?: SortOrder
+    lastError?: SortOrder
     notes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -80973,6 +82983,11 @@ export namespace Prisma {
     isNot?: ExpenseTypeWhereInput | null
   }
 
+  export type ExpenseCompanyIdOpIdCompoundUniqueInput = {
+    companyId: string
+    opId: string
+  }
+
   export type ExpenseCountOrderByAggregateInput = {
     id?: SortOrder
     companyId?: SortOrder
@@ -80985,6 +83000,7 @@ export namespace Prisma {
     expenseDate?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrder
+    opId?: SortOrder
   }
 
   export type ExpenseAvgOrderByAggregateInput = {
@@ -81003,6 +83019,7 @@ export namespace Prisma {
     expenseDate?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrder
+    opId?: SortOrder
   }
 
   export type ExpenseMinOrderByAggregateInput = {
@@ -81017,6 +83034,7 @@ export namespace Prisma {
     expenseDate?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrder
+    opId?: SortOrder
   }
 
   export type ExpenseSumOrderByAggregateInput = {
@@ -82511,6 +84529,14 @@ export namespace Prisma {
     set?: boolean
   }
 
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type CompanyUpdateOneRequiredWithoutSettingsNestedInput = {
     create?: XOR<CompanyCreateWithoutSettingsInput, CompanyUncheckedCreateWithoutSettingsInput>
     connectOrCreate?: CompanyCreateOrConnectWithoutSettingsInput
@@ -83591,14 +85617,6 @@ export namespace Prisma {
     connectOrCreate?: DailyCloseCreateOrConnectWithoutVanInput | DailyCloseCreateOrConnectWithoutVanInput[]
     createMany?: DailyCloseCreateManyVanInputEnvelope
     connect?: DailyCloseWhereUniqueInput | DailyCloseWhereUniqueInput[]
-  }
-
-  export type NullableFloatFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type CompanyUpdateOneRequiredWithoutStoresNestedInput = {
@@ -86091,6 +88109,64 @@ export namespace Prisma {
     update?: XOR<XOR<MachineUpdateToOneWithWhereWithoutSubscriptionInput, MachineUpdateWithoutSubscriptionInput>, MachineUncheckedUpdateWithoutSubscriptionInput>
   }
 
+  export type ClientDeploymentCreateNestedManyWithoutTunnelSlotInput = {
+    create?: XOR<ClientDeploymentCreateWithoutTunnelSlotInput, ClientDeploymentUncheckedCreateWithoutTunnelSlotInput> | ClientDeploymentCreateWithoutTunnelSlotInput[] | ClientDeploymentUncheckedCreateWithoutTunnelSlotInput[]
+    connectOrCreate?: ClientDeploymentCreateOrConnectWithoutTunnelSlotInput | ClientDeploymentCreateOrConnectWithoutTunnelSlotInput[]
+    createMany?: ClientDeploymentCreateManyTunnelSlotInputEnvelope
+    connect?: ClientDeploymentWhereUniqueInput | ClientDeploymentWhereUniqueInput[]
+  }
+
+  export type ClientDeploymentUncheckedCreateNestedManyWithoutTunnelSlotInput = {
+    create?: XOR<ClientDeploymentCreateWithoutTunnelSlotInput, ClientDeploymentUncheckedCreateWithoutTunnelSlotInput> | ClientDeploymentCreateWithoutTunnelSlotInput[] | ClientDeploymentUncheckedCreateWithoutTunnelSlotInput[]
+    connectOrCreate?: ClientDeploymentCreateOrConnectWithoutTunnelSlotInput | ClientDeploymentCreateOrConnectWithoutTunnelSlotInput[]
+    createMany?: ClientDeploymentCreateManyTunnelSlotInputEnvelope
+    connect?: ClientDeploymentWhereUniqueInput | ClientDeploymentWhereUniqueInput[]
+  }
+
+  export type ClientDeploymentUpdateManyWithoutTunnelSlotNestedInput = {
+    create?: XOR<ClientDeploymentCreateWithoutTunnelSlotInput, ClientDeploymentUncheckedCreateWithoutTunnelSlotInput> | ClientDeploymentCreateWithoutTunnelSlotInput[] | ClientDeploymentUncheckedCreateWithoutTunnelSlotInput[]
+    connectOrCreate?: ClientDeploymentCreateOrConnectWithoutTunnelSlotInput | ClientDeploymentCreateOrConnectWithoutTunnelSlotInput[]
+    upsert?: ClientDeploymentUpsertWithWhereUniqueWithoutTunnelSlotInput | ClientDeploymentUpsertWithWhereUniqueWithoutTunnelSlotInput[]
+    createMany?: ClientDeploymentCreateManyTunnelSlotInputEnvelope
+    set?: ClientDeploymentWhereUniqueInput | ClientDeploymentWhereUniqueInput[]
+    disconnect?: ClientDeploymentWhereUniqueInput | ClientDeploymentWhereUniqueInput[]
+    delete?: ClientDeploymentWhereUniqueInput | ClientDeploymentWhereUniqueInput[]
+    connect?: ClientDeploymentWhereUniqueInput | ClientDeploymentWhereUniqueInput[]
+    update?: ClientDeploymentUpdateWithWhereUniqueWithoutTunnelSlotInput | ClientDeploymentUpdateWithWhereUniqueWithoutTunnelSlotInput[]
+    updateMany?: ClientDeploymentUpdateManyWithWhereWithoutTunnelSlotInput | ClientDeploymentUpdateManyWithWhereWithoutTunnelSlotInput[]
+    deleteMany?: ClientDeploymentScalarWhereInput | ClientDeploymentScalarWhereInput[]
+  }
+
+  export type ClientDeploymentUncheckedUpdateManyWithoutTunnelSlotNestedInput = {
+    create?: XOR<ClientDeploymentCreateWithoutTunnelSlotInput, ClientDeploymentUncheckedCreateWithoutTunnelSlotInput> | ClientDeploymentCreateWithoutTunnelSlotInput[] | ClientDeploymentUncheckedCreateWithoutTunnelSlotInput[]
+    connectOrCreate?: ClientDeploymentCreateOrConnectWithoutTunnelSlotInput | ClientDeploymentCreateOrConnectWithoutTunnelSlotInput[]
+    upsert?: ClientDeploymentUpsertWithWhereUniqueWithoutTunnelSlotInput | ClientDeploymentUpsertWithWhereUniqueWithoutTunnelSlotInput[]
+    createMany?: ClientDeploymentCreateManyTunnelSlotInputEnvelope
+    set?: ClientDeploymentWhereUniqueInput | ClientDeploymentWhereUniqueInput[]
+    disconnect?: ClientDeploymentWhereUniqueInput | ClientDeploymentWhereUniqueInput[]
+    delete?: ClientDeploymentWhereUniqueInput | ClientDeploymentWhereUniqueInput[]
+    connect?: ClientDeploymentWhereUniqueInput | ClientDeploymentWhereUniqueInput[]
+    update?: ClientDeploymentUpdateWithWhereUniqueWithoutTunnelSlotInput | ClientDeploymentUpdateWithWhereUniqueWithoutTunnelSlotInput[]
+    updateMany?: ClientDeploymentUpdateManyWithWhereWithoutTunnelSlotInput | ClientDeploymentUpdateManyWithWhereWithoutTunnelSlotInput[]
+    deleteMany?: ClientDeploymentScalarWhereInput | ClientDeploymentScalarWhereInput[]
+  }
+
+  export type TunnelSlotCreateNestedOneWithoutDeploymentsInput = {
+    create?: XOR<TunnelSlotCreateWithoutDeploymentsInput, TunnelSlotUncheckedCreateWithoutDeploymentsInput>
+    connectOrCreate?: TunnelSlotCreateOrConnectWithoutDeploymentsInput
+    connect?: TunnelSlotWhereUniqueInput
+  }
+
+  export type TunnelSlotUpdateOneWithoutDeploymentsNestedInput = {
+    create?: XOR<TunnelSlotCreateWithoutDeploymentsInput, TunnelSlotUncheckedCreateWithoutDeploymentsInput>
+    connectOrCreate?: TunnelSlotCreateOrConnectWithoutDeploymentsInput
+    upsert?: TunnelSlotUpsertWithoutDeploymentsInput
+    disconnect?: TunnelSlotWhereInput | boolean
+    delete?: TunnelSlotWhereInput | boolean
+    connect?: TunnelSlotWhereUniqueInput
+    update?: XOR<XOR<TunnelSlotUpdateToOneWithWhereWithoutDeploymentsInput, TunnelSlotUpdateWithoutDeploymentsInput>, TunnelSlotUncheckedUpdateWithoutDeploymentsInput>
+  }
+
   export type CompanyCreateNestedOneWithoutDevicesInput = {
     create?: XOR<CompanyCreateWithoutDevicesInput, CompanyUncheckedCreateWithoutDevicesInput>
     connectOrCreate?: CompanyCreateOrConnectWithoutDevicesInput
@@ -86957,12 +89033,39 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -87033,33 +89136,6 @@ export namespace Prisma {
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-  }
-
-  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type NestedDecimalFilter<$PrismaModel = never> = {
@@ -87490,6 +89566,8 @@ export namespace Prisma {
     ticketWidth?: string
     ticketLang?: string
     supplierFilterEnabled?: boolean
+    workStartAt?: string | null
+    maxDayHours?: number | null
     remoteDomain?: string | null
   }
 
@@ -87515,6 +89593,8 @@ export namespace Prisma {
     ticketWidth?: string
     ticketLang?: string
     supplierFilterEnabled?: boolean
+    workStartAt?: string | null
+    maxDayHours?: number | null
     remoteDomain?: string | null
   }
 
@@ -87988,6 +90068,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
     location: StoreCreateNestedOneWithoutTourneesInput
     secteur?: SecteurCreateNestedOneWithoutTourneesInput
@@ -88004,6 +90088,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
@@ -88027,6 +90115,7 @@ export namespace Prisma {
     expenseDate?: Date | string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    opId?: string | null
     type?: ExpenseTypeCreateNestedOneWithoutExpensesInput
     location?: StoreCreateNestedOneWithoutExpenseLinksInput
   }
@@ -88042,6 +90131,7 @@ export namespace Prisma {
     expenseDate?: Date | string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    opId?: string | null
   }
 
   export type ExpenseCreateOrConnectWithoutCompanyInput = {
@@ -88527,6 +90617,8 @@ export namespace Prisma {
     ticketWidth?: StringFieldUpdateOperationsInput | string
     ticketLang?: StringFieldUpdateOperationsInput | string
     supplierFilterEnabled?: BoolFieldUpdateOperationsInput | boolean
+    workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
+    maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -88552,6 +90644,8 @@ export namespace Prisma {
     ticketWidth?: StringFieldUpdateOperationsInput | string
     ticketLang?: StringFieldUpdateOperationsInput | string
     supplierFilterEnabled?: BoolFieldUpdateOperationsInput | boolean
+    workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
+    maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -88975,6 +91069,10 @@ export namespace Prisma {
     notes?: StringNullableFilter<"Tournee"> | string | null
     startedAt?: DateTimeNullableFilter<"Tournee"> | Date | string | null
     finishedAt?: DateTimeNullableFilter<"Tournee"> | Date | string | null
+    startedLat?: FloatNullableFilter<"Tournee"> | number | null
+    startedLng?: FloatNullableFilter<"Tournee"> | number | null
+    finishedLat?: FloatNullableFilter<"Tournee"> | number | null
+    finishedLng?: FloatNullableFilter<"Tournee"> | number | null
     createdAt?: DateTimeFilter<"Tournee"> | Date | string
   }
 
@@ -89009,6 +91107,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFilter<"Expense"> | Date | string
     createdAt?: DateTimeFilter<"Expense"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Expense"> | Date | string | null
+    opId?: StringNullableFilter<"Expense"> | string | null
   }
 
   export type VersementUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -90435,6 +92534,7 @@ export namespace Prisma {
     expenseDate?: Date | string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    opId?: string | null
     company: CompanyCreateNestedOneWithoutExpensesInput
     location?: StoreCreateNestedOneWithoutExpenseLinksInput
   }
@@ -90450,6 +92550,7 @@ export namespace Prisma {
     expenseDate?: Date | string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    opId?: string | null
   }
 
   export type ExpenseCreateOrConnectWithoutTypeInput = {
@@ -91004,6 +93105,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     location: StoreCreateNestedOneWithoutTourneesInput
@@ -91020,6 +93125,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
@@ -92231,6 +94340,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     secteur?: SecteurCreateNestedOneWithoutTourneesInput
@@ -92247,6 +94360,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
@@ -92270,6 +94387,7 @@ export namespace Prisma {
     expenseDate?: Date | string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    opId?: string | null
     company: CompanyCreateNestedOneWithoutExpensesInput
     type?: ExpenseTypeCreateNestedOneWithoutExpensesInput
   }
@@ -92285,6 +94403,7 @@ export namespace Prisma {
     expenseDate?: Date | string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    opId?: string | null
   }
 
   export type ExpenseCreateOrConnectWithoutLocationInput = {
@@ -98099,6 +100218,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     location: StoreCreateNestedOneWithoutTourneesInput
@@ -98116,6 +100239,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
   }
@@ -98664,6 +100791,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
@@ -98681,6 +100812,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
   }
@@ -100446,6 +102581,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     location: StoreCreateNestedOneWithoutTourneesInput
@@ -100463,6 +102602,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
   }
@@ -100551,6 +102694,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
@@ -100568,6 +102715,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
   }
@@ -100817,6 +102968,152 @@ export namespace Prisma {
     lastIp?: NullableStringFieldUpdateOperationsInput | string | null
     lastSeen?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClientDeploymentCreateWithoutTunnelSlotInput = {
+    id?: string
+    client: string
+    version: string
+    domain: string
+    domainOverride?: string | null
+    overrideActive?: boolean
+    machineId?: string | null
+    status?: string
+    lastError?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ClientDeploymentUncheckedCreateWithoutTunnelSlotInput = {
+    id?: string
+    client: string
+    version: string
+    domain: string
+    domainOverride?: string | null
+    overrideActive?: boolean
+    machineId?: string | null
+    status?: string
+    lastError?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ClientDeploymentCreateOrConnectWithoutTunnelSlotInput = {
+    where: ClientDeploymentWhereUniqueInput
+    create: XOR<ClientDeploymentCreateWithoutTunnelSlotInput, ClientDeploymentUncheckedCreateWithoutTunnelSlotInput>
+  }
+
+  export type ClientDeploymentCreateManyTunnelSlotInputEnvelope = {
+    data: ClientDeploymentCreateManyTunnelSlotInput | ClientDeploymentCreateManyTunnelSlotInput[]
+  }
+
+  export type ClientDeploymentUpsertWithWhereUniqueWithoutTunnelSlotInput = {
+    where: ClientDeploymentWhereUniqueInput
+    update: XOR<ClientDeploymentUpdateWithoutTunnelSlotInput, ClientDeploymentUncheckedUpdateWithoutTunnelSlotInput>
+    create: XOR<ClientDeploymentCreateWithoutTunnelSlotInput, ClientDeploymentUncheckedCreateWithoutTunnelSlotInput>
+  }
+
+  export type ClientDeploymentUpdateWithWhereUniqueWithoutTunnelSlotInput = {
+    where: ClientDeploymentWhereUniqueInput
+    data: XOR<ClientDeploymentUpdateWithoutTunnelSlotInput, ClientDeploymentUncheckedUpdateWithoutTunnelSlotInput>
+  }
+
+  export type ClientDeploymentUpdateManyWithWhereWithoutTunnelSlotInput = {
+    where: ClientDeploymentScalarWhereInput
+    data: XOR<ClientDeploymentUpdateManyMutationInput, ClientDeploymentUncheckedUpdateManyWithoutTunnelSlotInput>
+  }
+
+  export type ClientDeploymentScalarWhereInput = {
+    AND?: ClientDeploymentScalarWhereInput | ClientDeploymentScalarWhereInput[]
+    OR?: ClientDeploymentScalarWhereInput[]
+    NOT?: ClientDeploymentScalarWhereInput | ClientDeploymentScalarWhereInput[]
+    id?: StringFilter<"ClientDeployment"> | string
+    client?: StringFilter<"ClientDeployment"> | string
+    version?: StringFilter<"ClientDeployment"> | string
+    domain?: StringFilter<"ClientDeployment"> | string
+    domainOverride?: StringNullableFilter<"ClientDeployment"> | string | null
+    overrideActive?: BoolFilter<"ClientDeployment"> | boolean
+    machineId?: StringNullableFilter<"ClientDeployment"> | string | null
+    tunnelSlotId?: StringNullableFilter<"ClientDeployment"> | string | null
+    status?: StringFilter<"ClientDeployment"> | string
+    lastError?: StringNullableFilter<"ClientDeployment"> | string | null
+    notes?: StringNullableFilter<"ClientDeployment"> | string | null
+    createdAt?: DateTimeFilter<"ClientDeployment"> | Date | string
+    updatedAt?: DateTimeFilter<"ClientDeployment"> | Date | string
+  }
+
+  export type TunnelSlotCreateWithoutDeploymentsInput = {
+    id?: string
+    subdomain: string
+    domain: string
+    label?: string | null
+    status?: string
+    tunnelId?: string | null
+    token?: string | null
+    clientMachineId?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TunnelSlotUncheckedCreateWithoutDeploymentsInput = {
+    id?: string
+    subdomain: string
+    domain: string
+    label?: string | null
+    status?: string
+    tunnelId?: string | null
+    token?: string | null
+    clientMachineId?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TunnelSlotCreateOrConnectWithoutDeploymentsInput = {
+    where: TunnelSlotWhereUniqueInput
+    create: XOR<TunnelSlotCreateWithoutDeploymentsInput, TunnelSlotUncheckedCreateWithoutDeploymentsInput>
+  }
+
+  export type TunnelSlotUpsertWithoutDeploymentsInput = {
+    update: XOR<TunnelSlotUpdateWithoutDeploymentsInput, TunnelSlotUncheckedUpdateWithoutDeploymentsInput>
+    create: XOR<TunnelSlotCreateWithoutDeploymentsInput, TunnelSlotUncheckedCreateWithoutDeploymentsInput>
+    where?: TunnelSlotWhereInput
+  }
+
+  export type TunnelSlotUpdateToOneWithWhereWithoutDeploymentsInput = {
+    where?: TunnelSlotWhereInput
+    data: XOR<TunnelSlotUpdateWithoutDeploymentsInput, TunnelSlotUncheckedUpdateWithoutDeploymentsInput>
+  }
+
+  export type TunnelSlotUpdateWithoutDeploymentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subdomain?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    tunnelId?: NullableStringFieldUpdateOperationsInput | string | null
+    token?: NullableStringFieldUpdateOperationsInput | string | null
+    clientMachineId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TunnelSlotUncheckedUpdateWithoutDeploymentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subdomain?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    tunnelId?: NullableStringFieldUpdateOperationsInput | string | null
+    token?: NullableStringFieldUpdateOperationsInput | string | null
+    clientMachineId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CompanyCreateWithoutDevicesInput = {
@@ -105837,6 +108134,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
   }
 
@@ -105851,6 +108152,7 @@ export namespace Prisma {
     expenseDate?: Date | string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    opId?: string | null
   }
 
   export type VersementCreateManyCompanyInput = {
@@ -106808,6 +109110,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
     secteur?: SecteurUpdateOneWithoutTourneesNestedInput
@@ -106824,6 +109130,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
@@ -106838,6 +109148,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -106850,6 +109164,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
     type?: ExpenseTypeUpdateOneWithoutExpensesNestedInput
     location?: StoreUpdateOneWithoutExpenseLinksNestedInput
   }
@@ -106865,6 +109180,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ExpenseUncheckedUpdateManyWithoutCompanyInput = {
@@ -106878,6 +109194,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type VersementUpdateWithoutCompanyInput = {
@@ -107721,6 +110038,7 @@ export namespace Prisma {
     expenseDate?: Date | string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    opId?: string | null
   }
 
   export type ExpenseUpdateWithoutTypeInput = {
@@ -107732,6 +110050,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutExpensesNestedInput
     location?: StoreUpdateOneWithoutExpenseLinksNestedInput
   }
@@ -107747,6 +110066,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ExpenseUncheckedUpdateManyWithoutTypeInput = {
@@ -107760,6 +110080,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SecteurCreateManyWilayaInput = {
@@ -108014,6 +110335,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
   }
 
@@ -108155,6 +110480,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
@@ -108171,6 +110500,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
@@ -108185,6 +110518,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -108645,6 +110982,10 @@ export namespace Prisma {
     notes?: string | null
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
     createdAt?: Date | string
   }
 
@@ -108659,6 +111000,7 @@ export namespace Prisma {
     expenseDate?: Date | string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    opId?: string | null
   }
 
   export type DeviceCreateManyLocationInput = {
@@ -109055,6 +111397,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     secteur?: SecteurUpdateOneWithoutTourneesNestedInput
@@ -109071,6 +111417,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
@@ -109085,6 +111435,10 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -109097,6 +111451,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutExpensesNestedInput
     type?: ExpenseTypeUpdateOneWithoutExpensesNestedInput
   }
@@ -109112,6 +111467,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ExpenseUncheckedUpdateManyWithoutLocationInput = {
@@ -109125,6 +111481,7 @@ export namespace Prisma {
     expenseDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DeviceUpdateWithoutLocationInput = {
@@ -110964,6 +113321,66 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ClientDeploymentCreateManyTunnelSlotInput = {
+    id?: string
+    client: string
+    version: string
+    domain: string
+    domainOverride?: string | null
+    overrideActive?: boolean
+    machineId?: string | null
+    status?: string
+    lastError?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ClientDeploymentUpdateWithoutTunnelSlotInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    client?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    domainOverride?: NullableStringFieldUpdateOperationsInput | string | null
+    overrideActive?: BoolFieldUpdateOperationsInput | boolean
+    machineId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClientDeploymentUncheckedUpdateWithoutTunnelSlotInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    client?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    domainOverride?: NullableStringFieldUpdateOperationsInput | string | null
+    overrideActive?: BoolFieldUpdateOperationsInput | boolean
+    machineId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClientDeploymentUncheckedUpdateManyWithoutTunnelSlotInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    client?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    domain?: StringFieldUpdateOperationsInput | string
+    domainOverride?: NullableStringFieldUpdateOperationsInput | string | null
+    overrideActive?: BoolFieldUpdateOperationsInput | boolean
+    machineId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SyncOpCreateManyDeviceInput = {

@@ -2,7 +2,10 @@
 /// Every call fail-softs to null — the slot stays `manual` with instructions
 /// instead of breaking the vendor console when credentials are absent.
 /// Env: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID,
-///      TUNNEL_BASE_DOMAIN (default distribuili.khiatadz.com).
+///      TUNNEL_BASE_DOMAIN (default khiatadz.com).
+/// NOTE: per-client hostnames must stay ONE level below the zone
+/// (dist-client1.khiatadz.com ✓) — the free Universal cert never covers
+/// two levels (client1.distribuili.khiatadz.com ✗).
 
 const API = "https://api.cloudflare.com/client/v4";
 
@@ -11,11 +14,11 @@ function cfg(): { token: string; account: string; zone: string; base: string } |
   const account = process.env.CLOUDFLARE_ACCOUNT_ID || "";
   const zone = process.env.CLOUDFLARE_ZONE_ID || "";
   if (!token || !account || !zone) return null;
-  return { token, account, zone, base: (process.env.TUNNEL_BASE_DOMAIN || "distribuili.khiatadz.com").trim().replace(/\/+$/, "") };
+  return { token, account, zone, base: (process.env.TUNNEL_BASE_DOMAIN || "khiatadz.com").trim().replace(/\/+$/, "") };
 }
 
 export function tunnelBaseDomain(): string {
-  return (process.env.TUNNEL_BASE_DOMAIN || "distribuili.khiatadz.com").trim().replace(/\/+$/, "");
+  return (process.env.TUNNEL_BASE_DOMAIN || "khiatadz.com").trim().replace(/\/+$/, "");
 }
 
 export function cfConfigured(): boolean {

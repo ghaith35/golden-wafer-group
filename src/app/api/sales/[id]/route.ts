@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
-import { deliverSchema } from "@/lib/sales/validation";
-import { confirmOrder, deliverOrder, createInvoice, cancelSale, uncancelDelivery, reopenOrder, moveSale, assignOrder, confirmAndLoadOrder } from "@/lib/sales/service";
+import { deliverSchema, ticketSchema } from "@/lib/sales/validation";
+import { confirmOrder, deliverOrder, createInvoice, cancelSale, uncancelDelivery, reopenOrder, moveSale, assignOrder, confirmAndLoadOrder, updateTicket } from "@/lib/sales/service";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -29,6 +29,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const { id } = await params;
   const { action, ...body } = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+  // Mandob (Vendeur): facture lifecycle is off-limits (edit/cancel/invoice/
+  // uncancel/reopen). Order workflow (confirm/deliver/move/assign) stays open.
+  if (session.role === "Vendeur" && ["edit", "cancel", "invoice", "uncancel", "reopen"].includes(String(action))) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
   try {
     if (action === "confirm") {
       return NextResponse.json(await confirmOrder(session.companyId, id));
@@ -66,6 +71,23 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const parsed = z.object({ locationId: z.string().min(1) }).safeParse(body);
       if (!parsed.success) return NextResponse.json({ error: "validation_error", issues: parsed.error.issues }, { status: 400 });
       return NextResponse.json(await confirmAndLoadOrder(session.companyId, session.userId, id, parsed.data.locationId));
+    }
+    if (action === "edit") {
+      // Admin always. Staff (vendeur/livreur) may edit tickets on their OWN
+      // van only — the Shop hardware stays the audit boundary for the rest.
+      // Online only by nature: the server reverses + re-applies postings.
+      if (session.role !== "Admin") {
+        const target = await prisma.sale.findFirst({
+          where: { id, companyId: session.companyId, kind: "TICKET", channel: "VAN" },
+          include: { location: { select: { userId: true } } },
+        });
+        if (!target || target.location?.userId !== session.userId) {
+          return NextResponse.json({ error: "forbidden" }, { status: 403 });
+        }
+      }
+      const parsed = ticketSchema.safeParse(body);
+      if (!parsed.success) return NextResponse.json({ error: "validation_error", issues: parsed.error.issues }, { status: 400 });
+      return NextResponse.json(await updateTicket(session.companyId, id, parsed.data));
     }
     return NextResponse.json({ error: "bad_action" }, { status: 400 });
   } catch (e) {

@@ -1,6 +1,10 @@
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
+/// Type-only: erased at compile time, so the desktop standalone (local mode)
+/// never resolves @prisma/client at runtime. The Postgres branch below loads
+/// everything lazily for the same reason — a top-level `import { Pool } from
+/// "pg"` / `new PrismaClient()` crashes the LOCAL server with
+/// "Cannot find module '@prisma/client-…'" (the desktop bundle ships only
+/// the SQLite driver; pg is traced out).
+import type { PrismaClient } from "@prisma/client";
 
 // Dual-backend Prisma client (Jafraa pattern).
 //   DISTRIBUILI_DB=server (default) -> PostgreSQL
@@ -10,9 +14,16 @@ const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefi
 const isLocal = process.env.DISTRIBUILI_DB === "local";
 
 function createServerClient(): PrismaClient {
+  // Lazy requires (see header): the server/docker image carries pg, the
+  // desktop bundle does not — and in local mode this branch never runs.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const nodeRequire = eval("require") as NodeRequire;
+  const { Pool } = nodeRequire("pg") as typeof import("pg");
+  const { PrismaPg } = nodeRequire("@prisma/adapter-pg") as typeof import("@prisma/adapter-pg");
+  const { PrismaClient: PrismaPgClient } = nodeRequire("@prisma/client") as typeof import("@prisma/client");
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   const adapter = new PrismaPg(pool);
-  return new PrismaClient({
+  return new PrismaPgClient({
     adapter,
     // Shop hardware can be slow; don't let interactive transactions expire
     // mid-flow (purchase/sale/transfer apply many sequential writes).

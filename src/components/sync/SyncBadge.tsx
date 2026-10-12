@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { pendingCount, syncNow, getLastSync, getDeviceToken } from "@/lib/sync/client";
+import { pendingCount, syncNow, getLastSync, getDeviceToken, shouldAutoSync, AUTO_SYNC_MS } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
 
 /// Offline/sync status pill: online state, pending ops, last sync, manual sync.
 export function SyncBadge({ labels }: { labels: { offline: string; pending: string; sync: string; synced: string; noDevice: string } }) {
-  const [online, setOnline] = useState(() => typeof navigator === "undefined" || navigator.onLine);
+  // Default online: server renders the same, the true state syncs on mount
+  // (reading navigator during render mismatches hydration when offline).
+  const [online, setOnline] = useState(true);
   const [pending, setPending] = useState(0);
   const [last, setLast] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -14,6 +16,9 @@ export function SyncBadge({ labels }: { labels: { offline: string; pending: stri
 
   useEffect(() => {
     let live = true;
+    try {
+      setOnline(navigator.onLine);
+    } catch { /* assume online */ }
     const refresh = async () => {
       if (!live) return;
       setHasToken(!!getDeviceToken());
@@ -45,11 +50,33 @@ export function SyncBadge({ labels }: { labels: { offline: string; pending: stri
     const t = setInterval(() => {
       void refresh();
     }, 5000);
+    // Heartbeat: every 30s flush without being asked — but ONLY with
+    // something to send, a device, a connection and a visible page.
+    // Offline (or hidden, or idle) the tick resolves locally and stops:
+    // no timers pile up, no battery burn, syncNow never fires blind.
+    const beat = setInterval(() => {
+      void (async () => {
+        try {
+          const hidden = typeof document !== "undefined" && document.hidden;
+          const online = typeof navigator === "undefined" || navigator.onLine !== false;
+          let token = false;
+          try {
+            token = !!getDeviceToken();
+          } catch { /* ignore */ }
+          const pending = await pendingCount().catch(() => 0);
+          if (!shouldAutoSync({ hidden, online, busy: busyRef, hasToken: token, pending })) return;
+          await auto();
+        } catch {
+          /* never break the page */
+        }
+      })();
+    }, AUTO_SYNC_MS);
     return () => {
       live = false;
       window.removeEventListener("online", on);
       window.removeEventListener("offline", off);
       clearInterval(t);
+      clearInterval(beat);
     };
   }, []);
 
@@ -79,7 +106,7 @@ export function SyncBadge({ labels }: { labels: { offline: string; pending: stri
         !online ? "bg-red-500/15 text-red-500" : pending > 0 ? "bg-amber-500/15 text-amber-600" : "bg-emerald-500/15 text-emerald-600"
       )}
     >
-      <span>{!online ? `● ${labels.offline}` : pending > 0 ? `● ${pending} ${labels.pending}` : `● ${labels.sync}`}</span>
+      <span>{!online ? `● ${labels.offline}${pending > 0 ? ` · ${pending}` : ""}` : pending > 0 ? `● ${pending} ${labels.pending}` : `● ${labels.sync}`}</span>
     </button>
   );
 }

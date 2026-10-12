@@ -8,7 +8,7 @@ function invoke(channel: string): Handler {
 
 // Present only inside the desktop shell. Web builds see `undefined`.
 contextBridge.exposeInMainWorld("distribuili", {
-  version: "0.1.1",
+  version: "0.1.6",
   isDesktop: true,
   licenseStatus: invoke("license-status"),
   licenseRegister: invoke("license-register"),
@@ -19,6 +19,15 @@ contextBridge.exposeInMainWorld("distribuili", {
   updateCheck: invoke("update-check"),
   updateDownload: invoke("update-download"),
   updateInstall: invoke("update-install"),
+  bundleStatus: invoke("bundle-status"),
+  bundleCheck: invoke("bundle-check"),
+  bundleDownload: invoke("bundle-download"),
+  bundleApply: invoke("bundle-apply"),
+  onBundleProgress: (cb: (pct: number) => void) => {
+    const listener = (_e: unknown, pct: number) => cb(pct);
+    ipcRenderer.on("bundle-progress", listener as never);
+    return () => ipcRenderer.removeListener("bundle-progress", listener as never);
+  },
   serverGetUrl: invoke("server-get-url"),
   serverSaveUrl: invoke("server-save-url"),
   onUpdateProgress: (cb: (pct: number) => void) => {
@@ -34,17 +43,22 @@ declare global {
       version: string;
       isDesktop: boolean;
       licenseStatus: () => Promise<never>;
-      licenseRegister: (label?: string, phone?: string) => Promise<never>;
+      licenseRegister: (label?: string, phone?: string, info?: Record<string, string>) => Promise<never>;
       licenseStartTrial: (info: Record<string, string>) => Promise<never>;
       licenseCheck: () => Promise<never>;
       licenseEnterKey: (token: string) => Promise<never>;
-      licenseRedeemKey: (key: string, label?: string) => Promise<never>;
+      licenseRedeemKey: (key: string, label?: string, info?: Record<string, string>) => Promise<never>;
       updateCheck: () => Promise<never>;
       updateDownload: () => Promise<never>;
       updateInstall: () => Promise<never>;
+      bundleStatus: () => Promise<never>;
+      bundleCheck: () => Promise<never>;
+      bundleDownload: () => Promise<never>;
+      bundleApply: () => Promise<never>;
       serverGetUrl: () => Promise<never>;
       serverSaveUrl: (url: string) => Promise<never>;
       onUpdateProgress: (cb: (pct: number) => void) => () => void;
+      onBundleProgress: (cb: (pct: number) => void) => () => void;
     };
   }
 }

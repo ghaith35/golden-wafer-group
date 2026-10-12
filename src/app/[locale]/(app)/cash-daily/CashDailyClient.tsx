@@ -2,10 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Banknote, Bus } from "lucide-react";
+import Link from "next/link";
+import { Banknote, Bus, Check, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { KpiCard } from "@/components/ui/Card";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -88,7 +90,7 @@ export function CashDailyClient({
       ? `${year}-${String(month).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`
       : "";
   });
-  const [modal, setModal] = useState<null | { kind: "declare" | "remit" | "close"; row: Row }>(null);
+  const [modal, setModal] = useState<null | { kind: "declare" | "close"; row: Row }>(null);
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
@@ -128,9 +130,9 @@ export function CashDailyClient({
     return (v?.name ?? "").includes(q) || (v?.driver ?? "").includes(q);
   });
 
-  const openModal = (kind: "declare" | "remit" | "close", row: Row) => {
+  const openModal = (kind: "declare" | "close", row: Row) => {
     setModal({ kind, row });
-    setAmount(kind === "remit" ? String(Math.max(0, Math.round(row.dueCash - row.remitted))) : row.declared != null ? String(row.declared) : "");
+    setAmount(row.declared != null ? String(row.declared) : "");
     setNotes("");
     setError(null);
   };
@@ -138,18 +140,14 @@ export function CashDailyClient({
   async function submit() {
     if (!modal) return;
     const { kind, row } = modal;
-    if ((kind === "declare" || kind === "remit") && !(Number(amount) >= 0 && amount !== "")) {
-      setError("bad_amount");
-      return;
-    }
-    if (kind === "remit" && !(Number(amount) > 0)) {
+    if (kind === "declare" && !(Number(amount) >= 0 && amount !== "")) {
       setError("bad_amount");
       return;
     }
     setBusy(true);
     setError(null);
     try {
-      const url = kind === "declare" ? "/api/cash-daily/declare" : kind === "remit" ? "/api/cash-daily/remit" : "/api/cash-daily/close";
+      const url = kind === "declare" ? "/api/cash-daily/declare" : "/api/cash-daily/close";
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -197,10 +195,29 @@ export function CashDailyClient({
 
   return (
     <div className="space-y-4 p-5 md:p-6">
-      <h1 className="flex items-center gap-2 text-xl font-black">
-        <Banknote size={20} className="text-(--brand-600)" />
-        {labels.title}
-      </h1>
+      <div className="grid grid-cols-3 gap-2">
+        <KpiCard
+          label={labels.collected}
+          value={num(visible.reduce((s, r) => s + Number(r.collected ?? 0), 0))}
+          icon={<Banknote size={18} />}
+          accent="bg-emerald-500/15 text-emerald-600"
+          compact
+        />
+        <KpiCard
+          label={labels.dueCash}
+          value={num(visible.reduce((s, r) => s + Number(r.dueCash ?? 0), 0))}
+          icon={<Wallet size={18} />}
+          accent="bg-sky-500/15 text-sky-600"
+          compact
+        />
+        <KpiCard
+          label={labels.declared}
+          value={String(visible.filter((r) => r.declared != null).length)}
+          icon={<Check size={18} />}
+          accent="bg-violet-500/15 text-violet-500"
+          compact
+        />
+      </div>
       <div className="flex flex-col gap-2 lg:flex-row">
         <div className="flex flex-1 gap-2">
           <div className="flex-1">
@@ -301,9 +318,11 @@ export function CashDailyClient({
                   </Button>
                   {isAdmin && (
                     <>
-                      <Button variant="secondary" onClick={() => openModal("remit", r)} className="flex-1">
-                        {labels.remit}
-                      </Button>
+                      <Link href={`/${locale}/cash-daily/${r.vanId}/${r.dayIso}`} className="flex-1">
+                        <Button variant="secondary" className="w-full">
+                          {labels.remit} · <bdi dir="ltr">{num(Math.max(0, r.dueCash - r.remitted))}</bdi>
+                        </Button>
+                      </Link>
                       <Button onClick={() => openModal("close", r)} className="flex-1">
                         {labels.close}
                       </Button>
@@ -326,7 +345,7 @@ export function CashDailyClient({
       <Modal
         open={modal !== null}
         onClose={() => setModal(null)}
-        title={modal ? (modal.kind === "declare" ? labels.declare : modal.kind === "remit" ? labels.remit : labels.close) : ""}
+        title={modal ? (modal.kind === "declare" ? labels.declare : labels.close) : ""}
         icon="💵"
         width="sm"
       >
@@ -334,9 +353,6 @@ export function CashDailyClient({
           <div className="space-y-3">
             <div className="rounded-xl bg-(--bg-sunken) px-3 py-2 text-sm font-bold">
               {vanById.get(modal.row.vanId)?.name} · {modal.row.dayIso} · {labels.dueCash}: {num(modal.row.dueCash)}
-              {modal.kind === "remit" && (
-                <span className="opacity-60"> · {labels.remitted}: {num(modal.row.remitted)}</span>
-              )}
             </div>
             {modal.kind !== "close" && (
               <div>

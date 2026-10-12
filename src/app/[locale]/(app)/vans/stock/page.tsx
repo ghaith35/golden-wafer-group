@@ -188,6 +188,7 @@ export default async function VanStockBoardPage({ params }: { params: Promise<{ 
         next: ti("next"), back: ti("back"), queued: ti("queued"), search: tc("search"),
         sourceStock: ti("sourceStock"), emptySource: ti("emptySource"), onlyAvailable: ti("onlyAvailable"),
         loadingStock: ti("loadingStock"), emptyLocation: ti("emptyLocation"), addAll: ti("addAll"),
+        multiSelect: ti("multiSelect"), addSelected: ti("addSelected"),
       }}
       detailLabels={{
         load: t("load"), unload: t("unload"), onVan: t("onVan"), inDepot: t("inDepot"), depot: t("depot"), value: t("value"),

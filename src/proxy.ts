@@ -3,7 +3,7 @@ import createMiddleware from "next-intl/middleware";
 import { jwtVerify, SignJWT } from "jose";
 import { routing } from "@/i18n/routing";
 import { ACCESS_MAX_AGE, ACCESS_SLIDE_WINDOW } from "@/lib/auth/tokens";
-import { isLocalMode, localEntitledCached } from "@/lib/license/gate";
+import { isLocalMode, localEntitledCached, isDesktopUserAgent } from "@/lib/license/gate";
 
 const handleI18nRouting = createMiddleware(routing);
 
@@ -17,7 +17,8 @@ const PORTAL_PREFIXES = ["/portal"];
 /// Livreur: ONLY his mobile flow under /livreur (day picker, vente,
 /// commande, stock, dashboard-of-the-day, factures). He sees nothing else —
 /// no company dashboard, no standalone lists, no admin sections.
-/// Vendeur: everything except the admin-only sections below.
+/// Vendeur: everything except the admin-only sections below, minus sale
+/// creation + factures (orders/commandes flow stays fully usable).
 /// Admin: everything.
 const LIVREUR_PAGES = ["/livreur"];
 const STAFF_BLOCKED_PAGES = [
@@ -39,7 +40,6 @@ const ADMIN_APIS: Array<{ p: string; m: string[] | null }> = [
   { p: "/api/supplier-returns", m: null },
   { p: "/api/products", m: ["POST", "PUT", "PATCH", "DELETE"] },
   { p: "/api/categories", m: null },
-  { p: "/api/expenses", m: null },
   { p: "/api/reports", m: null },
   { p: "/api/journal", m: null },
   { p: "/api/dashboard", m: null },
@@ -47,7 +47,7 @@ const ADMIN_APIS: Array<{ p: string; m: string[] | null }> = [
   { p: "/api/transfers", m: null },
   { p: "/api/counts", m: null },
   { p: "/api/losses", m: null },
-  { p: "/api/tournees", m: ["POST", "PUT", "DELETE"] },
+  { p: "/api/tournees", m: ["PUT", "DELETE"] },
   { p: "/api/clients", m: ["DELETE"] },
   { p: "/api/deposits", m: null },
   { p: "/api/debts", m: null },
@@ -158,9 +158,12 @@ export async function proxy(request: NextRequest) {
     // Local-install license gate (Node runtime): a locked/expired desktop
     // install gets 402 on everything except the license flows themselves,
     // health, auth (trial/redeem need no session) and the update feed.
-    // Central/vendor installs and plain dev servers are never gated.
+    // Phones/tablets skip it (desktop UA only) — staff keep working from
+    // mobile while the shop PC itself stays gated. Central/vendor installs
+    // and plain dev servers are never gated.
     if (
       isLocalMode() &&
+      isDesktopUserAgent(request.headers.get("user-agent")) &&
       !(
         routePath === "/api/license" ||
         routePath.startsWith("/api/license/") ||
@@ -228,6 +231,17 @@ export async function proxy(request: NextRequest) {
     if (claims.role === "Livreur" || (claims.role !== "Admin" && claims.role !== "Vendeur")) {
       const ok = LIVREUR_PAGES.some((p) => isPath(routePath, p));
       if (!ok) return NextResponse.redirect(new URL(localized("/livreur"), request.url));
+    } else if (claims.role === "Vendeur") {
+      // Mandob: no sale creation, no factures — anywhere.
+      if (isPath(routePath, "/sales")) {
+        return NextResponse.redirect(new URL(localized("/dashboard"), request.url));
+      }
+      const seg = routePath.split("/").filter(Boolean);
+      if (seg[0] === "livreur" && (seg[2] === "vente" || seg[2] === "factures" || seg[2] === "demande")) {
+        return NextResponse.redirect(new URL(localized(`/livreur/${seg[1]}/dashboard`), request.url));
+      }
+      const blocked = STAFF_BLOCKED_PAGES.some((p) => isPath(routePath, p));
+      if (blocked) return NextResponse.redirect(new URL(localized("/dashboard"), request.url));
     } else if (claims.role !== "Admin") {
       const blocked = STAFF_BLOCKED_PAGES.some((p) => isPath(routePath, p));
       if (blocked) return NextResponse.redirect(new URL(localized("/dashboard"), request.url));

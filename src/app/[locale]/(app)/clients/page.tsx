@@ -31,6 +31,7 @@ export default async function ClientsPage({ params }: { params: Promise<{ locale
       tiers={tiers}
       labels={{
         title: t("title"), neW: t("new"), search: tc("search"), qrPrint: t("qrPrint"), empty: t("empty"),
+        active: tc("active"),
         details: tc("details"), edit: tc("edit"), delete: tc("delete"),
         deleteTitle: tc("deleteTitle"), deleteMessage: tc("deleteMessage"),
         name: t("name"), phone: t("phone"), address: t("address"), wilaya: t("wilaya"),
@@ -45,6 +46,11 @@ export default async function ClientsPage({ params }: { params: Promise<{ locale
         newSecteur: t("newSecteur"), secteurNamePh: t("secteurNamePh"), selectWilayaFirst: t("selectWilayaFirst"),
         qr: t("qr"), print: t("print"), pdf: t("pdf"),
         downloadFile: t("downloadFile"), generating: t("generating"),
+        import: t("import"), importTitle: t("importTitle"), importHint: t("importHint"),
+        importFile: t("importFile"), importStart: t("importStart"), importing: t("importing"),
+        importDone: t("importDone"), importSkipped: t("importSkipped"),
+        importNoPhone: t("importNoPhone"), importInactive: t("importInactive"),
+        importBadFile: t("importBadFile"), importFailed: t("importFailed"),
       }}
     />
   );

@@ -2,6 +2,43 @@
 
 import { cn } from "@/lib/utils";
 
+/// Bare switch track (Khiata Toggle): for SettingRow control columns.
+/// The full label+hint row button below stays for standalone uses.
+export function Switch({
+  checked,
+  onChange,
+  label,
+  disabled,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={cn(
+        "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-60",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--brand-500)",
+        checked ? "bg-(--brand-500)" : "bg-(--border-strong)"
+      )}
+    >
+      <span
+        className={cn(
+          "inline-block h-[18px] w-[18px] rounded-full bg-white shadow-sm transition-transform",
+          checked ? "translate-x-[23px] rtl:-translate-x-[23px]" : "translate-x-[3px] rtl:-translate-x-[3px]"
+        )}
+      />
+    </button>
+  );
+}
+
 export function Toggle({
   checked,
   onChange,
@@ -19,7 +56,7 @@ export function Toggle({
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className="flex w-full items-center justify-between gap-3 rounded-xl border border-(--border-default) bg-(--bg-overlay) px-4 py-3 text-start"
+      className="flex w-full items-center justify-between gap-3 rounded-xl border border-(--border-default) bg-(--bg-overlay) px-4 py-3 text-start focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--brand-500)"
     >
       <span>
         <span className="block text-sm font-bold">{label}</span>
@@ -27,14 +64,14 @@ export function Toggle({
       </span>
       <span
         className={cn(
-          "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+          "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors",
           checked ? "bg-(--brand-500)" : "bg-(--border-strong)"
         )}
       >
         <span
           className={cn(
-            "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all",
-            checked ? "start-5" : "start-0.5"
+            "inline-block h-[18px] w-[18px] rounded-full bg-white shadow-sm transition-transform",
+            checked ? "translate-x-[23px] rtl:-translate-x-[23px]" : "translate-x-[3px] rtl:-translate-x-[3px]"
           )}
         />
       </span>

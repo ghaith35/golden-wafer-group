@@ -9,46 +9,37 @@
 body{font-family:system-ui;background:#0f172a;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
 .card{background:#1e293b;border-radius:16px;padding:28px;max-width:420px;width:92%;box-shadow:0 10px 40px #0008;text-align:center}
 h1{font-size:18px;margin:0 0 6px}.logo{font-size:40px}
-p{font-size:13px;opacity:.7;margin:0 0 14px}
-input{width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:14px;margin-top:8px}
-input::placeholder{opacity:.5}
+p{font-size:13px;opacity:.7;margin:0 0 14px;line-height:1.8}
 button{width:100%;margin-top:12px;padding:14px;border:0;border-radius:12px;background:#65a30d;color:#fff;font-size:16px;font-weight:800;cursor:pointer}
 button.ghost{background:transparent;border:1px solid #334155;font-size:14px;font-weight:600}
-button.link{background:none;border:0;color:#94a3b8;font-size:13px;font-weight:600;padding:8px}
 .hint{font-size:12px;opacity:.6;margin-top:10px}
-code{direction:ltr;unicode-bidi:embed}
 video{width:100%;border-radius:12px;background:#000;max-height:46vh;object-fit:cover}
 .hidden{display:none}
 .err{color:#f87171;font-size:13px;min-height:20px;margin-top:8px}
 </style>
 </head>
 <body>
-<!-- connecting (returning user: never touches anything) -->
+<!-- returning user: brief splash, then straight into the app -->
 <div class="card" id="loading" style="display:none">
   <div class="logo">🚚</div>
-  <h1>جارٍ الاتصال…</h1>
-  <p id="to" dir="ltr"></p>
-  <button class="ghost" onclick="change()">تغيير العنوان</button>
+  <h1>جارٍ الفتح…</h1>
+  <p>يتم فتح تطبيق التوزيع الخاص بك</p>
 </div>
 
-<!-- first run: scan first, type never -->
+<!-- first run: scan only — no address is ever typed or shown -->
 <div class="card" id="setup" style="display:none">
-  <div class="logo">🚚</div>
-  <h1>Distribuili Van</h1>
-  <p>امسح رمز الـ QR المعروض على شاشة الكمبيوتر</p>
-  <button id="scanBtn" onclick="startScan()">📷 مسح الرمز</button>
-  <video id="cam" class="hidden" playsinline muted></video>
-  <button id="stopBtn" class="ghost hidden" onclick="stopScan()">إيقاف</button>
-  <div class="err" id="scanErr"></div>
-  <div id="manualWrap" class="hidden">
-    <input id="url" dir="ltr" placeholder="https://…">
-    <input id="token" dir="ltr" placeholder="رمز الجهاز (اختياري)">
-    <button onclick="go()">اتصال ✓</button>
+  <div id="serverView">
+    <div class="logo">🚚</div>
+    <h1>الاتصال بخادم التوزيع</h1>
+    <p>امسح رمز الاتصال المشترك الظاهر في صفحة الأجهزة على الكمبيوتر.</p>
+    <button id="scanBtn" onclick="startScan()">📷 مسح الرمز</button>
+    <video id="cam" class="hidden" playsinline muted></video>
+    <button id="stopBtn" class="ghost hidden" onclick="stopScan()">إيقاف</button>
+    <div class="err" id="scanErr"></div>
+    <div class="hint">أو اختر صورة الرمز من المعرض:</div>
+    <input type="file" id="gallery" accept="image/*" style="margin-top:8px">
+    <div class="err" id="err"></div>
   </div>
-  <button class="link" id="manualLink" onclick="showManual()">إدخال يدوي</button>
-  <div class="hint">أو اختر صورة الرمز من المعرض:</div>
-  <input type="file" id="gallery" accept="image/*" style="margin-top:8px">
-  <div class="err" id="err"></div>
 </div>
 
 <script>
@@ -60,47 +51,40 @@ function saved() {
   try { return { url: localStorage.getItem(KEY) || "", token: localStorage.getItem(TKEY) || "" }; }
   catch (e) { return { url: "", token: "" }; }
 }
-function target(url, token) {
-  var dest = url.replace(/\/$/, "") + "/ar/livreur";
+/// Server base URL. Accepts a bare origin AND legacy setup payloads that
+/// carry the full `/api/sync` endpoint (old QRs) — both resolve to the origin.
+/// The value is stored but NEVER displayed to the driver.
+function baseOf(url) {
+  var u = String(url || "").trim().replace(/\/+$/, "");
+  var i = u.indexOf("/api/sync");
+  if (i > 0) u = u.slice(0, i).replace(/\/+$/, "");
+  return u;
+}
+/// Day slug mirror of the server's daySlug(): yyyy-m-d, NOT zero-padded
+/// (`2026-10-8`). Must match exactly or the offline entry 404s.
+function todaySlug() {
+  var d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+}
+/// THE entry, online and offline: today's dashboard, warmed on every visit
+/// and served by the service worker with zero connection. No probe, no
+/// server-redirect hop, no day picker — one path, zero taps, always.
+function dashboardUrl(url, token) {
+  var dest = baseOf(url) + "/ar/livreur/" + todaySlug() + "/dashboard";
   if (token) dest += "?device=" + encodeURIComponent(token);
   return dest;
 }
 function connect(url, token) {
+  url = baseOf(url);
+  if (!url) { showSetup(); return; }
   try {
     localStorage.setItem(KEY, url);
     if (token) localStorage.setItem(TKEY, token);
   } catch (e) {}
-  document.getElementById("to").textContent = url;
   document.getElementById("setup").style.display = "none";
-  var l = document.getElementById("loading");
-  l.style.display = "";
-  timer = setTimeout(function () { window.location.href = target(url, token); }, 600);
-  setTimeout(function () {
-    if (document.getElementById("loading").style.display !== "none") showSetup(url, token);
-  }, 25000);
-}
-function showSetup(url, token) {
-  if (timer) { clearTimeout(timer); timer = null; }
-  stopScan();
-  document.getElementById("loading").style.display = "none";
-  document.getElementById("setup").style.display = "";
-  if (url) document.getElementById("url").value = url;
-  if (token) document.getElementById("token").value = token;
-}
-function change() { var s = saved(); showSetup(s.url, s.token); }
-function showManual() {
-  document.getElementById("manualWrap").classList.remove("hidden");
-  document.getElementById("manualLink").style.display = "none";
-}
-function go() {
-  var url = document.getElementById("url").value.trim().replace(/\/$/, "");
-  var token = document.getElementById("token").value.trim();
-  if (!/^https?:\/\//i.test(url)) url = "http://" + url;
-  if (!/^https?:\/\/[^\/]+(:\d+)?$/i.test(url)) {
-    document.getElementById("err").textContent = "رابط غير صالح";
-    return;
-  }
-  connect(url, token);
+  document.getElementById("loading").style.display = "";
+  if (timer) clearTimeout(timer);
+  timer = setTimeout(function () { window.location.href = dashboardUrl(url, token); }, 300);
 }
 
 /* ---- QR scan (camera + gallery), decoded on-device, no network ---- */
@@ -119,7 +103,7 @@ function parsePayload(text) {
   }
   return null;
 }
-function onCode(text) {
+async function onCode(text) {
   var p = parsePayload(text);
   if (!p) {
     document.getElementById("scanErr").textContent = "رمز غير صالح — حاول مجدداً";
@@ -171,10 +155,14 @@ function stopScan() {
   } catch (e) {}
   stream = null;
   var video = document.getElementById("cam");
-  video.classList.add("hidden");
-  video.srcObject = null;
-  document.getElementById("scanBtn").classList.remove("hidden");
-  document.getElementById("stopBtn").classList.add("hidden");
+  if (video) {
+    video.classList.add("hidden");
+    video.srcObject = null;
+  }
+  var sb = document.getElementById("scanBtn");
+  if (sb) sb.classList.remove("hidden");
+  var tb = document.getElementById("stopBtn");
+  if (tb) tb.classList.add("hidden");
 }
 document.getElementById("gallery").addEventListener("change", function (e) {
   var f = e.target.files && e.target.files[0];
@@ -199,13 +187,16 @@ document.getElementById("gallery").addEventListener("change", function (e) {
 
 (function init() {
   var s = saved();
+  // Connectivity returning mid-splash: enter immediately.
+  window.addEventListener("online", function () {
+    try {
+      var cur = saved();
+      if (document.getElementById("loading").style.display !== "none" && cur.url) connect(cur.url, cur.token);
+    } catch (e) {}
+  });
   if (s.url) {
-    document.getElementById("to").textContent = s.url;
     document.getElementById("loading").style.display = "";
-    timer = setTimeout(function () { window.location.href = target(s.url, s.token); }, 800);
-    setTimeout(function () {
-      if (document.getElementById("loading").style.display !== "none") showSetup(s.url, s.token);
-    }, 25000);
+    connect(s.url, s.token);
   } else {
     document.getElementById("setup").style.display = "";
   }

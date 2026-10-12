@@ -262,6 +262,13 @@ export function useSavedDistances(units: TripUnits) {
         setRaw(new Map((data.rows ?? []).map((r: { clientId: string; distM: number; durS: number }) => [r.clientId, { distM: Number(r.distM), durS: Number(r.durS) }])));
         return true;
       } catch {
+        // Offline (or server down): the GPS fix itself is still valid — keep
+        // the last-good distances and don't cry "GPS denied" at the driver.
+        try {
+          if (typeof navigator !== "undefined" && navigator.onLine === false) return false;
+        } catch {
+          return false;
+        }
         setGeoError(true);
         return false;
       } finally {

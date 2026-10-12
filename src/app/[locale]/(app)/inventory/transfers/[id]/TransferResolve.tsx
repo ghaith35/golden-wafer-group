@@ -69,10 +69,14 @@ export function TransferResolve({
           body: JSON.stringify(body),
         });
       } catch {
-        // Offline van receipt: only confirm can queue (reject/cancel need connection).
-        if (action !== "confirm") throw new Error("offline");
+        // Offline: queue confirm OR reject/cancel — holdings resolve at sync.
         try {
-          await queueOp("transfer-confirm", { transferId, lines: body.lines ?? [] } as Record<string, unknown>);
+          await queueOp(
+            action === "confirm" ? "transfer-confirm" : "transfer-reject",
+            (action === "confirm"
+              ? { transferId, lines: body.lines ?? [] }
+              : { transferId, action }) as Record<string, unknown>,
+          );
         } catch {
           setError("failed");
           return;

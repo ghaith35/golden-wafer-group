@@ -2,15 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bus, Plus, Store } from "lucide-react";
+import { Bus, Plus, Store, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { SaleDocForm } from "./SaleDocForm";
 import { SaleActions, type SaleDetail } from "./[id]/SaleActions";
 import type { SaleFormData } from "./saleRefs";
-import { dzMoney } from "@/lib/format";
+import { dzMoney, fmtDT } from "@/lib/format";
 import { compareNatural } from "@/lib/sort";
+import { getUnsyncedDocKeys } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
 
 type Row = {
@@ -27,11 +28,11 @@ type Row = {
 };
 
 const STATUS_STYLE: Record<string, string> = {
-  DRAFT: "bg-(--bg-sunken) text-(--text-secondary)",
-  CONFIRMED: "bg-sky-500/10 text-sky-600",
-  DELIVERED: "bg-indigo-500/10 text-indigo-500",
-  INVOICED: "bg-violet-500/10 text-violet-500",
-  CANCELLED: "bg-red-500/10 text-red-500",
+  DRAFT: "pill-slate",
+  CONFIRMED: "pill-sky",
+  DELIVERED: "pill-emerald",
+  INVOICED: "pill-brand",
+  CANCELLED: "pill-red",
 };
 
 const num = (v: number) => dzMoney(v);
@@ -67,6 +68,23 @@ export function SalesClient({
 }) {
   const router = useRouter();
   const [rows, setRows] = useState(initial);
+  const [unsynced, setUnsynced] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    let on = true;
+    const load = () => {
+      getUnsyncedDocKeys().then((s) => {
+        if (on) setUnsynced(s);
+      }).catch(() => {});
+    };
+    load();
+    window.addEventListener("online", load);
+    window.addEventListener("focus", load);
+    return () => {
+      on = false;
+      window.removeEventListener("online", load);
+      window.removeEventListener("focus", load);
+    };
+  }, []);
   const [modal, setModal] = useState<"ticket" | null>(null);
   const [q, setQ] = useState("");
   const [fVan, setFVan] = useState("");
@@ -184,7 +202,7 @@ export function SalesClient({
   return (
     <div className="flex min-h-0 flex-1 flex-col space-y-3 lg:overflow-hidden">
       <div className="flex shrink-0 gap-2">
-        <Button variant="secondary" onClick={() => setModal("ticket")} className="shrink-0">
+        <Button onClick={() => setModal("ticket")} className="shrink-0">
           <Plus size={16} className="me-1" />
           {labels.newTicket}
         </Button>
@@ -300,7 +318,13 @@ export function SalesClient({
                     <span className={cn("shrink-0 rounded-full px-2 py-1 text-[10px] font-black", STATUS_STYLE[r.status] ?? STATUS_STYLE.DRAFT)}>
                       {r.status}
                     </span>
-                    <span className="truncate">{r.location?.name ?? ""} · {new Date(r.date as string).toLocaleDateString(locale)}</span>
+                    {unsynced.has(r.id) && (
+                      <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-2 py-1 text-[10px] font-black">
+                        <WifiOff size={11} />
+                        {labels.unsynced ?? "…"}
+                      </span>
+                    )}
+                    <span className="truncate">{r.location?.name ?? ""} · {fmtDT(r.date as string, locale)}</span>
                   </span>
                   {total - paid > 0.005 ? (
                     <span className="shrink-0 font-bold tabular-nums text-red-500">{num(total - paid)}</span>
@@ -324,6 +348,9 @@ export function SalesClient({
               locations={formData.locations.map((l: { id: string; name: string; kind?: string }) => ({ id: l.id, name: l.name, kind: l.kind }))}
               labels={detailLabels}
               onDone={(id) => void detailChanged(id)}
+              formData={formData}
+              formLabels={formLabels}
+              canEdit
             />
           ) : (
             <div className="rounded-2xl border border-dashed border-(--border-default) p-10 text-center text-sm opacity-50">

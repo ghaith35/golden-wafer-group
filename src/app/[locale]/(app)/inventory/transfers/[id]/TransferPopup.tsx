@@ -80,8 +80,41 @@ export function TransferPopup({
           else setFailed(true);
         }
       })
-      .catch(() => {
-        if (!dead) setFailed(true);
+      .catch(async () => {
+        // Offline: fall back to the synced snapshot's declared transfers so
+        // the van can still confirm/reject (queued) without connection.
+        if (dead) return;
+        try {
+          const { getVanSnapshot } = await import("@/lib/sync/client");
+          const s = await getVanSnapshot();
+          const t = s?.transfers?.find((x) => x.id === transferId);
+          if (t) {
+            const vanIds = new Set((s?.vans ?? []).map((v) => v.id));
+            const loc = (id: string, name: string) => ({
+              id, name, kind: vanIds.has(id) ? "VAN" : "DEPOT",
+            });
+            setRow({
+              id: t.id,
+              number: t.number,
+              status: t.status,
+              date: t.date,
+              cashAmount: t.cashAmount ?? 0,
+              notes: t.notes,
+              fromLocation: loc(t.fromLocationId, t.fromLocation.name),
+              toLocation: loc(t.toLocationId, t.toLocation.name),
+              lines: t.lines.map((l) => ({
+                id: l.id,
+                declaredQty: l.declaredQty,
+                confirmedQty: l.confirmedQty,
+                product: { id: l.product.id, name: l.product.name },
+              })),
+            });
+          } else {
+            setFailed(true);
+          }
+        } catch {
+          if (!dead) setFailed(true);
+        }
       });
     return () => {
       dead = true;

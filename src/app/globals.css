@@ -31,18 +31,18 @@
   --semantic-warning: #f59e0b;
   --semantic-danger: #ef4444;
 
-  /* ── Superadmin sidebar (repaire-style console shell) ─────────────── */
-  --sa-sidebar-start: #0c1226;
-  --sa-sidebar-end: #162042;
-  --sa-sidebar-fg: #e2e8f0;
-  --sa-sidebar-muted: #8b98b8;
-  --sa-sidebar-accent: #818cf8;
-  --sa-sidebar-active-bg: rgba(99, 102, 241, 0.25);
-  --sa-sidebar-active-fg: #c7d2fe;
+  /* ── Superadmin console shell (khiata structure, distribuili greens) ──── */
+  --sa-sidebar-start: #101b10;
+  --sa-sidebar-end: #090d08;
+  --sa-sidebar-fg: #f0f7ec;
+  --sa-sidebar-muted: #93a895;
+  --sa-sidebar-accent: #a3e635;
+  --sa-sidebar-active-bg: rgba(163, 230, 53, 0.16);
+  --sa-sidebar-active-fg: #ecfccb;
   --sa-sidebar-hover-bg: rgba(255, 255, 255, 0.06);
-  --sa-sidebar-hover-fg: #f1f5f9;
-  --sa-sidebar-section: #64748b;
-  --sa-sidebar-footer-border: #1e293b;
+  --sa-sidebar-hover-fg: #f0f7ec;
+  --sa-sidebar-section: rgba(240, 247, 236, 0.32);
+  --sa-sidebar-footer-border: rgba(255, 255, 255, 0.1);
   --sa-sidebar-logout: #f87171;
 }
 
@@ -61,6 +61,7 @@
   --brand-500: #10b981;
   --brand-600: #059669;
   --gradient-brand: linear-gradient(135deg, #10b981, #047857);
+  --brand-contrast: #ffffff;
   --semantic-success: #10b981;
   --semantic-danger: #ef4444;
 }
@@ -337,18 +338,19 @@
   --semantic-danger: #dc2626;
 }
 [data-theme="lime"] {
-  --bg-surface: #f7fee7;
-  --bg-sunken: #e9f8d2;
+  --bg-surface: #f7f3ee;
+  --bg-sunken: #efe9dd;
   --bg-overlay: #ffffff;
   --text-primary: #1a2e05;
   --text-secondary: #4f6430;
   --text-tertiary: #4f6430;
-  --border-default: #d5e5b5;
-  --border-subtle: #e9f8d2;
-  --border-strong: #d5e5b5;
+  --border-default: #e8e0d4;
+  --border-subtle: #efe9dd;
+  --border-strong: #e8e0d4;
   --brand-500: #65a30d;
   --brand-600: #4d7c0f;
-  --gradient-brand: linear-gradient(135deg, #65a30d, #3f6212);
+  --gradient-brand: linear-gradient(135deg, #b5dc63, #84cc16);
+  --brand-contrast: #1a2e05;
   --semantic-success: #65a30d;
   --semantic-danger: #dc2626;
 }
@@ -504,6 +506,167 @@ div[id^="DndLiveRegion"] {
 
 .bg-gradient-brand {
   background: var(--gradient-brand);
+}
+
+/* ── Sidebar nav ──────────────────────────────────────────────────── */
+/* Quart-expo motion for selection + hover (state change, 150–250ms).
+   Focus ring included: every nav row is keyboard-reachable. */
+.side-item {
+  transition:
+    background-color 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.12s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.side-item:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+}
+/* Scrollable nav rail: thin tinted scrollbar, never clipped content. */
+.side-nav {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.side-nav::-webkit-scrollbar {
+  width: 6px;
+}
+.side-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.side-nav::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .side-item {
+    transition: none;
+  }
+}
+
+/* ── Dark app sidebar (khiata/repaire-style console shell) ──────────────
+   Theme-aware: re-scopes the shared tokens so every child (nav rows, icon
+   chips, headers, buttons) renders for a dark gradient rail without
+   touching the TSX. */
+.app-sidebar {
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.72);
+  --text-tertiary: rgba(255, 255, 255, 0.45);
+  --bg-sunken: rgba(255, 255, 255, 0.09);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  background: #14120f;
+  color: #ffffff;
+  box-shadow: 12px 0 32px rgba(0, 0, 0, 0.22);
+}
+.app-sidebar .logo-accent {
+  color: #b5dc63;
+}
+
+/* ── Status pills (khiata -ink pattern: tinted wash + darkened text) ─────
+   Darker text on the tint passes contrast where *-600 on white fails.
+   Color-only: compose with existing rounded-full px-* sizing classes. */
+.pill-amber { background-color: #fef3c7; color: #92400e; }
+.pill-sky { background-color: #e0f2fe; color: #075985; }
+.pill-emerald { background-color: #d1fae5; color: #065f46; }
+.pill-red { background-color: #fee2e2; color: #b91c1c; }
+.pill-brand {
+  background-color: color-mix(in srgb, var(--brand-500) 14%, white);
+  color: color-mix(in srgb, var(--brand-600) 88%, black);
+}
+.pill-slate { background-color: var(--bg-sunken); color: var(--text-secondary); }
+
+/* ── Pro base (khiata parity) ─────────────────────────────────────────── */
+html, body {
+  overflow-x: clip;
+}
+button, input, select, textarea {
+  font: inherit;
+}
+:where(a, button, input, select, textarea, [role="switch"], [role="radio"]):focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+}
+
+/* ── Bordered panel + 44px field (khiata ui-panel / field-input) ───────── */
+.ui-panel {
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  border-radius: 18px;
+  background: var(--bg-overlay);
+  box-shadow: 0 12px 40px rgba(15, 14, 13, 0.045);
+}
+.field-input {
+  min-height: 44px;
+  width: 100%;
+  border-radius: 11px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.field-input:focus {
+  border-color: var(--brand-500);
+  background: var(--bg-overlay);
+  outline: none;
+}
+
+/* ── Data tables: tinted header, 44px rows, hover wash ─────────────────── */
+.table-shell {
+  overflow-x: auto;
+  border: 1px solid var(--border-default);
+  border-radius: 14px;
+  background: var(--bg-overlay);
+}
+.table-shell table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.table-shell thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bg-sunken);
+  padding: 10px 12px;
+  text-align: start;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.table-shell tbody td {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+.table-shell tbody tr:hover {
+  background: color-mix(in srgb, var(--brand-500) 4%, transparent);
+}
+/* Opt-in cell helpers (beat the base above): right-aligned numerics. */
+.table-shell .num {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.table-shell .nowrap {
+  white-space: nowrap;
+}
+/* Dashboard shortcut tiles: lift on hover (state change only). */
+.dash-lift {
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .dash-lift {
+    transition: none;
+  }
 }
 
 /* Dark auth forms (login): force dark form controls + neutralize Android

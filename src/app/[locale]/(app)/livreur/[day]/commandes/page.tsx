@@ -2,6 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
+import { getOrCreateSettings } from "@/lib/settings/helpers";
 import { getLivreurVan } from "../../_data";
 import { parseDay } from "../../_days";
 import { VanOrdersClient } from "./VanOrdersClient";
@@ -23,6 +24,12 @@ export default async function LivreurOrdersPage({
   if (!parseDay(day)) redirect(`/${locale}/livreur`);
   const t = await getTranslations("livreur");
   const ts = await getTranslations("sales");
+  const tc = await getTranslations("common");
+  // Ticket language is an admin setting (default French), independent of
+  // the UI locale the livreur browses in.
+  const settings = await getOrCreateSettings(session.companyId);
+  const ticketLang = settings.ticketLang === "ar" ? "ar" : "fr";
+  const tt = await getTranslations({ locale: ticketLang, namespace: "sales" });
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
 
@@ -57,6 +64,7 @@ export default async function LivreurOrdersPage({
       locale={locale}
       day={day}
       vanId={van.id}
+      role={session.role}
       rows={JSON.parse(JSON.stringify(rows))}
       doneRows={JSON.parse(JSON.stringify(doneRows))}
       labels={{
@@ -64,13 +72,21 @@ export default async function LivreurOrdersPage({
         commandes: t("commandes"), empty: t("empty"), total: t("total"),
         deliver: ts("deliver"), paid: t("paid"), cancel: t("cancel"), confirm: t("confirm"), sell: t("newSale"),
         print: t("print"), cancelOrder: ts("cancelOrder"), delivered: ts("delivered"),
+        queuedOk: t("queuedOk"), offline: tc("offline"),
+        discarded: t("discarded"), syncFirst: t("syncFirst"),
+        errForbidden: t("errForbidden"), staleData: t("staleData"),
       }}
       ticketLabels={{
-        total: ts("total"), paid: ts("paid"), due: ts("due"), remise: ts("remise"),
-        thanks: ts("thanks"), seller: ts("seller"), client: ts("client"), share: ts("share"),
-        packs: ts("packs"), articles: ts("articles"), oldDebt: ts("oldDebt"), newDebt: ts("newDebt"),
-        design: ts("product"), qty: ts("qty"), price: ts("price"), unitPrice: ts("unitPrice"),
+        total: tt("total"), paid: tt("paid"), due: tt("due"), remise: tt("remise"),
+        thanks: tt("thanks"), seller: tt("seller"), client: tt("client"), share: tt("share"),
+        copied: tt("copied"), shareFail: tt("shareFail"),
+        printFail: tt("printFail"),
+        pdfSaved: tt("pdfSaved"), pdfShared: tt("pdfShared"),
+        pdfPreview: tt("pdfPreview"), save: tc("save"),
+        packs: tt("packs"), articles: tt("articles"), oldDebt: tt("oldDebt"), newDebt: tt("newDebt"),
+        design: tt("product"), qty: tt("qty"), price: tt("price"), unitPrice: tt("unitPrice"),
       }}
+      ticketLang={ticketLang}
     />
   );
 }

@@ -49,6 +49,7 @@ export default async function LivreurNewClientPage({
         cancel: t("cancel"), empty: t("empty"), clients: t("clients"),
         qrReady: t("qrReady"), pendingSync: t("pendingSync"), another: t("another"),
         saveQr: t("saveQr"), qrSaved: t("qrSaved"), qrShared: t("qrShared"), qrSaveFail: t("qrSaveFail"),
+        secteurOffline: t("secteurOffline"),
       }}
     />
   );

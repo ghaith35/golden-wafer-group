@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, Users, Truck, Boxes, ShoppingCart, ShoppingBag, Wallet, BarChart3, Settings, Bus, Map, Route, Store, PanelLeftClose, PanelLeftOpen, Crosshair, Package, Satellite, ClipboardList, Smartphone, Clock, Banknote } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { goPage, recordCrumb, serverUnreachable, startReachabilityProbe } from "@/lib/sync/client";
 import { TopBar, LanguageSwitcher } from "@/components/layout/TopBar";
 import { VanTracker } from "@/components/track/VanTracker";
 import { AutoUpdate } from "@/components/sync/AutoUpdate";
@@ -43,6 +44,7 @@ const GROUPS: Array<{ label: string; items: Item[]; adminOnly?: boolean }> = [
       { key: "suivi", href: "suivi", Icon: Satellite },
       { key: "presence", href: "presence", Icon: Clock },
       { key: "vanStock", href: "vans/stock", Icon: Package, adminOnly: true },
+      { key: "vanOrders", href: "vans/orders", Icon: ClipboardList, adminOnly: true },
       { key: "carte", href: "carte", Icon: Map },
       { key: "livreursVendeurs", href: "users", Icon: Users, adminOnly: true },
     ],
@@ -98,10 +100,72 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     try {
       if (localStorage.getItem(COLLAPSED_KEY) === "1") setCollapsed(true);
     } catch { /* private mode */ }
+    // Pre-warm the phone's offline outbox database (native SQLite in the APK)
+    // so the first offline save never pays init cost — or discovers a broken
+    // plugin only when the driver is already offline with a customer waiting.
+    void import("@/lib/sync/offline-db").then((m) => m.db.ready().catch(() => {})).catch(() => {});
+  }, []);
+
+  // Offline link safety net: Next <Link> transitions need the network (RSC).
+  // Offline — phone-offline OR wifi-on/server-dead (see serverUnreachable)
+  // — route every in-app link through a full document load instead: the
+  // service worker answers from cache, never the browser error page.
+  // External links, new tabs and downloads are untouched.
+  // Every navigation (online or not) is also recorded on the breadcrumb so
+  // back buttons can hard-load the previous warmed page when router.back()
+  // cannot work (offline, or the APK where the router cache is empty).
+  useEffect(() => {
+    startReachabilityProbe();
+    const onClick = (e: MouseEvent) => {
+      try {
+        const t = e.target as HTMLElement | null;
+        const a = t?.closest?.("a[href]") as HTMLAnchorElement | null;
+        if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
+        const href = a.getAttribute("href") ?? "";
+        if (!href.startsWith("/") || href.startsWith("//")) return;
+        // Synchronous: the decision must land before Next handles the click.
+        recordCrumb(href);
+        if (serverUnreachable()) {
+          e.preventDefault();
+          e.stopPropagation();
+          window.location.assign(href);
+        }
+      } catch { /* let the click through */ }
+    };
+    document.addEventListener("click", onClick, true);
+    try {
+      recordCrumb(window.location.pathname + window.location.search);
+    } catch { /* ignore */ }
+    return () => document.removeEventListener("click", onClick, true);
   }, []);
 
   async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+    // Record the intent FIRST: if the phone is offline the server never
+    // hears this — the flag makes the next online mount finish the logout
+    // (otherwise the old HttpOnly session silently resumes on reconnect).
+    // Only a confirmed server logout clears the flag.
+    try {
+      const res = await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
+      if (res.ok) {
+        try {
+          localStorage.removeItem("dili_logout_pending");
+        } catch { /* ignore */ }
+      } else {
+        try {
+          localStorage.setItem("dili_logout_pending", "1");
+        } catch { /* ignore */ }
+      }
+    } catch {
+      try {
+        localStorage.setItem("dili_logout_pending", "1");
+      } catch { /* ignore */ }
+    }
+    // Logging out must also forget the offline credential — otherwise the
+    // phone stays unlockable without the password ever being asked again.
+    try {
+      const m = await import("@/lib/sync/client");
+      m.clearOfflineCred();
+    } catch { /* best-effort */ }
     router.push(`/${locale}/login`);
   }
 
@@ -131,25 +195,58 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       .catch(() => {});
   }, []);
 
-  // Staff role: Vendeur gets the reduced menu, Livreur gets ONLY Tournée
-  // vente (dedicated mobile sections replace the desktop sidebar).
+  // Staff menu: Vendeur (مندوب) gets the same strictly-limited van
+  // workspace menu as Livreur — sale + factures are additionally gated
+  // inside the day flow for Vendeur, so the tiles never render there.
   // Unknown role (still loading, offline PWA shell, fetch failed) defaults
-  // to the most restricted livreur view — never the full admin menu.
+  // to the most restricted view — never the full admin menu.
   const [role, setRole] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   useEffect(() => {
+    // Finish a logout that happened while offline: the server never heard
+    // it, so kill the resurrected session as soon as we're back online.
+    try {
+      if (typeof window !== "undefined" && window.navigator?.onLine !== false && localStorage.getItem("dili_logout_pending") === "1") {
+        fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
+          .then((r) => {
+            if (r.ok) {
+              try {
+                localStorage.removeItem("dili_logout_pending");
+              } catch { /* ignore */ }
+            }
+          })
+          .catch(() => {});
+      }
+    } catch { /* ignore */ }
     fetch("/api/auth/me")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         setRole((d?.user?.role as string | undefined) ?? null);
         setUsername((d?.user?.username as string | undefined) ?? null);
       })
-      .catch(() => {});
+      .catch(() => {
+        // Offline (the request itself failed — a 401 would resolve, not
+        // reject): without a fresh offline unlock, bounce to login, which
+        // renders unlock mode from the cached credential — or the
+        // "connect once" notice on a never-activated phone.
+        void import("@/lib/sync/client")
+          .then((m) => {
+            // Offline menu correctness (APK/van phones): the cached credential
+            // carries the staff role, so a Vendeur keeps his reduced menu —
+            // minus sales — instead of falling back to the livreur view.
+            // Unknown role still defaults to the most restricted view.
+            const cached = m.getOfflineCred();
+            if (cached?.role) setRole(cached.role);
+            if (!m.hasOfflineUnlock()) router.push(`/${locale}/login`);
+          })
+          .catch(() => {});
+      });
   }, []);
   const isStaff = role !== "Admin";
-  const isLivreur = role !== "Admin" && role !== "Vendeur";
+  // Van-only menu for every non-admin (Vendeur + Livreur + unknown).
+  const vanOnlyMenu = role !== "Admin";
 
-  const visibleGroups = (isLivreur
+  const visibleGroups = (vanOnlyMenu
     ? [{
         label: "group_distribution",
         items: GROUPS.flatMap((g) => g.items).filter((i) => i.key === "livreur"),
@@ -162,7 +259,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     // The van workspace (الشاحنة / بيع الشاحنة) is staff-only: admins manage
     // vans from الشاحنات / مخزون الشاحنات instead.
     .filter((g) => g.label !== "group_livreur" || isStaff);
-  const visibleTabs = isLivreur
+  const visibleTabs = vanOnlyMenu
     ? TAB_KEYS_LIVREUR.flatMap((k) => GROUPS.flatMap((g) => g.items).filter((i) => i.key === k))
     : TABS.filter((t) => {
         const item = GROUPS.flatMap((g) => g.items).find((i) => i.key === t.key);
@@ -182,7 +279,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {!hideChrome && (
       <aside
         className={cn(
-          "fixed inset-y-0 start-0 hidden flex-col border-e border-(--border-default) bg-(--bg-overlay) transition-all duration-300 ease-in-out print:hidden lg:flex",
+          "app-sidebar fixed inset-y-0 start-0 hidden flex-col border-e border-(--border-default) transition-all duration-300 ease-in-out print:hidden lg:flex",
           collapsed ? "w-[68px] overflow-visible p-2" : "w-60 overflow-hidden p-3"
         )}
       >
@@ -207,7 +304,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onClick={() => setNavOpen(false)}
             className="absolute inset-0 bg-black/45"
           />
-          <div className="absolute inset-y-0 start-0 flex w-60 max-w-[80vw] flex-col border-e border-(--border-default) bg-(--bg-overlay) p-4">
+          <div className="app-sidebar absolute inset-y-0 start-0 flex w-60 max-w-[80vw] flex-col border-e border-(--border-default) p-4">
             <SidebarBody
               groups={visibleGroups}
               collapsed={false}
@@ -227,16 +324,37 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main className={hideChrome ? "" : "pb-20 lg:pb-0"}>{children}</main>
         {!hideChrome && visibleTabs.length > 0 && (
         <nav className="fixed inset-x-0 bottom-0 flex border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)] print:hidden lg:hidden">
-          {visibleTabs.map(({ key, href, Icon }) => (
-            <Link key={key} href={`/${locale}/${href}`} className="flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold leading-tight opacity-70">
-              <Icon size={19} />
-              <span className="max-w-full truncate">{t(key)}</span>
-            </Link>
-          ))}
+          {visibleTabs.map((item) =>
+            item.key === "livreur" ? (
+              <LivreurTodayTab key={item.key} locale={locale} label={t(item.key)} Icon={item.Icon} go={(href) => goPage(router, href)} />
+            ) : (
+              <Link key={item.key} href={`/${locale}/${item.href}`} className="flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold leading-tight opacity-70">
+                <item.Icon size={19} />
+                <span className="max-w-full truncate">{t(item.key)}</span>
+              </Link>
+            )
+          )}
         </nav>
         )}
       </div>
     </div>
+  );
+}
+
+/// Van-sale bottom tab: jumps straight to TODAY's dashboard hub
+/// (all sections: sale, orders, stock, sync…) instead of the clock page.
+function LivreurTodayTab({ locale, label, Icon, go }: { locale: string; label: string; Icon: Item["Icon"]; go: (href: string) => void }) {
+  const d = new Date();
+  const slug = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  return (
+    <button
+      type="button"
+      onClick={() => go(`/${locale}/livreur/${slug}/dashboard`)}
+      className="flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold leading-tight opacity-70"
+    >
+      <Icon size={19} />
+      <span className="max-w-full truncate">{label}</span>
+    </button>
   );
 }
 
@@ -260,6 +378,7 @@ function SidebarBody({
   gpsLabels: { locate: string; geoDenied: string };
 }) {
   const t = useTranslations("nav");
+  const ta = useTranslations("app");
   const locale = useLocale();
   const pathname = usePathname();
   /// Query-aware highlight for split entries (dettes?party=clients vs
@@ -274,19 +393,15 @@ function SidebarBody({
 
   return (
     <>
-      <div className={cn("mb-2 flex items-center", collapsed ? "justify-center" : "gap-2.5")}>
+      <div className={cn("mb-2 flex items-center", collapsed ? "justify-center" : "gap-2")}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/logo-192.png" alt="Distribuili" className="h-8 w-8 shrink-0 rounded-[10px]" />
+        <img src="/icons/logo-192.png" alt="Distribuili" className="h-9 w-9 shrink-0 rounded-xl shadow-[0_6px_16px_-6px_var(--brand-600)]" />
         {!collapsed && (
-          <div className="min-w-0 text-lg font-extrabold tracking-tight" dir="ltr">
-            <span className="text-(--text-primary)">DISTRIB</span>
-            <span
-              style={{
-                background: "linear-gradient(135deg, #d9f99d, #84cc16 50%, #65a30d)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >UILI</span>
+          <div className="min-w-0">
+            <div className="truncate text-[17px] font-black leading-tight tracking-tight" dir="ltr">
+              <span className="text-(--text-primary)">DISTRIB</span><span className="logo-accent text-(--brand-600)">UILI</span>
+            </div>
+            <div className="truncate text-[10px] font-bold text-(--text-tertiary)">{ta("tagline")}</div>
           </div>
         )}
       </div>
@@ -298,7 +413,7 @@ function SidebarBody({
           aria-label={collapsed ? t("expand") : t("collapse")}
           title={collapsed ? t("expand") : t("collapse")}
           className={cn(
-            "mb-2 flex h-8 w-8 items-center justify-center rounded-lg border border-(--border-default) text-(--text-secondary) transition-colors hover:bg-(--bg-sunken) hover:text-(--text-primary)",
+            "side-item mb-2 flex h-8 w-8 items-center justify-center rounded-lg border border-(--border-default) text-(--text-secondary) hover:border-(--brand-500) hover:text-white",
             collapsed ? "mx-auto hidden lg:flex" : "ms-auto"
           )}
         >
@@ -306,15 +421,15 @@ function SidebarBody({
         </button>
       )}
 
-      <nav className="flex-1 overflow-hidden px-0 py-0.5">
-        {groups.map((group) => (
-          <div key={group.label} className="mt-0.5 first:mt-0">
+      <nav className="side-nav min-h-0 flex-1 overflow-y-auto px-0 py-0.5">
+        {groups.map((group, gi) => (
+          <div key={group.label} className={cn("mt-0.5 first:mt-0", gi > 0 && "mt-1.5 border-t border-(--border-subtle) pt-1.5")}>
             {!collapsed && (
-              <div className="px-3 pb-0 pt-1 text-[10px] font-black uppercase tracking-wider text-(--text-secondary) opacity-70">
+              <div className="px-2.5 pb-px text-[9px] font-black uppercase text-(--text-tertiary)">
                 {t(group.label)}
               </div>
             )}
-            <ul className="space-y-0.5">
+            <ul className="space-y-px">
               {group.items.map(({ key, href, Icon }) => {
                 // Longest-href wins so /vans/stock doesn't also light up /vans.
                 // Split entries (dettes?party=…) also match their query part.
@@ -334,19 +449,32 @@ function SidebarBody({
                       href={`/${locale}/${href}`}
                       onClick={() => { setNavQuery(qs ? `?${qs}` : ""); onNavigate(); }}
                       aria-label={collapsed ? label : undefined}
+                      aria-current={active ? "page" : undefined}
                       title={collapsed ? label : undefined}
                       className={cn(
-                        "group relative flex items-center rounded-lg text-sm font-semibold transition-colors",
+                        "side-item group relative flex min-h-[34px] items-center rounded-lg text-[12px] font-bold",
                         collapsed
-                          ? "min-h-11 justify-center px-0 py-2"
-                          : "gap-2 px-3 py-1.5",
+                          ? "justify-center px-0 py-0.5"
+                          : "gap-1.5 px-1.5 py-1",
                         active
-                          ? "bg-(--brand-500)/10 text-(--brand-600)"
-                          : "opacity-70 hover:bg-(--bg-sunken) hover:opacity-100"
+                          ? "bg-(--sa-sidebar-active-bg) text-(--sa-sidebar-active-fg)"
+                          : "text-(--text-secondary) hover:bg-(--bg-sunken) hover:text-(--text-primary) active:scale-[0.99]"
                       )}
                     >
-                      <Icon size={collapsed ? 19 : 17} className="shrink-0" />
+                      <span
+                        className={cn(
+                          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors duration-180",
+                          active
+                            ? "bg-[rgba(163,230,53,0.22)] text-(--sa-sidebar-active-fg)"
+                            : "bg-(--bg-sunken) text-(--text-secondary) group-hover:bg-(--bg-overlay) group-hover:text-white"
+                        )}
+                      >
+                        <Icon size={15} strokeWidth={active ? 2.4 : 2} />
+                      </span>
                       {!collapsed && <span className="min-w-0 flex-1 truncate">{label}</span>}
+                      {!collapsed && active && (
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#a3e635]" aria-hidden />
+                      )}
                       {collapsed && (
                         <span className="pointer-events-none absolute start-full top-1/2 z-50 ms-3 hidden -translate-y-1/2 whitespace-nowrap rounded-lg border border-(--border-default) bg-(--bg-overlay) px-3 py-1.5 text-xs font-bold text-(--text-primary) shadow-lg group-hover:block">
                           {label}
@@ -369,8 +497,8 @@ function SidebarBody({
           title={geoError ? gpsLabels.geoDenied : gpsLabels.locate}
           aria-label={gpsLabels.locate}
           className={cn(
-            "mb-1 flex items-center rounded-lg border border-dashed border-(--border-default) text-(--text-secondary) transition-colors hover:border-(--brand-500) hover:text-(--brand-600) disabled:opacity-50",
-            collapsed ? "mx-auto h-9 w-9 justify-center" : "gap-2 px-3 py-1.5 text-sm font-bold"
+            "side-item mb-1 flex items-center rounded-xl border border-dashed border-(--border-strong) text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-600) disabled:opacity-50",
+            collapsed ? "mx-auto h-10 w-10 justify-center" : "gap-2 px-3 py-1.5 text-sm font-bold"
           )}
         >
           <Crosshair size={16} className={cn("shrink-0", locating && "animate-spin")} />

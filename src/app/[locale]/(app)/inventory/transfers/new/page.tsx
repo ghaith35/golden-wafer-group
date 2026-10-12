@@ -56,6 +56,7 @@ export default async function NewTransferPage({
         next: t("next"), back: t("back"), queued: t("queued"), search: tc("search"),
         sourceStock: t("sourceStock"), emptySource: t("emptySource"), onlyAvailable: t("onlyAvailable"),
         loadingStock: t("loadingStock"), emptyLocation: t("emptyLocation"), addAll: t("addAll"),
+        multiSelect: t("multiSelect"), addSelected: t("addSelected"),
       }}
     />
     </div>

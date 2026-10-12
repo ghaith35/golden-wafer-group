@@ -24,9 +24,19 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const existing = await prisma.device.findFirst({ where: { id, companyId: auth.session.companyId } });
   if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
   const body = (await req.json().catch(() => ({}))) as { label?: string; isActive?: boolean; locationId?: string | null };
+  let assignedUserId: string | null | undefined;
   if (body.locationId != null) {
-    const loc = await prisma.store.findFirst({ where: { id: body.locationId, companyId: auth.session.companyId }, select: { id: true } });
-    if (!loc) return NextResponse.json({ error: "bad_location" }, { status: 400 });
+    const van = await prisma.store.findFirst({
+      where: { id: body.locationId, companyId: auth.session.companyId, kind: "VAN", isActive: true },
+      include: { user: true },
+    });
+    if (!van) return NextResponse.json({ error: "bad_van" }, { status: 400 });
+    if (!van.userId || !van.user?.isActive || van.user.role === "Admin") {
+      return NextResponse.json({ error: "van_unassigned" }, { status: 400 });
+    }
+    assignedUserId = van.userId;
+  } else if (body.locationId === null) {
+    assignedUserId = null;
   }
   const row = await prisma.device.update({
     where: { id },
@@ -34,6 +44,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       ...(typeof body.label === "string" ? { label: body.label.trim() } : {}),
       ...(typeof body.isActive === "boolean" ? { isActive: body.isActive } : {}),
       ...(body.locationId !== undefined ? { locationId: body.locationId } : {}),
+      ...(assignedUserId !== undefined ? { userId: assignedUserId } : {}),
     },
   });
   return NextResponse.json(row);

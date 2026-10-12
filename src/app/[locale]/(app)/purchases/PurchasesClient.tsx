@@ -6,13 +6,14 @@ import { Plus, ReceiptText } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { RowActions } from "@/components/ui/RowActions";
 import { PurchaseForm } from "./PurchaseForm";
 import { PurchasePayments } from "./[id]/PurchasePayments";
 import type { PurchaseFormData } from "./purchaseRefs";
 import { PackInfo, factorOf, normFactor, LinePriceSummary } from "@/components/products/UnitQty";
-import { dzMoney } from "@/lib/format";
+import { dzMoney, fmtDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const num = (v: number) => dzMoney(v);
@@ -63,9 +64,9 @@ type Payment = { id: string; amount: unknown; date: string; notes: string | null
 type PayStatus = "unpaid" | "partial" | "settled";
 
 const STATUS_COLOR: Record<PayStatus, string> = {
-  unpaid: "bg-red-500/10 text-red-500",
-  partial: "bg-amber-500/10 text-amber-600",
-  settled: "bg-emerald-500/10 text-emerald-600",
+  unpaid: "pill-red",
+  partial: "pill-amber",
+  settled: "pill-emerald",
 };
 
 const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)";
@@ -94,6 +95,7 @@ export function PurchasesClient({
   payLabels: Record<string, string>;
 }) {
   const [rows, setRows] = useState(initial);
+  const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
   const [q, setQ] = useState("");
   const [fStatus, setFStatus] = useState<"" | PayStatus>("");
   /// Default filters: current month + current year (when they hold invoices).
@@ -231,7 +233,7 @@ export function PurchasesClient({
   const monthName = (key: string) => {
     const [y, m] = key.split("-").map(Number);
     try {
-      return new Date(y, m, 1).toLocaleDateString(locale, { month: "long", year: "numeric" });
+      return new Date(y, m, 1).toLocaleDateString(locale, { month: "long" });
     } catch {
       return key;
     }
@@ -248,74 +250,53 @@ export function PurchasesClient({
     );
   });
 
-  const kpi = filtered.reduce(
-    (s, r) => {
-      const total = Number(r.total);
-      const paid = Number(r.paid ?? 0);
-      return { total: s.total + total, paid: s.paid + paid };
-    },
-    { total: 0, paid: 0 }
-  );
-
   const selected = rows.find((r) => r.id === selectedId) ?? null;
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">{labels.title}</h1>
-        <Link href={`/${locale}/purchases/returns`}>
-          <Button variant="secondary">{labels.returns}</Button>
-        </Link>
-      </div>
+    <div className="flex min-h-0 flex-1 flex-col space-y-4 lg:overflow-hidden">
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
 
-      <div className="flex items-center justify-between rounded-2xl border border-(--border-default) bg-(--bg-overlay) px-4 py-3">
-        <span className="text-sm font-bold opacity-80">
-          {labels.total}: <b className="tabular-nums">{num(kpi.total)}</b>
-        </span>
-        <span className="text-sm font-bold opacity-80">
-          {labels.paid}: <b className="tabular-nums text-emerald-600">{num(kpi.paid)}</b>
-          {" · "}{labels.remaining}: <b className="tabular-nums text-red-500">{num(kpi.total - kpi.paid)}</b>
-        </span>
+      <div className="flex shrink-0 flex-col gap-2 lg:flex-row">
+        <div className="flex min-w-0 flex-1 flex-wrap gap-2 sm:flex-nowrap">
+          <Button onClick={() => setCreating(true)} className="h-11 shrink-0">
+            <Plus size={16} className="me-1" />
+            {labels.neW}
+          </Button>
+          <div className="min-w-32 flex-1 basis-full sm:basis-auto">
+            <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+          </div>
+          <select value={fYear} onChange={(e) => setFYear(e.target.value)} className={cn(inputCls, "w-24 shrink-0")} aria-label="year">
+            <option value="">—</option>
+            {years.map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+          <select value={fMonth} onChange={(e) => setFMonth(e.target.value)} className={cn(inputCls, "w-32 shrink-0")} aria-label="month">
+            <option value="">—</option>
+            {months.map((m) => (
+              <option key={m} value={m}>{monthName(m)}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex gap-1">
+          {(["unpaid", "partial", "settled"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setFStatus(fStatus === s ? "" : s)}
+              className={cn("flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-[12px] font-black lg:flex-none", fStatus === s ? STATUS_COLOR[s] : "bg-(--bg-sunken) opacity-60")}
+            >
+              {labels[s]}
+            </button>
+          ))}
+          <Link href={`/${locale}/purchases/returns`} className="shrink-0">
+            <Button variant="secondary" className="h-[38px] whitespace-nowrap px-3 py-2 text-[12px]">{labels.returns}</Button>
+          </Link>
+        </div>
       </div>
 
-      <div className="grid items-start gap-4 lg:grid-cols-[300px_minmax(0,1fr)]">
-        {/* ── Sidebar: filters + list (sticky full height on desktop) ── */}
-        <div className="space-y-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 lg:sticky lg:top-4 lg:flex lg:max-h-[calc(100vh-2rem)] lg:flex-col">
-          <div className="flex gap-2">
-            <Button onClick={() => setCreating(true)} className="shrink-0">
-              <Plus size={16} className="me-1" />
-              {labels.neW}
-            </Button>
-            <div className="flex-1">
-              <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <select value={fMonth} onChange={(e) => setFMonth(e.target.value)} className={inputCls}>
-              <option value="">—</option>
-              {months.map((m) => (
-                <option key={m} value={m}>{monthName(m)}</option>
-              ))}
-            </select>
-            <select value={fYear} onChange={(e) => setFYear(e.target.value)} className={inputCls}>
-              <option value="">—</option>
-              {years.map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex gap-1">
-            {(["unpaid", "partial", "settled"] as const).map((s) => (
-              <button
-                key={s}
-                onClick={() => setFStatus(fStatus === s ? "" : s)}
-                className={cn("flex-1 min-h-11 rounded-lg px-2 py-1.5 text-[11px] font-black", fStatus === s ? STATUS_COLOR[s] : "bg-(--bg-sunken) opacity-60")}
-              >
-                {labels[s]}
-              </button>
-            ))}
-          </div>
+      <div className="grid min-h-0 items-start gap-4 lg:flex-1 lg:grid-cols-[300px_minmax(0,1fr)] lg:overflow-hidden">
+        {/* ── Sidebar: list (sticky full height on desktop) ── */}
+        <div className="space-y-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
           <div className="max-h-[50vh] flex-1 space-y-1.5 overflow-y-auto lg:max-h-none lg:min-h-0">
             {filtered.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
             {filtered.map((r) => {
@@ -339,7 +320,7 @@ export function PurchasesClient({
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-[13px] font-bold">{labels.number} {r.number}</div>
                       <div className="truncate text-[11px] opacity-60">
-                        {r.supplier.name} · {new Date(r.date as string).toLocaleDateString(locale)}
+                        {r.supplier.name} · {fmtDT(r.date as string, locale)}
                       </div>
                     </div>
                     <div className="shrink-0 text-end">
@@ -362,7 +343,7 @@ export function PurchasesClient({
         </div>
 
         {/* ── Detail ── */}
-        <div className="min-w-0 space-y-3">
+        <div className="min-w-0 space-y-3 lg:h-full lg:min-h-0 lg:overflow-y-auto lg:pb-2">
           {!selected || !detail ? (
             <div className="rounded-2xl border border-dashed border-(--border-default) p-10 text-center text-sm opacity-50">
               {labels.empty}
@@ -377,7 +358,7 @@ export function PurchasesClient({
                   <div className="min-w-0 flex-1">
                     <div className="text-base font-black">{labels.number} {detail.number}</div>
                     <div className="truncate text-xs opacity-60">
-                      {detail.supplier.name} · {new Date(detail.date).toLocaleDateString(locale)}
+                      {detail.supplier.name} · {fmtDT(detail.date, locale)}
                       {detail.notes ? ` · ${detail.notes}` : ""}
                     </div>
                   </div>
@@ -429,8 +410,15 @@ export function PurchasesClient({
                   return (
                     <div key={l.id} className="flex gap-3 border-b border-(--border-subtle) py-2.5 text-sm last:border-0">
                       {imgs[0] ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={imgs[0].url} alt={p.name} className="h-14 w-14 shrink-0 rounded-xl object-cover" loading="lazy" />
+                        <button
+                          type="button"
+                          onClick={() => setZoom({ src: imgs[0].url, name: p.name })}
+                          aria-label={p.name}
+                          className="shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--brand-500)"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={imgs[0].url} alt={p.name} className="h-14 w-14 rounded-xl object-cover" loading="lazy" />
+                        </button>
                       ) : (
                         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken) text-xl opacity-50">📦</div>
                       )}
@@ -575,6 +563,7 @@ export function PurchasesClient({
         title={labels.deleteTitle}
         message={deleting ? labels.deleteMessage.replace("{name}", `${labels.number} ${deleting.number}`) : ""}
       />
+      {zoom && <ImageLightbox src={zoom.src} alt={zoom.name} caption={zoom.name} onClose={() => setZoom(null)} />}
     </div>
   );
 }

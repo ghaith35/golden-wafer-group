@@ -122,8 +122,7 @@ export function CarteClient({
 
   return (
     <div className="flex h-[calc(100dvh-140px)] flex-col gap-3 overflow-hidden px-5 pb-24 pt-5 md:p-6 lg:h-[calc(100dvh-60px)]">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
-        <h1 className="text-xl font-bold">{labels.title}</h1>
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
         {tour && (
           <a
             href={tour}

@@ -92,16 +92,26 @@ export function VanJournal({
   const [date, setDate] = useState(today);
   const [data, setData] = useState<JournalData | null>(null);
   const [busy, setBusy] = useState(true);
+  /// Null data after load = unreachable server (offline): never present an
+  /// empty journal as if the day had no movements.
+  const [unreachable, setUnreachable] = useState(false);
 
   useEffect(() => {
     let live = true;
+    setUnreachable(false);
     fetch(`/api/vans/${vanId}/journal?date=${date}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (live) setData(d);
+        if (live) {
+          setData(d);
+          if (!d) setUnreachable(true);
+        }
       })
       .catch(() => {
-        if (live) setData(null);
+        if (live) {
+          setData(null);
+          setUnreachable(true);
+        }
       })
       .finally(() => {
         if (live) setBusy(false);
@@ -212,7 +222,12 @@ export function VanJournal({
       </div>
 
       {busy && !data && <p className="py-6 text-center text-sm opacity-60">…</p>}
-      {!busy && entries.length === 0 && <p className="py-6 text-center text-sm opacity-60">{labels.noMovements}</p>}
+      {!busy && unreachable && (
+        <p className="rounded-xl bg-amber-500/10 p-3 text-center text-xs font-black text-amber-600" dir="auto">
+          📴 {labels.offline ?? "offline"}
+        </p>
+      )}
+      {!busy && !unreachable && entries.length === 0 && <p className="py-6 text-center text-sm opacity-60">{labels.noMovements}</p>}
 
       <div className="space-y-2">
         {entries.map((e) => (

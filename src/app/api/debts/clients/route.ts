@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { containsInsensitive } from "@/lib/search";
 import { getSession } from "@/lib/auth/session";
 import { ensureSeasonFor } from "@/lib/docs/sequences";
 import { debtStatus, type DebtStatus } from "@/lib/debts";
@@ -25,7 +26,7 @@ export async function GET(req: Request) {
       companyId: session.companyId,
       isActive: true,
       ...(search
-        ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { code: { contains: search, mode: "insensitive" } }, { phone: { contains: search } }] }
+        ? { OR: [{ name: containsInsensitive(search) }, { code: containsInsensitive(search) }, { phone: { contains: search } }] }
         : {}),
     },
     select: {

@@ -80,6 +80,20 @@ const ticket = (over: Record<string, unknown> = {}) => ({
 });
 
 describe("createTicket money guards (phone → PC)", () => {
+  it("CRITICAL: base-unit sale prices at factor 1 (no bad_unit without packs)", async () => {
+    // Phone sends unitId = base unit id; there is no conversion row for it.
+    (prisma.product.findMany as any).mockResolvedValue([{ id: "p1", salePrice: 100, tierPrices: [], baseUnitId: "u-base" }]);
+    const res = await createTicket("co", "u1", ticket({ lines: [{ productId: "p1", unitId: "u-base", qty: 2 }] }) as any);
+    expect(res).toBeDefined();
+  });
+
+  it("unknown pack unit still rejected (bad_unit)", async () => {
+    (prisma.product.findMany as any).mockResolvedValue([{ id: "p1", salePrice: 100, tierPrices: [], baseUnitId: "u-base" }]);
+    await expect(
+      createTicket("co", "u1", ticket({ lines: [{ productId: "p1", unitId: "u-nope", qty: 2 }] }) as any)
+    ).rejects.toThrow("bad_unit");
+  });
+
   it("overpaid throws before touching stock (no phantom sale)", async () => {
     await expect(createTicket("co", "u1", ticket({ paid: 10000 }) as any)).rejects.toThrow("overpaid");
     expect(prisma.$transaction).not.toHaveBeenCalled();

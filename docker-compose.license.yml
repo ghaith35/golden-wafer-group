@@ -1,0 +1,66 @@
+# License-authority stack (central desktop activations).
+# Separate project from docker-compose.prod.yml: own postgres + volumes,
+# own env file. The shop SaaS (distribuili-app-1) is NEVER touched.
+# Bring up on server-c with:
+#   docker compose -f docker-compose.license.yml up -d --build
+#
+# Required in .env.license (next to this file, chmod 600, never commit):
+#   POSTGRES_PASSWORD=<openssl rand -hex 16>
+#   JWT_SECRET=<openssl rand -hex 32>
+#   LICENSE_PRIVATE_KEY=<from scripts/gen-license-keys.mjs>
+#   LOG_LEVEL=info
+# Behind plain HTTP (no TLS) until certbot runs: COOKIE_SECURE=false
+
+services:
+  lic-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: distribuili_lic
+      POSTGRES_USER: distribuili
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - lic_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U distribuili -d distribuili_lic"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  lic-app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    env_file: .env.license
+    environment:
+      DATABASE_URL: postgresql://distribuili:${POSTGRES_PASSWORD}@lic-db:5432/distribuili_lic
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      SEED_DEMO: "0"
+    ports:
+      - "3010:3000"
+    volumes:
+      - lic_uploads:/app/public/uploads
+    depends_on:
+      lic-db:
+        condition: service_healthy
+
+  lic-migrate:
+    profiles: ["tools"]
+    build:
+      context: .
+      target: builder
+    env_file: .env.license
+    environment:
+      DATABASE_URL: postgresql://distribuili:${POSTGRES_PASSWORD}@lic-db:5432/distribuili_lic
+      SEED_DEMO: "0"
+    command: sh -c "npx prisma migrate deploy && npx tsx prisma/seed.ts"
+    depends_on:
+      lic-db:
+        condition: service_healthy
+
+volumes:
+  lic_pgdata:
+  lic_uploads:

@@ -159,6 +159,8 @@ exports.Prisma.CompanySettingsScalarFieldEnum = {
   ticketWidth: 'ticketWidth',
   ticketLang: 'ticketLang',
   supplierFilterEnabled: 'supplierFilterEnabled',
+  workStartAt: 'workStartAt',
+  maxDayHours: 'maxDayHours',
   remoteDomain: 'remoteDomain'
 };
 
@@ -501,6 +503,10 @@ exports.Prisma.TourneeScalarFieldEnum = {
   notes: 'notes',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt',
+  startedLat: 'startedLat',
+  startedLng: 'startedLng',
+  finishedLat: 'finishedLat',
+  finishedLng: 'finishedLng',
   createdAt: 'createdAt'
 };
 
@@ -586,6 +592,22 @@ exports.Prisma.TunnelSlotScalarFieldEnum = {
   tunnelId: 'tunnelId',
   token: 'token',
   clientMachineId: 'clientMachineId',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ClientDeploymentScalarFieldEnum = {
+  id: 'id',
+  client: 'client',
+  version: 'version',
+  domain: 'domain',
+  domainOverride: 'domainOverride',
+  overrideActive: 'overrideActive',
+  machineId: 'machineId',
+  tunnelSlotId: 'tunnelSlotId',
+  status: 'status',
+  lastError: 'lastError',
   notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -692,7 +714,8 @@ exports.Prisma.ExpenseScalarFieldEnum = {
   amount: 'amount',
   expenseDate: 'expenseDate',
   createdAt: 'createdAt',
-  deletedAt: 'deletedAt'
+  deletedAt: 'deletedAt',
+  opId: 'opId'
 };
 
 exports.Prisma.VersementScalarFieldEnum = {
@@ -834,6 +857,7 @@ exports.Prisma.ModelName = {
   LicenseKey: 'LicenseKey',
   TrialIssue: 'TrialIssue',
   TunnelSlot: 'TunnelSlot',
+  ClientDeployment: 'ClientDeployment',
   Device: 'Device',
   SyncOp: 'SyncOp',
   PurchaseInvoice: 'PurchaseInvoice',

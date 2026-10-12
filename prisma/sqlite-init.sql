@@ -42,6 +42,8 @@ CREATE TABLE "company_settings" (
     "ticketWidth" TEXT NOT NULL DEFAULT '80',
     "ticketLang" TEXT NOT NULL DEFAULT 'fr',
     "supplierFilterEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "workStartAt" TEXT,
+    "maxDayHours" REAL DEFAULT 10,
     "remoteDomain" TEXT,
     CONSTRAINT "company_settings_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -468,6 +470,10 @@ CREATE TABLE "tournees" (
     "notes" TEXT,
     "startedAt" DATETIME,
     "finishedAt" DATETIME,
+    "startedLat" REAL,
+    "startedLng" REAL,
+    "finishedLat" REAL,
+    "finishedLng" REAL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "tournees_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "tournees_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "stores" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -569,6 +575,24 @@ CREATE TABLE "tunnel_slots" (
     "notes" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "client_deployments" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "client" TEXT NOT NULL,
+    "version" TEXT NOT NULL,
+    "domain" TEXT NOT NULL,
+    "domainOverride" TEXT,
+    "overrideActive" BOOLEAN NOT NULL DEFAULT false,
+    "machineId" TEXT,
+    "tunnelSlotId" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "lastError" TEXT,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "client_deployments_tunnelSlotId_fkey" FOREIGN KEY ("tunnelSlotId") REFERENCES "tunnel_slots" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -700,6 +724,7 @@ CREATE TABLE "expenses" (
     "expenseDate" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deletedAt" DATETIME,
+    "opId" TEXT,
     CONSTRAINT "expenses_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "expenses_typeId_fkey" FOREIGN KEY ("typeId") REFERENCES "expense_types" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "expenses_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "stores" ("id") ON DELETE SET NULL ON UPDATE CASCADE
@@ -959,6 +984,9 @@ CREATE UNIQUE INDEX "license_keys_humanKey_key" ON "license_keys"("humanKey");
 CREATE UNIQUE INDEX "tunnel_slots_subdomain_key" ON "tunnel_slots"("subdomain");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "client_deployments_client_key" ON "client_deployments"("client");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "devices_tokenHash_key" ON "devices"("tokenHash");
 
 -- CreateIndex
@@ -1002,6 +1030,9 @@ CREATE INDEX "expenses_companyId_expenseDate_idx" ON "expenses"("companyId", "ex
 
 -- CreateIndex
 CREATE INDEX "expenses_companyId_typeId_idx" ON "expenses"("companyId", "typeId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "expenses_companyId_opId_key" ON "expenses"("companyId", "opId");
 
 -- CreateIndex
 CREATE INDEX "versements_companyId_date_idx" ON "versements"("companyId", "date");

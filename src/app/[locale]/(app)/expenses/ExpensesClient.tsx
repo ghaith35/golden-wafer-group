@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useLocale } from "next-intl";
-import { Plus, ReceiptText } from "lucide-react";
+import { Plus, ReceiptText, Wallet } from "lucide-react";
+import { KpiCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { RowActions } from "@/components/ui/RowActions";
-import { dz, dzMoney } from "@/lib/format";
+import { dz, dzMoney, fmtDT } from "@/lib/format";
 
 type Row = {
   id: string;
@@ -29,10 +30,6 @@ const inputCls =
 
 const fmtAmount = (v: unknown) => dz(v as number);
 const fmtTotal = (v: number) => dzMoney(v);
-const fmtDate = (iso: string, locale: string) => {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? iso.slice(0, 10) : d.toLocaleDateString(locale);
-};
 
 function ExpenseForm({
   initial,
@@ -254,15 +251,28 @@ export function ExpensesClient({
   const today = () => new Date().toISOString().slice(0, 10);
 
   return (
-    <div className="space-y-4 p-5 md:p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">{labels.title}</h1>
+    <div className="flex min-h-0 flex-1 flex-col space-y-4 p-5 md:p-6 lg:h-[calc(100dvh-3.5rem)] lg:overflow-hidden lg:pb-4">
+      <div className="grid shrink-0 grid-cols-2 gap-2">
+        <KpiCard
+          label={labels.total}
+          value={dzMoney(total)}
+          icon={<Wallet size={18} />}
+          accent="bg-red-500/15 text-red-500"
+          compact
+        />
+        <KpiCard
+          label={labels.title}
+          value={String(filtered.length)}
+          icon={<ReceiptText size={18} />}
+          accent="bg-sky-500/15 text-sky-600"
+          compact
+        />
       </div>
       {error && !creating && !editing && (
         <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>
       )}
 
-      <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex shrink-0 flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex gap-2 lg:flex-1">
           <Button onClick={() => { setError(null); setCreating(true); }} className="shrink-0">
             <Plus size={16} className="me-1" />
@@ -295,7 +305,7 @@ export function ExpensesClient({
         </div>
       </div>
 
-      <div className="flex items-center justify-between rounded-2xl border border-(--border-default) bg-(--bg-overlay) px-4 py-3">
+      <div className="flex shrink-0 items-center justify-between rounded-2xl border border-(--border-default) bg-(--bg-overlay) px-4 py-3">
         <span className="text-sm font-bold capitalize opacity-80">
           {monthLabel}
           <span className="ms-2 rounded-full bg-(--bg-sunken) px-2 py-0.5 text-xs font-black opacity-80">
@@ -309,7 +319,7 @@ export function ExpensesClient({
 
       {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
 
-      <div className="space-y-2">
+      <div className="min-h-0 space-y-2 lg:flex-1 lg:overflow-y-auto lg:pb-2">
         {filtered.map((r) => (
           <div
             key={r.id}
@@ -322,7 +332,7 @@ export function ExpensesClient({
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-bold">{r.label}</div>
               <div className="truncate text-xs opacity-60">
-                {fmtDate(r.expenseDate, locale)}
+                {fmtDT(r.expenseDate, locale)}
                 {r.type ? ` · ${r.type.name}` : ""}
                 {r.location ? ` · 🚚 ${r.location.name}` : ""}
               </div>

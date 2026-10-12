@@ -32,6 +32,12 @@ extraResources:
   # run so the offline app ships ready to log in.
   - from: prisma/sqlite-seed.db
     to: app/.next/standalone/prisma/sqlite-seed.db
+  # Per-client stage (build/stage/): build-client.json identity + bundled
+  # cloudflared connector (bin/cloudflared[.exe]). Staged by
+  # scripts/dist-client.mjs (client builds) or defaulted by
+  # scripts/electron-prepare.mjs (generic builds: identity only, no tunnel).
+  - from: build/stage
+    to: client
 
 asar: true
 # Native modules can't load from inside an asar — unpack the SQLite driver
@@ -51,6 +57,26 @@ dmg:
 win:
   icon: build/icon.ico
   target: [nsis]
+  # ── Code signing (THE fix for "stopped and removed by Windows 11") ──────
+  # An unsigned NSIS .exe from an unknown publisher + obfuscated JS + bundled
+  # cloudflared + Winlogon writes = Defender SmartScreen/PUA quarantine.
+  # Sign every shipped .exe:
+  #   1. Buy an OV (or EV) code-signing certificate (e.g. SSL.com, DigiCert).
+  #   2. Export as .pfx, then build with:
+  #        CSC_LINK=/path/cert.pfx CSC_KEY_PASSWORD='…' \
+  #        CSC_TIMESTAMP_SERVER=http://timestamp.digicert.com \
+  #        npm run dist:client:win
+  #   electron-builder picks CSC_LINK/CSC_KEY_PASSWORD automatically; the
+  #   timestamp server keeps the signature valid after cert expiry.
+  #   3. After the FIRST signed release, submit the .exe to
+  #      https://www.microsoft.com/en-us/wdsi/filesubmission  (Software
+  #      Developer → "I believe this file is incorrectly detected") so
+  #      Defender builds reputation for your publisher. Until reputation is
+  #      established, SmartScreen still shows ONE blue "Unknown publisher"
+  #      prompt — that is expected and NOT a quarantine.
+  #   4. Ship this exact signed binary to customers (re-uploading a
+  #      byte-different copy resets SmartScreen reputation).
+  requestedExecutionLevel: highestAvailable
 nsis:
   oneClick: false
   # Machine install: Windows shows the admin (UAC) prompt automatically,

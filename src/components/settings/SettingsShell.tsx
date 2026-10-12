@@ -48,7 +48,7 @@ export function SettingsShell({ children, isAdmin }: { children: React.ReactNode
         onClick={() => setPickerOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={pickerOpen}
-        className="flex w-full items-center gap-3 rounded-xl border border-(--border-default) bg-(--bg-overlay) px-3.5 py-3 text-start lg:hidden"
+        className="flex w-full items-center gap-3 rounded-[14px] border border-(--border-default) bg-(--bg-overlay) px-3.5 py-3 text-start shadow-[0_8px_30px_rgba(15,14,13,0.04)] transition-colors hover:border-(--brand-500) lg:hidden"
       >
         <current.Icon size={18} className="shrink-0 text-(--brand-600)" />
         <span className="min-w-0 flex-1">
@@ -68,7 +68,7 @@ export function SettingsShell({ children, isAdmin }: { children: React.ReactNode
             type="button"
             aria-label={tc("cancel")}
             onClick={() => setPickerOpen(false)}
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           />
           <div className="relative max-h-[80vh] w-full overflow-y-auto rounded-t-2xl border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)]">
             <div className="sticky top-0 flex justify-center bg-(--bg-overlay) pb-1 pt-3">
@@ -108,7 +108,7 @@ export function SettingsShell({ children, isAdmin }: { children: React.ReactNode
       )}
 
       {/* Desktop: sticky rail */}
-      <nav aria-label={t("title")} className="hidden w-60 shrink-0 lg:sticky lg:top-20 lg:block xl:w-72">
+      <nav aria-label={t("title")} className="hidden w-[248px] shrink-0 lg:sticky lg:top-20 lg:block xl:w-72">
         <ul className="flex flex-col gap-0.5">
           {sections.map((section) => {
             const href = hrefFor(locale, section);
@@ -119,10 +119,11 @@ export function SettingsShell({ children, isAdmin }: { children: React.ReactNode
                   href={href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-[13px] transition-colors",
+                    "relative flex min-h-11 items-center gap-3 rounded-[12px] px-3 py-2 text-[13px] transition-colors",
+                    "before:absolute before:inset-y-2.5 before:start-0 before:w-0.5 before:rounded-full before:transition-colors",
                     active
-                      ? "bg-(--brand-500)/10 font-extrabold text-(--text-primary)"
-                      : "font-semibold text-(--text-secondary) hover:bg-(--bg-sunken) hover:text-(--text-primary)"
+                      ? "bg-(--brand-500)/10 font-black text-(--text-primary) before:bg-(--brand-500)"
+                      : "font-bold text-(--text-secondary) before:bg-transparent hover:bg-(--bg-sunken) hover:text-(--text-primary)"
                   )}
                 >
                   <section.Icon size={18} className={cn("shrink-0", active && "text-(--brand-600)")} />

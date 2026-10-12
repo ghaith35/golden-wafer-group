@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { rateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { ensureSeasonFor } from "@/lib/docs/sequences";
+import { issueSession } from "@/lib/auth/issue-session";
 
 /// First-run onboarding: the owner creates THEIR company + admin credentials.
 /// One-shot — allowed only while the database holds zero companies. Fresh
@@ -18,7 +19,8 @@ export async function GET() {
 const onboardSchema = z.object({
   companyName: z.string().trim().min(1).max(80),
   fullName: z.string().trim().min(1).max(80),
-  username: z.string().trim().min(3).max(40),
+  email: z.string().trim().email().max(254).toLowerCase(),
+  phone: z.string().trim().min(3).max(30),
   // No password minimum (owner decision) — only bounds.
   password: z.string().min(1).max(100),
 });
@@ -38,24 +40,31 @@ export async function POST(req: Request) {
         throw Object.assign(new Error("already_onboarded"), { status: 404 });
       }
       const company = await tx.company.create({
-        data: { name: d.companyName, settings: { create: { defaultLocale: "ar", currency: "DZD" } } },
+        data: {
+          name: d.companyName,
+          email: d.email,
+          phone: d.phone,
+          settings: { create: { defaultLocale: "ar", currency: "DZD" } },
+        },
       });
-      await tx.user.create({
+      const user = await tx.user.create({
         data: {
           companyId: company.id,
-          username: d.username,
+          username: d.email,
+          phone: d.phone,
           passwordHash: await bcrypt.hash(d.password, 10),
           fullName: d.fullName,
           role: "Admin",
         },
+        include: { company: true },
       });
-      return { companyId: company.id };
+      return user;
     });
     // Season uses its own connection — must run after commit, otherwise the
     // uncommitted company is invisible and the FK fails. Non-fatal anyway:
     // every service auto-creates seasons on first use.
     await ensureSeasonFor(row.companyId, new Date()).catch(() => {});
-    return NextResponse.json({ ok: true, ...row }, { status: 201 });
+    return issueSession(row, 201);
   } catch (e) {
     const err = e as Error & { status?: number };
     if (err.message === "already_onboarded") return NextResponse.json({ error: "already_onboarded" }, { status: 404 });

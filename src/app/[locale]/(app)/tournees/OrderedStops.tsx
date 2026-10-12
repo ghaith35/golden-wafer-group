@@ -111,7 +111,7 @@ function SortableRow({
       {!last && (
         <span aria-hidden className="absolute start-[22px] top-full h-2 w-0.5 bg-(--brand-500)/40" />
       )}
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-(--brand-500) text-xs font-black text-white shadow">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-(--brand-500) text-xs font-black text-(--brand-contrast) shadow">
         {index + 1}
       </span>
       <span className="min-w-0 flex-1">

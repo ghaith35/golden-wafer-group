@@ -67,6 +67,7 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
       tiers={tiers}
       labels={{
         title: t("title"), neW: t("new"), search: tc("search"), stock: t("stock"),
+        alerts: t("alerts"),
         cump: t("cump"), stockValue: t("stockValue"), margin: t("margin"),
         depot: t("depot"), trucks: t("trucks"),
         noCategory: t("noCategory"), details: tc("details"), edit: tc("edit"), delete: tc("delete"),
@@ -87,6 +88,11 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
         qtyPer: t("qtyPer"), surColisName: t("surColisName"), surColisNamePh: t("surColisNamePh"),
         qtyPerL1: t("qtyPerL1"), legacyPieces: t("legacyPieces"), colisageAuto: t("colisageAuto"),
         colisL1Required: t("colisL1Required"), colisL2Required: t("colisL2Required"),
+        import: t("import"), importTitle: t("importTitle"), importHint: t("importHint"),
+        importFile: t("importFile"), importStart: t("importStart"), importing: t("importing"),
+        importDone: t("importDone"), importSkipped: t("importSkipped"),
+        importStock: t("importStock"), importInactive: t("importInactive"),
+        importBadFile: t("importBadFile"), importFailed: t("importFailed"),
       }}
     />
   );

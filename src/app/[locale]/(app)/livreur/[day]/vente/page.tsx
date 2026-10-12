@@ -12,20 +12,23 @@ export default async function LivreurVentePage({
   searchParams,
 }: {
   params: Promise<{ locale: string; day: string }>;
-  searchParams: Promise<{ client?: string }>;
+  searchParams: Promise<{ client?: string; edit?: string }>;
 }) {
   const { locale, day } = await params;
   const sp = await searchParams;
   setRequestLocale(locale);
   const session = await getSession();
   if (!session) redirect(`/${locale}/login`);
+  // Mandob (Vendeur): orders only — sale creation is Admin/Livreur.
+  if (session.role === "Vendeur") redirect(`/${locale}/livreur/${day}/dashboard`);
   const date = parseDay(day);
   if (!date) redirect(`/${locale}/livreur`);
   const t = await getTranslations("livreur");
+  const tc = await getTranslations("common");
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
 
-  const [client, products, categories, vanStock, settings, tournees] = await Promise.all([
+  const [client, products, categories, tiers, vanStock, settings, tournees] = await Promise.all([
     sp.client
       ? prisma.customer.findFirst({
           where: { id: sp.client, companyId: session.companyId },
@@ -49,6 +52,11 @@ export default async function LivreurVentePage({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
+    prisma.priceTier.findMany({
+      where: { companyId: session.companyId, isActive: true },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
     prisma.stockBatch.groupBy({
       by: ["productId"],
       where: { companyId: session.companyId, storeId: van.id, transferId: null },
@@ -65,6 +73,18 @@ export default async function LivreurVentePage({
   ]);
 
   const tour = tournees.find((x) => sameDay(new Date(x.date), date)) ?? null;
+  // Edit mode (?edit=<ticketId>): reopen a posted ticket of THIS van as a
+  // prefilled sale screen. Anything else → back to the factures list.
+  const editing = sp.edit
+    ? await prisma.sale.findFirst({
+        where: { id: sp.edit, companyId: session.companyId, kind: "TICKET", locationId: van.id, status: { not: "CANCELLED" } },
+        include: {
+          client: { select: { id: true, name: true, code: true, phone: true, tierId: true, balance: true } },
+          lines: true,
+        },
+      })
+    : null;
+  if (sp.edit && !editing) redirect(`/${locale}/livreur/${day}/factures`);
   const stockMap: Record<string, number> = {};
   for (const b of vanStock) stockMap[b.productId] = Number(b._sum.qty ?? 0);
   // Ticket labels follow the admin ticket language (default French),
@@ -79,10 +99,26 @@ export default async function LivreurVentePage({
       vanId={van.id}
       vanName={van.name}
       tourneeId={tour?.id ?? null}
-      initialClient={client ? JSON.parse(JSON.stringify(client)) : null}
+      initialClient={editing ? JSON.parse(JSON.stringify(editing.client)) : client ? JSON.parse(JSON.stringify(client)) : null}
+      editingTicket={
+        editing
+          ? {
+              id: editing.id,
+              paid: Number(editing.paid ?? 0),
+              notes: editing.notes,
+              lines: editing.lines.map((l) => ({
+                productId: l.productId,
+                unitId: l.unitId,
+                qty: Number(l.qty),
+                unitPrice: Number(l.unitPrice),
+              })),
+            }
+          : null
+      }
       products={JSON.parse(JSON.stringify(products))}
       categories={JSON.parse(JSON.stringify(categories))}
       vanStock={stockMap}
+      tiers={JSON.parse(JSON.stringify(tiers))}
       allowPieces={settings?.pieceSalesEnabled ?? false}
       labels={{
         scanTitle: t("scanTitle"), scanHint: t("scanHint"), skip: t("skip"),
@@ -95,11 +131,20 @@ export default async function LivreurVentePage({
         gallery: t("gallery"), qrNotFound: t("qrNotFound"),
         backToDash: t("backToDash"), scan: t("scan"), camNeedHttps: t("camNeedHttps"),
         camDenied: t("camDenied"), camUnsupported: t("camUnsupported"), held: t("held"),
-        ticketQueued: t("ticketQueued"),
+        ticketQueued: t("ticketQueued"), offline: t("offline"),
+        errRemise: t("errRemise"), errQr: t("errQr"), errStock: t("errStock"),
+        errCashOnly: t("errCashOnly"), errDebtOff: t("errDebtOff"),
+        errClientReq: t("errClientReq"), errCreditLimit: t("errCreditLimit"),
+        errOverpaid: t("errOverpaid"), errSaveFailed: t("errSaveFailed"),
+        syncFirst: t("syncFirst"), tierBase: t("tierBase"),
       }}
       ticketLabels={{
         total: tt("total"), paid: tt("paid"), due: tt("due"), remise: tt("remise"),
         thanks: tt("thanks"), seller: tt("seller"), client: tt("client"), share: tt("share"),
+        copied: tt("copied"), shareFail: tt("shareFail"),
+        printFail: tt("printFail"),
+        pdfSaved: tt("pdfSaved"), pdfShared: tt("pdfShared"),
+        pdfPreview: tt("pdfPreview"), save: tc("save"),
         packs: tt("packs"), articles: tt("articles"), oldDebt: tt("oldDebt"), newDebt: tt("newDebt"),
         design: tt("product"), qty: tt("qty"), price: tt("price"), unitPrice: tt("unitPrice"),
       }}

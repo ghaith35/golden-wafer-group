@@ -28,7 +28,7 @@ export default async function LivreurStartPage({
   dayEnd.setHours(23, 59, 59, 999);
   const tournee = await prisma.tournee.findFirst({
     where: { companyId: session.companyId, locationId: van.id, date: { gte: dayStart, lte: dayEnd } },
-    select: { id: true, startedAt: true },
+    select: { id: true, startedAt: true, _count: { select: { stops: true } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -40,6 +40,7 @@ export default async function LivreurStartPage({
       vanName={van.name}
       tourneeId={tournee?.id ?? null}
       startedAt={tournee?.startedAt ? new Date(tournee.startedAt).toISOString() : null}
+      stopsCount={tournee?._count.stops ?? 0}
       labels={{ startDay: t("startDay"), clients: t("clients"), gpsWhy: t("gpsWhy"), gpsDenied: t("gpsDenied"), gpsGranted: t("gpsGranted"), dayQueued: t("dayQueued") }}
     />
   );

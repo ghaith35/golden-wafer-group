@@ -62,7 +62,8 @@ async function priceLines(
       }
     }
     let factor = 1;
-    if (l.unitId) {
+    // The base unit is factor 1 by definition — it has no conversion row.
+    if (l.unitId && l.unitId !== p.baseUnitId) {
       const c = conversions.find((x) => x.productId === l.productId && x.unitId === l.unitId);
       if (!c) throw Object.assign(new Error("bad_unit"), { status: 400 });
       factor = Number(c.factor);
@@ -211,7 +212,7 @@ export async function confirmOrder(companyId: string, saleId: string) {
 }
 
 /// Deliver an order: consume stock, snapshot COGS, create BL, book client debt.
-export async function deliverOrder(companyId: string, saleId: string, locationId: string, extraPaid = 0) {
+export async function deliverOrder(companyId: string, saleId: string, locationId: string, extraPaid = 0, opts?: { opId?: string; at?: Date }) {
   const settings = await getOrCreateSettings(companyId);
   const order = await prisma.sale.findFirst({
     where: { id: saleId, companyId, kind: "ORDER" },
@@ -226,7 +227,7 @@ export async function deliverOrder(companyId: string, saleId: string, locationId
   if (isOverpaid(paid, Number(order.total))) throw Object.assign(new Error("overpaid"), { status: 400 });
   await checkCredit(companyId, order.clientId, Number(order.total) - paid, settings);
 
-  const date = new Date();
+  const date = opts?.at && !Number.isNaN(opts.at.getTime()) ? opts.at : new Date();
   const season = await ensureSeasonFor(companyId, date);
   return prisma.$transaction(async (tx) => {
     const number = await nextDocNumber(tx, companyId, "sale_delivery", date.getFullYear(), SERIES.DELIVERY);
@@ -274,6 +275,7 @@ export async function deliverOrder(companyId: string, saleId: string, locationId
         tierId: order.tierId,
         tourneeId: order.tourneeId,
         sourceId: order.id,
+        opId: opts?.opId ?? null,
         remise: order.remise,
         total: order.total,
         paid,
@@ -453,6 +455,163 @@ export async function createTicket(
     }
     void userId;
     return ticket;
+  });
+}
+
+/// Edit a posted TICKET in place (facture edit): reverse its postings, then
+/// re-apply the new lines — same number, same date, same season. Guards:
+/// no live children, no client returns, same client (changing the client is
+/// cancel + recreate). Location may change (reversal uses the old one).
+export async function updateTicket(
+  companyId: string,
+  saleId: string,
+  input: TicketInput,
+) {
+  const settings = await getOrCreateSettings(companyId);
+  const sale = await prisma.sale.findFirst({
+    where: { id: saleId, companyId, kind: "TICKET" },
+    include: { lines: true },
+  });
+  if (!sale) throw Object.assign(new Error("not_found"), { status: 404 });
+  if (sale.status === "CANCELLED") throw Object.assign(new Error("bad_status"), { status: 400 });
+  const liveChildren = await prisma.sale.count({
+    where: { companyId, sourceId: sale.id, status: { not: "CANCELLED" } },
+  });
+  if (liveChildren > 0) throw Object.assign(new Error("has_children"), { status: 400 });
+  const returnCount = await prisma.clientReturn.count({ where: { companyId, saleId: sale.id } });
+  if (returnCount > 0) throw Object.assign(new Error("has_returns"), { status: 400 });
+  if ((input.clientId ?? null) !== sale.clientId) {
+    throw Object.assign(new Error("client_change_forbidden"), { status: 400 });
+  }
+
+  const location = await prisma.store.findFirst({ where: { id: input.locationId, companyId } });
+  if (!location) throw Object.assign(new Error("bad_location"), { status: 400 });
+  const client = sale.clientId
+    ? await prisma.customer.findFirst({ where: { id: sale.clientId, companyId } })
+    : null;
+  if (sale.clientId && (!client || !client.isActive)) throw Object.assign(new Error("bad_client"), { status: 400 });
+
+  const { priced, tierId } = await priceLines(companyId, client?.tierId ?? null, input.tierId ?? null, input.lines, settings.remiseEnabled, settings.pieceSalesEnabled);
+  const linesTotal = priced.reduce((s, l) => s + l.lineTotal, 0);
+  const total = Math.max(0, linesTotal - (input.remise ?? 0));
+  if ((input.remise ?? 0) > 0 && !settings.remiseEnabled) throw Object.assign(new Error("remise_disabled"), { status: 400 });
+  const paid = input.paid ?? total;
+  if (isOverpaid(paid, total)) throw Object.assign(new Error("overpaid"), { status: 400 });
+
+  return prisma.$transaction(async (tx) => {
+    // 1. Reverse old postings (mirror cancelSale, without cancelling).
+    if (sale.locationId) {
+      for (const l of sale.lines) {
+        await addStock(tx, {
+          companyId,
+          locationId: sale.locationId,
+          productId: l.productId,
+          qty: Number(l.baseQty),
+          unitCost: Number(l.unitCost),
+        });
+        await tx.product.update({ where: { id: l.productId }, data: { stockQty: { increment: Number(l.baseQty) } } });
+      }
+    }
+    const oldDue = Number(sale.total) - Number(sale.paid);
+    if (oldDue > 1e-9 && sale.clientId && settings.debtTrackingEnabled) {
+      await tx.customer.update({ where: { id: sale.clientId }, data: { balance: { decrement: oldDue } } });
+    }
+    await tx.saleLine.deleteMany({ where: { saleId: sale.id } });
+    // Tournée stop total: take the old ticket back out (re-added below).
+    if (sale.tourneeId && sale.clientId) {
+      const stop = await tx.tourneeStop.findUnique({
+        where: { tourneeId_clientId: { tourneeId: sale.tourneeId, clientId: sale.clientId } },
+      });
+      if (stop) {
+        await tx.tourneeStop.update({
+          where: { id: stop.id },
+          data: { total: { decrement: Number(sale.total) } },
+        });
+      }
+    }
+
+    // 2. Credit check against the reversed balance (an edit that lowers the
+    // due must not trip on the pre-edit balance). Read inside the tx so the
+    // reversal above is visible.
+    {
+      const fresh = client ? await tx.customer.findUnique({ where: { id: client.id } }) : null;
+      const due = total - paid;
+      if (due > 1e-9) {
+        if (!settings.creditSalesEnabled) throw Object.assign(new Error("cash_only"), { status: 400 });
+        if (!settings.debtTrackingEnabled) throw Object.assign(new Error("debt_disabled"), { status: 400 });
+        if (!fresh) throw Object.assign(new Error("bad_client"), { status: 400 });
+        const limit = Number(fresh.creditLimit);
+        if (limit > 0 && Number(fresh.balance) + due > limit + 1e-9) {
+          throw Object.assign(new Error("credit_limit_exceeded"), { status: 400 });
+        }
+      }
+    }
+
+    // 3. Apply new lines (mirror createTicket consume loop, VAN oversell incl.).
+    const costs: number[] = [];
+    for (const l of priced) {
+      try {
+        const consumed = await consumeStock(tx, { companyId, locationId: location.id, productId: l.productId, qty: l.baseQty, fefo: settings.expiryEnabled });
+        costs.push(weightedCost(consumed));
+      } catch (e) {
+        if ((e as Error).message === "insufficient_stock" && settings.oversellAllowed && location.kind === "VAN") {
+          const avail = (e as Error & { available?: number }).available ?? 0;
+          if (avail > 1e-9) {
+            const consumed = await consumeStock(tx, { companyId, locationId: location.id, productId: l.productId, qty: avail, fefo: settings.expiryEnabled });
+            costs.push(weightedCost(consumed));
+          } else {
+            costs.push(0);
+          }
+          const p = await tx.product.findUniqueOrThrow({ where: { id: l.productId } });
+          await addStock(tx, { companyId, locationId: location.id, productId: l.productId, qty: -(l.baseQty - avail), unitCost: Number(p.costPrice) });
+        } else {
+          throw e;
+        }
+      }
+      await tx.product.update({ where: { id: l.productId }, data: { stockQty: { decrement: l.baseQty } } });
+    }
+
+    const updated = await tx.sale.update({
+      where: { id: sale.id },
+      data: {
+        locationId: location.id,
+        tierId,
+        remise: input.remise ?? 0,
+        total,
+        paid,
+        notes: input.notes ?? null,
+        lines: {
+          create: priced.map((l, i) => ({
+            productId: l.productId,
+            unitId: l.unitId,
+            qty: l.qty,
+            baseQty: l.baseQty,
+            unitPrice: l.unitPrice,
+            remise: l.remise,
+            lineTotal: l.lineTotal,
+            unitCost: costs[i] ?? 0,
+          })),
+        },
+      },
+      include: { lines: { include: { product: true } }, client: { include: { tier: true } }, location: true },
+    });
+
+    const due = total - paid;
+    if (due > 1e-9 && client && settings.debtTrackingEnabled) {
+      await tx.customer.update({ where: { id: client.id }, data: { balance: { increment: due } } });
+    }
+    if (sale.tourneeId && client) {
+      const stop = await tx.tourneeStop.findUnique({
+        where: { tourneeId_clientId: { tourneeId: sale.tourneeId, clientId: client.id } },
+      });
+      if (stop) {
+        await tx.tourneeStop.update({
+          where: { id: stop.id },
+          data: { total: { increment: total } },
+        });
+      }
+    }
+    return updated;
   });
 }
 

@@ -9,7 +9,16 @@ export async function GET(req: Request) {
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const sp = new URL(req.url).searchParams;
   const typeId = sp.get("typeId");
-  const locationId = sp.get("locationId");
+  let locationId = sp.get("locationId");
+  // Staff only ever see their OWN van's expenses (own scope, not the filter).
+  if (session.role !== "Admin") {
+    const ownVan = await prisma.store.findFirst({
+      where: { companyId: session.companyId, kind: "VAN", userId: session.userId },
+      select: { id: true },
+    });
+    if (!ownVan) return NextResponse.json([]);
+    locationId = ownVan.id;
+  }
   const month = Number(sp.get("month") ?? 0);
   const year = Number(sp.get("year") ?? 0);
   let range: { gte: Date; lt: Date } | undefined;
@@ -37,6 +46,16 @@ export async function POST(req: Request) {
   const parsed = expenseSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return NextResponse.json({ error: "validation_error", issues: parsed.error.issues }, { status: 400 });
   const d = parsed.data;
+  // Staff (phone expense button) may only book on their OWN van.
+  let locationId = d.locationId ?? null;
+  if (session.role !== "Admin") {
+    const ownVan = await prisma.store.findFirst({
+      where: { companyId: session.companyId, kind: "VAN", userId: session.userId },
+      select: { id: true },
+    });
+    if (!ownVan) return NextResponse.json({ error: "no_van" }, { status: 400 });
+    locationId = ownVan.id;
+  }
   if (d.typeId) {
     const t = await prisma.expenseType.findFirst({ where: { id: d.typeId, companyId: session.companyId } });
     if (!t) return NextResponse.json({ error: "bad_type" }, { status: 400 });
@@ -44,6 +63,9 @@ export async function POST(req: Request) {
   if (d.locationId) {
     const l = await prisma.store.findFirst({ where: { id: d.locationId, companyId: session.companyId } });
     if (!l) return NextResponse.json({ error: "bad_location" }, { status: 400 });
+    if (session.role !== "Admin" && l.id !== locationId) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
   }
   const date = d.expenseDate ? new Date(d.expenseDate) : new Date();
   const season = await ensureSeasonFor(session.companyId, date);
@@ -52,7 +74,7 @@ export async function POST(req: Request) {
       companyId: session.companyId,
       seasonId: season.id,
       typeId: d.typeId ?? null,
-      locationId: d.locationId ?? null,
+      locationId,
       label: d.label.trim(),
       description: d.description?.trim() || null,
       amount: d.amount,

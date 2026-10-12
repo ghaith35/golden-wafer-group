@@ -7,6 +7,7 @@ import { ArrowDownToLine, ArrowUpFromLine, Bus, Check, ChevronRight, Package, Re
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { TransferPopup } from "../../inventory/transfers/[id]/TransferPopup";
 import { packBreakdown } from "@/components/products/UnitQty";
 import { mixedColisTotal } from "@/lib/products/colisage";
@@ -46,9 +47,9 @@ type Transfer = {
 };
 
 const STATUS_COLOR: Record<string, string> = {
-  DECLARED: "bg-amber-500/10 text-amber-600",
-  CONFIRMED: "bg-emerald-500/10 text-emerald-600",
-  REJECTED: "bg-red-500/10 text-red-500",
+  DECLARED: "pill-amber",
+  CONFIRMED: "pill-emerald",
+  REJECTED: "pill-red",
   CANCELLED: "bg-gray-500/10 text-gray-500",
 };
 
@@ -81,6 +82,7 @@ export function VanDetailClient({
   currency?: string;
 }) {
   const [q, setQ] = useState("");
+  const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
   const [tab, setTab] = useState<"stock" | "journal">("stock");
   const router = useRouter();
   const [popupTransferId, setPopupTransferId] = useState<string | null>(null);
@@ -280,6 +282,7 @@ export function VanDetailClient({
             stockOut: labels.stockOut,
             noMovements: labels.noMovements,
             pending: labels.pending,
+            offline: labels.offline,
           }}
         />
       ) : (
@@ -303,8 +306,15 @@ export function VanDetailClient({
                 )}
               >
                 {l.product?.images?.[0] ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={l.product.images[0].url} alt={l.product?.name ?? ""} className="h-10 w-10 shrink-0 rounded-xl object-cover" loading="lazy" />
+                  <button
+                    type="button"
+                    onClick={() => setZoom({ src: l.product?.images?.[0]?.url ?? "", name: l.product?.name ?? "" })}
+                    aria-label={l.product?.name ?? ""}
+                    className="shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--brand-500)"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={l.product.images[0].url} alt={l.product?.name ?? ""} className="h-10 w-10 rounded-xl object-cover" loading="lazy" />
+                  </button>
                 ) : (
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken) text-(--text-secondary)">
                     <Package size={18} />
@@ -394,6 +404,7 @@ export function VanDetailClient({
           />
         )}
       </Modal>
+      {zoom && <ImageLightbox src={zoom.src} alt={zoom.name} caption={zoom.name} onClose={() => setZoom(null)} />}
     </div>
   );
 }

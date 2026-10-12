@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff, Pencil, Plus, QrCode, RefreshCw, Trash2, Truck, UserRound } from "lucide-react";
+import { KpiCard } from "@/components/ui/Card";
 import QRCode from "qrcode";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -424,33 +425,27 @@ export function UsersClient({
         <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{labels[error] ?? error}</p>
       )}
 
-      {/* Hero header — clears the top bar, live role counts */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-brand p-5 text-white shadow-lg">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-20"
-          style={{ backgroundImage: "radial-gradient(circle at 85% 20%, white 0, transparent 45%), radial-gradient(circle at 10% 90%, white 0, transparent 40%)" }}
-        />
-        <div className="relative flex flex-wrap items-center gap-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20">
-            <UserRound size={24} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-xl font-black">{labels.title}</h1>
-            <p className="truncate text-xs font-bold text-white/80">
-              {roles.map((r) => `${counts[r] ?? 0} ${roleName(r, labels)}`).join(" · ") || labels.empty}
-            </p>
-          </div>
-          <Button
-            onClick={() => { setError(null); setCreating(true); }}
-            className="shrink-0 bg-white font-black text-(--brand-600) hover:bg-white/90"
-          >
-            <Plus size={16} className="me-1" />
-            {labels.add}
-          </Button>
-        </div>
+      {/* Role counts + add — the section name lives in the topbar */}
+      <div className="grid grid-cols-3 gap-2">
+        {roles.map((r) => (
+          <KpiCard
+            key={r}
+            label={roleName(r, labels)}
+            value={String(counts[r] ?? 0)}
+            icon={<UserRound size={18} />}
+            accent={r === "Admin" ? "bg-violet-500/15 text-violet-500" : r === "Livreur" ? "bg-sky-500/15 text-sky-600" : "bg-emerald-500/15 text-emerald-600"}
+            compact
+          />
+        ))}
       </div>
-
       <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+        <Button
+          onClick={() => { setError(null); setCreating(true); }}
+          className="shrink-0"
+        >
+          <Plus size={16} className="me-1" />
+          {labels.add}
+        </Button>
         <div className="flex-1">
           <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
@@ -459,7 +454,7 @@ export function UsersClient({
             onClick={() => setFRole("")}
             className={cn(
               "min-h-11 shrink-0 rounded-xl px-4 text-xs font-black",
-              fRole === "" ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken) opacity-70"
+              fRole === "" ? "bg-gradient-brand text-(--brand-contrast) shadow" : "bg-(--bg-sunken) opacity-70"
             )}
           >
             {labels.all ?? "—"}
@@ -470,7 +465,7 @@ export function UsersClient({
               onClick={() => setFRole(fRole === r ? "" : r)}
               className={cn(
                 "flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl px-4 text-xs font-black",
-                fRole === r ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken) opacity-70"
+                fRole === r ? "bg-gradient-brand text-(--brand-contrast) shadow" : "bg-(--bg-sunken) opacity-70"
               )}
             >
               {roleName(r, labels)}

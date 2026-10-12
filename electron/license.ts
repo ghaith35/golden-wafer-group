@@ -196,9 +196,18 @@ function getJson(url: string, timeoutMs = 20000): Promise<{ status: number; body
 
 export interface TrialInfo { label?: string; phone?: string; specs?: DeviceSpecs }
 
-export async function registerMachine(serverUrl: string, machineId: string, label: string, phone?: string, specs?: DeviceSpecs): Promise<void> {
+export interface MachineInfo {
+  phone?: string;
+  workshop?: string;
+  name?: string;
+  contactName?: string;
+  city?: string;
+  email?: string;
+}
+
+export async function registerMachine(serverUrl: string, machineId: string, label: string, phone?: string, specs?: DeviceSpecs, info?: MachineInfo): Promise<void> {
   try {
-    await postJson(`${serverUrl}/api/license/register`, { machineId, label, phone, specs });
+    await postJson(`${serverUrl}/api/license/register`, { machineId, label, phone, specs, ...info });
   } catch { /* fail-soft: registration is informational */ }
 }
 
@@ -221,9 +230,9 @@ export async function issueActivation(serverUrl: string, machineId: string): Pro
   }
 }
 
-export async function redeemActivationKey(serverUrl: string, machineId: string, key: string, label: string, specs?: DeviceSpecs): Promise<{ token?: string; error?: string }> {
+export async function redeemActivationKey(serverUrl: string, machineId: string, key: string, label: string, specs?: DeviceSpecs, info?: MachineInfo): Promise<{ token?: string; error?: string }> {
   try {
-    const { body } = await postJson(`${serverUrl}/api/license/redeem`, { machineId, key, label, specs });
+    const { body } = await postJson(`${serverUrl}/api/license/redeem`, { machineId, key, label, specs, ...info });
     const token = body.token;
     if (typeof token === "string" && verifyActivationToken(token, machineId)) return { token };
     return { error: typeof body.error === "string" ? body.error : "invalid" };

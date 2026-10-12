@@ -37,7 +37,7 @@ export default async function VansPage({ params }: { params: Promise<{ locale: s
         name: t("name"), marque: t("marque"), matricule: t("matricule"),
         chauffeur: t("chauffeur"), noChauffeur: t("noChauffeur"),
         newDriver: t("newDriver"), fullName: t("fullName"), username: t("username"),
-        password: t("password"), role: t("role"), roleLivreur: t("roleLivreur"), roleVendeur: t("roleVendeur"),
+        password: t("password"), phone: t("phone"), role: t("role"), roleLivreur: t("roleLivreur"), roleVendeur: t("roleVendeur"),
         addImage: t("addImage"), removeImage: t("removeImage"),
         save: tc("save"), cancel: tc("cancel"), stockBoard: t("stockBoard"),
         driverBusy: t("driverBusy"),

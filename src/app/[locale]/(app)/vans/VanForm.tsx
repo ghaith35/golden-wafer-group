@@ -40,6 +40,7 @@ export function VanForm({
   const [dFull, setDFull] = useState("");
   const [dUser, setDUser] = useState("");
   const [dPass, setDPass] = useState("");
+  const [dPhone, setDPhone] = useState("");
   const [dRole, setDRole] = useState<"Livreur" | "Vendeur">("Livreur");
 
   function set<K extends keyof VanData>(k: K, v: VanData[K]) {
@@ -109,6 +110,7 @@ export function VanForm({
             fullName: dFull.trim(),
             username: dUser.trim(),
             password: dPass,
+            phone: dPhone.trim() || null,
             role: dRole,
             vanId,
           }),
@@ -228,6 +230,10 @@ export function VanForm({
                 <div>
                   <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.password} <span className="text-red-500">*</span></label>
                   <Input type="password" value={dPass} onChange={(e) => setDPass(e.target.value)} dir="ltr" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.phone}</label>
+                  <Input type="tel" value={dPhone} onChange={(e) => setDPhone(e.target.value)} dir="ltr" placeholder="06…" />
                 </div>
                 <div className="col-span-2">
                   <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.role}</label>

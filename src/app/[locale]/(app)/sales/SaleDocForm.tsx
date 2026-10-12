@@ -49,6 +49,8 @@ export function SaleDocForm({
   presetTourneeId,
   labels,
   onCreated,
+  editingId,
+  initial,
 }: {
   locale: string;
   mode: "order" | "ticket";
@@ -72,17 +74,39 @@ export function SaleDocForm({
   /// Called with the created doc id. Defaults to opening the detail page
   /// (route usage); the list-page modal closes + navigates itself.
   onCreated?: (id: string) => void;
+  /// Edit mode: rewrite a posted TICKET in place (same number/date) instead
+  /// of creating. Requires online (server reverses + re-applies postings).
+  editingId?: string;
+  initial?: {
+    clientId: string | null;
+    locationId: string | null;
+    tierId?: string | null;
+    remise?: number;
+    paid?: number;
+    notes?: string | null;
+    lines: Array<{ productId: string; unitId: string | null; qty: number; unitPrice: number | null; remise?: number | null }>;
+  } | null;
 }) {
   const router = useRouter();
-  const [clientId, setClientId] = useState(presetClientId ?? "");
-  const [locationId, setLocationId] = useState(presetLocationId ?? "");
-  const [tierId, setTierId] = useState(defaultTierId ?? "");
+  const [clientId, setClientId] = useState(initial?.clientId ?? presetClientId ?? "");
+  const [locationId, setLocationId] = useState(initial?.locationId ?? presetLocationId ?? "");
+  const [tierId, setTierId] = useState(initial?.tierId ?? defaultTierId ?? "");
   const [qrScanned, setQrScanned] = useState(false);
-  const [docRemise, setDocRemise] = useState(0);
-  const [paid, setPaid] = useState("");
-  const [notes, setNotes] = useState("");
+  const [docRemise, setDocRemise] = useState(initial?.remise ?? 0);
+  const [paid, setPaid] = useState(initial?.paid != null ? String(initial.paid) : "");
+  const [notes, setNotes] = useState(initial?.notes ?? "");
   const [clientQ, setClientQ] = useState("");
-  const [lines, setLines] = useState<DocLine[]>([{ productId: "", unitId: "", qty: 1, unitPrice: "", remise: 0 }]);
+  const [lines, setLines] = useState<DocLine[]>(
+    initial?.lines?.length
+      ? initial.lines.map((l) => ({
+          productId: l.productId,
+          unitId: l.unitId ?? "",
+          qty: l.qty,
+          unitPrice: l.unitPrice != null ? String(l.unitPrice) : "",
+          remise: l.remise ?? 0,
+        }))
+      : [{ productId: "", unitId: "", qty: 1, unitPrice: "", remise: 0 }]
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [queued, setQueued] = useState(false);
@@ -237,6 +261,38 @@ export function SaleDocForm({
     busyRef.current = true;
     setBusy(true);
     try {
+      // Edit mode: rewrite the posted ticket in place (Admin, online only —
+      // the server reverses + re-applies stock/debt, no offline queue).
+      if (editingId) {
+        const editBody = {
+          action: "edit",
+          clientId: clientId || null,
+          locationId,
+          tierId: effTier || null,
+          remise: docRemise,
+          paid: paidNum,
+          notes: notes || null,
+          lines: valid.map((l) => ({
+            productId: l.productId,
+            unitId: l.unitId || null,
+            qty: l.qty,
+            unitPrice: l.unitPrice === "" ? null : Number(l.unitPrice),
+            remise: l.remise,
+          })),
+        };
+        const res = await fetch(`/api/sales/${editingId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editBody),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setError(data.error ?? "save_failed");
+          return;
+        }
+        if (onCreated) onCreated(data.id ?? editingId);
+        return;
+      }
       const url = mode === "order" ? "/api/sales/orders" : "/api/sales/tickets";
       const body =
         mode === "order"

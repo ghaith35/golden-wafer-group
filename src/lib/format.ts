@@ -41,3 +41,16 @@ export function dzMoney(v: number, maxFrac?: number): string {
   const frac = maxFrac ?? (Math.abs(v) < 1000 && v % 1 !== 0 ? 2 : 0);
   return `${LRI}${core(v, frac)} DA${PDI}`;
 }
+
+/// Date + hour for record rows (sales, orders, expenses…): short local date
+/// plus HH:MM, e.g. "02/10/2026 · 14:35". Invalid dates render "—".
+export function fmtDT(value: string | Date | null | undefined, locale: string): string {
+  if (!value) return "—";
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return "—";
+  try {
+    return `${d.toLocaleDateString(locale)} · ${d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}`;
+  } catch {
+    return d.toISOString().slice(0, 16).replace("T", " · ");
+  }
+}

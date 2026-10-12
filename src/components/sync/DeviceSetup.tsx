@@ -41,12 +41,19 @@ export { syncEndpointOf };
 
 /// First-sync setup: scan the admin's setup QR (or type the token + URL),
 /// save device config, then the caller runs the first sync.
+/// compact=true (driver first-run inside the Sync popup): Direct pair leads —
+/// one tap binds the phone to the driver's van, no server fields. The QR /
+/// manual setup stays available behind a collapsed toggle for the rare cases
+/// (no van assigned, admin-issued token). compact=false keeps the full
+/// setup visible (server rebind flow).
 export function DeviceSetup({
   onConfigured,
   labels,
+  compact = false,
 }: {
   onConfigured: () => void;
   labels: Record<string, string>;
+  compact?: boolean;
 }) {
   const [mode, setMode] = useState<"scan" | "manual">("scan");
   const [token, setToken] = useState("");
@@ -54,6 +61,8 @@ export function DeviceSetup({
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [directBusy, setDirectBusy] = useState(false);
+  /// Compact mode: QR/manual setup hidden until the driver asks for it.
+  const [showQr, setShowQr] = useState(false);
 
   /// Direct pairing: the logged-in staffer's own van, no QR, no admin.
   async function directSync() {
@@ -117,6 +126,15 @@ export function DeviceSetup({
         {directBusy ? "…" : `⚡ ${labels.directSync ?? "direct"}`}
       </Button>
       <p className="text-xs font-bold opacity-60">{labels.setupHint ?? ""}</p>
+      {compact && !showQr ? (
+        <button
+          type="button"
+          onClick={() => setShowQr(true)}
+          className="mx-auto block text-[11px] font-bold opacity-50 underline"
+        >
+          {labels.scanSetup ?? "scan"}
+        </button>
+      ) : (
       <div className="flex gap-1 rounded-xl bg-(--bg-sunken) p-1">
         {(["scan", "manual"] as const).map((m) => (
           <button
@@ -129,7 +147,8 @@ export function DeviceSetup({
           </button>
         ))}
       </div>
-      {mode === "scan" ? (
+      )}
+      {(!compact || showQr) && (mode === "scan" ? (
         <CameraBox
           hint={labels.scanSetup ?? "scan"}
           onDetect={onScan}
@@ -148,15 +167,20 @@ export function DeviceSetup({
             <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.tokenPh ?? "token"}</label>
             <Input value={token} onChange={(e) => setToken(e.target.value)} dir="ltr" placeholder="…" />
           </div>
+          {/* Driver compact mode: the phone is already on the bound server
+              origin, so same-origin sync needs no URL — the address is never
+              shown to the driver. Full mode (admin rebind) keeps the field. */}
+          {!compact && (
           <div>
             <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.urlPh ?? "url"}</label>
             <Input value={url} onChange={(e) => setUrl(e.target.value)} dir="ltr" placeholder="/api/sync" inputMode="url" />
           </div>
+          )}
           <Button onClick={saveManual} disabled={saving || !token.trim()} className="w-full">
             {labels.saveConfig ?? "save"}
           </Button>
         </div>
-      )}
+      ))}
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{error}</p>}
     </div>
   );

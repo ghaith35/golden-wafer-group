@@ -37,7 +37,7 @@ export function PortalLogin({ locale, labels }: { locale: string; labels: Record
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center p-6">
       <div className="mb-6 text-center">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand text-xl font-black text-white">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand text-xl font-black text-(--brand-contrast)">
           D
         </div>
         <h1 className="text-xl font-bold">{labels.title}</h1>

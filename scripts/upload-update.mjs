@@ -1,5 +1,17 @@
 // Publishes a desktop release to the self-hosted update feed on server-c.
-//   node scripts/upload-update.mjs [local|server]
+//   node scripts/upload-update.mjs [local|server] [client]
+//
+// Each release = installer(s) + .blockmap(s) + latest.yml (+ latest-mac.yml on
+// mac). The .blockmap enables small differential downloads; without it every
+// update is a full re-download. latest*.yml MUST be served with
+// `Cache-Control: no-cache` — a stale cached yml is the #1 "update never
+// detected" cause (the nginx location below already forces no-store).
+//
+// The optional [client] publishes a per-client feed to
+// /var/www/distribuili-updates/<flavor>/<client>/ (baked into per-client
+// installers by dist-client.mjs). Without it, publishes the shared flavor
+// feed — which must only ever carry GENERIC builds, never a per-client
+// installer (it would re-identity other clients on update).
 //
 // Each release = installer(s) + .blockmap(s) + latest.yml (+ latest-mac.yml on
 // mac). The .blockmap enables small differential downloads; without it every
@@ -26,14 +38,20 @@ const ROOT = process.cwd();
 const DIST = join(ROOT, "dist-electron");
 const flavor = (process.argv[2] ?? "local").trim();
 if (flavor !== "local" && flavor !== "server") {
-  console.error("Usage: node scripts/upload-update.mjs [local|server]");
+  console.error("Usage: node scripts/upload-update.mjs [local|server] [client]");
+  process.exit(1);
+}
+// Per-client feed: only that client's installer may land here.
+const client = (process.argv[3] ?? "").trim();
+if (client && !/^[a-z0-9][a-z0-9-_]{0,30}$/.test(client)) {
+  console.error(`bad client id: ${client}`);
   process.exit(1);
 }
 
 const SSH = process.env.SSH_HOST ?? "server-c";
 const FEED_ROOT = process.env.FEED_ROOT ?? "/var/www/distribuili-updates";
 const BASE = (process.env.BASE_URL ?? "https://distribuili.khiatadz.com/updates").replace(/\/$/, "");
-const remoteDir = `${FEED_ROOT}/${flavor}`;
+const remoteDir = client ? `${FEED_ROOT}/${flavor}/${client}` : `${FEED_ROOT}/${flavor}`;
 
 function parseYmlUrls(file) {
   // Minimal reader for electron-builder's latest*.yml shape:
@@ -55,14 +73,20 @@ if (!manifests.includes("latest.yml")) {
 // Flavor guard: dist-electron/latest*.yml always describes the LAST build, so
 // refuse to publish a Local feed as server (and vice versa) — a Server install
 // must never "update" into a Local build. Matches repaire's latest-server.yml
-// split, implemented here by filename keyword.
+// split, implemented here by filename keyword. Per-client feeds additionally
+// require the client id in every installer name (a generic or foreign-client
+// installer must never land in a client's feed and re-identity it).
 const flavorWord = flavor === "local" ? "local" : "server";
 function manifestMatches(manifest) {
   const txt = readFileSync(join(DIST, manifest), "utf8");
   const installers = [...txt.matchAll(/^\s*(?:-\s*url|path):\s*(.+?)\s*$/gm)]
     .map((m) => m[1])
     .filter((u) => /\.(exe|dmg|zip)$/i.test(u));
-  return installers.length > 0 && installers.every((u) => u.toLowerCase().includes(flavorWord));
+  if (installers.length === 0) return false;
+  if (client) {
+    return installers.every((u) => u.toLowerCase().includes(client.toLowerCase()));
+  }
+  return installers.every((u) => u.toLowerCase().includes(flavorWord));
 }
 
 if (!manifestMatches("latest.yml")) {
@@ -101,7 +125,7 @@ for (const f of wanted) {
 }
 
 // Verify serving + no-cache.
-const probe = `${BASE}/${flavor}/latest.yml`;
+const probe = client ? `${BASE}/${flavor}/${client}/latest.yml` : `${BASE}/${flavor}/latest.yml`;
 try {
   const head = execFileSync("curl", ["-sI", "--max-time", "15", probe], { encoding: "utf8" });
   const versionLine = execFileSync("curl", ["-s", "--max-time", "30", probe], { encoding: "utf8" })

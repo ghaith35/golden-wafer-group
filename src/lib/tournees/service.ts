@@ -176,18 +176,34 @@ async function assertCanStamp(companyId: string, userId: string, role: string, t
   return tournee;
 }
 
+export type DayStamp = { lat?: unknown; lng?: unknown };
+
+function cleanCoord(v: unknown): number | null {
+  const n = typeof v === "string" ? Number(v) : typeof v === "number" ? v : NaN;
+  return Number.isFinite(n) ? n : null;
+}
+
 export async function startDay(
   companyId: string,
   userId: string,
   role: string,
   tourneeId: string,
   occurredAt?: Date | null,
+  stamp?: DayStamp | null,
 ) {
   const tournee = await assertCanStamp(companyId, userId, role, tourneeId);
   // Idempotent: a retried/duplicated offline stamp is a success, not an error.
   if (tournee.startedAt) return tournee;
   if (tournee.status !== "OPEN") throw Object.assign(new Error("bad_status"), { status: 400 });
-  return prisma.tournee.update({ where: { id: tournee.id }, data: { startedAt: occurredAt ?? new Date() } });
+  const lat = cleanCoord(stamp?.lat);
+  const lng = cleanCoord(stamp?.lng);
+  return prisma.tournee.update({
+    where: { id: tournee.id },
+    data: {
+      startedAt: occurredAt ?? new Date(),
+      ...(lat != null && lng != null ? { startedLat: lat, startedLng: lng } : {}),
+    },
+  });
 }
 
 export async function finishDay(
@@ -196,12 +212,21 @@ export async function finishDay(
   role: string,
   tourneeId: string,
   occurredAt?: Date | null,
+  stamp?: DayStamp | null,
 ) {
   const tournee = await assertCanStamp(companyId, userId, role, tourneeId);
   if (tournee.finishedAt) return tournee;
   if (tournee.status !== "OPEN") throw Object.assign(new Error("bad_status"), { status: 400 });
   if (!tournee.startedAt) throw Object.assign(new Error("not_started"), { status: 400 });
-  return prisma.tournee.update({ where: { id: tournee.id }, data: { finishedAt: occurredAt ?? new Date() } });
+  const lat = cleanCoord(stamp?.lat);
+  const lng = cleanCoord(stamp?.lng);
+  return prisma.tournee.update({
+    where: { id: tournee.id },
+    data: {
+      finishedAt: occurredAt ?? new Date(),
+      ...(lat != null && lng != null ? { finishedLat: lat, finishedLng: lng } : {}),
+    },
+  });
 }
 
 /// Admin manual correction of départ / fin de journée (presence board).

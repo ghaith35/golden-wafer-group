@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>غير متصل — Distribuili Van</title>
+<style>
+body{font-family:system-ui;background:#0f172a;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
+.card{background:#1e293b;border-radius:16px;padding:28px;max-width:420px;width:92%;box-shadow:0 10px 40px #0008;text-align:center}
+.logo{font-size:44px}h1{font-size:18px;margin:0 0 6px}
+p{font-size:13px;opacity:.75;margin:0 0 10px;line-height:1.8}
+button{width:100%;margin-top:10px;padding:14px;border:0;border-radius:12px;background:#65a30d;color:#fff;font-size:16px;font-weight:800;cursor:pointer}
+button.ghost{background:transparent;border:1px solid #334155;font-size:14px;font-weight:600}
+button:disabled{opacity:.5;cursor:wait}
+.meta{font-size:12px;opacity:.55;margin-top:10px;min-height:18px}
+.err{color:#f87171;font-size:13px;min-height:20px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="card" id="card" style="display:none">
+  <div class="logo" id="logo">📴</div>
+  <h1 id="title">تعذّر فتح التطبيق</h1>
+  <p id="desc">التطبيق غير محفوظ بعد على الهاتف — افتحه مرة واحدة وأنت متصل.</p>
+  <button id="retry" onclick="retry()">إعادة المحاولة ✓</button>
+  <button class="ghost" onclick="goSetup()">مسح رمز جديد</button>
+  <div class="meta" id="meta"></div>
+</div>
+<script>
+var KEY = "dili_apk_server";
+var TKEY = "dili_apk_token";
+var ERR_TS = "dili_off_err_ts";
+
+function saved() {
+  try { return { url: localStorage.getItem(KEY) || "", token: localStorage.getItem(TKEY) || "" }; }
+  catch (e) { return { url: "", token: "" }; }
+}
+function baseOf(url) {
+  var u = String(url || "").trim().replace(/\/+$/, "");
+  var i = u.indexOf("/api/sync");
+  if (i > 0) u = u.slice(0, i).replace(/\/+$/, "");
+  return u;
+}
+/// Day slug mirror of the server's daySlug(): yyyy-m-d, NOT zero-padded.
+function todaySlug() {
+  var d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+}
+/// THE entry, online and offline: today's cached dashboard (same as the
+/// launcher — one path, zero taps).
+function dashboardOf(url, token) {
+  var dest = baseOf(url) + "/ar/livreur/" + todaySlug() + "/dashboard";
+  if (token) dest += "?device=" + encodeURIComponent(token);
+  return dest;
+}
+function setMeta(s) {
+  try { document.getElementById("meta").textContent = s; } catch (e) {}
+}
+function showCard() {
+  try { document.getElementById("card").style.display = ""; } catch (e) {}
+}
+function goSetup() {
+  try { window.location.href = "./index.html"; }
+  catch (e) { window.location.href = "capacitor://localhost/index.html"; }
+}
+// Manual retry from the fallback card: reset the loop guard, then enter.
+function retry() {
+  var s = saved();
+  if (!baseOf(s.url)) { goSetup(); return; }
+  try { localStorage.setItem(ERR_TS, "0"); } catch (e) {}
+  setMeta("فتح التطبيق…");
+  window.location.href = dashboardOf(s.url, s.token);
+}
+(function init() {
+  var s = saved();
+  if (!baseOf(s.url)) { showCard(); return; }
+  // Loop guard: landing here twice within seconds means the dashboard
+  // itself can't be served (never cached) — stop looping and show the
+  // fallback card instead of flashing forever.
+  var now = Date.now(), last = 0;
+  try { last = Number(localStorage.getItem(ERR_TS) || 0); } catch (e) {}
+  try { localStorage.setItem(ERR_TS, String(now)); } catch (e) {}
+  if (now - last < 8000) { showCard(); return; }
+  window.location.href = dashboardOf(s.url, s.token);
+  // Still here after 6s (sluggish WebView): show the card too.
+  setTimeout(showCard, 6000);
+  // Connectivity returning while stuck: enter immediately.
+  window.addEventListener("online", function () {
+    try {
+      var cur = saved();
+      if (baseOf(cur.url)) window.location.href = dashboardOf(cur.url, cur.token);
+    } catch (e) {}
+  });
+})();
+</script>
+</script>
+</body>
+</html>

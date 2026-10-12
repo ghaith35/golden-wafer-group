@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale } from "next-intl/server";
 import { SwRegister } from "@/components/pwa/SwRegister";
+import { OfflineBackGuard } from "@/components/pwa/OfflineBackGuard";
 import "./fonts.css";
 import "./globals.css";
 
@@ -47,6 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           attributes to <body> before React hydrates. */}
       <body suppressHydrationWarning>
         <SwRegister />
+        <OfflineBackGuard />
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
       </body>
     </html>

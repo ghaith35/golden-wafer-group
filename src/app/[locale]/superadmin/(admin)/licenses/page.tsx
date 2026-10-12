@@ -4,8 +4,8 @@ import { LicensesClient } from "./LicensesClient";
 export default async function SuperAdminLicensesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("superadmin");
-  const tc = await getTranslations("common");
+  const t = await getTranslations({ locale: "en", namespace: "superadmin" });
+  const tc = await getTranslations({ locale: "en", namespace: "common" });
   return (
     <div className="space-y-4">
       <div>

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { KpiCard } from "@/components/ui/Card";
-import { dzMoney } from "@/lib/format";
+import { dzMoney, fmtDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type Party = "clients" | "suppliers";
@@ -33,9 +33,9 @@ type PayItem = { id: string; name: string; balance: number };
 type HistItem = { id: string; amount: unknown; date: string; notes: string | null };
 
 const STATUS_COLOR: Record<Status, string> = {
-  unpaid: "bg-red-500/10 text-red-500",
-  partial: "bg-amber-500/10 text-amber-600",
-  settled: "bg-emerald-500/10 text-emerald-600",
+  unpaid: "pill-red",
+  partial: "pill-amber",
+  settled: "pill-emerald",
 };
 
 const num = (v: number) => dzMoney(v);
@@ -154,25 +154,20 @@ export function DettesClient({ labels }: { labels: Record<string, string> }) {
 
   return (
     <div className="space-y-4 p-5 md:p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="flex items-center gap-2 text-xl font-black">
-          <HandCoins size={20} className="text-(--brand-600)" />
-          {party === "clients" ? (labels.clientsTitle ?? labels.title) : (labels.suppliersTitle ?? labels.title)}
-        </h1>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <KpiCard
           label={labels.balance}
           value={num(openTotal)}
-          icon={<Wallet size={20} />}
+          icon={<Wallet size={18} />}
           accent="bg-red-500/15 text-red-500"
+          compact
         />
         <KpiCard
           label={party === "clients" ? labels.clients : labels.suppliers}
           value={String(rows.length)}
-          icon={<HandCoins size={20} />}
+          icon={<HandCoins size={18} />}
           accent="bg-sky-500/15 text-sky-600"
+          compact
         />
       </div>
 
@@ -228,7 +223,7 @@ export function DettesClient({ labels }: { labels: Record<string, string> }) {
             </div>
             <div className="mt-1.5 flex justify-between text-[11px] font-bold opacity-60">
               <span>{labels.openDocs}: {r.openDocs}</span>
-              <span>{r.lastActivity ? <>{labels.lastActivity}: <bdi>{new Date(r.lastActivity).toLocaleDateString(locale)}</bdi></> : ""}</span>
+              <span>{r.lastActivity ? <>{labels.lastActivity}: <bdi>{fmtDT(r.lastActivity, locale)}</bdi></> : ""}</span>
             </div>
             <div className="mt-2 flex gap-2">
               <Button onClick={() => startPay(r)} disabled={r.balance <= 0} className="flex-1">
@@ -246,7 +241,7 @@ export function DettesClient({ labels }: { labels: Record<string, string> }) {
                 {hist.slice(0, 10).map((h) => (
                   <div key={h.id} className="flex justify-between text-xs">
                     <span className="opacity-60">
-                      <bdi>{new Date(h.date).toLocaleDateString(locale)}</bdi>{h.notes ? <span> · <bdi dir="auto">{h.notes}</bdi></span> : ""}
+                      <bdi>{fmtDT(h.date, locale)}</bdi>{h.notes ? <span> · <bdi dir="auto">{h.notes}</bdi></span> : ""}
                     </span>
                     <span className="font-black tabular-nums text-emerald-600">{num(Number(h.amount))}</span>
                   </div>

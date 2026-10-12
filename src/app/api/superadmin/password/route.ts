@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   const auth = await requireSuperAdmin();
   if (!auth.ok) return auth.response;
   const { password } = (await req.json().catch(() => ({}))) as { password?: string };
-  if (!password) return NextResponse.json({ error: "weak_password" }, { status: 400 });
+  if (typeof password !== "string" || password.length < 12) return NextResponse.json({ error: "weak_password" }, { status: 400 });
   await prisma.superAdminUser.update({
     where: { id: auth.admin.adminId },
     data: { passwordHash: await hashPassword(password), passwordChangedAt: new Date() },

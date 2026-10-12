@@ -1,0 +1,19 @@
+[Unit]
+Description=Distribuili client provision worker (pending deployments)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+# Same checkout serves all clients. VENDOR_DB carries the license-authority
+# postgres password (host part unused — DB containers are internal-only, the
+# worker reaches them via `docker exec`). Credentials live in
+# Cloudflare (tunnel + DNS creation) reads /home/ghaith/.cf-worker.env:
+#   CLOUDFLARE_API_TOKEN=…
+#   CLOUDFLARE_ACCOUNT_ID=…
+#   CLOUDFLARE_ZONE_ID=…
+#   TUNNEL_BASE_DOMAIN=khiatadz.com
+# Without it, rows fail with cloudflare_not_configured and the vendor
+# provisions tunnels by hand in superadmin → Tunnels.
+WorkingDirectory=/home/ghaith/distribuili
+ExecStart=/usr/bin/bash -c 'set -a; . /home/ghaith/distribuili/.env.license; set +a; export VENDOR_DB="postgresql://distribuili:${POSTGRES_PASSWORD}@127.0.0.1:5433/distribuili_lic"; /usr/bin/node /home/ghaith/distribuili/scripts/provision-worker.mjs --once'

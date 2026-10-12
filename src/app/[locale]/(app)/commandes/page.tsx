@@ -67,13 +67,14 @@ export default async function CommandesPage({
         search: t("search"), all: t("all"), allVans: t("allVans"), confirm: t("confirm"),
         view: t("view"), empty: t("empty"), lines: t("lines"), stockShort: t("stockShort"), total: t("total"),
         stDraft: ts("draft"), stConfirmed: ts("confirmed"), stDelivered: ts("delivered"),
+        unsynced: ts("unsynced"),
       }}
       detailLabels={{
         client: ts("client"), walkin: ts("walkin"), total: ts("total"), paid: ts("paid"), due: ts("due"),
         confirm: ts("confirm"), deliver: ts("deliver"), invoice: ts("invoice"), cancel: ts("cancel"),
         print: ts("print"), location: ts("location"), move: ts("move"), moveTo: ts("moveTo"),
         unitPriceL: ts("unitPriceL"), packPriceL: ts("packPriceL"), product: ts("product"),
-        qtyPack: ts("qtyPack"), qtyPiece: ts("qtyPiece"), assign: ts("assign"),
+        qtyPack: ts("qtyPack"), qtyPiece: ts("qtyPiece"), assign: ts("assign"), edit: ts("edit"),
         confirmOrderT: ts("confirmOrderT"), confirmOrderM: ts("confirmOrderM"),
         invoiceT: ts("invoiceT"), invoiceM: ts("invoiceM"),
         assignT: ts("assignT"), deliverT: ts("deliverT"), van: ts("van"),

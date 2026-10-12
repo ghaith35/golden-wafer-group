@@ -45,6 +45,10 @@ export function QrPrintClient({
   const [printed, setPrinted] = useState<Label[]>([]);
   const [company, setCompany] = useState<Company | null>(null);
   const [size, setSize] = useState<(typeof SIZES)[number]>(SIZES[1]);
+  /// Manual label dimensions (mm): preset buttons fill these in, the user
+  /// can type any width × height and validate — the sheet follows.
+  const [boxW, setBoxW] = useState("50");
+  const [boxH, setBoxH] = useState("50");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -54,6 +58,23 @@ export function QrPrintClient({
       .then((d) => setAll((d as Array<{ id: string; name: string; code: string }>).map((c) => ({ id: c.id, name: c.name, code: c.code }))))
       .catch(() => {});
   }, [q, secteur, wilaya]);
+
+  // Effective label box: manual W×H when valid, else the preset square.
+  const wNum = Number(boxW);
+  const hNum = Number(boxH);
+  const manualOk = Number.isFinite(wNum) && Number.isFinite(hNum) && wNum >= 10 && wNum <= 200 && hNum >= 10 && hNum <= 200;
+  const box = { w: manualOk ? wNum : size.box, h: manualOk ? hNum : size.box };
+  const cols = Math.max(1, Math.floor(190 / box.w));
+  const scale = Math.min(box.w, box.h) / 50;
+  const qrPct = Math.min(85, Math.max(40, Math.round(66 * scale)));
+  const namePx = Math.max(7, Math.round(9 * scale));
+  const codePx = Math.max(6, Math.round(8 * scale));
+
+  function pickSize(s: (typeof SIZES)[number]) {
+    setSize(s);
+    setBoxW(String(s.box));
+    setBoxH(String(s.box));
+  }
 
   function toggle(id: string) {
     setSelected((s) => {
@@ -124,43 +145,66 @@ export function QrPrintClient({
       </div>
       {printed.length > 0 && (
         <>
-          <div className="no-print flex items-center justify-between gap-2">
-            <div className="flex gap-1.5">
-              {SIZES.map((s) => (
-                <button
-                  key={s.key}
-                  type="button"
-                  onClick={() => setSize(s)}
-                  className={cn(
-                    "h-8 rounded-lg px-3 text-xs font-black transition-colors",
-                    size.key === s.key ? "bg-(--brand-500)/15 text-(--brand-600)" : "bg-(--bg-sunken) opacity-60 hover:opacity-100"
-                  )}
-                >
-                  {s.label}
-                </button>
-              ))}
+          <div className="no-print space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex gap-1.5">
+                {SIZES.map((s) => (
+                  <button
+                    key={s.key}
+                    type="button"
+                    onClick={() => pickSize(s)}
+                    className={cn(
+                      "h-8 rounded-lg px-3 text-xs font-black transition-colors",
+                      Number(boxW) === s.box && Number(boxH) === s.box
+                        ? "bg-(--brand-500)/15 text-(--brand-600)"
+                        : "bg-(--bg-sunken) opacity-60 hover:opacity-100"
+                    )}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+              <Button onClick={() => window.print()}>{labels.print} ({printed.length})</Button>
             </div>
-            <Button onClick={() => window.print()}>{labels.print} ({printed.length})</Button>
+            <div className="flex items-center gap-2">
+              <span className="shrink-0 text-xs font-bold opacity-60">{labels.labelSize}</span>
+              <Input
+                type="number" min={10} max={200} value={boxW}
+                onChange={(e) => setBoxW(e.target.value)} dir="ltr" inputMode="decimal"
+                aria-label={labels.width} placeholder={labels.width}
+                className="h-10"
+              />
+              <span className="opacity-60">×</span>
+              <Input
+                type="number" min={10} max={200} value={boxH}
+                onChange={(e) => setBoxH(e.target.value)} dir="ltr" inputMode="decimal"
+                aria-label={labels.height} placeholder={labels.height}
+                className="h-10"
+              />
+              <span className="shrink-0 text-[11px] tabular-nums opacity-60" dir="ltr">
+                {manualOk ? `${box.w}×${box.h}mm · ${cols}/row` : ""}
+              </span>
+            </div>
           </div>
           <div
             className="qr-sheet grid justify-center"
-            style={{ gridTemplateColumns: `repeat(${size.cols}, ${size.box}mm)`, gap: "4mm" }}
+            style={{ gridTemplateColumns: `repeat(${cols}, ${box.w}mm)`, gap: "4mm" }}
           >
             {printed.map((l) => (
               <div
                 key={l.id}
                 className="qr-label flex flex-col items-center justify-center overflow-hidden rounded bg-white text-black"
-                style={{ width: `${size.box}mm`, height: `${size.box}mm`, padding: "2.5mm" }}
+                style={{ width: `${box.w}mm`, height: `${box.h}mm`, padding: "2.5mm" }}
               >
                 <div className="flex w-full items-center justify-center gap-1">
                   {company?.logoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={company.logoUrl} alt="" style={{ height: "5mm", width: "5mm", objectFit: "contain" }} />
                   ) : null}
-                  <div className="min-w-0 text-center font-black leading-tight" style={{ fontSize: `${size.codePx}px` }}>
+                  <div className="min-w-0 text-center font-black leading-tight" style={{ fontSize: `${codePx}px` }}>
                     <div className="truncate">{company?.name ?? ""}</div>
                     {company?.phone && (
-                      <div className="font-mono font-bold opacity-60" dir="ltr" style={{ fontSize: `${Math.max(6, size.codePx - 1)}px` }}>
+                      <div className="font-mono font-bold opacity-60" dir="ltr" style={{ fontSize: `${Math.max(6, codePx - 1)}px` }}>
                         {company.phone}
                       </div>
                     )}
@@ -170,12 +214,12 @@ export function QrPrintClient({
                 <img
                   src={l.dataUrl}
                   alt={l.code}
-                  style={{ width: `${size.qrPct}%`, aspectRatio: "1", marginTop: "1.5mm", imageRendering: "pixelated" }}
+                  style={{ width: `${qrPct}%`, aspectRatio: "1", marginTop: "1.5mm", imageRendering: "pixelated" }}
                 />
-                <div className="mt-auto w-full truncate text-center font-black" style={{ fontSize: `${size.namePx}px` }}>
+                <div className="mt-auto w-full truncate text-center font-black" style={{ fontSize: `${namePx}px` }}>
                   {l.name}
                 </div>
-                <div className="font-mono font-bold opacity-60" dir="ltr" style={{ fontSize: `${size.codePx}px` }}>
+                <div className="font-mono font-bold opacity-60" dir="ltr" style={{ fontSize: `${codePx}px` }}>
                   {l.code}
                 </div>
               </div>

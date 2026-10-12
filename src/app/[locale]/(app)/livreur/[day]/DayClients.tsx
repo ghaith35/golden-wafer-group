@@ -2,47 +2,383 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Clock, Crosshair, Navigation } from "lucide-react";
+import { ArrowLeft, Banknote, Clock, Crosshair, MapPin, Navigation, Phone, QrCode, UserPlus } from "lucide-react";
+import QRCode from "qrcode";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
+import { UnsyncedBadge } from "@/components/sync/UnsyncedBadge";
 import { useSavedDistances } from "@/lib/geo";
+import { getPendingClients, goPage, queueOp, syncNow, warmJourneePages, getVanSnapshot, getOutbox, updateOutboxPayload, saleErrText, queueErrText } from "@/lib/sync/client";
+import { checkOfflineClientUpdate } from "@/lib/sync/offline-rules";
+import { OnlineBadge } from "@/components/sync/OnlineBadge";
+import { clientQrPayload } from "@/lib/clients/validation";
+import { dzMoney } from "@/lib/format";
+import { canSell } from "@/lib/staff-permissions";
+import { NewClient } from "./clients/new/NewClient";
 import { cn } from "@/lib/utils";
 
 type Client = {
   id: string; name: string; code: string; phone: string | null;
+  tierId: string | null; balance: unknown;
   gpsLat: number | null; gpsLng: number | null;
+  days: string[];
 };
 
-/// Step 2 — day clients with live GPS distances. Auto-locates on entry.
+/// Step 2 — ALL of the driver's clients (his tournées' stops unioned) with
+/// a day-filter on top. Back goes to the journée start page (clock) — never
+/// out of the journée flow.
 export function DayClients({
   locale,
   day,
   vanName,
   hasTournee,
+  hasStarted,
+  days,
   clients,
+  companyId,
+  refs,
+  role,
   labels,
 }: {
   locale: string;
   day: string;
   vanName: string;
   hasTournee: boolean;
+  hasStarted: boolean;
+  days: string[];
   clients: Client[];
+  companyId: string;
+  refs: {
+    wilayas: Array<{ code: number; nameAr: string; nameFr: string }>;
+    secteurs: Array<{ id: string; name: string; wilayaCode: number }>;
+    tiers: Array<{ id: string; name: string }>;
+  };
+  role: string;
   labels: Record<string, string>;
 }) {
   const router = useRouter();
   const [q, setQ] = useState("");
+  /// "" = all clients; otherwise one day slug.
+  const [dayFilter, setDayFilter] = useState("");
+  /// Maps links need connection — hidden offline instead of dead-ending.
+  /// Default online so server and client render the same (synced on mount).
+  const [online, setOnline] = useState(true);
+  useEffect(() => {
+    try {
+      setOnline(navigator.onLine);
+    } catch { /* assume online */ }
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+    return () => {
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", off);
+    };
+  }, []);
+  /// Client detail card (tap a row): QR + phone + GPS + balance, all
+  /// on-device — works fully offline. Selling goes through the card.
+  const [detailFor, setDetailFor] = useState<Client | null>(null);
+  const [qrImg, setQrImg] = useState("");
+  /// Debt collection (versement) state — reset per client.
+  const [collectAmt, setCollectAmt] = useState("");
+  const [collectBusy, setCollectBusy] = useState(false);
+  const [collectMsg, setCollectMsg] = useState<string | null>(null);
+  useEffect(() => {
+    setCollectAmt("");
+    setCollectMsg(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detailFor?.id]);
+  /// Staff are 403 on /api/versements, so collection is QUEUE-ONLY by
+  /// design — which is also what makes it work fully offline (engine
+  /// resolves pending: client ids + attributes the till server-side).
+  /// Online, flush immediately so the debt drops in seconds.
+  async function doCollect() {
+    if (!detailFor || collectBusy) return;
+    const amount = Number(collectAmt);
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    setCollectBusy(true);
+    setCollectMsg(null);
+    try {
+      await queueOp("versement", {
+        kind: "CLIENT_PAYMENT",
+        clientId: detailFor.id,
+        amount,
+        date: day,
+      });
+      setCollectAmt("");
+      setCollectMsg(labels.queuedOk ?? "queued");
+      try {
+        if (typeof navigator === "undefined" || navigator.onLine !== false) {
+          await syncNow();
+        }
+      } catch {
+        /* stays queued for the next sync */
+      }
+    } catch {
+      setCollectMsg(labels.errSaveFailed ?? "save failed");
+    } finally {
+      setCollectBusy(false);
+    }
+  }
+
+  /// Pending client updates (this phone, not yet synced): merged over SSR
+  /// rows + detail so an offline edit is visible immediately, everywhere.
+  const [upd, setUpd] = useState<Record<string, Record<string, unknown>>>({});
+  async function reloadUpd() {
+    try {
+      const ops = await getOutbox();
+      const m: Record<string, Record<string, unknown>> = {};
+      for (const o of ops) {
+        // Failed ops are excluded: their values aren't server truth (the
+        // SyncModal surfaces them for repair/discard instead).
+        if (o.kind !== "client-update" || !o.payload || o.error) continue;
+        const p = o.payload as Record<string, unknown>;
+        const cid = typeof p.clientId === "string" ? p.clientId : null;
+        if (cid) m[cid] = { ...(m[cid] ?? {}), ...((p.patch ?? {}) as Record<string, unknown>) };
+      }
+      setUpd(m);
+    } catch {
+      /* ignore */
+    }
+  }
+  /// Edit-client form state (inside the detail card, both roles).
+  const [editOpen, setEditOpen] = useState(false);
+  const [fName, setFName] = useState("");
+  const [fPhone, setFPhone] = useState("");
+  const [fAddress, setFAddress] = useState("");
+  const [fActivity, setFActivity] = useState("");
+  const [fWilaya, setFWilaya] = useState("");
+  const [fSecteur, setFSecteur] = useState("");
+  const [editBusy, setEditBusy] = useState(false);
+  const [editMsg, setEditMsg] = useState<string | null>(null);
+  const [editErr, setEditErr] = useState<string | null>(null);
+  useEffect(() => {
+    setEditOpen(false);
+    setEditMsg(null);
+    setEditErr(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detailFor?.id]);
+  /// Open the edit form: prefill from the card + snapshot, then refresh
+  /// from the server when online (full row incl. secteur/activity).
+  async function openEdit() {
+    if (!detailFor) return;
+    const c = detailFor;
+    setFName(c.name ?? "");
+    setFPhone(c.phone ?? "");
+    setFAddress("");
+    setFActivity("");
+    setFWilaya("");
+    setFSecteur("");
+    setEditMsg(null);
+    setEditErr(null);
+    setEditOpen(true);
+    try {
+      if (c.id.startsWith("pending:")) {
+        const pend = await getPendingClients().catch(() => []);
+        const hit = pend.find((p) => `pending:${p.opId}` === c.id);
+        if (hit) {
+          const q = (hit as unknown as Record<string, unknown>);
+          setFAddress(String(q.address ?? ""));
+          setFActivity(String(q.activityType ?? ""));
+          const w = q.wilayaCode;
+          if (typeof w === "number") setFWilaya(String(w));
+        }
+        const ops = await getOutbox().catch(() => []);
+        const last = [...ops].reverse().find((o) => o.kind === "client-update" && (o.payload as Record<string, unknown>)?.clientId === c.id);
+        const patch = (last?.payload as Record<string, unknown> | undefined)?.patch as Record<string, unknown> | undefined;
+        if (patch) {
+          if (typeof patch.name === "string") setFName(patch.name);
+          if (typeof patch.phone === "string") setFPhone(patch.phone);
+          if (typeof patch.address === "string") setFAddress(patch.address);
+          if (typeof patch.activityType === "string") setFActivity(patch.activityType);
+          if (typeof patch.wilayaCode === "number") setFWilaya(String(patch.wilayaCode));
+          if (typeof patch.secteurId === "string") setFSecteur(patch.secteurId);
+        }
+        return;
+      }
+      const snap = await getVanSnapshot().catch(() => null);
+      const sc = (snap?.clients ?? []).find((x) => x.id === c.id) as
+        | { address?: string | null; wilayaCode?: number | null }
+        | undefined;
+      if (sc) {
+        if (sc.address) setFAddress(sc.address);
+        if (sc.wilayaCode != null) setFWilaya(String(sc.wilayaCode));
+      }
+      if (typeof navigator !== "undefined" && navigator.onLine === false) return;
+      const res = await fetch(`/api/clients/${c.id}`, { cache: "no-store" });
+      if (res.ok) {
+        const d = await res.json().catch(() => null);
+        if (d) {
+          if (typeof d.address === "string") setFAddress(d.address);
+          if (typeof d.activityType === "string") setFActivity(d.activityType);
+          if (d.wilayaCode != null) setFWilaya(String(d.wilayaCode));
+          if (typeof d.secteurId === "string") setFSecteur(d.secteurId);
+        }
+      }
+    } catch {
+      /* prefill stands */
+    }
+  }
+  /// Save the edit: PATCH online, queue `client-update` offline, rewrite
+  /// the queued create for own pending clients. Financial fields are never
+  /// sent (engine whitelists driver-safe fields either way).
+  async function doEdit() {
+    if (!detailFor || editBusy) return;
+    const c = detailFor;
+    // Send-only-what-changed, and never wipe a field we never loaded:
+    // address/activity/wilaya/secteur go out only when the driver set them.
+    const patch: Record<string, unknown> = {};
+    if (fName.trim() && fName.trim() !== c.name) patch.name = fName.trim();
+    if (fPhone.trim() !== (c.phone ?? "")) patch.phone = fPhone.trim() || null;
+    if (fAddress.trim()) patch.address = fAddress.trim();
+    if (fActivity.trim()) patch.activityType = fActivity.trim();
+    if (fWilaya) patch.wilayaCode = Number(fWilaya);
+    if (fSecteur) patch.secteurId = fSecteur;
+    if (Object.keys(patch).length === 0) {
+      setEditOpen(false);
+      return;
+    }
+    // Phone rules mirrored locally so a bad number fails fast, offline too.
+    try {
+      const [s, o] = await Promise.all([
+        getVanSnapshot().catch(() => null),
+        getOutbox().catch(() => []),
+      ]);
+      const check = checkOfflineClientUpdate(s, o, c.id, {
+        phone: typeof patch.phone === "string" ? patch.phone : (c.phone ?? ""),
+      });
+      if (!check.ok) {
+        setEditErr(saleErrText(labels, check.error) ?? check.error);
+        return;
+      }
+    } catch {
+      /* no snapshot yet → the server decides */
+    }
+    setEditBusy(true);
+    setEditErr(null);
+    setEditMsg(null);
+    try {
+      if (c.id.startsWith("pending:")) {
+        const opId = c.id.slice("pending:".length);
+        const ops = await getOutbox();
+        const row = ops.find((o) => o.opId === opId && o.kind === "client");
+        if (!row) throw new Error("gone");
+        await updateOutboxPayload(opId, { ...(row.payload as Record<string, unknown>), ...patch });
+        setEditOpen(false);
+        setEditMsg(labels.clientUpdated ?? "updated ✓");
+        await reloadPending();
+        await reloadUpd();
+        setDetailFor((prev) => (prev ? { ...prev, ...(patch as Partial<Client>) } : prev));
+        return;
+      }
+      try {
+        const res = await fetch(`/api/clients/${c.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify(patch),
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => null);
+          setEditErr(saleErrText(labels, String(d?.error ?? "failed")) ?? "failed");
+          return;
+        }
+      } catch {
+        // Offline (or dropped): queue the update, it applies at sync.
+        await queueOp("client-update", { clientId: c.id, patch });
+        await reloadUpd();
+      }
+      setEditOpen(false);
+      setEditMsg(labels.clientUpdated ?? "updated ✓");
+      setUpd((prev) => ({ ...prev, [c.id]: { ...(prev[c.id] ?? {}), ...patch } }));
+      setDetailFor((prev) => (prev ? { ...prev, ...(patch as Partial<Client>) } : prev));
+      try {
+        if (typeof navigator === "undefined" || navigator.onLine !== false) {
+          await syncNow();
+          await reloadUpd();
+        }
+      } catch {
+        /* stays queued for the next sync */
+      }
+    } catch (e) {
+      setEditErr(queueErrText(labels, e));
+    } finally {
+      setEditBusy(false);
+    }
+  }
+  async function showDetail(c: Client) {
+    // Merge this phone's pending edits so the card shows the latest values.
+    const u = upd[c.id];
+    setDetailFor(u ? { ...c, ...(u as Partial<Client>) } : c);
+    setQrImg("");
+    try {
+      setQrImg(await QRCode.toDataURL(clientQrPayload(companyId, c.code), { margin: 1, width: 320 }));
+    } catch {
+      setQrImg("");
+    }
+  }
+
+  const detailTier = detailFor?.tierId ? refs.tiers.find((t) => t.id === detailFor.tierId)?.name ?? null : null;
   const { locating, geoError, locate, meta, pos } = useSavedDistances({
     unitM: labels.unitM, unitKm: labels.unitKm, unitMin: labels.unitMin,
   });
 
-  // Auto-actualise on entry.
+  // Auto-actualise on entry + warm the journée pages while online.
+  // Merge this phone's not-yet-synced clients so the driver sees and can
+  // sell to them immediately (⏳ until the sync confirms them).
+  const [pending, setPending] = useState<Client[]>([]);
+  /// New-client popup (form embedded, no page navigation).
+  const [adding, setAdding] = useState(false);
+  async function reloadPending() {
+    try {
+      const ps = await getPendingClients();
+      setPending(
+        ps.map((p) => ({
+          id: `pending:${p.opId}`, name: p.name, code: p.code,
+          phone: p.phone, tierId: p.tierId, balance: 0,
+          gpsLat: null, gpsLng: null, days: [] as string[],
+        }))
+      );
+    } catch { /* ignore */ }
+  }
   useEffect(() => {
     locate();
+    warmJourneePages(locale, day);
+    void reloadUpd();
+    getPendingClients()
+      .then((ps) =>
+        setPending(
+          ps.map((p) => ({
+            id: `pending:${p.opId}`, name: p.name, code: p.code,
+            phone: p.phone, tierId: p.tierId, balance: 0,
+            gpsLat: null, gpsLng: null, days: [] as string[],
+          }))
+        )
+      )
+      .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const list = q
-    ? clients.filter((c) => c.name.includes(q) || c.code.includes(q))
-    : clients;
+  useEffect(() => {
+    if (!adding) void reloadPending();
+  }, [adding]);
+
+  const shortDay = (slug: string) => {
+    const [y, m, d] = slug.split("-").map(Number);
+    if (!y || !m || !d) return slug;
+    return new Date(y, m - 1, d).toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "numeric" });
+  };
+
+  /// SSR rows with this phone's pending edits merged in (same map as the
+  /// detail card, so list and card always agree).
+  const effClients = clients.map((c) => (upd[c.id] ? { ...c, ...(upd[c.id] as Partial<Client>) } : c));
+  const list = [...effClients, ...pending.filter((p) => !clients.some((c) => c.code === p.code))].filter(
+    (c) =>
+      (!dayFilter || (c.days ?? []).includes(dayFilter)) &&
+      (!q || c.name.includes(q) || c.code.includes(q))
+  );
 
   const mapsUrl = (c: Client) => {
     if (c.gpsLat == null || c.gpsLng == null) return null;
@@ -58,23 +394,26 @@ export function DayClients({
       <div className="flex items-center gap-2">
         <button
           aria-label="back"
-          onClick={() => router.push(`/${locale}/livreur`)}
+          onClick={() => goPage(router, hasStarted ? `/${locale}/livreur/${day}/dashboard` : `/${locale}/livreur/${day}/start`)}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
         >
           <ArrowLeft size={18} className="rtl:rotate-180" />
         </button>
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-lg font-black">{labels.clients} ({clients.length})</h1>
+          <h1 className="truncate text-lg font-black">{labels.clients} ({list.length})</h1>
           <p className="truncate text-xs opacity-60">{vanName}</p>
         </div>
-        <button
-          onClick={() => router.push(`/${locale}/livreur/${day}/start`)}
-          title={labels.startDay}
-          aria-label={labels.startDay}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
-        >
-          <Clock size={17} />
-        </button>
+        <OnlineBadge onlineLabel={labels.online ?? "online"} offlineLabel={labels.offline ?? "offline"} />
+        {!hasStarted && (
+          <button
+            onClick={() => goPage(router, `/${locale}/livreur/${day}/start`)}
+            title={labels.startDay}
+            aria-label={labels.startDay}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
+          >
+            <Clock size={17} />
+          </button>
+        )}
         <button
           onClick={() => locate()}
           disabled={locating}
@@ -85,6 +424,16 @@ export function DayClients({
           <Crosshair size={15} className={cn(locating && "animate-spin")} />
           {labels.actualiser}
         </button>
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          title={labels.newClient}
+          aria-label={labels.newClient}
+          className="flex h-11 shrink-0 items-center gap-1.5 rounded-xl bg-(--brand-500) px-3 text-xs font-black text-(--brand-contrast)"
+        >
+          <UserPlus size={15} />
+          {labels.newClient}
+        </button>
       </div>
       {geoError && <p className="rounded-xl bg-red-500/10 p-2 text-xs font-bold text-red-500">{labels.geoDenied}</p>}
 
@@ -92,7 +441,41 @@ export function DayClients({
         <p className="rounded-xl bg-amber-500/10 p-2.5 text-xs font-bold text-amber-600">{labels.noTournee}</p>
       )}
 
-      <div className="sticky top-0">
+      <div className="sticky top-0 space-y-2">
+        {days.length > 1 && (
+          <div className="flex gap-1.5 overflow-x-auto pb-1" dir="ltr">
+            <button
+              type="button"
+              onClick={() => setDayFilter("")}
+              className={cn(
+                "h-9 shrink-0 rounded-full px-3.5 text-xs font-black transition-colors",
+                dayFilter === ""
+                  ? "bg-gradient-brand text-(--brand-contrast) shadow"
+                  : "border border-(--border-default) bg-(--bg-overlay)"
+              )}
+            >
+              {labels.all ?? "all"} ({clients.length})
+            </button>
+            {days.map((s) => {
+              const n = clients.filter((c) => (c.days ?? []).includes(s)).length;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setDayFilter(dayFilter === s ? "" : s)}
+                  className={cn(
+                    "h-9 shrink-0 rounded-full px-3.5 text-xs font-black tabular-nums transition-colors",
+                    dayFilter === s
+                      ? "bg-gradient-brand text-(--brand-contrast) shadow"
+                      : "border border-(--border-default) bg-(--bg-overlay)"
+                  )}
+                >
+                  {shortDay(s)} ({n})
+                </button>
+              );
+            })}
+          </div>
+        )}
         <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.searchClient} value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
 
@@ -106,19 +489,22 @@ export function DayClients({
               className="flex w-full items-center gap-2.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3"
             >
               <button
-                onClick={() => router.push(`/${locale}/livreur/${day}/dashboard?client=${c.id}`)}
+                onClick={() => void showDetail(c)}
                 className="flex min-w-0 flex-1 items-center gap-2.5 text-start"
               >
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken) text-base font-black">
                   {c.name.trim().charAt(0)}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-black">{c.name}</span>
+                  <span className="block truncate text-sm font-black">
+                    {c.name}
+                    {c.id.startsWith("pending:") && <UnsyncedBadge className="ms-1 px-1.5" />}
+                  </span>
                   <span className="block truncate font-mono text-[11px] opacity-50" dir="ltr">{c.code}</span>
                   {dist && <span className="block truncate text-[11px] font-bold text-(--brand-600)">{dist}</span>}
                 </span>
               </button>
-              {url ? (
+              {url && online ? (
                 <a
                   href={url}
                   target="_blank"
@@ -139,11 +525,184 @@ export function DayClients({
       </div>
 
       <button
-        onClick={() => router.push(`/${locale}/livreur/${day}/dashboard`)}
+        onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard`)}
         className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-40 flex items-center justify-center gap-2 border-t border-(--border-default) bg-(--bg-overlay) py-3.5 text-base font-black lg:bottom-0"
       >
         {labels.skip} →
       </button>
+
+      {/* New client — popup form, no page navigation. */}
+      <Modal open={adding} onClose={() => setAdding(false)} title={labels.newClient ?? ""} icon={<UserPlus size={18} />} width="sm">
+        <NewClient
+          locale={locale}
+          day={day}
+          companyId={companyId}
+          wilayas={refs.wilayas}
+          secteurs={refs.secteurs}
+          tiers={refs.tiers}
+          labels={labels}
+          embedded
+          onCreated={() => void reloadPending()}
+          onClose={() => setAdding(false)}
+        />
+      </Modal>
+
+      {/* Client detail card — QR + phone + GPS + balance, all on-device. */}
+      <Modal open={detailFor !== null} onClose={() => { setDetailFor(null); setQrImg(""); }} title={detailFor?.name ?? ""} subtitle={detailFor?.code ?? ""} icon={<QrCode size={18} />}>
+        {detailFor && (
+          <div className="space-y-3">
+            <div className="flex flex-col items-center gap-1">
+              {qrImg ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={qrImg} alt={detailFor.code} className="h-48 w-48 rounded-xl bg-white p-2" />
+              ) : (
+                <p className="py-8 text-sm opacity-60">…</p>
+              )}
+              <p className="font-mono text-sm font-black tabular-nums" dir="ltr">
+                {detailFor.code}
+                {detailFor.id.startsWith("pending:") && <UnsyncedBadge className="ms-1 px-1.5" />}
+              </p>
+              {detailTier && (
+                <p className="rounded-full bg-(--bg-sunken) px-3 py-1 text-xs font-black opacity-80">{detailTier}</p>
+              )}
+            </div>
+            <div className="space-y-1.5">
+              {detailFor.phone ? (
+                <a
+                  href={`tel:${detailFor.phone.replace(/[^+\d]/g, "")}`}
+                  dir="ltr"
+                  className="flex items-center gap-2.5 rounded-xl bg-(--bg-sunken) px-3 py-2.5 text-sm font-black"
+                >
+                  <Phone size={16} className="shrink-0 text-(--brand-600)" />
+                  <bdi>{detailFor.phone}</bdi>
+                </a>
+              ) : null}
+              <div className="flex items-center gap-2.5 rounded-xl bg-(--bg-sunken) px-3 py-2.5 text-sm font-black">
+                <Banknote size={16} className="shrink-0 text-(--brand-600)" />
+                <span dir="ltr">{dzMoney(Number(detailFor.balance ?? 0))}</span>
+              </div>
+              {/* تحصيل دين: queue-only (staff are 403 on /api/versements),
+                  works fully offline, flushes immediately when online. */}
+              <div className="rounded-xl border border-(--border-default) p-3">
+                <div className="mb-2 text-sm font-black">{labels.collect ?? "Collect"}</div>
+                <div className="flex gap-2">
+                  <Input
+                    type="number" min={0} step="any" value={collectAmt}
+                    onChange={(e) => setCollectAmt(e.target.value)} dir="ltr"
+                    inputMode="decimal" placeholder={labels.amount ?? ""}
+                    className="text-center font-black tabular-nums"
+                  />
+                  <Button
+                    onClick={() => void doCollect()}
+                    disabled={collectBusy || !(Number(collectAmt) > 0)}
+                    className="flex-1"
+                  >
+                    {collectBusy ? "…" : (labels.collect ?? "Collect")}
+                  </Button>
+                </div>
+                {collectMsg && <p className="mt-2 rounded-xl bg-emerald-500/10 p-2 text-xs font-bold text-emerald-600">{collectMsg}</p>}
+              </div>
+              {detailFor.gpsLat != null && detailFor.gpsLng != null ? (
+                <div className="flex items-center gap-2.5 rounded-xl bg-(--bg-sunken) px-3 py-2.5 text-sm font-bold">
+                  <MapPin size={16} className="shrink-0 text-(--brand-600)" />
+                  <span className="min-w-0 flex-1 truncate font-mono text-xs tabular-nums" dir="ltr">
+                    {detailFor.gpsLat}, {detailFor.gpsLng}
+                  </span>
+                  {online && mapsUrl(detailFor) ? (
+                    <a
+                      href={mapsUrl(detailFor) as string}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="GPS"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-(--brand-600)"
+                    >
+                      <Navigation size={15} />
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+            {/* تعديل الزبون: works fully offline (PATCH online, queued
+                client-update offline, queued-create rewrite for pending).
+                Financial fields are never editable here — nor sent. */}
+            {!editOpen ? (
+              <Button variant="secondary" onClick={() => void openEdit()} className="h-12 w-full text-base">
+                ✎ {labels.editClient ?? "Edit"}
+              </Button>
+            ) : (
+              <div className="space-y-2 rounded-xl border border-(--border-default) p-3">
+                <div>
+                  <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.clientName ?? ""}</label>
+                  <Input value={fName} onChange={(e) => setFName(e.target.value)} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.phoneOpt}</label>
+                    <Input value={fPhone} onChange={(e) => setFPhone(e.target.value)} dir="ltr" inputMode="tel" />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.activityOpt}</label>
+                    <Input value={fActivity} onChange={(e) => setFActivity(e.target.value)} />
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.addressOpt}</label>
+                  <Input value={fAddress} onChange={(e) => setFAddress(e.target.value)} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.wilayaOpt}</label>
+                    <select
+                      value={fWilaya}
+                      onChange={(e) => { setFWilaya(e.target.value); setFSecteur(""); }}
+                      className="h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)"
+                    >
+                      <option value="">—</option>
+                      {refs.wilayas.map((w) => (
+                        <option key={w.code} value={w.code}>{w.code} · {locale === "ar" ? w.nameAr : w.nameFr}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.secteurOpt}</label>
+                    <select
+                      value={fSecteur}
+                      onChange={(e) => setFSecteur(e.target.value)}
+                      className="h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)"
+                    >
+                      <option value="">—</option>
+                      {refs.secteurs.filter((s) => !fWilaya || String(s.wilayaCode) === fWilaya).map((s) => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                {editErr && <p className="rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{editErr}</p>}
+                <div className="flex gap-2">
+                  <Button variant="secondary" onClick={() => setEditOpen(false)} className="flex-1" disabled={editBusy}>{labels.cancel}</Button>
+                  <Button onClick={() => void doEdit()} disabled={editBusy} data-testid="save-client-edit" className="flex-[2]">
+                    {editBusy ? "…" : (labels.confirm ?? "OK")}
+                  </Button>
+                </div>
+              </div>
+            )}
+            {editMsg && <p className="rounded-xl bg-emerald-500/10 p-2 text-xs font-bold text-emerald-600">{editMsg}</p>}
+            {canSell(role) && (
+            <Button
+              onClick={() => {
+                const id = detailFor.id;
+                setDetailFor(null);
+                setQrImg("");
+                goPage(router, `/${locale}/livreur/${day}/dashboard?client=${id}`);
+              }}
+              className="h-12 w-full text-base"
+            >
+              {labels.newSale}
+            </Button>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

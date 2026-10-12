@@ -9,6 +9,65 @@ import { db, type OutboxRow } from "./offline-db";
 import { sortOutbox } from "./offline-rules";
 
 const SNAP_KEY = "dili_snapshot_v1";
+const SKEW_KEY = "dili_clock_skew_v1";
+/// Server sale details cached on successful online opens (bounded), so a
+/// synced facture/order still OPENS offline — deliver/cancel/print/share all
+/// resolve against a real server id. Stale by design (banner shown); the
+/// ops themselves stay safe (deliver guards CONFIRMED-only, cancel is
+/// idempotent, edits stay online-only).
+const DETAIL_PREFIX = "dili_detail_v1:";
+const DETAIL_MAX = 50;
+export async function saveCachedDetail(id: string, data: unknown): Promise<void> {
+  try {
+    if (typeof window === "undefined" || !id) return;
+    localStorage.setItem(`${DETAIL_PREFIX}${id}`, JSON.stringify({ ts: Date.now(), data }));
+    // Bound the cache: drop the oldest entries past the cap.
+    const keys: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(DETAIL_PREFIX)) keys.push(k);
+    }
+    if (keys.length > DETAIL_MAX) {
+      const aged = keys
+        .map((k) => {
+          try {
+            return { k, ts: Number((JSON.parse(localStorage.getItem(k) || "") as { ts?: unknown }).ts ?? 0) };
+          } catch {
+            return { k, ts: 0 };
+          }
+        })
+        .sort((a, b) => a.ts - b.ts)
+        .slice(0, keys.length - DETAIL_MAX);
+      for (const { k } of aged) localStorage.removeItem(k);
+    }
+  } catch {
+    /* cache is best-effort */
+  }
+}
+export function getCachedDetail<T = unknown>(id: string): T | null {
+  try {
+    if (typeof window === "undefined" || !id) return null;
+    const raw = localStorage.getItem(`${DETAIL_PREFIX}${id}`);
+    if (!raw) return null;
+    return (JSON.parse(raw) as { data?: T }).data ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/// Phone-clock skew flagged by the last successful sync (minutes, signed).
+/// Null = clock sane or never synced. SyncModal surfaces it as a banner.
+export async function getClockSkew(): Promise<{ skewMin: number; ts: number } | null> {
+  try {
+    const raw = await db.kvGet(SKEW_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw) as { skewMin?: unknown; ts?: unknown };
+    if (typeof p.skewMin !== "number" || typeof p.ts !== "number") return null;
+    return { skewMin: p.skewMin, ts: p.ts };
+  } catch {
+    return null;
+  }
+}
 const TOKEN_KEY = "dili_device_token";
 const SYNC_URL_KEY = "dili_sync_url";
 const VAN_KEY = "dili_van_id";
@@ -43,6 +102,7 @@ export type SnapshotClient = {
 };
 
 export type SnapshotCompany = {
+  id: string;
   name: string;
   phone: string | null;
   address: string | null;
@@ -76,6 +136,18 @@ export type VanSnapshot = {
   depotStock?: Array<{ productId: string; qty: number }>;
   holds?: Array<{ productId: string; productName?: string; held: number; vanStock: number; free: number; pack?: { name: string; factor: number } | null; baseUnit?: string; orders?: Array<{ id: string; number: string; clientName: string; qty: number }> }>;
   assignedOrders?: Array<{ id: string; number: string }>;
+  /// Declared transfers touching this van (for offline confirm/reject).
+  transfers?: Array<{
+    id: string; number: string; status: string; date: string;
+    cashAmount: number | string | null; notes: string | null;
+    fromLocationId: string; toLocationId: string;
+    fromLocation: { name: string }; toLocation: { name: string };
+    lines: Array<{
+      id: string; declaredQty: number | string; confirmedQty: number | string | null;
+      product: { id: string; name: string };
+    }>;
+  }>;
+  vans?: Array<{ id: string; name: string; matricule: string | null }>;
 };
 
 function readSync(key: string): string | null {
@@ -124,9 +196,227 @@ export function clearDeviceConfig() {
     localStorage.removeItem(VAN_KEY);
     localStorage.removeItem(SNAP_KEY);
     localStorage.removeItem(LAST_KEY);
+    localStorage.removeItem(CRED_KEY);
+    localStorage.removeItem(QR_KEY);
+    localStorage.removeItem(UNLOCK_KEY);
+    localStorage.removeItem(FAIL_KEY);
   } catch {
     /* ignore */
   }
+}
+
+// ─── Offline login credential cache (phone only) ──────────────────────────
+// After the driver's FIRST online login, {username, password, role} stays on
+// the device so he keeps logging in with zero connection for up to
+// OFFLINE_TTL_MS (30 days). Verification offline is a plain string compare —
+// the secret never leaves the phone and is wiped on logout, device reset,
+// expiry, or server-side revoke. Storage is localStorage (per explicit
+// product decision — no native secure enclave); the WebView sandbox isolates
+// it per app. Only staff roles are cached, never Admin.
+
+export const OFFLINE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const CRED_KEY = "dili_offline_cred_v1";
+const UNLOCK_KEY = "dili_offline_unlocked_v1";
+const FAIL_KEY = "dili_offline_fails_v1";
+/// QR staff badge mapped for offline unlock (drivers who always log in by
+/// scan have no password to cache — without this they hit "connect once"
+/// despite being logged in for weeks).
+const QR_KEY = "dili_offline_qr_v1";
+
+export type OfflineQr = {
+  token: string;
+  username: string;
+  role: string;
+  cachedAt: number;
+};
+
+/// Offline unlock session lifetime after one successful unlock. Deliberately
+/// == the credential TTL: the phone stays usable offline for the whole trusted
+/// month — no daily password re-ask, no bounce to login on page remounts. The
+/// 30-day cap still forces a fresh online login monthly, and logout / expiry /
+/// server revoke (bad_device, user_inactive at the next sync) wipe it at once.
+/// Theft exposure is unchanged in kind: unlocking still needs the password.
+export const UNLOCK_TTL_MS = OFFLINE_TTL_MS;
+const MAX_FAILS = 5;
+const LOCK_MS = 30 * 1000;
+
+export type OfflineCred = {
+  username: string;
+  password: string;
+  role: string;
+  cachedAt: number;
+};
+
+/// Minimal storage surface — injectable in tests, localStorage in prod.
+export type StorageLike = {
+  getItem(k: string): string | null;
+  setItem(k: string, v: string): void;
+  removeItem(k: string): void;
+};
+
+function credStore(): StorageLike | null {
+  try {
+    if (typeof window === "undefined") return null;
+    window.localStorage.setItem("__t", "1");
+    window.localStorage.removeItem("__t");
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+function credRead<T>(store: StorageLike | null, key: string): T | null {
+  if (!store) return null;
+  try {
+    const raw = store.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
+/// Save after a successful ONLINE login.
+export function saveOfflineCred(
+  username: string,
+  password: string,
+  role: string,
+  store: StorageLike | null = credStore(),
+): boolean {
+  if (!store || !username.trim() || !password || role === "Admin") return false;
+  try {
+    store.setItem(
+      CRED_KEY,
+      JSON.stringify({ username: username.trim(), password, role, cachedAt: Date.now() } satisfies OfflineCred),
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function getOfflineCred(store: StorageLike | null = credStore()): OfflineCred | null {
+  const c = credRead<OfflineCred>(store, CRED_KEY);
+  if (!c || !c.username || !c.password) return null;
+  if (!Number.isFinite(c.cachedAt) || Date.now() - c.cachedAt > OFFLINE_TTL_MS) return null;
+  return c;
+}
+
+/// Wipe on logout, device reset, expiry, or server revoke.
+export function clearOfflineCred(store: StorageLike | null = credStore()): void {
+  try {
+    store?.removeItem(CRED_KEY);
+    store?.removeItem(QR_KEY);
+    store?.removeItem(UNLOCK_KEY);
+    store?.removeItem(FAIL_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function hasOfflineUnlock(store: StorageLike | null = credStore()): boolean {
+  const t = credRead<number>(store, UNLOCK_KEY);
+  return typeof t === "number" && Date.now() - t < UNLOCK_TTL_MS;
+}
+
+/// Mark a fresh unlock session: called after every successful ONLINE login
+/// AND every successful sync — an active driver proves who he is continuously,
+/// so the unlock never goes stale under him. Reopening the app offline (within
+/// the credential lifetime) goes straight in — the password is only retyped
+/// after a month offline, a logout, or a server-side revoke.
+export function markOfflineUnlocked(store: StorageLike | null = credStore()): void {
+  try {
+    store?.setItem(UNLOCK_KEY, JSON.stringify(Date.now()));
+    store?.removeItem(FAIL_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+function failInfo(store: StorageLike | null): { n: number; until: number } {
+  const v = credRead<{ n: number; until: number }>(store, FAIL_KEY);
+  return v && Number.isFinite(v.n) ? { n: v.n, until: v.until ?? 0 } : { n: 0, until: 0 };
+}
+
+/// Attempt an offline unlock. Returns ok, or lockedUntil (ms epoch) after
+/// too many failures, or an error key when no usable cache exists.
+export function tryOfflineUnlock(
+  username: string,
+  password: string,
+  store: StorageLike | null = credStore(),
+): { ok: boolean; lockedUntil?: number; error?: "no_cache" | "locked" | "bad" } {
+  if (!store) return { ok: false, error: "no_cache" };
+  const fails = failInfo(store);
+  if (Date.now() < fails.until) return { ok: false, lockedUntil: fails.until, error: "locked" };
+  const c = getOfflineCred(store);
+  if (!c) return { ok: false, error: "no_cache" };
+  if (c.username.toLowerCase() === username.trim().toLowerCase() && c.password === password) {
+    try {
+      store.setItem(UNLOCK_KEY, JSON.stringify(Date.now()));
+      store.removeItem(FAIL_KEY);
+    } catch {
+      /* ignore */
+    }
+    return { ok: true };
+  }
+  const n = fails.n + 1;
+  try {
+    store.setItem(
+      FAIL_KEY,
+      JSON.stringify(n >= MAX_FAILS ? { n: 0, until: Date.now() + LOCK_MS } : { n, until: 0 }),
+    );
+  } catch {
+    /* ignore */
+  }
+  return n >= MAX_FAILS ? { ok: false, lockedUntil: Date.now() + LOCK_MS, error: "locked" } : { ok: false, error: "bad" };
+}
+
+/// Save after a successful ONLINE QR login: the badge token stands in for
+/// the password the driver never types. Same 30-day TTL, staff-only.
+export function saveOfflineQr(
+  token: string,
+  username: string,
+  role: string,
+  store: StorageLike | null = credStore(),
+): boolean {
+  if (!store || !token.trim() || !username.trim() || role === "Admin") return false;
+  try {
+    store.setItem(
+      QR_KEY,
+      JSON.stringify({ token: token.trim(), username: username.trim(), role, cachedAt: Date.now() } satisfies OfflineQr),
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function getOfflineQr(store: StorageLike | null = credStore()): OfflineQr | null {
+  const q = credRead<OfflineQr>(store, QR_KEY);
+  if (!q || !q.token || !q.username) return null;
+  if (!Number.isFinite(q.cachedAt) || Date.now() - q.cachedAt > OFFLINE_TTL_MS) return null;
+  return q;
+}
+
+/// Offline unlock by staff badge scan: the scanned token must equal the one
+/// cached at the last online QR login. Success opens a fresh unlock session
+/// (same as a password unlock) — no typing, no connection.
+export function tryOfflineQrUnlock(
+  token: string,
+  store: StorageLike | null = credStore(),
+): { ok: true; username: string; role: string } | { ok: false; error: "no_cache" | "bad" } {
+  if (!store) return { ok: false, error: "no_cache" };
+  const q = getOfflineQr(store);
+  if (!q) return { ok: false, error: "no_cache" };
+  if (q.token === token.trim() && token.trim()) {
+    try {
+      store.setItem(UNLOCK_KEY, JSON.stringify(Date.now()));
+      store.removeItem(FAIL_KEY);
+    } catch {
+      /* ignore */
+    }
+    return { ok: true, username: q.username, role: q.role };
+  }
+  return { ok: false, error: "bad" };
 }
 
 /// Sync endpoint override for WiFi-local servers (persisted; set once via
@@ -193,6 +483,189 @@ export async function failedCount(): Promise<number> {
   return (await getOutbox()).filter((o) => o.error).length;
 }
 
+/// Doc ids/opIds still waiting in the outbox (created/changed offline, not
+/// yet synced). Lists match their rows against this set to show an
+/// "unsynced" badge. Matches create + follow-up ops (deliver/confirm/pay)
+/// so a doc stays badged until EVERYTHING about it has uploaded.
+export async function getUnsyncedDocKeys(): Promise<Set<string>> {
+  const keys = new Set<string>();
+  let ops: OutboxRow[] = [];
+  try {
+    ops = await getOutbox();
+  } catch {
+    return keys;
+  }
+  for (const op of ops) {
+    if (!/ticket|order|sale|versement|payment|return|transfer|expense|presence|stamp|declare|finish/i.test(op.kind)) continue;
+    const p = op.payload ?? {};
+    for (const k of ["id", "opId", "saleId", "saleOpId", "localId", "docId", "invoiceId", "transferId"]) {
+      const v = p[k];
+      if (typeof v === "string" && v) keys.add(v);
+    }
+    // Linked follow-ups reference the doc the same way.
+    const link = (p.linked as Record<string, unknown> | undefined) ?? null;
+    if (link) {
+      for (const k of ["id", "opId", "saleId"]) {
+        const v = link[k];
+        if (typeof v === "string" && v) keys.add(v);
+      }
+    }
+  }
+  return keys;
+}
+
+/// Docs created offline and still waiting in the outbox (sale tickets +
+/// draft orders). Lists merge these in so a queued facture is VISIBLE,
+/// openable, printable and shareable before it ever reaches the server —
+/// otherwise the driver thinks "it didn't save". Resolved against the
+/// snapshot (names/prices) + this phone's pending clients.
+export type PendingDocLine = {
+  productId: string;
+  name: string;
+  qty: number;
+  unitPrice: number;
+  lineTotal: number;
+};
+export type PendingDoc = {
+  opId: string;
+  kind: "ticket" | "order";
+  ts: number;
+  clientId: string | null;
+  clientName: string | null;
+  clientCode: string | null;
+  clientPhone: string | null;
+  paid: number;
+  /// Ticket total from local lines; null for orders (server prices at sync).
+  total: number | null;
+  lines: PendingDocLine[];
+};
+export async function getPendingDocs(): Promise<PendingDoc[]> {
+  let ops: OutboxRow[] = [];
+  try {
+    ops = await getOutbox();
+  } catch {
+    return [];
+  }
+  const wanted = ops.filter((o) => (o.kind === "ticket" || o.kind === "order") && o.payload);
+  if (!wanted.length) return [];
+  let snap: VanSnapshot | null = null;
+  try {
+    snap = await getVanSnapshot();
+  } catch {
+    snap = null;
+  }
+  let pendClients: PendingClient[] = [];
+  try {
+    pendClients = await getPendingClients();
+  } catch {
+    pendClients = [];
+  }
+  const prodName = new Map<string, string>();
+  try {
+    for (const p of snap?.products ?? []) prodName.set(p.id, p.name);
+  } catch {
+    /* ignore */
+  }
+  const cliById = new Map<string, { name?: string; code?: string; phone?: string | null }>();
+  try {
+    for (const c of (snap?.clients ?? []) as Array<{ id: string; name?: string; code?: string; phone?: string | null }>) {
+      cliById.set(c.id, c);
+    }
+  } catch {
+    /* ignore */
+  }
+  const out: PendingDoc[] = [];
+  for (const o of wanted) {
+    try {
+      const p = o.payload as Record<string, unknown>;
+      const rawLines = Array.isArray(p.lines) ? (p.lines as Array<Record<string, unknown>>) : [];
+      const lines: PendingDocLine[] = rawLines.map((l) => {
+        const pid = String(l.productId ?? "");
+        const qty = Number(l.qty ?? 0);
+        const up = Number(l.unitPrice ?? 0);
+        const q = Number.isFinite(qty) ? qty : 0;
+        const u = Number.isFinite(up) ? up : 0;
+        return { productId: pid, name: prodName.get(pid) ?? "…", qty: q, unitPrice: u, lineTotal: Math.round(q * u * 100) / 100 };
+      });
+      const cid = typeof p.clientId === "string" && p.clientId ? p.clientId : null;
+      let cname: string | null = null;
+      let ccode: string | null = null;
+      let cphone: string | null = null;
+      if (cid) {
+        if (cid.startsWith("pending:")) {
+          const pc = pendClients.find((c) => `pending:${c.opId}` === cid);
+          if (pc) {
+            cname = pc.name ?? null;
+            ccode = pc.code ?? null;
+            cphone = (pc.phone as string | null | undefined) ?? null;
+          }
+        } else {
+          const sc = cliById.get(cid);
+          if (sc) {
+            cname = sc.name ?? null;
+            ccode = sc.code ?? null;
+            cphone = sc.phone ?? null;
+          }
+        }
+      }
+      const paidRaw = Number(p.paid ?? 0);
+      const paid = Number.isFinite(paidRaw) ? paidRaw : 0;
+      out.push({
+        opId: o.opId,
+        kind: o.kind as "ticket" | "order",
+        ts: o.ts,
+        clientId: cid,
+        clientName: cname,
+        clientCode: ccode,
+        clientPhone: cphone,
+        paid,
+        total: o.kind === "ticket" ? lines.reduce((s, l) => s + l.lineTotal, 0) : null,
+        lines,
+      });
+    } catch {
+      /* skip the undecodable row — the sync engine still owns it */
+    }
+  }
+  return out.sort((a, b) => b.ts - a.ts);
+}
+
+/// Server validation + offline-guard error keys are snake_case English — the
+/// driver must see his own language instead. Unknown codes pass through.
+const SALE_ERR_KEYS: Record<string, string> = {
+  remise_disabled: "errRemise",
+  qr_required: "errQr",
+  insufficient_stock: "errStock",
+  cash_only: "errCashOnly",
+  debt_disabled: "errDebtOff",
+  client_required: "errClientReq",
+  credit_limit_exceeded: "errCreditLimit",
+  overpaid: "errOverpaid",
+  save_failed: "errSaveFailed",
+  forbidden: "errForbidden",
+  bad_phone: "errBadPhone",
+  duplicate_phone: "errDupPhone",
+  duplicate_code: "errDupPhone",
+};
+export function saleErrText(labels: Record<string, string>, code: string | null | undefined): string | null {
+  if (!code) return null;
+  const k = SALE_ERR_KEYS[code];  if (!k) return code;
+  try {
+    return labels[k] ?? code;
+  } catch {
+    return code;
+  }
+}
+/// queueOp failure → localized message. A role-gated op (Vendeur queuing a
+/// ticket/cancel from a stale cached page) reports "forbidden", never the
+/// misleading "save failed".
+export function queueErrText(labels: Record<string, string>, e: unknown): string {
+  const code = e instanceof Error && e.message === "forbidden" ? "forbidden" : "save_failed";
+  try {
+    return labels[SALE_ERR_KEYS[code]] ?? code;
+  } catch {
+    return code;
+  }
+}
 /// Ops the server rejected and that need attention (repair/retry/discard).
 export async function failedOps(): Promise<OutboxRow[]> {
   return (await getOutbox()).filter((o) => o.error);
@@ -220,6 +693,13 @@ export async function discardOutboxOp(opId: string): Promise<void> {
 }
 
 export async function queueOp(kind: string, payload: Record<string, unknown>): Promise<string> {
+  // Mandob (Vendeur) never queues facture ops nor restock declares — the UI
+  // hides them, and the server rejects replays. Fail fast here so a stale
+  // cached page can't silently fill the outbox (works fully offline via
+  // the cached credential).
+  if ((kind === "ticket" || kind === "sale-cancel" || kind === "sale-reopen" || kind === "transfer-declare") && getOfflineCred()?.role === "Vendeur") {
+    throw new Error("forbidden");
+  }
   const opId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
   const row: OutboxRow = { opId, kind, payload, ts: Date.now(), attempts: 0, nextRetryAt: 0, server: currentServerOrigin() };
   await db.outboxPut(row);
@@ -247,6 +727,311 @@ export async function getVanSnapshot(): Promise<VanSnapshot | null> {
 
 export function getLastSync(): string | null {
   return typeof window === "undefined" ? null : readSync(LAST_KEY);
+}
+
+/// Clients created on this phone but not yet synced (outbox "client" ops).
+/// Merged into pickers/lists so the driver can sell to them immediately —
+/// their ticket/order/payment ops reference them as `pending:<opId>`, which
+/// the server resolves to the created row at sync time.
+export type PendingClient = {
+  opId: string;
+  code: string;
+  name: string;
+  phone: string | null;
+  tierId: string | null;
+  secteurId: string | null;
+};
+
+export async function getPendingClients(): Promise<PendingClient[]> {
+  let ops: OutboxRow[] = [];
+  try {
+    ops = await getOutbox();
+  } catch {
+    return [];
+  }
+  const out: PendingClient[] = [];
+  for (const o of ops) {
+    if (o.kind !== "client" || !o.payload) continue;
+    const p = o.payload as Record<string, unknown>;
+    const code = String(p.code ?? "").trim();
+    const name = String(p.name ?? "").trim();
+    if (!code || !name) continue;
+    out.push({
+      opId: o.opId,
+      code,
+      name,
+      phone: typeof p.phone === "string" && p.phone.trim() ? p.phone.trim() : null,
+      tierId: typeof p.tierId === "string" ? p.tierId : null,
+      secteurId: typeof p.secteurId === "string" ? p.secteurId : null,
+    });
+  }
+  return out;
+}
+
+/// Offline-aware navigation for the journée flow. Next's router.push does a
+/// client-side transition that needs the network (RSC fetch) — offline it
+/// fails and the WebView can land on the browser's dead error page. With no
+/// connection, do a full document load instead: the service worker is
+/// guaranteed to answer (cached page → bare page → offline page), never the
+/// browser error. Inside the native APK every navigation is a document load:
+/// it always revalidates online (so the phone runs fresh code) and always
+/// serves cache offline — reliability over transition speed on the van.
+export function isNative(): boolean {
+  try {
+    const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+    return !!cap?.isNativePlatform?.();
+  } catch {
+    return false;
+  }
+}
+
+/// Auto-sync decision (SyncBadge heartbeat): sync without being asked when
+/// there is actually something to send — online, visible, idle, ops waiting.
+/// Pure (testable); the component owns the timer + busy guard.
+export function shouldAutoSync(args: {
+  hidden: boolean;
+  online: boolean;
+  busy: boolean;
+  hasToken: boolean;
+  pending: number;
+}): boolean {
+  return !args.hidden && args.online && !args.busy && args.hasToken && args.pending > 0;
+}
+export const AUTO_SYNC_MS = 30_000;
+
+/// Breadcrumb of full-document pages visited this session (sessionStorage —
+/// dies with the WebView, so it can never point at a stale deploy). Back
+/// buttons use it to hard-load the previous warmed page: router.back() replays
+/// a client-side transition that needs the network, and inside the APK Next's
+/// in-memory router cache is always empty (every nav is a document load), so
+/// back would break offline AND in the app. Recorded by goPage, the AppShell
+/// link interceptor, and the initial page load.
+const CRUMB_KEY = "dili_crumbs_v1";
+const CRUMB_MAX = 25;
+function readCrumbs(): string[] {
+  try {
+    const raw = sessionStorage.getItem(CRUMB_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr.filter((x): x is string => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+function crumbPath(href: string): string | null {
+  try {
+    if (href.startsWith("/")) return href;
+    const u = new URL(href, window.location.origin);
+    if (u.origin !== window.location.origin) return null;
+    return u.pathname + u.search;
+  } catch {
+    return null;
+  }
+}
+export function recordCrumb(href: string): void {
+  try {
+    const path = crumbPath(href);
+    if (!path) return;
+    const crumbs = readCrumbs();
+    if (crumbs[crumbs.length - 1] === path) return;
+    crumbs.push(path);
+    while (crumbs.length > CRUMB_MAX) crumbs.shift();
+    sessionStorage.setItem(CRUMB_KEY, JSON.stringify(crumbs));
+  } catch {
+    /* never break navigation */
+  }
+}
+/// Drop the current page and return the previous one (null when none).
+/// The caller hard-loads it — the service worker answers from cache offline.
+export function popCrumb(): string | null {
+  try {
+    const crumbs = readCrumbs();
+    let cur = "";
+    try {
+      cur = window.location.pathname + window.location.search;
+    } catch {
+      /* ignore */
+    }
+    while (crumbs.length > 0 && crumbs[crumbs.length - 1] === cur) crumbs.pop();
+    const prev = crumbs.pop() ?? null;
+    try {
+      sessionStorage.setItem(CRUMB_KEY, JSON.stringify(crumbs));
+    } catch {
+      /* ignore */
+    }
+    return prev;
+  } catch {
+    return null;
+  }
+}
+export function goPage(router: { push: (href: string) => void }, href: string): void {
+  try {
+    if (typeof window !== "undefined") {
+      try {
+        if (isNative()) {
+          recordCrumb(href);
+          window.location.assign(href);
+          return;
+        }
+      } catch { /* fall through */ }
+      // serverUnreachable() covers BOTH phone-offline AND wifi-on/server-dead
+      // (navigator.onLine alone misses the second — every router.push then
+      // dies on an RSC fetch and the driver blames the button).
+      if (serverUnreachable()) {
+        recordCrumb(href);
+        window.location.assign(href);
+        return;
+      }
+    }
+  } catch { /* fall through to router */ }
+  router.push(href);
+}
+
+/// Live server reachability (the "live transfer" signal). navigator.onLine
+/// only knows the PHONE has a network — wifi on + shop server dead still reads
+/// "online", and every client-side transition then dies on its RSC fetch.
+/// This heartbeat learns the truth (relative /api/sync health — same origin,
+/// no auth, no CORS) and goPage / the link interceptor steer around a dead
+/// server instead of into it. Unknown or stale = assume up (fast path).
+const REACH_KEY = "dili_server_reach_v1";
+const PROBE_EVERY_MS = 20000;
+const REACH_FRESH_MS = 45000;
+let probeStarted = false;
+function readReach(): { ok: boolean; ts: number } | null {
+  try {
+    const raw = sessionStorage.getItem(REACH_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw) as { ok?: unknown; ts?: unknown };
+    if (typeof p.ts !== "number") return null;
+    return { ok: p.ok === true, ts: p.ts };
+  } catch {
+    return null;
+  }
+}
+export function serverUnreachable(): boolean {
+  try {
+    if (typeof window === "undefined" || window.navigator?.onLine === false) return true;
+    const r = readReach();
+    // No sighting yet, or older than the heartbeat horizon: the server was
+    // reachable when this page loaded (else the page itself wouldn't be here
+    // — every entry is a document load), so assume up and stay fast.
+    if (!r || Date.now() - r.ts > REACH_FRESH_MS) return false;
+    return !r.ok;
+  } catch {
+    return false;
+  }
+}
+async function probeOnce(): Promise<void> {
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 4000);
+    try {
+      // Any HTTP answer — even a 500 — means the server is alive. Only a
+      // network-level throw means unreachable.
+      await fetch("/api/sync", { method: "GET", cache: "no-store", credentials: "omit", signal: ctrl.signal });
+      sessionStorage.setItem(REACH_KEY, JSON.stringify({ ok: true, ts: Date.now() }));
+    } catch {
+      sessionStorage.setItem(REACH_KEY, JSON.stringify({ ok: false, ts: Date.now() }));
+    } finally {
+      clearTimeout(t);
+    }
+  } catch {
+    /* never break the page */
+  }
+}
+export function startReachabilityProbe(): void {
+  try {
+    if (probeStarted || typeof window === "undefined") return;
+    probeStarted = true;
+    void probeOnce();
+    window.addEventListener("online", () => void probeOnce());
+    document.addEventListener("visibilitychange", () => {
+      try {
+        if (!document.hidden) void probeOnce();
+      } catch {
+        /* ignore */
+      }
+    });
+    setInterval(() => {
+      try {
+        if (!document.hidden) void probeOnce();
+      } catch {
+        /* ignore */
+      }
+    }, PROBE_EVERY_MS);
+  } catch {
+    /* never break the page */
+  }
+}
+
+/// Pre-fetch the lazy JS chunks the journée needs while OFFLINE (QR decode
+/// for the camera fallback + gallery, ticket QR print, native share/print).
+/// Dynamic imports bypass the page cache — a phone that never fetched a chunk
+/// while online (or lost it to an SW-version cache purge) gets a dead camera
+/// and dead printing the first time it goes offline. These run through the
+/// service worker's static branch, so one online fetch caches them for later.
+/// Fire-and-forget: failures are silently ignored.
+export function warmOfflineChunks(): void {
+  try {
+    if (typeof window === "undefined" || window.navigator?.onLine === false) return;
+    void import("jsqr").catch(() => {});
+    void import("qrcode").catch(() => {});
+    void import("@capacitor/browser").catch(() => {});
+    void import("@capacitor/share").catch(() => {});
+    void import("@capacitor/filesystem").catch(() => {});
+    // A4 facture PDF builder (+ its jsPDF chunk) and the Amiri fonts it
+    // shapes Arabic with — the Share button must work fully offline.
+    void import("@/lib/pdf/ticketPdf").catch(() => {});
+    for (const f of ["/fonts/amiri-regular.ttf", "/fonts/amiri-bold.ttf"]) {
+      fetch(f, { cache: "force-cache" }).catch(() => {});
+    }
+  } catch {
+    /* never break the page */
+  }
+}
+
+/// Warm the service-worker's page cache for the given same-origin document
+/// URLs while online, so the journée loop keeps working fully offline.
+/// Fire-and-forget: failures (offline already, 404, …) are silently ignored.
+/// The Accept header is what lets the SW recognize these as page documents.
+export function prefetchPages(urls: string[]): void {
+  try {
+    if (typeof window === "undefined" || window.navigator?.onLine === false) return;
+    for (const u of urls) {
+      fetch(u, { credentials: "same-origin", headers: { Accept: "text/html" } }).catch(() => {});
+    }
+  } catch { /* never break the page */ }
+}
+
+/// Full journée warm set for one day: every page the driver can reach
+/// offline (days shell, login fallback, all day sub-pages + query variants
+/// that are distinct SW cache entries). Call on every journée entry while
+/// online — never navigating to a cold URL is what keeps the WebView off
+/// the browser error page when the network drops mid-tour.
+export function warmJourneePages(locale: string, day: string): void {
+  try {
+    const pages = [
+      `/${locale}/livreur`,
+      `/${locale}/login`,
+      `/${locale}/livreur/${day}`,
+      `/${locale}/livreur/${day}/start`,
+      `/${locale}/livreur/${day}/dashboard`,
+      `/${locale}/livreur/${day}/vente`,
+      `/${locale}/livreur/${day}/commande`,
+      `/${locale}/livreur/${day}/commandes`,
+      `/${locale}/livreur/${day}/factures`,
+      `/${locale}/livreur/${day}/demande`,
+      `/${locale}/livreur/${day}/expenses`,
+      `/${locale}/livreur/${day}/stock`,
+      `/${locale}/livreur/${day}/clients/new`,
+    ];
+    prefetchPages(pages);
+    try {
+      prefetchPages([window.location.href]);
+    } catch { /* never break the page */ }
+    // Same trip: fill the static cache with the lazy chunks the journée
+    // needs offline (QR camera fallback, ticket print/share).
+    warmOfflineChunks();
+  } catch { /* never break the page */ }
 }
 
 /// Warm the image cache for the van catalog so product photos render
@@ -370,7 +1155,19 @@ async function syncNowInner(
       ops: ordered.map(({ opId, kind, payload, ts }) => ({ opId, kind, payload, occurredAt: ts })),
     }),
   });
-  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "sync_failed");
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({}))).error ?? "sync_failed";
+    // Phone revoked or driver deactivated server-side: forget the offline
+    // credential too, so the next unlock forces a fresh online login.
+    if (res.status === 401 && (err === "bad_device" || err === "device_no_user" || err === "user_inactive")) {
+      try {
+        clearOfflineCred();
+      } catch {
+        /* ignore */
+      }
+    }
+    throw new Error(err);
+  }
   const data = (await res.json()) as SyncResult & { pulled?: unknown; serverTime?: string };
   const okIds = new Set(data.applied.filter((a) => a.ok).map((a) => a.opId));
   const failed = new Map(
@@ -448,6 +1245,36 @@ async function syncNowInner(
   } catch {
     /* ignore */
   }
+  // A completed sync proves the device + driver live: refresh the offline
+  // unlock so an active phone never ages into a password prompt or a
+  // login bounce while it keeps syncing.
+  try {
+    markOfflineUnlocked();
+  } catch {
+    /* best-effort */
+  }
+  // Clock-skew tripwire: the server stamps occurredAt from the PHONE clock.
+  // A wrong phone clock silently misdates every offline sale (the engine
+  // clamps ±5min future / 90d past). Past 10 minutes, flag it — SyncModal
+  // shows the warning until the clock is fixed and a sync succeeds.
+  try {
+    const st = (data as { serverTime?: unknown }).serverTime;
+    const srv = typeof st === "string" ? new Date(st).getTime() : NaN;
+    if (Number.isFinite(srv)) {
+      const skewMin = Math.round((Date.now() - srv) / 60000);
+      if (Math.abs(skewMin) > 10) {
+        await db.kvSet(SKEW_KEY, JSON.stringify({ skewMin, ts: Date.now() }));
+      } else {
+        await db.kvDel(SKEW_KEY).catch(() => {});
+      }
+    }
+  } catch {
+    /* never fail a good sync on a warning */
+  }
+  // A sync proves we are online: refill the static cache with the lazy
+  // chunks the journée needs offline (QR decode, ticket print/share) —
+  // an SW-version purge may have wiped them since the last visit.
+  warmOfflineChunks();
   // Update channel: did the server move to a newer web build since we last
   // saw it? First sighting records silently; afterwards the UI prompts once
   // and the user validates → restart, update, reopen (no APK reinstall).

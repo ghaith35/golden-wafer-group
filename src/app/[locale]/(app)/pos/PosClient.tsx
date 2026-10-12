@@ -289,29 +289,24 @@ export function PosClient({
 
   return (
     <div className="space-y-4 p-5 md:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="flex items-center gap-2 text-xl font-bold">
-          <ShoppingCart size={22} className="text-(--brand-600)" />
-          {labels.title}
-        </h1>
-          <select
-          value={locationId}
-          onChange={(e) => pickLocation(e.target.value)}
-          className="h-10 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm font-bold"
-          aria-label={labels.depot}
-        >
-          <option value="">— {labels.depot}</option>
-          {depots.map((d) => (
-            <option key={d.id} value={d.id}>{d.name}</option>
-          ))}
-        </select>
-      </div>
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
 
-      <div className="grid items-start gap-4 lg:h-[calc(100vh-190px)] lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid items-start gap-4 lg:h-[calc(100dvh-190px)] lg:grid-cols-[minmax(0,1fr)_380px]">
         {/* ── Product shelf (start side) ── */}
         <div className="min-w-0 space-y-3 lg:h-full lg:overflow-y-auto lg:pe-1">
-          <div className="relative">
+          <div className="flex gap-2">
+            <select
+              value={locationId}
+              onChange={(e) => pickLocation(e.target.value)}
+              className="h-12 shrink-0 rounded-xl border border-(--border-default) bg-(--bg-surface) px-2 text-sm font-bold"
+              aria-label={labels.depot}
+            >
+              <option value="">— {labels.depot}</option>
+              {depots.map((d) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
+            </select>
+          <div className="relative min-w-0 flex-1">
             <Search size={17} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 opacity-50" />
             <input
               ref={searchRef}
@@ -343,13 +338,14 @@ export function PosClient({
               </button>
             )}
           </div>
+          </div>
 
           <div className="flex gap-2 overflow-x-auto pb-1">
             <button
               onClick={() => setCat("")}
               className={cn(
                 "min-h-11 shrink-0 items-center rounded-full px-4 py-1.5 text-xs font-black transition-colors",
-                cat === "" ? "bg-(--brand-500) text-white shadow" : "bg-(--bg-sunken) opacity-70 hover:opacity-100"
+                cat === "" ? "bg-(--brand-500) text-(--brand-contrast) shadow" : "bg-(--bg-sunken) opacity-70 hover:opacity-100"
               )}
             >
               {labels.all}
@@ -360,7 +356,7 @@ export function PosClient({
                 onClick={() => setCat(cat === c.id ? "" : c.id)}
                 className={cn(
                   "min-h-11 shrink-0 items-center rounded-full px-4 py-1.5 text-xs font-black transition-colors",
-                  cat === c.id ? "bg-(--brand-500) text-white shadow" : "bg-(--bg-sunken) opacity-70 hover:opacity-100"
+                  cat === c.id ? "bg-(--brand-500) text-(--brand-contrast) shadow" : "bg-(--bg-sunken) opacity-70 hover:opacity-100"
                 )}
               >
                 {c.name}
@@ -434,8 +430,8 @@ export function PosClient({
                       </span>
                       <span
                         className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-full text-white transition-colors",
-                          added ? "bg-emerald-500" : "bg-(--brand-500) group-hover:scale-110"
+                          "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
+                          added ? "bg-emerald-500 text-white" : "bg-(--brand-500) text-(--brand-contrast) group-hover:scale-110"
                         )}
                       >
                         {added ? <Check size={16} strokeWidth={3} /> : <Plus size={16} strokeWidth={3} />}
@@ -474,7 +470,7 @@ export function PosClient({
             <span className="flex items-center gap-2 text-base font-black">
               <ReceiptText size={19} className="text-(--brand-600)" />
               {labels.total}
-              <span className="rounded-full bg-(--brand-500) px-2.5 py-1 text-xs font-black text-white">{count}</span>
+              <span className="rounded-full bg-(--brand-500) px-2.5 py-1 text-xs font-black text-(--brand-contrast)">{count}</span>
             </span>
             {lines.length > 0 && (
               <button onClick={() => setLines([])} className="text-xs font-bold text-red-500 opacity-70 hover:opacity-100">

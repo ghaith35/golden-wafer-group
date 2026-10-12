@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Plus, Bus } from "lucide-react";
+import { Plus, Bus, UserCheck, UserX } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { RowActions } from "@/components/ui/RowActions";
+import { KpiCard } from "@/components/ui/Card";
 import { VanForm, type VanData } from "./VanForm";
 
 type Row = {
@@ -39,6 +40,18 @@ export function VansClient({
   const [editing, setEditing] = useState<VanData | null>(null);
   const [deleting, setDeleting] = useState<Row | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  /// The driver dropdown only lists active non-Admin staff, but a van may
+  /// carry a legacy assignment outside that list (e.g. an Admin). Merge the
+  /// edited van's current driver into the options so modify opens with the
+  /// assigned driver selected instead of a blank "—".
+  const editUsers = useMemo(() => {
+    const id = editing?.userId;
+    if (!id || users.some((u) => u.id === id)) return users;
+    const current = rows.find((r) => r.id === editing?.id)?.user;
+    if (!current || current.id !== id) return users;
+    return [...users, current];
+  }, [users, editing, rows]);
 
   async function reload() {
     const res = await fetch("/api/locations");
@@ -86,22 +99,35 @@ export function VansClient({
     addImage: labels.addImage, removeImage: labels.removeImage,
     save: labels.save, cancel: labels.cancel,
     newDriver: labels.newDriver, fullName: labels.fullName, username: labels.username,
-    password: labels.password, role: labels.role,
+    password: labels.password, phone: labels.phone, role: labels.role,
     roleLivreur: labels.roleLivreur, roleVendeur: labels.roleVendeur,
   };
 
   return (
     <div className="space-y-4 p-5 md:p-6">
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold">{labels.title}</h1>
-        <Link
-          href={`/${locale}/vans/stock`}
-          className="shrink-0 rounded-lg bg-(--bg-sunken) px-3 py-2 text-xs font-black hover:bg-(--border-subtle)"
-        >
-          {labels.stockBoard}
-        </Link>
+      <div className="grid grid-cols-3 gap-2">
+        <KpiCard
+          label={labels.title}
+          value={String(rows.length)}
+          icon={<Bus size={18} />}
+          accent="bg-sky-500/15 text-sky-600"
+          compact
+        />
+        <KpiCard
+          label={labels.chauffeur}
+          value={String(rows.filter((v) => v.user).length)}
+          icon={<UserCheck size={18} />}
+          accent="bg-emerald-500/15 text-emerald-600"
+          compact
+        />
+        <KpiCard
+          label={labels.noChauffeur}
+          value={String(rows.filter((v) => !v.user).length)}
+          icon={<UserX size={18} />}
+          accent="bg-amber-500/15 text-amber-600"
+          compact
+        />
       </div>
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
       <div className="flex gap-2">
         <Button onClick={() => setCreating(true)} className="shrink-0">
           <Plus size={16} className="me-1" />
@@ -110,7 +136,14 @@ export function VansClient({
         <div className="flex-1">
           <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
+        <Link
+          href={`/${locale}/vans/stock`}
+          className="flex shrink-0 items-center rounded-lg bg-(--bg-sunken) px-3 py-2 text-xs font-black hover:bg-(--border-subtle)"
+        >
+          {labels.stockBoard}
+        </Link>
       </div>
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
       {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
       <div className="grid gap-3 sm:grid-cols-2">
         {filtered.map((v) => (
@@ -165,7 +198,7 @@ export function VansClient({
           <VanForm
             key={editing.id}
             initial={editing}
-            users={users}
+            users={editUsers}
             labels={formLabels}
             onSuccess={() => {
               setEditing(null);

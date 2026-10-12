@@ -89,7 +89,7 @@ export default async function VanDetailPage({ params }: { params: Promise<{ loca
         search: tc("search"), total: tc("total"),
         chauffeur: t("chauffeur"), value: t("value"),
         journal: t("journal"), stockTab: tp("stock"), stockIn: t("stockIn"), stockOut: t("stockOut"),
-        noMovements: t("noMovements"), pending: ti("declared"),
+        noMovements: t("noMovements"), pending: ti("declared"), offline: tc("offline"),
       }}
     />
   );

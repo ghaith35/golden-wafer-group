@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Card } from "@/components/ui/Card";
+import { AlertTriangle, Ban, Truck } from "lucide-react";
+import { Card, KpiCard } from "@/components/ui/Card";
 import { packBreakdown } from "@/components/products/UnitQty";
 import { cn } from "@/lib/utils";
 
@@ -88,8 +89,30 @@ export function InventoryClient({
 
   return (
     <div className="space-y-4 p-5 md:p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">{labels.title}</h1>
+      <div className="grid grid-cols-3 gap-2">
+        <KpiCard
+          label={labels.lowStock}
+          value={String(alerts.lowStock.length)}
+          icon={<AlertTriangle size={18} />}
+          accent="bg-amber-500/15 text-amber-600"
+          compact
+        />
+        <KpiCard
+          label={labels.expired}
+          value={String(alerts.expired.length + alerts.expiring.length)}
+          icon={<Ban size={18} />}
+          accent="bg-red-500/15 text-red-500"
+          compact
+        />
+        <KpiCard
+          label={labels.inTransit}
+          value={String(alerts.inTransit)}
+          icon={<Truck size={18} />}
+          accent="bg-sky-500/15 text-sky-600"
+          compact
+        />
+      </div>
+      <div className="flex items-center justify-end">
         <div className="flex gap-2">
           <Link href={`/${locale}/purchases`}><Button>{labels.addStock}</Button></Link>
           <Link href={`/${locale}/inventory/transfers`}><Button variant="secondary">{labels.transfers}</Button></Link>
@@ -105,7 +128,7 @@ export function InventoryClient({
             onClick={() => setTab(t)}
             className={cn(
               "rounded-lg px-4 py-2 text-sm font-bold",
-              tab === t ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken)"
+              tab === t ? "bg-gradient-brand text-(--brand-contrast) shadow" : "bg-(--bg-sunken)"
             )}
           >
             {labels[t === "stock" ? "levels" : t === "places" ? "locations" : "alerts"]}

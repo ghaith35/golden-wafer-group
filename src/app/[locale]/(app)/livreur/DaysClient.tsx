@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { goPage } from "@/lib/sync/client";
 import { Truck } from "lucide-react";
 import { daySlug } from "./_days";
 import { cn } from "@/lib/utils";
@@ -61,11 +62,11 @@ export function DaysClient({
           return (
             <button
               key={i}
-              onClick={() => router.push(`/${locale}/livreur/${daySlug(d)}/start`)}
+              onClick={() => goPage(router, `/${locale}/livreur/${daySlug(d)}/start`)}
               className={cn(
                 "flex min-h-14 items-center gap-3 rounded-2xl border p-3 text-start transition-all active:scale-[0.99]",
                 isToday
-                  ? "border-transparent bg-gradient-brand text-white shadow-lg"
+                  ? "border-transparent bg-gradient-brand text-(--brand-contrast) shadow-lg"
                   : "border-(--border-default) bg-(--bg-overlay) hover:border-(--brand-500)"
               )}
             >

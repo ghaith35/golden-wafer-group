@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Lock, Package, Store } from "lucide-react";
 import { dz } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { getLastSync, getVanSnapshot } from "@/lib/sync/client";
+import { getLastSync, getVanSnapshot, getOutbox, goPage } from "@/lib/sync/client";
+import { canSell } from "@/lib/staff-permissions";
+import { pendingEffects } from "@/lib/sync/offline-rules";
 
 type Hold = {
   productId: string;
@@ -31,19 +33,24 @@ function breakdown(qty: number, h: Hold): string {
 }
 
 /// Livreur stock: per product — held for commandes vs free to sell + depot.
+/// Vendeur (mandob) sees DEPOT stock only: held/free/order holds are hidden
+/// (van internals), the title reads depot stock.
 export function VanStockClient({
   locale,
   day,
   vanId,
   vanName,
+  role,
   labels,
 }: {
   locale: string;
   day: string;
   vanId: string;
   vanName: string;
+  role: string;
   labels: Record<string, string>;
 }) {
+  const depotOnly = !canSell(role);
   const router = useRouter();
   const [holds, setHolds] = useState<Hold[]>([]);
   const [depot, setDepot] = useState<Record<string, number>>({});
@@ -51,6 +58,18 @@ export function VanStockClient({
   /// Depot snapshot age (shown when numbers come from the last sync).
   const [depotLive, setDepotLive] = useState(true);
   const [syncedAt, setSyncedAt] = useState<string | null>(null);
+  /// Sold-but-not-synced units: subtracted once so this page agrees with
+  /// the sale popup (which caps by the same effective stock).
+  const [pending, setPending] = useState<Record<string, number>>({});
+  useEffect(() => {
+    getOutbox()
+      .then(async (ops) => {
+        const snap = await getVanSnapshot().catch(() => null);
+        setPending(pendingEffects(snap, ops, vanId).stock);
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vanId]);
 
   function syncAge(): string {
     if (!syncedAt) return "";
@@ -110,19 +129,21 @@ export function VanStockClient({
   }
 
   const list = q ? holds.filter((h) => h.productName.includes(q)) : holds;
+  /// Effective free stock = holds free − queued sales (same math as vente).
+  const effFree = (h: Hold) => h.free + (pending[h.productId] ?? 0);
 
   return (
     <div className="space-y-3 p-4 pb-8 md:p-5">
       <div className="flex items-center gap-2">
         <button
           aria-label="back"
-          onClick={() => router.push(`/${locale}/livreur/${day}/dashboard`)}
+          onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard`)}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
         >
           <ArrowLeft size={18} className="rtl:rotate-180" />
         </button>
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-lg font-black">{labels.stock}</h1>
+          <h1 className="truncate text-lg font-black">{depotOnly ? (labels.stockDepot ?? labels.stock) : labels.stock}</h1>
           <p className="truncate text-xs opacity-60">{vanName}</p>
         </div>
       </div>
@@ -148,6 +169,15 @@ export function VanStockClient({
               )}
             </div>
           </div>
+          {depotOnly ? (
+            <div className="mt-2 rounded-xl bg-(--bg-sunken) px-3 py-2.5 text-center">
+              <div className="flex items-center justify-center gap-1 text-[10px] font-black uppercase opacity-60">
+                <Store size={10} /> {labels.stockDepot ?? labels.stock}{!depotLive && syncAge() ? ` · ${syncAge()}` : ""}
+              </div>
+              <div className="text-base font-black tabular-nums">{breakdown(depot[h.productId] ?? 0, h)}</div>
+            </div>
+          ) : (
+          <>
           <div className="mt-2 grid grid-cols-3 gap-1 text-center">
             <div className="rounded-lg bg-amber-500/10 px-1 py-1.5">
               <div className="flex items-center justify-center gap-0.5 text-[10px] font-black uppercase opacity-60">
@@ -157,7 +187,7 @@ export function VanStockClient({
             </div>
             <div className="rounded-lg bg-emerald-500/10 px-1 py-1.5">
               <div className="text-[10px] font-black uppercase opacity-60">free</div>
-              <div className={cn("text-sm font-black tabular-nums", h.free < 0 ? "text-red-500" : "text-emerald-600")}>{breakdown(h.free, h)}</div>
+              <div className={cn("text-sm font-black tabular-nums", effFree(h) < 0 ? "text-red-500" : "text-emerald-600")}>{breakdown(effFree(h), h)}</div>
             </div>
             <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
               <div className="flex items-center justify-center gap-0.5 text-[10px] font-black uppercase opacity-60">
@@ -175,6 +205,8 @@ export function VanStockClient({
                 </div>
               ))}
             </div>
+          )}
+          </>
           )}
           </div>
         ))}

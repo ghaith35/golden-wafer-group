@@ -6,7 +6,9 @@ import { getLivreurVan } from "../_data";
 import { parseDay, sameDay } from "../_days";
 import { DayClients } from "./DayClients";
 
-/// Step 2 — Clients of the day (tournee stops, else all clients).
+/// Step 2 — Clients: ALL of the driver's clients (union of his OPEN
+/// tournées' stops, tagged by day) with a day-filter on top. Falls back to
+/// every active client when nothing is planned yet.
 export default async function LivreurDayPage({
   params,
 }: {
@@ -32,16 +34,49 @@ export default async function LivreurDayPage({
         orderBy: { position: "asc" },
       },
     },
+    orderBy: { date: "asc" },
   });
   const tour = tournees.find((x) => sameDay(new Date(x.date), date)) ?? null;
-  const clients = tour
-    ? tour.stops.map((s) => s.client).filter(Boolean)
-    : await prisma.customer.findMany({
-        where: { companyId: session.companyId, isActive: true },
-        select: sel,
-        orderBy: { name: "asc" },
-        take: 500,
-      });
+
+  // Union of planned stops across open days, tagged with their day slug.
+  const byId = new Map<string, { client: Record<string, unknown>; days: string[] }>();
+  const daySlugs: string[] = [];
+  for (const tr of tournees) {
+    const slug = `${new Date(tr.date).getFullYear()}-${new Date(tr.date).getMonth() + 1}-${new Date(tr.date).getDate()}`;
+    if (!daySlugs.includes(slug)) daySlugs.push(slug);
+    for (const s of tr.stops) {
+      if (!s.client) continue;
+      const row = byId.get(s.client.id);
+      if (row) {
+        if (!row.days.includes(slug)) row.days.push(slug);
+      } else {
+        byId.set(s.client.id, { client: s.client as unknown as Record<string, unknown>, days: [slug] });
+      }
+    }
+  }
+  let clients = [...byId.values()].map((r) => ({ ...r.client, days: r.days }));
+  if (!clients.length) {
+    const all = await prisma.customer.findMany({
+      where: { companyId: session.companyId, isActive: true },
+      select: sel,
+      orderBy: { name: "asc" },
+      take: 500,
+    });
+    clients = all.map((c) => ({ ...c, days: [] as string[] }));
+  }
+
+  // Reference lists for the embedded new-client popup (same as /clients/new).
+  const [wilayas, secteurs, tiers] = await Promise.all([
+    prisma.wilaya.findMany({ orderBy: { code: "asc" } }),
+    prisma.secteur.findMany({
+      where: { companyId: session.companyId, isActive: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.priceTier.findMany({
+      where: { companyId: session.companyId, isActive: true },
+      orderBy: { sortOrder: "asc" },
+    }),
+  ]);
 
   return (
     <DayClients
@@ -49,13 +84,32 @@ export default async function LivreurDayPage({
       day={day}
       vanName={van.name}
       hasTournee={!!tour}
+      hasStarted={!!tour?.startedAt}
+      days={daySlugs}
       clients={JSON.parse(JSON.stringify(clients))}
+      companyId={session.companyId}
+      refs={JSON.parse(JSON.stringify({ wilayas, secteurs, tiers }))}
+      role={session.role}
       labels={{
         clients: t("clients"), searchClient: t("searchClient"), empty: t("empty"),
+        online: t("online"), offline: t("offline"),
         noTournee: t("noTournee"), skip: t("skip"), actualiser: t("actualiser"),
         locate: tg("locate"), geoDenied: tg("geoDenied"),
         unitM: tg("unitM"), unitKm: tg("unitKm"), unitMin: tg("unitMin"),
-        startDay: t("startDay"),
+        startDay: t("startDay"), all: t("all"), showQr: t("showQr"),
+        newSale: t("newSale"),
+        newClient: t("newClient"), phoneOpt: t("phoneOpt"), addressOpt: t("addressOpt"),
+        activityOpt: t("activityOpt"), wilayaOpt: t("wilayaOpt"), secteurOpt: t("secteurOpt"),
+        tierOpt: t("tierOpt"), useGps: t("useGps"), confirm: t("confirm"),
+        cancel: t("cancel"), close: t("cancel"),
+        qrReady: t("qrReady"), pendingSync: t("pendingSync"), another: t("another"),
+        saveQr: t("saveQr"), qrSaved: t("qrSaved"), qrShared: t("qrShared"), qrSaveFail: t("qrSaveFail"),
+        secteurOffline: t("secteurOffline"),
+        collect: t("collect"), amount: t("amount"), syncFirst: t("syncFirst"),
+        errSaveFailed: t("errSaveFailed"), queuedOk: t("queuedOk"),
+        editClient: t("editClient"), clientUpdated: t("clientUpdated"),
+        clientName: t("clientName"),
+        errBadPhone: t("errBadPhone"), errDupPhone: t("errDupPhone"),
       }}
     />
   );

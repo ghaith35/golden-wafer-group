@@ -115,10 +115,10 @@ export function PortalShop({ locale, labels }: { locale: string; labels: Record<
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">{client || "…"}</h1>
         <div className="flex gap-2">
-          <button onClick={() => setTab("shop")} className={cn("rounded-lg px-3 py-1.5 text-sm font-bold", tab === "shop" ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken)")}>
+          <button onClick={() => setTab("shop")} className={cn("rounded-lg px-3 py-1.5 text-sm font-bold", tab === "shop" ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken)")}>
             {labels.shop} {cartCount > 0 ? `(${cartCount})` : ""}
           </button>
-          <button onClick={() => setTab("orders")} className={cn("rounded-lg px-3 py-1.5 text-sm font-bold", tab === "orders" ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken)")}>
+          <button onClick={() => setTab("orders")} className={cn("rounded-lg px-3 py-1.5 text-sm font-bold", tab === "orders" ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken)")}>
             {labels.orders}
           </button>
           <button onClick={logout} className="rounded-lg bg-(--bg-sunken) px-3 py-1.5 text-sm">⏻</button>
@@ -169,7 +169,7 @@ export function PortalShop({ locale, labels }: { locale: string; labels: Record<
                     <div className="flex flex-1 items-center justify-end gap-2">
                       <button onClick={() => setQty(p.id, (c?.qty ?? 0) - 1, c?.unitId)} className="h-9 w-9 rounded-lg bg-(--bg-sunken) font-black">−</button>
                       <span className="w-8 text-center font-black">{c?.qty ?? 0}</span>
-                      <button onClick={() => setQty(p.id, (c?.qty ?? 0) + 1, c?.unitId ?? p.units[0]?.id)} className="h-9 w-9 rounded-lg bg-(--brand-500) font-black text-white">+</button>
+                      <button onClick={() => setQty(p.id, (c?.qty ?? 0) + 1, c?.unitId ?? p.units[0]?.id)} className="h-9 w-9 rounded-lg bg-(--brand-500) font-black text-(--brand-contrast)">+</button>
                     </div>
                   </div>
                 </Card>

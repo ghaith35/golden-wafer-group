@@ -2,38 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Toggle } from "@/components/ui/Toggle";
-import { SettingsPanel, useSectionText } from "@/components/settings/SettingsPanel";
+import { Switch } from "@/components/ui/Toggle";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { SettingsPanel, SettingsCard, SettingRow, useSectionText } from "@/components/settings/SettingsPanel";
 import { api, type Settings } from "@/components/settings/api";
 
 const HINTS: Record<string, string> = {
-  expiryEnabled: "expiryHint",
-  creditSalesEnabled: "creditHint",
   debtTrackingEnabled: "debtHint",
-  remiseEnabled: "remiseHint",
-  depositsEnabled: "depositsHint",
-  multiDepotEnabled: "multiDepotHint",
-  facturePro: "factureHint",
-  posEnabled: "posHint",
-  oversellAllowed: "oversellHint",
-  pieceSalesEnabled: "pieceSalesHint",
   transferConfirmRequired: "transferConfirmHint",
   qrStrictMode: "qrHint",
   gpsEnabled: "gpsHint",
   supplierFilterEnabled: "supplierFilterHint",
 } as const;
 
+/// Client-visible toggles only. The business-model toggles (expiry, credit
+/// sales, remise, deposits, multi-depot, facture pro, POS, oversell, piece
+/// sales) plus costing/van-binding are VENDOR-controlled (hidden UI + API).
 const BOOL_TOGGLES = [
-  "expiryEnabled",
-  "creditSalesEnabled",
   "debtTrackingEnabled",
-  "remiseEnabled",
-  "depositsEnabled",
-  "multiDepotEnabled",
-  "facturePro",
-  "posEnabled",
-  "oversellAllowed",
-  "pieceSalesEnabled",
   "transferConfirmRequired",
   "qrStrictMode",
   "gpsEnabled",
@@ -58,61 +44,53 @@ export default function SalesSettingsPage() {
 
   return (
     <SettingsPanel title={title} description={description}>
-      {BOOL_TOGGLES.map((key) => (
-        <Toggle
-          key={key}
-          checked={Boolean(settings[key])}
-          onChange={(v) => patch({ [key]: v })}
-          label={t(key)}
-          hint={t(HINTS[key])}
-        />
-      ))}
-      {/* Thermal ticket language (Arabic RTL / French LTR) */}
-      <div className="flex items-center justify-between gap-3 rounded-xl border border-(--border-default) px-3 py-2.5">
-        <div className="min-w-0">
-          <div className="text-sm font-bold">{t("ticketLang")}</div>
-          <div className="text-xs opacity-60">{t("ticketLangHint")}</div>
-        </div>
-        <div className="flex shrink-0 gap-1 rounded-lg bg-(--bg-sunken) p-1" dir="ltr">
-          {(["ar", "fr"] as const).map((l) => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => patch({ ticketLang: l })}
-              className={
-                String(settings.ticketLang ?? "fr") === l
-                  ? "rounded-md bg-(--brand-500) px-3 py-1 text-xs font-black text-white"
-                  : "rounded-md px-3 py-1 text-xs font-bold opacity-60 hover:opacity-100"
-              }
-            >
-              {l === "ar" ? "عربي" : "Français"}
-            </button>
-          ))}
-        </div>
-      </div>
-      {/* Thermal ticket paper width (58mm / 80mm) */}
-      <div className="flex items-center justify-between gap-3 rounded-xl border border-(--border-default) px-3 py-2.5">
-        <div className="min-w-0">
-          <div className="text-sm font-bold">{t("ticketWidth")}</div>
-          <div className="text-xs opacity-60">{t("ticketWidthHint")}</div>
-        </div>
-        <div className="flex shrink-0 gap-1 rounded-lg bg-(--bg-sunken) p-1" dir="ltr">
-          {(["58", "80"] as const).map((w) => (
-            <button
-              key={w}
-              type="button"
-              onClick={() => patch({ ticketWidth: w })}
-              className={
-                String(settings.ticketWidth ?? "80") === w
-                  ? "rounded-md bg-(--brand-500) px-3 py-1 text-xs font-black text-white"
-                  : "rounded-md px-3 py-1 text-xs font-bold opacity-60 hover:opacity-100"
-              }
-            >
-              {w}mm
-            </button>
-          ))}
-        </div>
-      </div>
+      <SettingsCard title={t("sales")} description={description}>
+        {BOOL_TOGGLES.map((key) => (
+          <SettingRow key={key} label={t(key)} description={t(HINTS[key])}>
+            <div className="flex sm:justify-end">
+              <Switch checked={Boolean(settings[key])} onChange={(v) => patch({ [key]: v })} label={t(key)} />
+            </div>
+          </SettingRow>
+        ))}
+        {/* Expected van departure time (late-start flags on presence) */}
+        <SettingRow label={t("workStart")} description={t("workStartHint")}>
+          <input
+            type="time"
+            value={String(settings.workStartAt ?? "")}
+            onChange={(e) => patch({ workStartAt: e.target.value || null })}
+            dir="ltr"
+            className="h-11 w-full rounded-[11px] border border-(--border-default) bg-(--bg-surface) px-3 text-sm font-semibold tabular-nums outline-none focus:border-(--brand-500)"
+          />
+        </SettingRow>
+        {/* Max journée length (overtime flags on presence) */}
+        <SettingRow label={t("maxDayHours")} description={t("maxDayHoursHint")}>
+          <input
+            type="number" min={1} max={24} step={0.5}
+            value={String(settings.maxDayHours ?? "")}
+            onChange={(e) => patch({ maxDayHours: e.target.value === "" ? null : Number(e.target.value) })}
+            dir="ltr"
+            className="h-11 w-full rounded-[11px] border border-(--border-default) bg-(--bg-surface) px-3 text-sm font-semibold tabular-nums outline-none focus:border-(--brand-500)"
+          />
+        </SettingRow>
+        {/* Thermal ticket language (Arabic RTL / French LTR) */}
+        <SettingRow label={t("ticketLang")} description={t("ticketLangHint")}>
+          <SegmentedControl
+            value={String(settings.ticketLang ?? "fr") as "ar" | "fr"}
+            onChange={(l) => patch({ ticketLang: l })}
+            ariaLabel={t("ticketLang")}
+            options={[{ value: "ar", label: "عربي" }, { value: "fr", label: "Français" }]}
+          />
+        </SettingRow>
+        {/* Thermal ticket paper width (58mm / 80mm) */}
+        <SettingRow label={t("ticketWidth")} description={t("ticketWidthHint")}>
+          <SegmentedControl
+            value={String(settings.ticketWidth ?? "80") as "58" | "80"}
+            onChange={(w) => patch({ ticketWidth: w })}
+            ariaLabel={t("ticketWidth")}
+            options={[{ value: "58", label: "58mm" }, { value: "80", label: "80mm" }]}
+          />
+        </SettingRow>
+      </SettingsCard>
     </SettingsPanel>
   );
 }

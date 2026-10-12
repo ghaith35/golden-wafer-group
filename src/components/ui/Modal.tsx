@@ -78,7 +78,7 @@ export function Modal({
         </div>
         <div className="flex shrink-0 items-center gap-3 border-b border-(--border-default) px-5 pb-3 pt-2 md:pt-4">
           {icon && (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-brand text-base font-black text-white">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-brand text-base font-black text-(--brand-contrast)">
               {icon}
             </div>
           )}

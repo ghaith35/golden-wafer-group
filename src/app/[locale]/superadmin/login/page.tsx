@@ -4,7 +4,7 @@ import { SuperAdminLogin } from "./LoginForm";
 export default async function SuperAdminLoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("superadmin");
+  const t = await getTranslations({ locale: "en", namespace: "superadmin" });
   return (
     <SuperAdminLogin
       locale={locale}
@@ -12,6 +12,9 @@ export default async function SuperAdminLoginPage({ params }: { params: Promise<
         title: t("loginTitle"), subtitle: t("loginSub"), username: t("username"),
         password: t("password"), login: t("login"),
         invalid_credentials: t("invalidCredentials"), rate_limited: t("rateLimited"),
+        passwordRotationRequired: t("passwordRotationRequired"), passwordMinimum: t("passwordMinimum"),
+        newPassword: t("newPassword"), confirmPassword: t("confirmPassword"), changePassword: t("changePassword"),
+        weak_password: t("weakPassword"),
       }}
     />
   );

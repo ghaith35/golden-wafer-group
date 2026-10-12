@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Crosshair, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { queueOp, getVanSnapshot, getOutbox } from "@/lib/sync/client";
+import { queueOp, getVanSnapshot, getOutbox, goPage, saleErrText, queueErrText } from "@/lib/sync/client";
 import { checkOfflineClient } from "@/lib/sync/offline-rules";
 import { clientQrPayload, generateOfflineClientCode } from "@/lib/clients/validation";
 import { compareNatural } from "@/lib/sort";
@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils";
 
 /// Livreur adds a client: online → POST /api/clients, offline → outbox.
 /// Captures GPS for the client file when available.
+/// Embedded mode (popup inside the clients page): hides page chrome, reports
+/// creation via onCreated (so the list merges the pending client at once),
+/// closes via onClose instead of navigating.
 export function NewClient({
   locale,
   day,
@@ -27,6 +30,9 @@ export function NewClient({
   secteurs,
   tiers,
   labels,
+  embedded = false,
+  onCreated,
+  onClose,
 }: {
   locale: string;
   day: string;
@@ -35,6 +41,9 @@ export function NewClient({
   secteurs: Array<{ id: string; name: string; wilayaCode: number }>;
   tiers: Array<{ id: string; name: string }>;
   labels: Record<string, string>;
+  embedded?: boolean;
+  onCreated?: () => void;
+  onClose?: () => void;
 }) {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -99,6 +108,10 @@ export function NewClient({
       setSecteur(row.id);
       setSecteurName("");
       setShowSecteur(false);
+    } catch {
+      // Offline: secteurs can't be created without the server — the client
+      // itself can still be saved (secteur stays empty, admin assigns later).
+      setError(labels.secteurOffline ?? "secteur_offline");
     } finally {
       setSecteurBusy(false);
     }
@@ -139,7 +152,7 @@ export function NewClient({
       const [s, o] = await Promise.all([getVanSnapshot(), getOutbox()]);
       const check = checkOfflineClient(s, o, { phone });
       if (!check.ok) {
-        setError(check.error);
+        setError(saleErrText(labels, check.error) ?? check.error);
         savingRef.current = false;
         return;
       }
@@ -167,7 +180,7 @@ export function NewClient({
     try {
       qr = await QRCode.toDataURL(clientQrPayload(companyId, code), { margin: 1, width: 320 });
     } catch {
-      setError("save_failed");
+      setError(saleErrText(labels, "save_failed") ?? "failed");
       setSaving(false);
       savingRef.current = false;
       return;
@@ -180,18 +193,20 @@ export function NewClient({
       });
       if (!res.ok) {
         const d = await res.json().catch(() => null);
-        setError(d?.error ?? "failed");
+        setError(saleErrText(labels, d?.error) ?? "failed");
         savingRef.current = false;
         return;
       }
       setCreated({ code, name: name.trim(), qr, offline: false });
+      onCreated?.();
     } catch {
       try {
         await queueOp("client", body);
         setQueued(true);
         setCreated({ code, name: name.trim(), qr, offline: true });
-      } catch {
-        setError("save_failed");
+        onCreated?.();
+      } catch (e) {
+        setError(queueErrText(labels, e));
       }
     } finally {
       savingRef.current = false;
@@ -269,7 +284,7 @@ export function NewClient({
 
   if (created) {
     return (
-      <div className="space-y-3 p-4 pb-8 md:p-5">
+      <div className={embedded ? "space-y-3" : "space-y-3 p-4 pb-8 md:p-5"}>
         <h1 className="flex items-center gap-2 text-lg font-black">
           <UserPlus size={19} className="text-(--brand-600)" />
           {labels.newClient}
@@ -293,27 +308,39 @@ export function NewClient({
           </Button>
           <Button onClick={reset} className="h-12 flex-1 text-base">{labels.another}</Button>
         </div>
-        <Button variant="secondary" onClick={() => router.push(`/${locale}/livreur/${day}`)} className="h-12 w-full text-base">
-          {labels.clients}
+        <Button variant="secondary" onClick={() => embedded ? onClose?.() : goPage(router, `/${locale}/livreur/${day}`)} className="h-12 w-full text-base">
+          {embedded ? (labels.close ?? labels.cancel) : labels.clients}
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3 p-4 pb-8 md:p-5">
+    <div className={embedded ? "space-y-3" : "space-y-3 p-4 pb-8 md:p-5"}>
       <div className="flex items-center gap-2">
-        <button
-          aria-label="back"
-          onClick={() => router.push(`/${locale}/livreur/${day}/dashboard`)}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
-        >
-          <ArrowLeft size={18} className="rtl:rotate-180" />
-        </button>
-        <h1 className="flex items-center gap-2 text-lg font-black">
+        {!embedded && (
+          <button
+            aria-label="back"
+            onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard`)}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
+          >
+            <ArrowLeft size={18} className="rtl:rotate-180" />
+          </button>
+        )}
+        <h1 className="flex flex-1 items-center gap-2 text-lg font-black">
           <UserPlus size={19} className="text-(--brand-600)" />
           {labels.newClient}
         </h1>
+        {embedded && onClose && (
+          <button
+            type="button"
+            aria-label={labels.close ?? "close"}
+            onClick={onClose}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       {queued && (
@@ -379,7 +406,7 @@ export function NewClient({
                   onClick={() => { setShowSecteur((v) => !v); setSecteurName(""); }}
                   disabled={!wilaya}
                   aria-label="+"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500) text-lg font-black text-white disabled:opacity-30"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500) text-lg font-black text-(--brand-contrast) disabled:opacity-30"
                 >
                   +
                 </button>

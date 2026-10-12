@@ -16,7 +16,7 @@ export default async function SuperAdminLayout({
   setRequestLocale(locale);
   const session = await getSuperAdminSession();
   if (!session) redirect(`/${locale}/superadmin/login`);
-  const t = await getTranslations("superadmin");
+  const t = await getTranslations({ locale: "en", namespace: "superadmin" });
   return (
     <SuperAdminShell
       locale={locale}
@@ -24,6 +24,7 @@ export default async function SuperAdminLayout({
       labels={{
         dashboard: t("dashboard"),
         licenses: t("licenses"),
+        deployments: t("deployments"),
         companies: t("companies"),
         sales: t("sales"),
         audit: t("audit"),

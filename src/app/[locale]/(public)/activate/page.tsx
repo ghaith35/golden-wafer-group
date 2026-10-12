@@ -18,6 +18,7 @@ export default async function ActivatePage({ params }: { params: Promise<{ local
         trialTitle: t("trialTitle"), trialSub: t("trialSub"),
         nameLabel: t("nameLabel"), namePh: t("namePh"),
         phoneLabel: t("phoneLabel"), phoneRequired: t("phoneRequired"), phoneInvalid: t("phoneInvalid"),
+        emailLabel: t("emailLabel"),
         cityLabel: t("cityLabel"), cityPh: t("cityPh"),
         shopPh: t("shopPh"), shopRequired: t("shopRequired"),
         trialOk: t("trialOk"), genericError: t("genericError"), noInternet: t("noInternet"),

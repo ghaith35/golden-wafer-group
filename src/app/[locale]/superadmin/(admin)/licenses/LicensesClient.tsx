@@ -91,7 +91,6 @@ function displayName(m: Machine): string {
 /// with fresh-key display + trials-by-IP anti-farming + full machine table
 /// with conditional Activate / End-trial / Revoke (lock) / Unrevoke / Reset.
 export function LicensesClient({ labels }: { labels: Record<string, string> }) {
-  const [tab, setTab] = useState<"machines" | "keys" | "ips">("machines");
   const [machines, setMachines] = useState<Machine[]>([]);
   const [keys, setKeys] = useState<KeyRow[]>([]);
   const [ips, setIps] = useState<IpRow[]>([]);
@@ -353,6 +352,84 @@ export function LicensesClient({ labels }: { labels: Record<string, string> }) {
   }, [machines]);
 
   const isBusy = (id: string) => busyKey !== null && busyKey.startsWith(id);
+
+  /// Per-row action buttons (khiata rhythm): one definition shared by the
+  /// desktop table and the mobile cards below.
+  const actionsFor = (m: Machine, trial: ReturnType<typeof trialInfo>, preact: boolean) => (
+    <div className="flex flex-wrap gap-1.5">
+      {/* Repaire conditional actions — revoke (lock) only shows on activated. */}
+      {m.status === "pending" && !preact && !trial?.expired && (
+        <>
+          <Button onClick={() => void machineAct(m.machineId, "activate")} disabled={isBusy(m.machineId)} className="h-9 px-3 text-xs">
+            {labels.activate}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() =>
+              setConfirm({
+                title: labels.endTrial,
+                message: `${labels.endTrial} (${displayName(m)})?`,
+                run: () => machineAct(m.machineId, "end_trial"),
+              })
+            }
+            disabled={isBusy(m.machineId)}
+            className="h-9 px-3 text-xs"
+          >
+            {labels.endTrial}
+          </Button>
+        </>
+      )}
+      {m.status === "pending" && !preact && trial?.expired && (
+        <Button onClick={() => void machineAct(m.machineId, "activate")} disabled={isBusy(m.machineId)} className="h-9 px-3 text-xs">
+          {labels.activate}
+        </Button>
+      )}
+      {m.status === "activated" && (
+        <Button
+          variant="destructive"
+          onClick={() =>
+            setConfirm({
+              title: labels.revokeTitle,
+              message: `${labels.revokeMsg} (${displayName(m)})`,
+              run: () => machineAct(m.machineId, "revoke"),
+            })
+          }
+          disabled={isBusy(m.machineId)}
+          className="h-9 px-3 text-xs"
+        >
+          {labels.revoke}
+        </Button>
+      )}
+      {m.status === "revoked" && (
+        <Button variant="secondary" onClick={() => void machineAct(m.machineId, "unrevoke")} disabled={isBusy(m.machineId)} className="h-9 px-3 text-xs">
+          {labels.unrevoke}
+        </Button>
+      )}
+      {preact && m.consumedByMachineId && (
+        <Button
+          variant="secondary"
+          onClick={() =>
+            setConfirm({ title: labels.resetTitle, message: labels.resetMsg, run: () => machineAct(m.machineId, "reset") })
+          }
+          disabled={isBusy(m.machineId)}
+          className="h-9 px-3 text-xs"
+        >
+          {labels.reset}
+        </Button>
+      )}
+      <Button variant="secondary" onClick={() => openEdit(m)} disabled={busy} className="h-9 px-3 text-xs">
+        {labels.edit}
+      </Button>
+      <Button
+        variant="secondary"
+        onClick={() => setConfirm({ title: labels.deleteTitle, message: labels.deleteMsg, run: () => deleteMachine(m.machineId) })}
+        disabled={isBusy(m.machineId)}
+        className="h-9 px-3 text-xs"
+      >
+        {labels.delete}
+      </Button>
+    </div>
+  );
   const tInfo = (m: Machine) =>
     trialInfo(
       m.trialEnd,
@@ -372,45 +449,8 @@ export function LicensesClient({ labels }: { labels: Record<string, string> }) {
         <Metric label={labels.st_revoked ?? "Locked"} value={counts.revoked ?? 0} variant="revoked" />
       </section>
 
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex gap-1 rounded-xl bg-(--bg-sunken) p-1">
-          {(["machines", "keys", "ips"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={cn("min-h-10 rounded-lg px-3 py-1 text-xs font-black", tab === t ? "bg-(--brand-500) text-white" : "opacity-60")}
-            >
-              {labels[`tab_${t}`] ?? t}
-            </button>
-          ))}
-        </div>
-        {tab === "keys" && (
-          <Button onClick={() => setMintOpen(true)} className="shrink-0">
-            + {labels.mint}
-          </Button>
-        )}
-      </div>
-
-      {freshKeys.length > 0 && (
-        <div className="rounded-2xl border border-(--brand-500)/40 bg-(--brand-500)/5 p-3">
-          <p className="text-[11px] font-black uppercase tracking-wide opacity-70">Fresh keys — copy now</p>
-          <div className="mt-2 space-y-1.5">
-            {freshKeys.map((k) => (
-              <div key={k.humanKey} className="flex items-center gap-2">
-                <code dir="ltr" className="flex-1 select-all truncate rounded-lg bg-(--bg-surface) px-3 py-2 font-mono text-xs font-bold">
-                  {k.humanKey}
-                </code>
-                <Button variant="secondary" onClick={() => copyKey(k.humanKey)} className="h-9 px-3 text-xs">
-                  {copied === k.humanKey ? "✓" : labels.confirm ?? "Copy"}
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {tab === "machines" && (
-        <>
+      {/* Machines — one section, no tabs (repaire rhythm) */}
+      <>
           {/* Manual add (repaire parity) */}
           <div className="flex flex-wrap items-end gap-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
             <div className="min-w-0 flex-1 basis-52">
@@ -501,7 +541,98 @@ export function LicensesClient({ labels }: { labels: Record<string, string> }) {
             </select>
           </div>
 
-          <div className="space-y-2">
+          {/* Desktop table (khiata rhythm) — mobile cards below stay as-is. */}
+          <div className="table-shell hidden lg:block">
+            <table className="min-w-[1080px]">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Machine ID</th>
+                  <th>Workshop</th>
+                  <th>Contact</th>
+                  <th>Device</th>
+                  <th>IP</th>
+                  <th>Key</th>
+                  <th>Trial ends</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {machines.map((m) => {
+                  const trial = tInfo(m);
+                  const preact = (m.activationType ?? "machine") === "preactivated";
+                  const available = preact && m.status === "activated" && !m.consumedByMachineId;
+                  return (
+                    <tr key={m.machineId}>
+                      <td>
+                        <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-black", preact ? "pill-brand" : "pill-slate")}>
+                          {preact ? "PREACT" : "MACH"}
+                        </span>
+                      </td>
+                      <td className="nowrap font-mono" dir="ltr" title={m.machineId}>
+                        {available ? (labels.free ?? "Available") : `${m.machineId.slice(0, 16)}…`}
+                      </td>
+                      <td className="nowrap">{m.workshop ?? m.label ?? "—"}</td>
+                      <td className="nowrap">
+                        {m.contactName ? <bdi dir="auto">{m.contactName}</bdi> : "—"}
+                        {m.phone ? <bdi dir="ltr"> · {m.phone}</bdi> : ""}
+                        {m.city ? <bdi dir="auto"> · {m.city}</bdi> : ""}
+                      </td>
+                      <td className="nowrap">
+                        {m.deviceSpecs && Object.keys(m.deviceSpecs).length > 0 ? (
+                          <button onClick={() => setSpecRow(m)} className="font-bold hover:opacity-100" dir="ltr">
+                            {String(m.deviceSpecs.pcName ?? m.deviceSpecs.platform ?? "specs")} · {specSummary(m.deviceSpecs)}
+                          </button>
+                        ) : (
+                          <span className="opacity-40">—</span>
+                        )}
+                      </td>
+                      <td className="nowrap font-mono" dir="ltr">
+                        {m.lastIp ? (
+                          <span className={blockedSet.has(m.lastIp) ? "font-bold text-red-500" : ""} title={m.trialIp && m.trialIp !== m.lastIp ? `trial: ${m.trialIp}` : undefined}>
+                            {m.lastIp}
+                          </span>
+                        ) : (
+                          <span className="opacity-40">—</span>
+                        )}
+                      </td>
+                      <td className="nowrap">
+                        {m.activationKey ? (
+                          <button onClick={() => copyKey(m.activationKey!)} title="click to copy" className="font-mono font-bold hover:opacity-80" dir="ltr">
+                            {copied === m.activationKey ? "✓" : m.activationKey}
+                          </button>
+                        ) : (
+                          <span className="opacity-40">—</span>
+                        )}
+                      </td>
+                      <td className="nowrap tabular-nums" dir="ltr">
+                        {m.trialEnd ? (
+                          <>
+                            {new Date(m.trialEnd).toLocaleDateString()}{" "}
+                            {trial && <b className={trial.expired ? "text-red-500" : ""}>{trial.label}</b>}
+                          </>
+                        ) : (
+                          <span className="opacity-40">—</span>
+                        )}
+                      </td>
+                      <td>
+                        <span className={cn("rounded-full px-2 py-1 text-[10px] font-black", STATUS_COLOR[m.status] ?? "")}>
+                          {labels[`st_${m.status}`] ?? m.status}
+                        </span>
+                        {m.status === "pending" && trial && (
+                          <div className={cn("mt-0.5 text-[11px] font-bold", trial.expired && "text-red-500")}>{trial.label}</div>
+                        )}
+                      </td>
+                      <td>{actionsFor(m, trial, preact)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="space-y-2 lg:hidden">
             {machines.map((m) => {
               const trial = tInfo(m);
               const preact = (m.activationType ?? "machine") === "preactivated";
@@ -570,88 +701,58 @@ export function LicensesClient({ labels }: { labels: Record<string, string> }) {
                       {new Date(m.lastSeen).toLocaleDateString()}
                     </span>
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {/* Repaire conditional actions — revoke (lock) only shows on activated. */}
-                    {m.status === "pending" && !preact && !trial?.expired && (
-                      <>
-                        <Button onClick={() => void machineAct(m.machineId, "activate")} disabled={isBusy(m.machineId)} className="h-9 px-3 text-xs">
-                          {labels.activate}
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          onClick={() =>
-                            setConfirm({
-                              title: labels.endTrial,
-                              message: `${labels.endTrial} (${displayName(m)})?`,
-                              run: () => machineAct(m.machineId, "end_trial"),
-                            })
-                          }
-                          disabled={isBusy(m.machineId)}
-                          className="h-9 px-3 text-xs"
-                        >
-                          {labels.endTrial}
-                        </Button>
-                      </>
-                    )}
-                    {m.status === "pending" && !preact && trial?.expired && (
-                      <Button onClick={() => void machineAct(m.machineId, "activate")} disabled={isBusy(m.machineId)} className="h-9 px-3 text-xs">
-                        {labels.activate}
-                      </Button>
-                    )}
-                    {m.status === "activated" && (
-                      <Button
-                        variant="secondary"
-                        onClick={() =>
-                          setConfirm({
-                            title: labels.revokeTitle,
-                            message: `${labels.revokeMsg} (${displayName(m)})`,
-                            run: () => machineAct(m.machineId, "revoke"),
-                          })
-                        }
-                        disabled={isBusy(m.machineId)}
-                        className="h-9 px-3 text-xs"
-                      >
-                        {labels.revoke}
-                      </Button>
-                    )}
-                    {m.status === "revoked" && (
-                      <Button variant="secondary" onClick={() => void machineAct(m.machineId, "unrevoke")} disabled={isBusy(m.machineId)} className="h-9 px-3 text-xs">
-                        {labels.unrevoke}
-                      </Button>
-                    )}
-                    {preact && m.consumedByMachineId && (
-                      <Button
-                        variant="secondary"
-                        onClick={() =>
-                          setConfirm({ title: labels.resetTitle, message: labels.resetMsg, run: () => machineAct(m.machineId, "reset") })
-                        }
-                        disabled={isBusy(m.machineId)}
-                        className="h-9 px-3 text-xs"
-                      >
-                        {labels.reset}
-                      </Button>
-                    )}
-                    <Button variant="secondary" onClick={() => openEdit(m)} disabled={busy} className="h-9 px-3 text-xs">
-                      {labels.edit}
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => setConfirm({ title: labels.deleteTitle, message: labels.deleteMsg, run: () => deleteMachine(m.machineId) })}
-                      disabled={isBusy(m.machineId)}
-                      className="h-9 px-3 text-xs"
-                    >
-                      {labels.delete}
-                    </Button>
-                  </div>
+                  <div className="mt-2">{actionsFor(m, trial, preact)}</div>
                 </div>
               );
             })}
             {machines.length === 0 && <p className="text-center text-sm opacity-60">{labels.empty}</p>}
           </div>
-        </>
-      )}
+      </>
 
-      {tab === "keys" && (
+      <div className="flex items-center justify-between gap-2 pt-2">
+        <h2 className="text-sm font-black">{labels.tab_keys ?? "Keys"}</h2>
+        <Button onClick={() => setMintOpen(true)} className="shrink-0">
+          + {labels.mint}
+        </Button>
+      </div>
+      {freshKeys.length > 0 && (
+        <div className="rounded-2xl border border-(--brand-500)/40 bg-(--brand-500)/5 p-3">
+          <p className="text-[11px] font-black uppercase tracking-wide opacity-70">Fresh keys — copy now</p>
+          <div className="mt-2 space-y-1.5">
+            {freshKeys.map((k) => (
+              <div key={k.humanKey} className="flex items-center gap-2">
+                <code dir="ltr" className="flex-1 select-all truncate rounded-lg bg-(--bg-surface) px-3 py-2 font-mono text-xs font-bold">
+                  {k.humanKey}
+                </code>
+                <Button variant="secondary" onClick={() => copyKey(k.humanKey)} className="h-9 px-3 text-xs">
+                  {copied === k.humanKey ? "✓" : labels.confirm ?? "Copy"}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {mintOpen && (
+        <div className="flex flex-wrap items-end gap-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
+          <div className="w-28">
+            <label className="mb-1 block text-[11px] font-black uppercase opacity-60">{labels.count}</label>
+            <Input type="number" min={1} max={100} value={mintCount} onChange={(e) => setMintCount(e.target.value)} dir="ltr" />
+          </div>
+          <div className="min-w-0 flex-1 basis-40">
+            <label className="mb-1 block text-[11px] font-black uppercase opacity-60">{labels.label}</label>
+            <Input value={mintLabel} onChange={(e) => setMintLabel(e.target.value)} />
+          </div>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setMintOpen(false)} className="flex-1">
+              {labels.cancel}
+            </Button>
+            <Button onClick={() => void mint()} disabled={busy} className="flex-[2]">
+              {labels.mint}
+            </Button>
+          </div>
+        </div>
+      )}
+      {keys.length > 0 && (
         <div className="space-y-1.5">
           {keys.map((k) => {
             const bound = k.consumedByMachineId ?? k.machineId;
@@ -694,7 +795,8 @@ export function LicensesClient({ labels }: { labels: Record<string, string> }) {
         </div>
       )}
 
-      {tab === "ips" && (
+      <h2 className="pt-2 text-sm font-black">{labels.tab_ips ?? "IPs"}</h2>
+      {(
         <div className="space-y-1.5">
           <div className="flex gap-2">
             <Input placeholder="IP" value={ipInput} onChange={(e) => setIpInput(e.target.value)} dir="ltr" />
@@ -730,26 +832,6 @@ export function LicensesClient({ labels }: { labels: Record<string, string> }) {
         message={confirm?.message ?? ""}
         confirmLabel={labels.confirm}
       />
-      <Modal open={mintOpen} onClose={() => setMintOpen(false)} title={labels.mintTitle} width="sm">
-        <div className="space-y-2">
-          <div>
-            <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.count}</label>
-            <Input type="number" min={1} max={100} value={mintCount} onChange={(e) => setMintCount(e.target.value)} dir="ltr" />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.label}</label>
-            <Input value={mintLabel} onChange={(e) => setMintLabel(e.target.value)} />
-          </div>
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => setMintOpen(false)} className="flex-1">
-              {labels.cancel}
-            </Button>
-            <Button onClick={() => void mint()} disabled={busy} className="flex-[2]">
-              {labels.mint}
-            </Button>
-          </div>
-        </div>
-      </Modal>
 
       {/* Full edit modal (repaire parity) */}
       <Modal open={editRow !== null} onClose={() => setEditRow(null)} title={labels.editTitle} width="sm">

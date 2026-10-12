@@ -12,7 +12,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const parsed = locationSchema.partial().safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return NextResponse.json({ error: "validation_error", issues: parsed.error.issues }, { status: 400 });
   const d = parsed.data;
-  if (d.userId) {
+  // Re-assigning a van to a DIFFERENT driver: must be company staff, not an
+  // Admin, max one van. Keeping the current driver (e.g. legacy Admin
+  // assignments) always passes — otherwise those vans become uneditable.
+  if (d.userId && d.userId !== existing.userId) {
     const u = await prisma.user.findFirst({ where: { id: d.userId, companyId: session.companyId } });
     if (!u || u.role === "Admin") return NextResponse.json({ error: "bad_user" }, { status: 400 });
     // One driver ↔ max one van (excluding this van).

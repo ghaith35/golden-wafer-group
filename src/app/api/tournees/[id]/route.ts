@@ -49,10 +49,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return NextResponse.json(await reorderStops(session.companyId, id, body.orderedIds as string[]));
     }
     if (body.action === "start") {
-      return NextResponse.json(await startDay(session.companyId, session.userId, session.role, id));
+      const { lat, lng } = body as { lat?: unknown; lng?: unknown };
+      return NextResponse.json(await startDay(session.companyId, session.userId, session.role, id, undefined, { lat, lng }));
     }
     if (body.action === "finish") {
-      return NextResponse.json(await finishDay(session.companyId, session.userId, session.role, id));
+      const { lat, lng } = body as { lat?: unknown; lng?: unknown };
+      return NextResponse.json(await finishDay(session.companyId, session.userId, session.role, id, undefined, { lat, lng }));
     }
     if (body.action === "times") {
       // Admin only: manual départ/fin correction from the presence board.

@@ -1,105 +1,62 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
+import { aggregateVanReport } from "@/lib/reports/vanReport";
 
-function csv(rows: Array<Record<string, string | number>>): string {
-  if (!rows.length) return "";
-  const head = Object.keys(rows[0]);
-  const esc = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
-  return [head.join(","), ...rows.map((r) => head.map((h) => esc(r[h])).join(","))].join("\n");
-}
-
-function respond(data: Array<Record<string, string | number>>, format: string | null, filename: string) {
-  if (format === "csv") {
-    return new NextResponse(csv(data), {
-      headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="${filename}.csv"` },
-    });
-  }
-  return NextResponse.json(data);
-}
-
-/// Debt ledgers: who owes us / whom we owe.
+/// Admin sales-by-van reports (proxy enforces admin-only).
+/// - ?report=vans → van buttons [{id, name, matricule}].
+/// - ?report=van-detail&van=<id> → summary + products + top for one van.
+/// The old debts/margins tabs + CSV export were removed (admin decision).
 export async function GET(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const sp = new URL(req.url).searchParams;
-  const report = sp.get("report") ?? "debts-clients";
-  const format = sp.get("format");
+  const report = sp.get("report") ?? "vans";
   const companyId = session.companyId;
 
-  if (report === "debts-clients") {
-    const rows = await prisma.customer.findMany({
-      where: { companyId, balance: { gt: 0 } },
-      select: { code: true, name: true, phone: true, balance: true, creditLimit: true },
-      orderBy: { balance: "desc" },
-      take: 1000,
-    });
-    return respond(
-      rows.map((r) => ({ code: r.code, name: r.name, phone: r.phone ?? "", balance: Number(r.balance), limit: Number(r.creditLimit) })),
-      format,
-      "debts-clients"
-    );
-  }
-
-  if (report === "debts-suppliers") {
-    const rows = await prisma.supplier.findMany({
-      where: { companyId, balance: { gt: 0 } },
-      select: { code: true, name: true, phone: true, balance: true },
-      orderBy: { balance: "desc" },
-      take: 1000,
-    });
-    return respond(
-      rows.map((r) => ({ code: r.code ?? "", name: r.name, phone: r.phone ?? "", balance: Number(r.balance) })),
-      format,
-      "debts-suppliers"
-    );
-  }
-
-  if (report === "margins") {
-    const lines = await prisma.saleLine.findMany({
-      where: { sale: { companyId, kind: { in: ["DELIVERY", "TICKET"] }, status: "DELIVERED" } },
-      select: { productId: true, baseQty: true, lineTotal: true, unitCost: true, product: { select: { name: true, reference: true } } },
-      take: 5000,
-    });
-    const byProduct = new Map<string, { name: string; ref: string; qty: number; revenue: number; cogs: number }>();
-    for (const l of lines) {
-      const e = byProduct.get(l.productId) ?? { name: l.product.name, ref: l.product.reference ?? "", qty: 0, revenue: 0, cogs: 0 };
-      e.qty += Number(l.baseQty);
-      e.revenue += Number(l.lineTotal);
-      e.cogs += Number(l.baseQty) * Number(l.unitCost);
-      byProduct.set(l.productId, e);
-    }
-    const rows = [...byProduct.values()]
-      .map((r) => ({ ...r, margin: r.revenue - r.cogs, rate: r.revenue > 0 ? ((r.revenue - r.cogs) / r.revenue) * 100 : 0 }))
-      .sort((a, b) => b.margin - a.margin);
-    return respond(
-      rows.map((r) => ({ name: r.name, ref: r.ref, qty: r.qty, revenue: r.revenue.toFixed(2), cogs: r.cogs.toFixed(2), margin: r.margin.toFixed(2), rate: r.rate.toFixed(1) })),
-      format,
-      "margins"
-    );
-  }
-
   if (report === "vans") {
-    const sales = await prisma.sale.findMany({
-      where: { companyId, kind: { in: ["DELIVERY", "TICKET"] }, status: "DELIVERED" },
-      select: { total: true, paid: true, locationId: true, channel: true, location: { select: { name: true, matricule: true } } },
-      take: 5000,
+    const vans = await prisma.store.findMany({
+      where: { companyId, kind: "VAN" },
+      select: { id: true, name: true, matricule: true },
+      orderBy: { name: "asc" },
+      take: 200,
     });
-    const byVan = new Map<string, { name: string; matricule: string; total: number; paid: number; count: number }>();
-    for (const s of sales) {
-      const key = s.locationId ?? "none";
-      const e = byVan.get(key) ?? { name: s.location?.name ?? "—", matricule: s.location?.matricule ?? "", total: 0, paid: 0, count: 0 };
-      e.total += Number(s.total);
-      e.paid += Number(s.paid);
-      e.count += 1;
-      byVan.set(key, e);
-    }
-    const rows = [...byVan.values()].sort((a, b) => b.total - a.total);
-    return respond(
-      rows.map((r) => ({ name: r.name, matricule: r.matricule, sales: r.count, total: r.total.toFixed(2), paid: r.paid.toFixed(2), due: (r.total - r.paid).toFixed(2) })),
-      format,
-      "vans"
-    );
+    return NextResponse.json(vans.map((v) => ({ id: v.id, name: v.name, matricule: v.matricule ?? "" })));
+  }
+
+  if (report === "van-detail") {
+    const vanId = sp.get("van") ?? "";
+    const van = await prisma.store.findFirst({
+      where: { id: vanId, companyId, kind: "VAN" },
+      select: { id: true, name: true, matricule: true },
+    });
+    if (!van) return NextResponse.json({ error: "not_found" }, { status: 404 });
+    // Literal tuple (not string[]): the generated client types kind/status
+    // as string enums, and a widened object literal would not assign.
+    const KINDS = ["DELIVERY", "TICKET"] as ["DELIVERY", "TICKET"];
+    const saleWhere = { companyId, kind: { in: KINDS }, status: "DELIVERED" as const, locationId: van.id };
+    const [sales, lines, expenses, tournees] = await Promise.all([
+      prisma.sale.findMany({ where: saleWhere, select: { total: true, paid: true }, take: 10000 }),
+      prisma.saleLine.findMany({
+        where: { sale: saleWhere },
+        select: { productId: true, baseQty: true, lineTotal: true, unitCost: true, product: { select: { name: true, reference: true } } },
+        take: 20000,
+      }),
+      prisma.expense.findMany({
+        where: { companyId, locationId: van.id, deletedAt: null },
+        select: { amount: true },
+        take: 5000,
+      }),
+      prisma.tournee.findMany({
+        where: { companyId, locationId: van.id },
+        select: { startedAt: true, finishedAt: true },
+        take: 1000,
+      }),
+    ]);
+    return NextResponse.json({
+      van: { id: van.id, name: van.name, matricule: van.matricule ?? "" },
+      ...aggregateVanReport({ sales, lines, expenses, tournees }),
+    });
   }
 
   return NextResponse.json({ error: "bad_report" }, { status: 400 });

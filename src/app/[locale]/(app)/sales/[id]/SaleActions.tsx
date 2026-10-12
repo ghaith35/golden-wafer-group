@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Bus, Printer, Store } from "lucide-react";
@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
+import { ImageLightbox } from "@/components/ui/ImageLightbox";
+import { SaleDocForm } from "../SaleDocForm";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PackInfo, factorOf, normFactor, LinePriceSummary } from "@/components/products/UnitQty";
 import { dz, dzMoney } from "@/lib/format";
@@ -23,6 +25,8 @@ export type SaleDetail = {
   paid: unknown;
   remise: unknown;
   locationId: string | null;
+  tierId: string | null;
+  notes: string | null;
   client: { id: string; name: string; code: string } | null;
   location: { id: string; name: string; kind?: string } | null;
   lines: Array<{
@@ -71,6 +75,9 @@ export function SaleActions({
   locations,
   labels,
   onDone,
+  formData,
+  formLabels,
+  canEdit = false,
 }: {
   locale: string;
   sale: SaleDetail;
@@ -78,6 +85,23 @@ export function SaleActions({
   labels: Record<string, string>;
   /// Master-detail mode: refresh inline instead of navigating.
   onDone?: (newId?: string) => void;
+  /// Facture edit (Admin): full editor reference data + labels. When absent
+  /// the تعديل button stays hidden.
+  formData?: {
+    clients: Array<{ id: string; name: string; code: string; tierId: string | null; balance: unknown }>;
+    products: Array<{
+      id: string; name: string; salePrice: number; colisage?: string | null; barcode?: string | null;
+      baseUnitId: string | null; baseUnit: { id: string; name: string } | null; saleUnitId: string | null;
+      conversions: Array<{ unitId: string; factor: number; barcode?: string | null; unit: { id: string; name: string } }>;
+      tierPrices: Array<{ tierId: string; price: number }>;
+    }>;
+    units: Array<{ id: string; name: string }>;
+    tiers: Array<{ id: string; name: string }>;
+    locations: Array<{ id: string; name: string; kind: string }>;
+    settings: { remiseEnabled: boolean; creditSalesEnabled: boolean; pieceSalesEnabled: boolean };
+  } | null;
+  formLabels?: Record<string, string> | null;
+  canEdit?: boolean;
 }) {
   const router = useRouter();
   const [locationId, setLocationId] = useState(sale.locationId ?? "");
@@ -87,6 +111,15 @@ export function SaleActions({
   const [error, setError] = useState<string | null>(null);
   /// Popup form replacing the old JS confirm(): which action awaits approval.
   const [modal, setModal] = useState<null | "load" | "assign" | "deliver" | "invoice" | "cancel" | "uncancel">(null);
+  const [editing, setEditing] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setIsAdmin(d?.user?.role === "Admin"))
+      .catch(() => setIsAdmin(false));
+  }, []);
+  const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
   /// Depot availability for the load preview (fetched when opening it).
   const [depotMap, setDepotMap] = useState<Record<string, number> | null>(null);
 
@@ -186,16 +219,16 @@ export function SaleActions({
           </span>
           <span className="text-base font-black tabular-nums">{num(total)}</span>
         </div>
-        <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] border-collapse text-sm">
+        <div className="table-shell">
+        <table className="min-w-[640px]">
           <thead>
-            <tr className="text-[10px] font-black uppercase tracking-wide opacity-50">
-              <th className="px-1 pb-1.5 text-start font-black">{labels.product}</th>
-              <th className="w-24 px-1 pb-1.5 text-end font-black">{labels.unitPriceL}</th>
-              <th className="w-24 px-1 pb-1.5 text-end font-black">{labels.packPriceL}</th>
-              <th className="w-20 px-1 pb-1.5 text-end font-black">{labels.qtyPack}</th>
-              <th className="w-20 px-1 pb-1.5 text-end font-black">{labels.qtyPiece}</th>
-              <th className="w-24 px-1 pb-1.5 text-end font-black">{labels.total}</th>
+            <tr>
+              <th>{labels.product}</th>
+              <th className="num">{labels.unitPriceL}</th>
+              <th className="num">{labels.packPriceL}</th>
+              <th className="num">{labels.qtyPack}</th>
+              <th className="num">{labels.qtyPiece}</th>
+              <th className="num">{labels.total}</th>
             </tr>
           </thead>
           <tbody>
@@ -233,8 +266,15 @@ export function SaleActions({
                 <td className="px-1 py-2">
                   <div className="flex min-w-0 items-center gap-2">
                     {imgs[0] ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={imgs[0].url} alt={p.name} className="h-9 w-9 shrink-0 rounded-lg object-cover" loading="lazy" />
+                      <button
+                        type="button"
+                        onClick={() => setZoom({ src: imgs[0].url, name: p.name })}
+                        aria-label={p.name}
+                        className="shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--brand-500)"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={imgs[0].url} alt={p.name} className="h-9 w-9 rounded-lg object-cover" loading="lazy" />
+                      </button>
                     ) : (
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-base opacity-50">📦</div>
                     )}
@@ -320,10 +360,10 @@ export function SaleActions({
         {sale.kind === "DELIVERY" && sale.status === "CANCELLED" && (
           <Button onClick={() => setModal("uncancel")} disabled={busy}>{labels.redeliverT ?? labels.deliver}</Button>
         )}
-        {(sale.kind === "DELIVERY" || sale.kind === "TICKET") && (
-          <Link href={`/${locale}/sales/${sale.id}/print`}>
-            <Button variant="secondary">{labels.print} BL</Button>
-          </Link>
+        {sale.kind === "TICKET" && sale.status !== "CANCELLED" && canEdit && isAdmin && formData && formLabels && (
+          <Button variant="secondary" onClick={() => setEditing(true)} disabled={busy}>
+            ✎ {labels.edit ?? "Edit"}
+          </Button>
         )}
         {sale.kind === "INVOICE" && (
           <Link href={`/${locale}/sales/${sale.id}/print`}>
@@ -485,6 +525,53 @@ export function SaleActions({
             </Button>
           </div>
         </div>
+      </Modal>
+      {zoom && <ImageLightbox src={zoom.src} alt={zoom.name} caption={zoom.name} onClose={() => setZoom(null)} />}
+      <Modal
+        open={editing}
+        onClose={() => setEditing(false)}
+        title={`${labels.edit ?? "Edit"} · ${sale.number}`}
+        icon="✎"
+        width="xl"
+      >
+        {editing && formData && formLabels && (
+          <SaleDocForm
+            key={sale.id}
+            locale={locale}
+            mode="ticket"
+            channel={(sale.channel as "VAN" | "POS" | "DEPOT") ?? "VAN"}
+            clients={formData.clients}
+            products={formData.products}
+            units={formData.units}
+            tiers={formData.tiers}
+            locations={formData.locations}
+            remiseEnabled={formData.settings.remiseEnabled}
+            creditEnabled={formData.settings.creditSalesEnabled}
+            allowPieces={formData.settings.pieceSalesEnabled}
+            defaultTierId={formData.tiers[0]?.id}
+            editingId={sale.id}
+            initial={{
+              clientId: sale.client?.id ?? null,
+              locationId: sale.locationId,
+              tierId: sale.tierId,
+              remise: Number(sale.remise ?? 0),
+              paid: Number(sale.paid ?? 0),
+              notes: sale.notes,
+              lines: sale.lines.map((l) => ({
+                productId: l.productId,
+                unitId: l.unitId,
+                qty: Number(l.qty),
+                unitPrice: l.unitPrice != null ? Number(l.unitPrice) : null,
+                remise: Number(l.remise ?? 0),
+              })),
+            }}
+            onCreated={() => {
+              setEditing(false);
+              onDone?.(sale.id);
+            }}
+            labels={formLabels}
+          />
+        )}
       </Modal>
     </div>
   );

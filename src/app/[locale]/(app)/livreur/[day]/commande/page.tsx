@@ -93,11 +93,16 @@ export default async function LivreurCommandePage({
         gallery: t("gallery"), qrNotFound: t("qrNotFound"), backToDash: t("backToDash"),
         products: t("products"), searchProduct: t("searchProduct"), allCats: t("allCats"),
         qty: t("qty"), colis: t("colis"), confirm: t("confirm"), cancel: t("cancel"),
-        total: t("total"), stock: t("stock"), empty: t("empty"), saved: t("saved"),
+        total: t("total"), stock: t("stock"), stockDepot: t("stockDepot"), empty: t("empty"), saved: t("saved"),
         clients: t("clients"), backToProducts: t("backToProducts"),
         request: t("request"), sendRequest: t("sendRequest"),
         orderSaved: t("orderSaved"), orderQueued: t("orderQueued"),
-        notes: t("notes"), commandes: t("commandes"),
+        notes: t("notes"), commandes: t("commandes"), offline: t("offline"),
+        errRemise: t("errRemise"), errQr: t("errQr"), errStock: t("errStock"),
+        errCashOnly: t("errCashOnly"), errDebtOff: t("errDebtOff"),
+        errClientReq: t("errClientReq"), errCreditLimit: t("errCreditLimit"),
+        errOverpaid: t("errOverpaid"), errSaveFailed: t("errSaveFailed"),
+        syncFirst: t("syncFirst"),
         camNeedHttps: t("camNeedHttps"), camDenied: t("camDenied"), camUnsupported: t("camUnsupported"),
       }}
     />

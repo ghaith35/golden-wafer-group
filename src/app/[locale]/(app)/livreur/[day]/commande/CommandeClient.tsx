@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDownUp, ArrowLeft, ClipboardList, Minus, Plus, QrCode } from "lucide-react";
+import { ArrowDownUp, ArrowLeft, ClipboardList, Minus, Plus, QrCode, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { CameraBox } from "@/components/scan/CameraBox";
 import { normFactor, saleUnits } from "@/components/products/UnitQty";
-import { queueOp, getVanSnapshot, getLastSync, type VanSnapshot } from "@/lib/sync/client";
+import { queueOp, getVanSnapshot, getLastSync, getPendingClients, goPage, saleErrText, queueErrText, type VanSnapshot } from "@/lib/sync/client";
 import { beepAdd, beepConfirm } from "@/lib/beep";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +53,7 @@ export function CommandeClient({
 }) {
   const router = useRouter();
   const [scanOpen, setScanOpen] = useState(!initialClient);
+  const [scanError, setScanError] = useState<string | null>(null);
   const [client, setClient] = useState<Client | null>(initialClient);
   const [cat, setCat] = useState("");
   const [pq, setPq] = useState("");
@@ -81,6 +82,10 @@ export function CommandeClient({
     try {
       setSyncedAt(getLastSync());
     } catch { /* ignore */ }
+    // Warm this exact page URL (query included) so back-navigation works offline.
+    try {
+      void import("@/lib/sync/client").then((m) => m.prefetchPages([window.location.href])).catch(() => {});
+    } catch { /* never break the page */ }
   }, []);
   const pressTimer = useRef(0);
   const touchX = useRef<number | null>(null);
@@ -117,27 +122,96 @@ export function CommandeClient({
 
   function onScan(text: string) {
     const code = text.includes("/") ? text.split("/").pop()! : text;
-    const match = (rows: Client[]) => rows.find((c) => c.code === code) ?? rows[0];
+    // Exact code match only: NEVER fall back to the first row — charging the
+    // wrong client is worse than no match. Unknown codes show an error.
+    const match = (rows: Client[]) => rows.find((c) => c.code === code) ?? null;
+    const noMatch = () => setScanError(labels.qrNotFound ?? "not_found");
+    // Clients created on this phone but not yet synced are matchable too.
+    const withPending = async (rows: Client[]): Promise<Client[]> => {
+      try {
+        const pend = await getPendingClients();
+        const extra: Client[] = pend.map((p) => ({
+          id: `pending:${p.opId}`, name: p.name, code: p.code,
+          phone: p.phone, tierId: p.tierId, balance: 0,
+        }));
+        const seen = new Set(rows.map((r) => r.code));
+        return [...rows, ...extra.filter((e) => !seen.has(e.code))];
+      } catch {
+        return rows;
+      }
+    };
     fetch(`/api/clients?q=${encodeURIComponent(code)}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : []))
-      .then((rows: Client[]) => {
-        const hit = match(rows);
+      .then(async (rows: Client[]) => {
+        const hit = match(await withPending(rows));
         if (hit) {
+          setScanError(null);
           setClient(hit);
           setScanOpen(false);
           beepAdd();
+        } else {
+          noMatch();
         }
       })
-      .catch(() => {
-        // Offline: match the synced client list.
-        const hit = snap ? match(snap.clients as unknown as Client[]) : undefined;
+      .catch(async () => {
+        // Offline: match the synced client list + this phone's pending ones.
+        // No snapshot yet (never synced): say "sync first" — the code isn't
+        // wrong, the phone just has no client list to match against.
+        const noHit = () => {
+          if (!snap) setScanError(labels.syncFirst ?? labels.qrNotFound ?? "not_found");
+          else noMatch();
+        };
+        const hit = snap ? match(await withPending(snap.clients as unknown as Client[])) : undefined;
         if (hit) {
+          setScanError(null);
           setClient(hit);
           setScanOpen(false);
           beepAdd();
+        } else {
+          try {
+            const pend = await getPendingClients();
+            const solo = pend.find((p) => p.code === code);
+            if (solo) {
+              setScanError(null);
+              setClient({
+                id: `pending:${solo.opId}`, name: solo.name, code: solo.code,
+                phone: solo.phone, tierId: solo.tierId, balance: 0,
+              });
+              setScanOpen(false);
+              beepAdd();
+            } else {
+              noHit();
+            }
+          } catch {
+            noHit();
+          }
         }
       });
   }
+
+  // Deep link with an unsynced client (?client=pending:<opId>).
+  useEffect(() => {
+    if (initialClient) return;
+    let dead = false;
+    (async () => {
+      try {
+        const m = /[?&]client=(pending%3A[^&]+|pending:[^&]+)/.exec(window.location.search);
+        if (!m) return;
+        const id = decodeURIComponent(m[1]);
+        const pend = await getPendingClients();
+        const hit = pend.find((p) => `pending:${p.opId}` === id);
+        if (hit && !dead) {
+          setClient({
+            id, name: hit.name, code: hit.code,
+            phone: hit.phone, tierId: hit.tierId, balance: 0,
+          });
+          setScanOpen(false);
+        }
+      } catch { /* stay on scan */ }
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function packOf(p: Prod) {
     return p.conversions
@@ -167,8 +241,10 @@ export function CommandeClient({
 
   function openQty(p: Prod) {
     setQtyFor(p);
-    setQtyPacks(1);
-    setQtyUnits(0);
+    // Same phantom-pack trap as vente: packless products default to 1 unit.
+    const hasPack = p.conversions.some((c) => Number(c.factor) > 1);
+    setQtyPacks(hasPack ? 1 : 0);
+    setQtyUnits(hasPack ? 0 : 1);
     setFreshStock(null);
     setDepotLive(false);
     // Fresh depot availability (cards may be stale).
@@ -240,7 +316,7 @@ export function CommandeClient({
       });
       if (!res.ok) {
         const d = await res.json().catch(() => null);
-        setError(d?.error ?? "failed");
+        setError(saleErrText(labels, d?.error) ?? "failed");
         return;
       }
       beepConfirm();
@@ -252,8 +328,8 @@ export function CommandeClient({
       // Offline: queue the request, it syncs as a DRAFT order later.
       try {
         await queueOp("order", body as unknown as Record<string, unknown>);
-      } catch {
-        setError("save_failed");
+      } catch (e) {
+        setError(queueErrText(labels, e));
         return;
       }
       beepConfirm();
@@ -285,7 +361,7 @@ export function CommandeClient({
       <div className="flex items-center gap-2">
         <button
           aria-label="back"
-          onClick={() => router.push(`/${locale}/livreur/${day}/dashboard${client ? `?client=${client.id}` : ""}`)}
+          onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard${client ? `?client=${client.id}` : ""}`)}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
         >
           <ArrowLeft size={18} className="rtl:rotate-180" />
@@ -310,11 +386,11 @@ export function CommandeClient({
             </div>
           </div>
           <div className="flex gap-1.5 overflow-x-auto pb-0.5">
-            <button onClick={() => setCat("")} className={cn("shrink-0 rounded-full px-3 py-2 text-xs font-black", cat === "" ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken) opacity-70")}>
+            <button onClick={() => setCat("")} className={cn("shrink-0 rounded-full px-3 py-2 text-xs font-black", cat === "" ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken) opacity-70")}>
               {labels.allCats}
             </button>
             {effCategories.map((c) => (
-              <button key={c.id} onClick={() => setCat(cat === c.id ? "" : c.id)} className={cn("max-w-28 shrink-0 truncate rounded-full px-3 py-2 text-xs font-black", cat === c.id ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken) opacity-70")}>
+              <button key={c.id} onClick={() => setCat(cat === c.id ? "" : c.id)} className={cn("max-w-28 shrink-0 truncate rounded-full px-3 py-2 text-xs font-black", cat === c.id ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken) opacity-70")}>
                 {c.name}
               </button>
             ))}
@@ -357,7 +433,7 @@ export function CommandeClient({
                     )}
                     <div className={cn("rounded-lg bg-(--bg-sunken) px-1.5 py-1 text-[10px] font-bold tabular-nums", stock <= 0 ? "text-red-500" : "")}>
                       <div className="flex items-baseline justify-between gap-1">
-                        <span className="opacity-60">🏭 {labels.stock}{products.length === 0 && syncAge() ? ` · ${syncAge()}` : ""}</span>
+                        <span className="opacity-60">🏭 {labels.stockDepot ?? labels.stock}{products.length === 0 && syncAge() ? ` · ${syncAge()}` : ""}</span>
                         <span><bdi>{pack ? whole : stock}</bdi> {pack ? pack.unit.name : (p.baseUnit?.name ?? "")}{pack && rest > 0 ? <> + <bdi>{rest}</bdi> {p.baseUnit?.name ?? ""}</> : null}</span>
                       </div>
                     </div>
@@ -380,6 +456,15 @@ export function CommandeClient({
                   </div>
                   <div className="mt-1.5 flex items-center justify-end gap-2">
                     <div className="flex shrink-0 items-center gap-1">
+                      <button
+                        type="button"
+                        aria-label={labels.remove ?? "Remove"}
+                        title={labels.remove ?? "Remove"}
+                        onClick={() => setLines((prev) => prev.filter((_, j) => j !== i))}
+                        className="flex h-10 w-10 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10"
+                      >
+                        <Trash2 size={15} />
+                      </button>
                       <button aria-label="-" onClick={() => bump(i, -1)} className="flex h-10 w-10 items-center justify-center rounded-lg bg-(--bg-sunken)">
                         <Minus size={15} />
                       </button>
@@ -399,7 +484,7 @@ export function CommandeClient({
             <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
           {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
-          <Button onClick={() => void sendRequest()} disabled={saving || !lines.length || !client} className="h-12 w-full text-base">
+          <Button onClick={() => void sendRequest()} disabled={saving || !lines.length || !client} data-testid="send-order" className="h-12 w-full text-base">
             {saving ? "…" : labels.sendRequest}
           </Button>
         </div>
@@ -430,10 +515,11 @@ export function CommandeClient({
               camUnsupported: labels.camUnsupported ?? "",
             }}
           />
-          <Button variant="secondary" onClick={() => router.push(`/${locale}/livreur/${day}/dashboard`)} className="w-full">
+          <Button variant="secondary" onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard`)} className="w-full">
             <ArrowLeft size={15} className="me-1 rtl:rotate-180" />
             {labels.backToDash ?? labels.backToProducts}
           </Button>
+          {scanError && <p className="rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{scanError}</p>}
         </div>
       </Modal>
 
@@ -456,8 +542,8 @@ export function CommandeClient({
               <div className="mb-1 truncate text-base font-black">{qtyFor.name}</div>
               <div className={cn("mb-2 rounded-xl bg-(--bg-sunken) p-2.5", live <= 0 ? "text-red-500" : "")}>
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-xs font-bold opacity-60">🏭 {labels.stock}{!depotLive && syncAge() ? ` · ${syncAge()}` : ""}</span>
-                  <span className="text-base font-black tabular-nums"><bdi>{packs}</bdi> {pack ? pack.unit.name : (qtyFor.baseUnit?.name ?? "")}{pack && rest > 0 ? <> + <bdi>{rest}</bdi> {qtyFor.baseUnit?.name ?? ""}</> : null}</span>
+                  <span className="text-xs font-bold opacity-60">🏭 {labels.stockDepot ?? labels.stock}{!depotLive && syncAge() ? ` · ${syncAge()}` : ""}</span>
+                  <span className="text-base font-black tabular-nums"><bdi>{pack ? packs : Math.floor(avail)}</bdi> {pack ? pack.unit.name : (qtyFor.baseUnit?.name ?? "")}{pack && rest > 0 ? <> + <bdi>{rest}</bdi> {qtyFor.baseUnit?.name ?? ""}</> : null}</span>
                 </div>
                 {pack && (
                   <div className="mt-1 space-y-0.5 border-t border-(--border-default) pt-1 text-xs font-bold tabular-nums opacity-80">
@@ -506,7 +592,7 @@ export function CommandeClient({
               )}
               <div className="mt-3 flex gap-2">
                 <Button variant="secondary" onClick={() => setQtyFor(null)} className="flex-1">{labels.cancel}</Button>
-                <Button onClick={addQty} disabled={qtyPacks <= 0 && qtyUnits <= 0} className="flex-[2]">{labels.confirm}</Button>
+                <Button onClick={addQty} disabled={qtyPacks <= 0 && qtyUnits <= 0} data-testid="qty-confirm" className="flex-[2]">{labels.confirm}</Button>
               </div>
             </div>
           </div>
@@ -547,7 +633,7 @@ export function CommandeClient({
         <p className="text-xs font-bold opacity-60">{done?.queued ? labels.orderQueued : labels.orderSaved}</p>
         <div className="mt-2 flex gap-2">
           <Button variant="secondary" onClick={() => setDone(null)} className="flex-1">{labels.request}</Button>
-          <Button onClick={() => router.push(`/${locale}/livreur/${day}/commandes`)} className="flex-[2]">{labels.commandes}</Button>
+          <Button onClick={() => goPage(router, `/${locale}/livreur/${day}/commandes`)} className="flex-[2]">{labels.commandes}</Button>
         </div>
       </Modal>
     </div>

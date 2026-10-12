@@ -2,15 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bus, ClipboardList, Plus, Store } from "lucide-react";
+import { Bus, Check, ClipboardList, Plus, Store, Wallet, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { KpiCard } from "@/components/ui/Card";
 import { SaleDocForm } from "../sales/SaleDocForm";
 import { SaleActions, type SaleDetail } from "../sales/[id]/SaleActions";
 import type { SaleFormData } from "../sales/saleRefs";
-import { dzMoney } from "@/lib/format";
+import { dzMoney, fmtDT } from "@/lib/format";
 import { compareNatural } from "@/lib/sort";
+import { getUnsyncedDocKeys } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
 
 type Row = {
@@ -53,6 +55,23 @@ export function CommandesClient({
 }) {
   const router = useRouter();
   const [rows, setRows] = useState(initial);
+  const [unsynced, setUnsynced] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    let on = true;
+    const load = () => {
+      getUnsyncedDocKeys().then((s) => {
+        if (on) setUnsynced(s);
+      }).catch(() => {});
+    };
+    load();
+    window.addEventListener("online", load);
+    window.addEventListener("focus", load);
+    return () => {
+      on = false;
+      window.removeEventListener("online", load);
+      window.removeEventListener("focus", load);
+    };
+  }, []);
   const [q, setQ] = useState("");
   const [fStatus, setFStatus] = useState("");
   const [fVan, setFVan] = useState("");
@@ -145,19 +164,35 @@ export function CommandesClient({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col space-y-3 lg:overflow-hidden">
-      <div className="flex shrink-0 items-center justify-between">
-        <h1 className="flex items-center gap-2 text-xl font-black">
-          <ClipboardList size={20} className="text-(--brand-600)" />
-          {labels.title}
-        </h1>
-        <Button onClick={() => setCreating(true)} className="shrink-0">
-          <Plus size={16} className="me-1" />
-          {labels.new}
-        </Button>
+      <div className="grid shrink-0 grid-cols-3 gap-2">
+        <KpiCard
+          label={labels.stDraft}
+          value={String(rows.filter((r) => r.status === "DRAFT").length)}
+          icon={<ClipboardList size={18} />}
+          accent="bg-amber-500/15 text-amber-600"
+          compact
+        />
+        <KpiCard
+          label={labels.stConfirmed}
+          value={String(rows.filter((r) => r.status === "CONFIRMED").length)}
+          icon={<Check size={18} />}
+          accent="bg-sky-500/15 text-sky-600"
+          compact
+        />
+        <KpiCard
+          label={labels.total}
+          value={num(rows.reduce((s, r) => s + Number(r.total ?? 0), 0))}
+          icon={<Wallet size={18} />}
+          accent="bg-emerald-500/15 text-emerald-600"
+          compact
+        />
       </div>
-
       <div className="flex shrink-0 flex-col gap-2 lg:flex-row">
         <div className="flex flex-1 gap-2">
+          <Button onClick={() => setCreating(true)} className="h-11 shrink-0">
+            <Plus size={16} className="me-1" />
+            {labels.new}
+          </Button>
           <div className="flex-1">
             <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
@@ -247,17 +282,23 @@ export function CommandesClient({
                   <span className="flex min-w-0 items-center gap-1">
                     <span className={cn(
                       "shrink-0 rounded-full px-1.5 py-px text-[10px] font-black",
-                      r.status === "DRAFT" ? "bg-amber-500/10 text-amber-600"
-                      : r.status === "CONFIRMED" ? "bg-sky-500/10 text-sky-600"
-                      : "bg-(--bg-sunken)"
+                      r.status === "DRAFT" ? "pill-amber"
+                      : r.status === "CONFIRMED" ? "pill-sky"
+                      : "pill-slate"
                     )}>
                       {stName(r.status)}
                     </span>
+                    {unsynced.has(r.id) && (
+                      <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-1.5 py-px text-[10px] font-black">
+                        <WifiOff size={11} />
+                        {labels.unsynced ?? "…"}
+                      </span>
+                    )}
                     <span className="truncate">
                       {[r.createdBy?.fullName, r.location?.name].filter(Boolean).length > 0 && (
                         <bdi dir="auto">{[r.createdBy?.fullName, r.location?.name].filter(Boolean).join(" · ")} · </bdi>
                       )}
-                      <bdi>{new Date(r.date as string).toLocaleDateString(locale)}</bdi>
+                      <bdi>{fmtDT(r.date as string, locale)}</bdi>
                     </span>
                   </span>
                   <span className="shrink-0 tabular-nums">{r._count.lines} {labels.lines}</span>
@@ -278,6 +319,9 @@ export function CommandesClient({
               locations={formData.locations.map((l: { id: string; name: string; kind?: string }) => ({ id: l.id, name: l.name, kind: l.kind }))}
               labels={detailLabels}
               onDone={(id) => void detailChanged(id)}
+              formData={formData}
+              formLabels={formLabels}
+              canEdit
             />
           ) : (
             <div className="rounded-2xl border border-dashed border-(--border-default) p-10 text-center text-sm opacity-50">

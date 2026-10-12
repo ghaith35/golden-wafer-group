@@ -79,7 +79,7 @@ export function AutoUpdate() {
               window.open(apk.url, "_blank")
             )
           }
-          className="h-10 shrink-0 rounded-xl bg-(--brand-500) px-4 text-sm font-black text-white"
+          className="h-10 shrink-0 rounded-xl bg-(--brand-500) px-4 text-sm font-black text-(--brand-contrast)"
         >
           {t("downloadApk")}
         </button>

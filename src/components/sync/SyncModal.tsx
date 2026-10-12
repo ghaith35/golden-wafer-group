@@ -4,15 +4,26 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowDownUp } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { syncNow, getDeviceToken, getSyncUrl, clearDeviceConfig, failedOps, retryOutboxOp, discardOutboxOp, pendingCount, pendingServers, currentServerOrigin, type SyncPhase, type WebUpdateInfo } from "@/lib/sync/client";
+import { syncNow, getDeviceToken, failedOps, retryOutboxOp, discardOutboxOp, getVanSnapshot, getOfflineCred, getClockSkew, setDeviceToken, setVanId, type SyncPhase, type WebUpdateInfo } from "@/lib/sync/client";
 import { applyWebUpdate } from "@/lib/sync/web-update";
 import type { OutboxRow } from "@/lib/sync/offline-db";
-import { DeviceSetup, serverBaseOf } from "@/components/sync/DeviceSetup";
+import { DeviceSetup } from "@/components/sync/DeviceSetup";
 import { UpdateChecker } from "@/components/sync/UpdateChecker";
 import { loadHistory, clearHistory, type SyncHistoryEntry } from "@/lib/sync/history";
 import { cn } from "@/lib/utils";
 
 type StepState = { label: string; state: "idle" | "active" | "done" | "error"; detail: string };
+
+/// Display locale with Latin digits: Arabic month names (أكتوبر…) but
+/// Western numerals (12 not ١٢) — same for fr/en (their months + Latin digits).
+function displayLocale(): string {
+  try {
+    const l = document.documentElement.lang || "ar";
+    return l.includes("nu-") ? l : `${l}-u-nu-latn`;
+  } catch {
+    return "ar-u-nu-latn";
+  }
+}
 
 /// Sync popup: both directions with a progress bar —
 /// 📤 phone → logiciel (outbox ops) then 📥 logiciel → phone (snapshot + images).
@@ -41,30 +52,65 @@ export function SyncModal({
   const [history, setHistory] = useState<SyncHistoryEntry[]>([]);
   /// Ops the server rejected — visible until repaired or discarded.
   const [failed, setFailed] = useState<OutboxRow[]>([]);
-  /// Bound client server (scan once, stay connected).
-  const [serverNow, setServerNow] = useState<string>("");
-  const [pendingTotal, setPendingTotal] = useState(0);
-  const [pendingSrv, setPendingSrv] = useState<string[]>([]);
-  const [changing, setChanging] = useState(false);
   const [showHist, setShowHist] = useState(false);
   const [openHist, setOpenHist] = useState<number | null>(null);
+  /// First-scan zero-touch: pair + full sync ran automatically this open.
+  const autoRan = useRef(false);
+  /// Offline readiness: snapshot + credential + device token cached.
+  const [ready, setReady] = useState({ snap: false, cred: false, token: false });
+  /// Phone-clock skew flagged by the last sync (misdates offline sales).
+  const [skew, setSkew] = useState<number | null>(null);
   const runId = useRef(0);
 
-  async function refreshServer() {
+  async function refreshReadiness() {
     try {
-      setServerNow(currentServerOrigin() ?? "");
+      const [snap, cred, sk] = await Promise.all([
+        getVanSnapshot().catch(() => null),
+        Promise.resolve(getOfflineCred()),
+        getClockSkew().catch(() => null),
+      ]);
+      let token = false;
+      try {
+        token = !!getDeviceToken();
+      } catch {
+        token = false;
+      }
+      setReady({ snap: !!snap, cred: !!cred, token });
+      setSkew(sk ? sk.skewMin : null);
     } catch {
-      setServerNow("");
+      /* best-effort */
     }
+  }
+
+  /// First-scan flow: a logged-in driver opening Sync with no device token
+  /// gets silently paired (his own van — server-enforced) and a full sync
+  /// starts on its own, so one scan is enough for 100% offline use.
+  /// Anything else (desktop admin, no van, offline) falls back to the manual
+  /// setup exactly as before.
+  async function silentPairAndSync() {
+    if (autoRan.current) return;
+    autoRan.current = true;
     try {
-      setPendingTotal(await pendingCount());
+      const res = await fetch("/api/devices/self-register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const d = await res.json().catch(() => null);
+      if (!res.ok || !d?.token) return;
+      setDeviceToken(d.token);
+      if (d.vanId) {
+        try {
+          setVanId(d.vanId);
+        } catch {
+          /* ignore */
+        }
+      }
+      setHasToken(true);
+      await refreshReadiness();
+      await start();
     } catch {
-      setPendingTotal(0);
-    }
-    try {
-      setPendingSrv(await pendingServers());
-    } catch {
-      setPendingSrv([]);
+      /* offline or unpaired: manual setup stays */
     }
   }
 
@@ -79,16 +125,21 @@ export function SyncModal({
       setRunning(false);
       setShowHist(false);
       setOpenHist(null);
-      setChanging(false);
+      autoRan.current = false;
+      let paired = false;
       try {
-        setHasToken(!!getDeviceToken());
+        paired = !!getDeviceToken();
       } catch {
-        setHasToken(false);
+        paired = false;
       }
+      setHasToken(paired);
       loadHistory().then(setHistory).catch(() => {});
       failedOps().then(setFailed).catch(() => {});
-      void refreshServer();
+      void refreshReadiness();
+      // First-scan zero-touch: pair + full sync without any tap.
+      if (!paired) void silentPairAndSync();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open ]);
 
   function setStep(label: string, state: StepState["state"], detail = "") {
@@ -145,7 +196,7 @@ export function SyncModal({
         setRunning(false);
         loadHistory().then(setHistory).catch(() => {});
         failedOps().then(setFailed).catch(() => {});
-        void refreshServer();
+        void refreshReadiness();
       }
     }
   }
@@ -158,7 +209,7 @@ export function SyncModal({
   async function discardFailed(opId: string) {
     await discardOutboxOp(opId);
     setFailed(await failedOps());
-    void refreshServer();
+    void refreshReadiness();
   }
 
   /// User validated the pulled update: restart into it (outbox + snapshot
@@ -171,38 +222,6 @@ export function SyncModal({
     } finally {
       setUpdating(false);
     }
-  }
-
-  /// After a server (re)bind: same server → stay and refresh; a different
-  /// server → jump to it, carrying the fresh token in the URL (localStorage
-  /// is per-origin, so the new server can't read this origin's token).
-  function afterRebind() {
-    void refreshServer().then(() => {
-      try {
-        const token = getDeviceToken() ?? "";
-        const base = serverBaseOf(getSyncUrl());
-        const here = window.location.origin;
-        if (base && base !== here) {
-          const dest = `${base.replace(/\/+$/, "")}/ar/livreur${token ? `?device=${encodeURIComponent(token)}` : ""}`;
-          window.location.href = dest;
-          return;
-        }
-      } catch {
-        /* stay */
-      }
-      setChanging(false);
-      try {
-        setHasToken(!!getDeviceToken());
-      } catch {
-        setHasToken(false);
-      }
-      void refreshServer();
-    });
-  }
-
-  function resetServer() {
-    clearDeviceConfig();
-    window.location.reload();
   }
 
   const setupLabels = {
@@ -218,11 +237,23 @@ export function SyncModal({
     <Modal open={open} onClose={onClose} title={labels.title ?? "sync"} icon={<ArrowDownUp size={18} />} width="sm">
       {!hasToken ? (
         <DeviceSetup
+          compact
           onConfigured={() => setHasToken(true)}
           labels={setupLabels}
         />
       ) : (
       <div className="space-y-3">
+        <div className="flex items-center justify-between gap-2 rounded-xl bg-(--bg-sunken) px-3 py-2 text-[11px] font-black">
+          <span className="opacity-70">{labels.offlineReady ?? "offline"}</span>
+          <span className="flex gap-1.5 tabular-nums" dir="ltr">
+            <span className={ready.snap ? "text-emerald-600" : "text-red-500"}>data {ready.snap ? "✓" : "✗"}</span>
+            <span className={ready.cred ? "text-emerald-600" : "text-red-500"}>login {ready.cred ? "✓" : "✗"}</span>
+            <span className={ready.token ? "text-emerald-600" : "text-red-500"}>phone {ready.token ? "✓" : "✗"}</span>
+          </span>
+        </div>
+        {!ready.snap || !ready.cred || !ready.token ? (
+          <p className="rounded-xl bg-amber-500/10 p-2 text-[11px] font-bold text-amber-600">{labels.offlineNotReady ?? ""}</p>
+        ) : null}
         <div className="grid grid-cols-2 gap-1.5 text-center text-xs font-black">
           <div className="rounded-xl bg-(--bg-sunken) px-2 py-2">
             <div className="text-base">📤</div>
@@ -268,13 +299,18 @@ export function SyncModal({
           </div>
         )}
         {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+        {skew != null && (
+          <p className="rounded-xl bg-amber-500/10 p-2.5 text-xs font-bold text-amber-600" dir="auto">
+            ⏰ {labels.clockSkew ?? "Phone clock is off — fix the time, then sync again."} ({skew > 0 ? "+" : ""}{skew} min)
+          </p>
+        )}
         {webUpdate?.available && (
           <div className="rounded-2xl border border-(--brand-500) bg-(--brand-500)/5 p-3">
             <div className="mb-1 text-sm font-black">⬆️ {labels.webUpdateTitle ?? labels.webNew ?? "update"}</div>
             {webUpdate.nativeRequired ? (
               <div className="space-y-2">
                 <p className="text-[11px] font-bold opacity-70">{labels.nativeTitle ?? ""}</p>
-                <a href="/apk/Distribuili-Van.apk" className="flex h-11 items-center justify-center rounded-xl bg-(--brand-500) px-4 text-sm font-black text-white">
+                <a href="/apk/Distribuili-Van.apk" className="flex h-11 items-center justify-center rounded-xl bg-(--brand-500) px-4 text-sm font-black text-(--brand-contrast)">
                   {labels.nativeGo ?? labels.downloadApk ?? "download"}
                 </a>
               </div>
@@ -296,17 +332,10 @@ export function SyncModal({
           <Button variant="secondary" onClick={onClose} className="flex-1" disabled={running}>
             {labels.close ?? "close"}
           </Button>
-          <Button onClick={() => void start()} disabled={running} className="flex-[2]">
+          <Button onClick={() => void start()} disabled={running} data-testid="sync-start" className="flex-[2]">
             {running ? `${pct}%` : (labels.start ?? "sync")}
           </Button>
         </div>
-        <button
-          type="button"
-          onClick={() => { clearDeviceConfig(); setHasToken(false); setSteps([]); setResult(null); setPct(0); }}
-          className="mx-auto block text-[11px] font-bold opacity-50 underline"
-        >
-          {labels.resetConfig ?? "reset"}
-        </button>
       </div>
       )}
       {hasToken && (
@@ -345,46 +374,6 @@ export function SyncModal({
       )}
       {hasToken && (
         <div className="border-t border-(--border-subtle) pt-2">
-          <div className="mb-1 flex items-center justify-between">
-            <span className="text-xs font-black">🖥️ {labels.serverTitle ?? "server"}</span>
-            {!changing && (
-              <button
-                type="button"
-                onClick={() => setChanging(true)}
-                className="text-[11px] font-bold opacity-60 underline"
-              >
-                {labels.changeServer ?? "change"}
-              </button>
-            )}
-          </div>
-          <div className="mb-1 truncate font-mono text-[11px] opacity-70" dir="ltr" title={serverNow}>
-            {serverNow || "—"}
-          </div>
-          {pendingSrv.length > 0 && pendingSrv.some((s) => s !== serverNow) && (
-            <p className="mb-1 rounded-lg bg-red-500/10 p-2 text-[11px] font-bold text-red-500">
-              {labels.serverQuarantined ?? ""}
-            </p>
-          )}
-          {changing && pendingTotal > 0 ? (
-            <p className="rounded-lg bg-amber-500/10 p-2 text-[11px] font-bold text-amber-600">
-              {labels.serverPendingBlock ?? ""} ({pendingTotal})
-            </p>
-          ) : changing ? (
-            <div className="space-y-2">
-              <DeviceSetup onConfigured={afterRebind} labels={setupLabels} />
-              <button
-                type="button"
-                onClick={() => { resetServer(); }}
-                className="mx-auto block text-[11px] font-bold opacity-50 underline"
-              >
-                {labels.serverReset ?? labels.resetConfig ?? "reset"}
-              </button>
-            </div>
-          ) : null}
-        </div>
-      )}
-      {hasToken && (
-        <div className="border-t border-(--border-subtle) pt-2">
           <button
             type="button"
             onClick={() => setShowHist((v) => !v)}
@@ -408,8 +397,8 @@ export function SyncModal({
                     <span className="flex items-center gap-1.5">
                       <span>{h.ok ? "✅" : "❌"}</span>
                       <span className="tabular-nums" dir="ltr">
-                        {new Date(h.ts).toLocaleDateString(undefined, { day: "numeric", month: "short" })}{" "}
-                        {new Date(h.ts).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+                        {new Date(h.ts).toLocaleDateString(displayLocale(), { day: "numeric", month: "short" })}{" "}
+                        {new Date(h.ts).toLocaleTimeString(displayLocale(), { hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </span>
                     <span className="shrink-0 tabular-nums opacity-70" dir="ltr">

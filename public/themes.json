@@ -19,7 +19,7 @@
     { "id": "cyan", "name": "Cyan", "ar": "سماوي", "tokens": ["#f0fbfd", "#ddf2f9", "#ffffff", "#083344", "#3f6879", "#c4e2ed", "#06b6d4", "#0891b2", "#0e7490", "#10b981", "#dc2626"] },
     { "id": "coral", "name": "Coral", "ar": "مرجاني", "tokens": ["#fff5f2", "#fde5de", "#ffffff", "#421208", "#8a554a", "#f2cabd", "#e8593f", "#cf4527", "#a83620", "#16a34a", "#dc2626"] },
     { "id": "plum", "name": "Plum", "ar": "برقوقي", "tokens": ["#faf3f8", "#f2e2ee", "#ffffff", "#380f2c", "#7c4e6d", "#e9c9de", "#ad2e7e", "#8f2365", "#711c50", "#10b981", "#dc2626"] },
-    { "id": "lime", "name": "Lime", "ar": "ليموني", "tokens": ["#f7fee7", "#e9f8d2", "#ffffff", "#1a2e05", "#4f6430", "#d5e5b5", "#65a30d", "#4d7c0f", "#3f6212", "#65a30d", "#dc2626"] },
+    { "id": "lime", "name": "Lime", "ar": "ليموني", "tokens": ["#f7f3ee", "#efe9dd", "#ffffff", "#1a2e05", "#4f6430", "#e8e0d4", "#65a30d", "#4d7c0f", "#3f6212", "#65a30d", "#dc2626"] },
     { "id": "burgundy", "name": "Burgundy", "ar": "عنابي", "tokens": ["#faf3f4", "#f3e2e6", "#ffffff", "#3d0a14", "#7d4a55", "#e8c9d1", "#9f1239", "#881337", "#6f0f2c", "#16a34a", "#dc2626"] },
     { "id": "olive", "name": "Olive", "ar": "زيتي", "tokens": ["#f6f7ee", "#e9ebda", "#ffffff", "#222806", "#5c6142", "#dcdcc0", "#5b7f0d", "#4a680b", "#3a5409", "#5b7f0d", "#b91c1c"] },
     { "id": "sand", "name": "Sand", "ar": "رملي", "tokens": ["#f7f1e5", "#efe4d0", "#fffdf8", "#292017", "#6f6250", "#e3d5bd", "#b45309", "#92400e", "#78350f", "#4d7c0f", "#b91c1c"] },

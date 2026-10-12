@@ -21,8 +21,8 @@ export const settingsPatchSchema = z.object({
   ticketWidth: z.enum(["58", "80"]).optional(),
   ticketLang: z.enum(["ar", "fr"]).optional(),
   supplierFilterEnabled: z.boolean().optional(),
-  /// Public internet domain for this install's phones (bare host or URL).
-  remoteDomain: z.string().trim().max(120).nullish(),
+  workStartAt: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).nullish(),
+  maxDayHours: z.coerce.number().finite().min(1).max(24).nullish(),
 });
 
 export type SettingsPatch = z.infer<typeof settingsPatchSchema>;

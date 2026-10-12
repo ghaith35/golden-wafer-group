@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bus, Clock, Pencil } from "lucide-react";
+import { Bus, Check, Clock, Flag, Pencil } from "lucide-react";
+import { KpiCard } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -15,8 +16,39 @@ type Row = {
   status: string;
   startedAt: string | null;
   finishedAt: string | null;
+  startedLat: number | null;
+  startedLng: number | null;
+  finishedLat: number | null;
+  finishedLng: number | null;
   location: { id: string; name: string; matricule: string | null; user: { fullName: string } | null };
 };
+
+/// Late départ / overtime day, computed from company expectations.
+function flagsOf(
+  r: Row,
+  workStartAt: string | null,
+  maxDayHours: number,
+): { late: boolean; overtime: boolean } {
+  let late = false;
+  if (workStartAt && r.startedAt) {
+    const [h, m] = workStartAt.split(":").map(Number);
+    const s = new Date(r.startedAt);
+    const expected = new Date(s);
+    expected.setHours(h || 0, m || 0, 0, 0);
+    late = s.getTime() > expected.getTime() + 5 * 60 * 1000;
+  }
+  let overtime = false;
+  if (r.startedAt && r.finishedAt && maxDayHours > 0) {
+    overtime =
+      (new Date(r.finishedAt).getTime() - new Date(r.startedAt).getTime()) / 3600000 > maxDayHours;
+  }
+  return { late, overtime };
+}
+
+function mapsUrl(lat: number | null, lng: number | null): string | null {
+  if (lat == null || lng == null) return null;
+  return `https://www.google.com/maps?q=${lat},${lng}`;
+}
 
 function fmtTime(v: string | null, locale: string): string {
   if (!v) return "—";
@@ -39,6 +71,8 @@ export function PresenceClient({
   rows,
   labels,
   isAdmin,
+  workStartAt,
+  maxDayHours,
 }: {
   locale: string;
   year: number;
@@ -48,6 +82,8 @@ export function PresenceClient({
   rows: Row[];
   labels: Record<string, string>;
   isAdmin: boolean;
+  workStartAt: string | null;
+  maxDayHours: number;
 }) {
   const router = useRouter();
   const [q, setQ] = useState("");
@@ -137,10 +173,29 @@ export function PresenceClient({
 
   return (
     <div className="space-y-4 p-5 md:p-6">
-      <h1 className="flex items-center gap-2 text-xl font-black">
-        <Clock size={20} className="text-(--brand-600)" />
-        {labels.title}
-      </h1>
+      <div className="grid grid-cols-3 gap-2">
+        <KpiCard
+          label={labels.start}
+          value={String(visible.filter((r) => r.startedAt).length)}
+          icon={<Clock size={18} />}
+          accent="bg-emerald-500/15 text-emerald-600"
+          compact
+        />
+        <KpiCard
+          label={labels.end}
+          value={String(visible.filter((r) => r.finishedAt).length)}
+          icon={<Check size={18} />}
+          accent="bg-sky-500/15 text-sky-600"
+          compact
+        />
+        <KpiCard
+          label={labels.open}
+          value={String(visible.filter((r) => r.startedAt && !r.finishedAt).length)}
+          icon={<Flag size={18} />}
+          accent="bg-amber-500/15 text-amber-600"
+          compact
+        />
+      </div>
       <div className="flex flex-col gap-2 lg:flex-row">
         <div className="flex flex-1 gap-2">
           <div className="flex-1">
@@ -191,7 +246,11 @@ export function PresenceClient({
       </div>
       {visible.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
       <div className="grid items-start gap-2 md:grid-cols-2 xl:grid-cols-3">
-        {visible.map((r) => (
+        {visible.map((r) => {
+          const fl = flagsOf(r, workStartAt, maxDayHours);
+          const startUrl = mapsUrl(r.startedLat, r.startedLng);
+          const endUrl = mapsUrl(r.finishedLat, r.finishedLng);
+          return (
           <div key={r.id} className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5">
             <div className="flex items-center gap-2">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken)">
@@ -204,6 +263,16 @@ export function PresenceClient({
                   {r.location.user ? ` · ${r.location.user.fullName}` : ""}
                 </div>
               </div>
+              {fl.late && (
+                <span className="shrink-0 rounded-full bg-red-500/15 px-2 py-1 text-[10px] font-black text-red-500">
+                  {labels.late}
+                </span>
+              )}
+              {fl.overtime && (
+                <span className="shrink-0 rounded-full bg-amber-500/15 px-2 py-1 text-[10px] font-black text-amber-600">
+                  {labels.overtime}
+                </span>
+              )}
               <span className={cn(
                 "shrink-0 rounded-full px-2 py-1 text-[10px] font-black",
                 r.finishedAt
@@ -229,10 +298,16 @@ export function PresenceClient({
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
                 <div className="text-[10px] font-bold uppercase opacity-50">{labels.start}</div>
                 <div className="text-xs font-black tabular-nums sm:text-[13px]" dir="ltr">{fmtTime(r.startedAt, locale)}</div>
+                {startUrl && (
+                  <a href={startUrl} target="_blank" rel="noreferrer" className="mt-0.5 inline-block text-[10px] font-black text-(--brand-600) underline">📍</a>
+                )}
               </div>
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
                 <div className="text-[10px] font-bold uppercase opacity-50">{labels.end}</div>
                 <div className="text-xs font-black tabular-nums sm:text-[13px]" dir="ltr">{fmtTime(r.finishedAt, locale)}</div>
+                {endUrl && (
+                  <a href={endUrl} target="_blank" rel="noreferrer" className="mt-0.5 inline-block text-[10px] font-black text-(--brand-600) underline">📍</a>
+                )}
               </div>
               <div className="rounded-lg bg-(--brand-500)/10 px-1 py-1.5">
                 <div className="text-[10px] font-black uppercase opacity-60">{labels.duration}</div>
@@ -240,7 +315,8 @@ export function PresenceClient({
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
       <Modal open={editing !== null} onClose={() => setEditing(null)} title={labels.edit} icon={<Pencil size={18} />} width="sm">
         <div className="space-y-3">

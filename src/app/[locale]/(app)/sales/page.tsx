@@ -28,6 +28,8 @@ export default async function SalesPage({
   setRequestLocale(locale);
   const session = await getSession();
   if (!session) redirect(`/${locale}/login`);
+  // Mandob (Vendeur): no sale creation, no factures — proxy enforces too.
+  if (session.role === "Vendeur") redirect(`/${locale}/dashboard`);
   const t = await getTranslations("sales");
   const tp = await getTranslations("purchases");
   const tc = await getTranslations("common");
@@ -81,30 +83,34 @@ export default async function SalesPage({
   const seasonCount = seasonAgg._count;
   return (
     <div className="flex flex-col space-y-4 p-5 md:p-6 lg:h-[calc(100dvh-3.5rem)] lg:overflow-hidden lg:pb-4">
-      <div className="grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid shrink-0 grid-cols-2 gap-2 lg:grid-cols-4">
         <KpiCard
           label={t("kpiToday")}
           value={fmt(dayTotal)}
-          icon={<ShoppingCart size={20} />}
+          icon={<ShoppingCart size={18} />}
           accent="bg-emerald-500/15 text-emerald-600"
+          compact
         />
         <KpiCard
           label={t("kpiMonth")}
           value={fmt(seasonTotal)}
-          icon={<TrendingUp size={20} />}
+          icon={<TrendingUp size={18} />}
           accent="bg-sky-500/15 text-sky-600"
+          compact
         />
         <KpiCard
           label={t("kpiCount")}
           value={String(seasonCount)}
-          icon={<ReceiptText size={20} />}
+          icon={<ReceiptText size={18} />}
           accent="bg-violet-500/15 text-violet-500"
+          compact
         />
         <KpiCard
           label={t("collected")}
           value={fmt(Number(seasonAgg._sum.paid ?? 0))}
-          icon={<Wallet size={20} />}
+          icon={<Wallet size={18} />}
           accent="bg-amber-500/15 text-amber-600"
+          compact
         />
       </div>
       <SalesClient
@@ -131,14 +137,14 @@ export default async function SalesPage({
         orders: t("orders"), deliveries: t("deliveries"), invoices: t("invoices"), tickets: t("tickets"),
         empty: t("empty"), walkin: t("walkin"), offList: t("offList"), due: t("due"),
         search: tc("search"), allVans: t("allVans"), paid: t("paid"), kpiAvg: t("kpiAvg"),
-        total: t("total"), all: t("all"), kpiCount: t("kpiCount"),
+        total: t("total"), all: t("all"), kpiCount: t("kpiCount"), unsynced: t("unsynced"),
       }}
       detailLabels={{
         client: t("client"), walkin: t("walkin"), total: t("total"), paid: t("paid"), due: t("due"),
         confirm: t("confirm"), deliver: t("deliver"), invoice: t("invoice"), cancel: t("cancel"),
         print: t("print"), location: t("location"), move: t("move"), moveTo: t("moveTo"),
         unitPriceL: t("unitPriceL"), packPriceL: t("packPriceL"), product: t("product"),
-        qtyPack: t("qtyPack"), qtyPiece: t("qtyPiece"), assign: t("assign"),
+        qtyPack: t("qtyPack"), qtyPiece: t("qtyPiece"), assign: t("assign"), edit: t("edit"),
       }}
       />
     </div>

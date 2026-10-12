@@ -20,7 +20,7 @@ export default async function QrPrintPage({ params }: { params: Promise<{ locale
       locale={locale}
       wilayas={wilayas}
       secteurs={secteurs}
-      labels={{ title: t("qrPrintTitle"), selectAll: t("selectAll"), print: t("print"), search: tc("search") }}
+      labels={{ title: t("qrPrintTitle"), selectAll: t("selectAll"), print: t("print"), search: tc("search"), width: t("width"), height: t("height"), labelSize: t("labelSize"), apply: t("apply") }}
     />
   );
 }

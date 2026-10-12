@@ -231,19 +231,102 @@ export function isNative(): boolean {
 
 function driver(): Driver {
   if (typeof window === "undefined") return webDriver;
+  if (nativeBroken) return webDriver;
   return isNative() ? nativeDriver : webDriver;
 }
 
+/// Once the native plugin fails (missing/broken SQLite on the device),
+/// stick to localStorage for the rest of the session: a sale must NEVER be
+/// lost because the native database hiccups. Reads merge both stores so ops
+/// written before the break are still found.
+let nativeBroken = false;
+
+function markNativeBroken(e: unknown): void {
+  if (!nativeBroken) {
+    nativeBroken = true;
+    try {
+      console.warn("[outbox] native SQLite failed, falling back to localStorage:", e);
+    } catch { /* logging unavailable */ }
+  }
+}
+
+async function mergedOutboxList(): Promise<OutboxRow[]> {
+  const [a, b] = await Promise.all([
+    webDriver.outboxList().catch((): OutboxRow[] => []),
+    (isNative() && typeof window !== "undefined"
+      ? nativeDriver.outboxList().catch((): OutboxRow[] => [])
+      : Promise.resolve([] as OutboxRow[])),
+  ]);
+  const seen = new Map<string, OutboxRow>();
+  for (const r of [...a, ...b]) {
+    const prev = seen.get(r.opId);
+    if (!prev || (r.ts ?? 0) >= (prev.ts ?? 0)) seen.set(r.opId, r);
+  }
+  return [...seen.values()].sort((x, y) => (x.ts ?? 0) - (y.ts ?? 0));
+}
+
 export const db = {
-  kvGet: (key: string) => driver().kvGet(key),
-  kvSet: (key: string, value: string) => driver().kvSet(key, value),
-  kvDel: (key: string) => driver().kvDel(key),
-  outboxList: () => driver().outboxList(),
-  outboxPut: (row: OutboxRow) => driver().outboxPut(row),
-  outboxRemove: (opId: string) => driver().outboxRemove(opId),
+  kvGet: async (key: string) => {
+    try {
+      return await driver().kvGet(key);
+    } catch (e) {
+      if (isNative() && typeof window !== "undefined" && !nativeBroken) {
+        markNativeBroken(e);
+        return webDriver.kvGet(key);
+      }
+      throw e;
+    }
+  },
+  kvSet: async (key: string, value: string) => {
+    try {
+      return await driver().kvSet(key, value);
+    } catch (e) {
+      if (isNative() && typeof window !== "undefined" && !nativeBroken) {
+        markNativeBroken(e);
+        return webDriver.kvSet(key, value);
+      }
+      throw e;
+    }
+  },
+  kvDel: async (key: string) => {
+    try {
+      return await driver().kvDel(key);
+    } catch (e) {
+      if (isNative() && typeof window !== "undefined" && !nativeBroken) {
+        markNativeBroken(e);
+        return webDriver.kvDel(key);
+      }
+      throw e;
+    }
+  },
+  outboxList: () => mergedOutboxList(),
+  outboxPut: async (row: OutboxRow) => {
+    try {
+      return await driver().outboxPut(row);
+    } catch (e) {
+      if (isNative() && typeof window !== "undefined" && !nativeBroken) {
+        markNativeBroken(e);
+        return webDriver.outboxPut(row);
+      }
+      throw e;
+    }
+  },
+  outboxRemove: async (opId: string) => {
+    // Remove from both stores: the op may live in either after a fallback.
+    const res = await Promise.allSettled([webDriver.outboxRemove(opId), ...(isNative() && typeof window !== "undefined" ? [nativeDriver.outboxRemove(opId).catch(() => undefined)] : [])]);
+    if (res[0].status === "rejected" && (!isNative() || nativeBroken)) throw (res[0] as PromiseRejectedResult).reason;
+  },
   /** Pre-warm the native database (creates file + tables). No-op on web. */
   async ready(): Promise<void> {
     if (typeof window === "undefined" || !isNative()) return;
-    await getNativeDb();
+    try {
+      await getNativeDb();
+    } catch (e) {
+      // Don't poison the session here: the per-call fallback still saves
+      // every op to localStorage if SQLite is broken on this device.
+      try {
+        console.warn("[outbox] native pre-warm failed, will fall back per-call:", e);
+      } catch { /* logging unavailable */ }
+    }
   },
 };

@@ -2,13 +2,15 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LayoutGrid, List, MapPin, Phone, Plus } from "lucide-react";
+import { LayoutGrid, List, MapPin, Phone, Plus, Upload, UserCheck, Users, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { RowActions } from "@/components/ui/RowActions";
+import { KpiCard } from "@/components/ui/Card";
 import { ClientForm, type ClientData } from "./ClientForm";
+import { ClientImportModal } from "./ClientImportModal";
 import { QrPrintModal } from "./qr/print/QrThermalPrint";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -54,6 +56,7 @@ export function ClientsClient({
   const [deleting, setDeleting] = useState<Row | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [printIds, setPrintIds] = useState<string[] | null>(null);
+  const [importing, setImporting] = useState(false);
   const router = useRouter();
   /// Bulk selection (proforma-style): checkbox per row + header toggle.
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -146,10 +149,43 @@ export function ClientsClient({
   };
 
   return (
-    <div className="space-y-4 p-5 md:p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">{labels.title}</h1>
-        <div className="flex gap-2">
+    <div className="flex min-h-0 flex-1 flex-col space-y-4 p-5 md:p-6 lg:h-[calc(100dvh-3.5rem)] lg:overflow-hidden lg:pb-4">
+      <div className="grid shrink-0 grid-cols-3 gap-2">
+        <KpiCard
+          label={labels.title}
+          value={String(rows.length)}
+          icon={<Users size={18} />}
+          accent="bg-sky-500/15 text-sky-600"
+          compact
+        />
+        <KpiCard
+          label={labels.active}
+          value={String(rows.filter((c) => c.isActive).length)}
+          icon={<UserCheck size={18} />}
+          accent="bg-emerald-500/15 text-emerald-600"
+          compact
+        />
+        <KpiCard
+          label={labels.balance}
+          value={dzMoney(rows.reduce((s, c) => s + Math.max(0, Number(c.balance ?? 0)), 0))}
+          icon={<Wallet size={18} />}
+          accent="bg-red-500/15 text-red-500"
+          compact
+        />
+      </div>
+      <div className="flex shrink-0 flex-wrap gap-2">
+        <Button onClick={() => setCreating(true)} className="shrink-0">
+          <Plus size={16} className="me-1" />
+          {labels.neW}
+        </Button>
+        <Button onClick={() => setImporting(true)} variant="secondary" className="shrink-0">
+          <Upload size={16} className="me-1" />
+          {labels.import}
+        </Button>
+        <div className="min-w-40 flex-1">
+          <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
+        <div className="flex shrink-0 gap-1">
           <Button
             onClick={() => {
               if (selected.size > 0) setPrintIds([...selected]);
@@ -159,36 +195,27 @@ export function ClientsClient({
             {labels.qrPrint}
             {selected.size > 0 ? ` (${selected.size})` : ""}
           </Button>
+          <div className="flex shrink-0 gap-1 rounded-xl bg-(--bg-sunken) p-1">
+            <button
+              onClick={() => setView("grid")}
+              aria-label="grid"
+              className={cn("flex h-9 w-9 items-center justify-center rounded-lg", view === "grid" ? "bg-(--bg-overlay) shadow" : "opacity-50")}
+            >
+              <LayoutGrid size={16} />
+            </button>
+            <button
+              onClick={() => setView("list")}
+              aria-label="list"
+              className={cn("flex h-9 w-9 items-center justify-center rounded-lg", view === "list" ? "bg-(--bg-overlay) shadow" : "opacity-50")}
+            >
+              <List size={16} />
+            </button>
+          </div>
         </div>
       </div>
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
-      <div className="flex gap-2">
-        <Button onClick={() => setCreating(true)} className="shrink-0">
-          <Plus size={16} className="me-1" />
-          {labels.neW}
-        </Button>
-        <div className="flex-1">
-          <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
-        </div>
-        <div className="flex shrink-0 gap-1 rounded-xl bg-(--bg-sunken) p-1">
-          <button
-            onClick={() => setView("grid")}
-            aria-label="grid"
-            className={cn("flex h-9 w-9 items-center justify-center rounded-lg", view === "grid" ? "bg-(--bg-overlay) shadow" : "opacity-50")}
-          >
-            <LayoutGrid size={16} />
-          </button>
-          <button
-            onClick={() => setView("list")}
-            aria-label="list"
-            className={cn("flex h-9 w-9 items-center justify-center rounded-lg", view === "list" ? "bg-(--bg-overlay) shadow" : "opacity-50")}
-          >
-            <List size={16} />
-          </button>
-        </div>
-      </div>
       {secteurs.length > 0 && (
-        <div className="flex gap-1.5 overflow-x-auto pb-0.5">
+        <div className="flex shrink-0 gap-1.5 overflow-x-auto pb-0.5">
           <button
             onClick={() => setSec("")}
             className={cn(
@@ -226,17 +253,17 @@ export function ClientsClient({
       )}
       {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
       {filtered.length > 0 && (
-        <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-(--border-default) px-3 py-2 text-sm font-bold">
+        <label className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-dashed border-(--border-default) px-3 py-2 text-sm font-bold">
           <input type="checkbox" checked={allFilteredSelected} onChange={toggleAll} />
           <span className="opacity-60">{labels.selectAll}{selected.size > 0 ? ` (${selected.size})` : ""}</span>
         </label>
       )}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex shrink-0 items-center justify-between gap-2">
         <span className="text-xs font-bold opacity-60 tabular-nums">
           {filtered.length}
         </span>
       </div>
-      <div className={view === "grid" ? "grid items-start gap-2.5 md:grid-cols-2 xl:grid-cols-3" : "space-y-1.5"}>
+      <div className={cn(view === "grid" ? "grid min-h-0 items-start gap-2.5 md:grid-cols-2 lg:flex-1 lg:overflow-y-auto xl:grid-cols-3" : "min-h-0 space-y-1.5 lg:flex-1 lg:overflow-y-auto lg:pb-2")}>
         {filtered.map((c) => {
           const bal = Number(c.balance);
           if (view === "list") {
@@ -278,7 +305,7 @@ export function ClientsClient({
             <div
               key={c.id}
               onClick={() => void openEdit(c)}
-              className="cursor-pointer rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5 transition-all hover:-translate-y-px hover:border-(--brand-500)"
+              className="cursor-pointer rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5 transition-colors hover:border-(--brand-500)"
               style={c.isActive ? undefined : { opacity: 0.55 }}
             >
               <div className="flex items-center gap-2.5">
@@ -416,6 +443,13 @@ export function ClientsClient({
           />
         )}
       </Modal>
+
+      <ClientImportModal
+        open={importing}
+        onClose={() => setImporting(false)}
+        onDone={() => void reload()}
+        labels={labels}
+      />
     </div>
   );
 }

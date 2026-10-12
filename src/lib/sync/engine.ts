@@ -20,13 +20,21 @@ type OpResult = { opId: string; ok: boolean; id?: string; error?: string; perman
 /// movements, then day stamps. Stable within a kind (preserves outbox order).
 const KIND_PRIORITY: Record<string, number> = {
   client: 0,
+  "client-update": 1,
   "day-start": 1,
   ticket: 2,
   order: 2,
+  "order-deliver": 2,
+  "sale-cancel": 2,
+  "sale-reopen": 2,
   "client-return": 2,
   "transfer-declare": 3,
   "transfer-confirm": 4,
+  "transfer-reject": 4,
   versement: 5,
+  expense: 5,
+  "expense-update": 5,
+  "expense-delete": 5,
   "cash-declare": 6,
   "stop-update": 7,
   "day-finish": 8,
@@ -62,8 +70,16 @@ async function existingByOpId(companyId: string, kind: string, opId: string): Pr
       const r = await prisma.versement.findFirst({ where: { companyId, opId }, select: { id: true } });
       return r?.id ?? null;
     }
+    case "expense": {
+      const r = await prisma.expense.findFirst({ where: { companyId, opId }, select: { id: true } });
+      return r?.id ?? null;
+    }
     case "client-return": {
       const r = await prisma.clientReturn.findFirst({ where: { companyId, opId }, select: { id: true } });
+      return r?.id ?? null;
+    }
+    case "order-deliver": {
+      const r = await prisma.sale.findFirst({ where: { companyId, opId }, select: { id: true } });
       return r?.id ?? null;
     }
     case "transfer-declare": {
@@ -88,12 +104,115 @@ function resolveOccurredAt(raw: unknown): Date {
   return new Date(t);
 }
 
+/// Parse a user-picked YYYY-MM-DD expense day with sane bounds (same
+/// 90-day past / 5-min future window as op timestamps). Garbage → null.
+function validExpenseDay(raw: unknown): Date | null {
+  if (typeof raw !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
+  const d = new Date(`${raw}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return null;
+  const now = Date.now();
+  if (d.getTime() > now + 5 * 60 * 1000) return new Date(now);
+  if (d.getTime() < now - 90 * 24 * 60 * 60 * 1000) return new Date(now);
+  return d;
+}
+
+/// Find the van's OPEN tour for the given day, creating it when the driver
+/// started a day with no planned tour (offline start). One open tour per
+/// van-day is enforced by createTournee; concurrent creates resolve to the
+/// same row via the clash check.
+async function ensureVanDayTournee(companyId: string, vanId: string, day: string | Date): Promise<string> {
+  if (!vanId) throw Object.assign(new Error("bad_van"), { status: 400 });
+  const d = day instanceof Date ? new Date(day) : new Date(String(day));
+  if (Number.isNaN(d.getTime())) throw Object.assign(new Error("bad_date"), { status: 400 });
+  const s = new Date(d);
+  s.setHours(0, 0, 0, 0);
+  const end = new Date(s);
+  end.setDate(end.getDate() + 1);
+  const existing = await prisma.tournee.findFirst({
+    where: { companyId, locationId: vanId, status: "OPEN", date: { gte: s, lt: end } },
+    select: { id: true },
+    orderBy: { createdAt: "desc" },
+  });
+  if (existing) return existing.id;
+  const { createTournee } = await import("@/lib/tournees/service");
+  try {
+    const row = await createTournee(companyId, { date: s.toISOString(), locationId: vanId });
+    return row.id;
+  } catch (err) {
+    // Lost a concurrent create race — take the winner's row.
+    if ((err as Error)?.message === "duplicate_day") {
+      const winner = await prisma.tournee.findFirst({
+        where: { companyId, locationId: vanId, status: "OPEN", date: { gte: s, lt: end } },
+        select: { id: true },
+        orderBy: { createdAt: "desc" },
+      });
+      if (winner) return winner.id;
+    }
+    throw err;
+  }
+}
+
+/// Resolve a client id from an offline op. Phones reference just-created
+/// (still unsynced) clients as `pending:<opId>` — resolved here to the real
+/// row created earlier in the SAME batch (client ops sort first), or to a
+/// row from an earlier sync (same opId retried across syncs). Anything else
+/// is a genuine bad reference and fails visibly for the owner to fix.
+async function resolveClientId(
+  companyId: string,
+  raw: unknown,
+  created: Map<string, string>,
+): Promise<string | null> {
+  if (raw == null) return null;
+  const id = String(raw);
+  if (!id.startsWith("pending:")) return id;
+  const opId = id.slice("pending:".length);
+  const live = created.get(opId);
+  if (live) return live;
+  const row = await prisma.customer.findFirst({ where: { companyId, opId }, select: { id: true } });
+  if (row) return row.id;
+  throw Object.assign(new Error("bad_client"), { status: 400 });
+}
+
+/// Till attribution for offline payments — mirrors POST /api/versements:
+/// explicit payload location/tour wins (company-validated), else the device
+/// van + that day's tour. Keeps the till journal consistent online/offline.
+async function resolveTillAttribution(
+  companyId: string,
+  p: Record<string, unknown>,
+  vanId: string | null,
+  occurredAt: Date,
+): Promise<{ locationId: string | null; tourneeId: string | null }> {
+  let locationId = ((p.locationId as string) ?? vanId ?? null) as string | null;
+  let tourneeId = ((p.tourneeId as string) ?? null) as string | null;
+  if (locationId) {
+    const loc = await prisma.store.findFirst({ where: { id: locationId, companyId }, select: { id: true } });
+    if (!loc) throw Object.assign(new Error("bad_location"), { status: 400 });
+  }
+  if (tourneeId) {
+    const t = await prisma.tournee.findFirst({ where: { id: tourneeId, companyId }, select: { id: true } });
+    if (!t) throw Object.assign(new Error("bad_tournee"), { status: 400 });
+  }
+  if (locationId && !tourneeId) {
+    const s = new Date(occurredAt);
+    s.setHours(0, 0, 0, 0);
+    const e = new Date(s);
+    e.setDate(e.getDate() + 1);
+    const tour = await prisma.tournee.findFirst({
+      where: { companyId, locationId, date: { gte: s, lt: e } },
+      select: { id: true },
+    });
+    tourneeId = tour?.id ?? null;
+  }
+  return { locationId, tourneeId };
+}
+
 async function applyOp(
   companyId: string,
   deviceId: string,
   userId: string,
   vanId: string | null,
   op: { opId: string; kind: string; payload: Record<string, unknown>; occurredAt?: number },
+  created: Map<string, string>,
 ): Promise<OpResult> {
   const done = await prisma.syncOp.findUnique({ where: { companyId_opId: { companyId, opId: op.opId } } });
   if (done) {
@@ -106,11 +225,14 @@ async function applyOp(
     let id: string | undefined;
     const p = op.payload;
     if (op.kind === "ticket") {
+      // Mandob (Vendeur) never creates tickets — not even via offline replay.
+      const staffer = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
+      if ((staffer?.role ?? "Vendeur") === "Vendeur") throw Object.assign(new Error("forbidden"), { status: 403 });
       const row = await createTicket(
         companyId,
         userId,
         {
-          clientId: (p.clientId as string) ?? null,
+          clientId: await resolveClientId(companyId, p.clientId, created),
           locationId: ((p.locationId as string) ?? vanId) as string,
           tierId: (p.tierId as string) ?? null,
           channel: (p.channel as "VAN" | "POS" | "DEPOT") ?? "VAN",
@@ -130,7 +252,7 @@ async function applyOp(
       const row = await createOrder(
         companyId,
         {
-          clientId: p.clientId as string,
+          clientId: (await resolveClientId(companyId, p.clientId, created)) as string,
           tierId: (p.tierId as string) ?? null,
           locationId: ((p.locationId as string) ?? vanId) as string | undefined,
           channel: (p.channel as "VAN" | "POS" | "DEPOT") ?? "VAN",
@@ -196,6 +318,55 @@ async function applyOp(
         });
       });
       id = row.id;
+    } else if (op.kind === "client-update") {
+      // Offline client edit: driver-safe fields ONLY (name/phone/address/
+      // area/GPS). Financial fields (tier/credit/balance/code) are NEVER
+      // taken from the payload — the phone cannot grant credit, change tiers
+      // or rename codes. Pending-created clients resolve via the created map.
+      const clientId = await resolveClientId(companyId, p.clientId, created);
+      if (!clientId) throw Object.assign(new Error("bad_client"), { status: 400 });
+      const target = await prisma.customer.findFirst({ where: { id: clientId, companyId }, select: { id: true } });
+      if (!target) throw Object.assign(new Error("bad_client"), { status: 400 });
+      const patch = (p.patch ?? {}) as Record<string, unknown>;
+      const str = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
+      const data: Record<string, unknown> = {};
+      if (patch.name !== undefined) {
+        const name = str(patch.name);
+        if (!name) throw Object.assign(new Error("bad_name"), { status: 400 });
+        data.name = name;
+      }
+      if (patch.phone !== undefined) data.phone = str(patch.phone) || null;
+      if (patch.address !== undefined) data.address = str(patch.address) || null;
+      if (patch.activityType !== undefined) data.activityType = str(patch.activityType) || null;
+      if (patch.wilayaCode !== undefined) {
+        const w = Number(patch.wilayaCode);
+        data.wilayaCode = Number.isFinite(w) ? Math.trunc(w) : null;
+      }
+      if (patch.secteurId !== undefined) {
+        const sid = str(patch.secteurId);
+        if (sid) {
+          const sec = await prisma.secteur.findFirst({ where: { id: sid, companyId } });
+          if (!sec) throw Object.assign(new Error("bad_secteur"), { status: 400 });
+          data.secteurId = sid;
+        } else {
+          data.secteurId = null;
+        }
+      }
+      if (patch.gpsLat !== undefined || patch.gpsLng !== undefined) {
+        const la = Number(patch.gpsLat);
+        const ln = Number(patch.gpsLng);
+        data.gpsLat = Number.isFinite(la) ? la : null;
+        data.gpsLng = Number.isFinite(ln) ? ln : null;
+      }
+      try {
+        await prisma.customer.update({ where: { id: clientId }, data });
+      } catch (e) {
+        // Phone taken by another client meanwhile → FAILED (permanent,
+        // visible in SyncModal with repair/discard), never silent.
+        if (isUniqueViolation(e)) throw Object.assign(new Error("duplicate_phone"), { status: 409 });
+        throw e;
+      }
+      id = clientId;
     } else if (op.kind === "versement") {
       // Client (or supplier) payment collected offline. Company-scoped:
       // the party MUST belong to this company.
@@ -204,12 +375,14 @@ async function applyOp(
       if (!Number.isFinite(amount) || amount <= 0) throw Object.assign(new Error("bad_amount"), { status: 400 });
       const season = await ensureSeasonFor(companyId, occurredAt);
       if (kind === "CLIENT_PAYMENT") {
-        const clientId = p.clientId as string;
+        const clientId = await resolveClientId(companyId, p.clientId, created);
+        if (!clientId) throw Object.assign(new Error("bad_client"), { status: 400 });
         const client = await prisma.customer.findFirst({ where: { id: clientId, companyId }, select: { id: true } });
         if (!client) throw Object.assign(new Error("bad_client"), { status: 400 });
+        const till = await resolveTillAttribution(companyId, p, vanId, occurredAt);
         id = await prisma.$transaction(async (tx) => {
           const v = await tx.versement.create({
-            data: { companyId, seasonId: season.id, kind, clientId: client.id, amount, date: occurredAt, notes: (p.notes as string) ?? null, locationId: vanId ?? null, opId: op.opId },
+            data: { companyId, seasonId: season.id, kind, clientId: client.id, amount, date: occurredAt, notes: (p.notes as string) ?? null, locationId: till.locationId, tourneeId: till.tourneeId, opId: op.opId },
           });
           await tx.customer.update({ where: { id: client.id }, data: { balance: { decrement: amount } } });
           return v.id;
@@ -218,9 +391,10 @@ async function applyOp(
         const supplierId = p.supplierId as string;
         const supplier = await prisma.supplier.findFirst({ where: { id: supplierId, companyId }, select: { id: true } });
         if (!supplier) throw Object.assign(new Error("bad_supplier"), { status: 400 });
+        const till = await resolveTillAttribution(companyId, p, vanId, occurredAt);
         id = await prisma.$transaction(async (tx) => {
           const v = await tx.versement.create({
-            data: { companyId, seasonId: season.id, kind, supplierId: supplier.id, amount, date: occurredAt, notes: (p.notes as string) ?? null, locationId: vanId ?? null, opId: op.opId },
+            data: { companyId, seasonId: season.id, kind, supplierId: supplier.id, amount, date: occurredAt, notes: (p.notes as string) ?? null, locationId: till.locationId, tourneeId: till.tourneeId, opId: op.opId },
           });
           await tx.supplier.update({ where: { id: supplier.id }, data: { balance: { decrement: amount } } });
           return v.id;
@@ -228,28 +402,157 @@ async function applyOp(
       }
     } else if (op.kind === "day-start" || op.kind === "day-finish") {
       // Offline day stamps: applied with the device owner's role.
+      // day-start may carry {vanId, dateIso} instead of a tourneeId (the phone
+      // had no planned tour): find-or-create the van's OPEN tour, then stamp.
       const { startDay, finishDay } = await import("@/lib/tournees/service");
       const staffer = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
+      let stampTourneeId = p.tourneeId as string | undefined;
+      if (op.kind === "day-start" && !stampTourneeId) {
+        stampTourneeId = await ensureVanDayTournee(companyId, ((p.vanId as string) ?? vanId) as string, (p.dateIso as string) ?? occurredAt);
+      }
       const row = op.kind === "day-start"
-        ? await startDay(companyId, userId, staffer?.role ?? "Vendeur", p.tourneeId as string, occurredAt)
-        : await finishDay(companyId, userId, staffer?.role ?? "Vendeur", p.tourneeId as string, occurredAt);
+        ? await startDay(companyId, userId, staffer?.role ?? "Vendeur", stampTourneeId as string, occurredAt, { lat: p.lat, lng: p.lng })
+        : await finishDay(companyId, userId, staffer?.role ?? "Vendeur", stampTourneeId as string, occurredAt, { lat: p.lat, lng: p.lng });
       id = row.id;
     } else if (op.kind === "cash-declare") {
       // Offline till declaration: lands as DECLARED unless already closed.
+      // The day row is derived from the REAL action time (occurredAt), never
+      // the phone's wall-clock date string — a wrong device date must not
+      // file the declaration under the wrong day.
       const { declareCash } = await import("@/lib/cash/daily");
       const staffer = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
+      const iso = `${occurredAt.getFullYear()}-${String(occurredAt.getMonth() + 1).padStart(2, "0")}-${String(occurredAt.getDate()).padStart(2, "0")}`;
       const row = await declareCash(
         companyId, userId, staffer?.role ?? "Vendeur",
         (p.vanId as string) ?? vanId ?? "",
-        p.dateIso as string, Number(p.amount), (p.notes as string) ?? null
+        iso, Number(p.amount), (p.notes as string) ?? null
       );
       id = row.id;
+    } else if (op.kind === "expense") {
+      // Van expense entered on the phone (fuel…): lands in company expenses
+      // with the van link, so it shows in the logiciel + the day till math.
+      const amount = Number(p.amount);
+      const label = String(p.label ?? "").trim();
+      if (!Number.isFinite(amount) || amount <= 0) throw Object.assign(new Error("bad_amount"), { status: 400 });
+      if (!label) throw Object.assign(new Error("bad_label"), { status: 400 });
+      const season = await ensureSeasonFor(companyId, occurredAt);
+      const vanLoc = ((p.vanId as string) ?? vanId) as string | null;
+      if (vanLoc) {
+        const loc = await prisma.store.findFirst({ where: { id: vanLoc, companyId }, select: { id: true } });
+        if (!loc) throw Object.assign(new Error("bad_location"), { status: 400 });
+      }
+      const row = await prisma.expense.create({
+        data: {
+          companyId, seasonId: season.id,
+          locationId: vanLoc ?? null,
+          label: label.slice(0, 120),
+          description: typeof p.notes === "string" && p.notes.trim() ? p.notes.trim().slice(0, 500) : null,
+          amount,
+          expenseDate: validExpenseDay(p.expenseDate) ?? occurredAt,
+          opId: op.opId,
+        },
+      });
+      id = row.id;
+    } else if (op.kind === "expense-update" || op.kind === "expense-delete") {
+      // Offline edit / soft-delete of a van expense. The row is found by
+      // server id (synced rows) or by the create opId (rows still unsynced
+      // when the follow-up op was queued). Non-admin may only touch their
+      // OWN van's rows — same rule as the online PATCH/DELETE routes.
+      const staffer = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
+      let ownVan: string | null = null;
+      if ((staffer?.role ?? "Vendeur") !== "Admin") {
+        const v = await prisma.store.findFirst({ where: { companyId, kind: "VAN", userId }, select: { id: true } });
+        if (!v) throw Object.assign(new Error("no_van"), { status: 400 });
+        ownVan = v.id;
+      }
+      const ref = typeof p.ref === "string" && p.ref ? p.ref : null;
+      const opRef = typeof p.opRef === "string" && p.opRef ? p.opRef : null;
+      const target = ref
+        ? await prisma.expense.findFirst({ where: { id: ref, companyId } })
+        : opRef
+          ? await prisma.expense.findFirst({ where: { companyId, opId: opRef } })
+          : null;
+      if (!target) throw Object.assign(new Error("not_found"), { status: 404 });
+      if (ownVan && target.locationId !== ownVan) throw Object.assign(new Error("forbidden"), { status: 403 });
+      if (op.kind === "expense-delete") {
+        if (!target.deletedAt) {
+          await prisma.expense.update({ where: { id: target.id }, data: { deletedAt: occurredAt } });
+        }
+      } else {
+        const patch: { label?: string; amount?: number; expenseDate?: Date } = {};
+        if (typeof p.label === "string" && p.label.trim()) patch.label = p.label.trim().slice(0, 120);
+        if (p.amount != null) {
+          const a = Number(p.amount);
+          if (!Number.isFinite(a) || a <= 0) throw Object.assign(new Error("bad_amount"), { status: 400 });
+          patch.amount = a;
+        }
+        const day = validExpenseDay(p.expenseDate);
+        if (day) patch.expenseDate = day;
+        if (!Object.keys(patch).length) throw Object.assign(new Error("bad_fields"), { status: 400 });
+        await prisma.expense.update({ where: { id: target.id }, data: patch });
+      }
+      id = target.id;
+    } else if (op.kind === "order-deliver") {
+      // Offline delivery of a confirmed order (+ cash collected on the spot).
+      // deliverOrder guards the state (CONFIRMED only) so a double delivery
+      // surfaces as a failed op for the owner instead of duplicating stock.
+      const { deliverOrder } = await import("@/lib/sales/service");
+      const saleId = p.saleId as string;
+      if (!saleId) throw Object.assign(new Error("bad_sale"), { status: 400 });
+      const target = await prisma.sale.findFirst({ where: { id: saleId, companyId }, select: { id: true, status: true, kind: true } });
+      if (!target) throw Object.assign(new Error("not_found"), { status: 404 });
+      if (target.kind !== "ORDER") throw Object.assign(new Error("bad_kind"), { status: 400 });
+      if (target.status === "DELIVERED") {
+        // Already delivered (e.g. online first, op replayed): success, link it.
+        const child = await prisma.sale.findFirst({ where: { companyId, sourceId: saleId }, select: { id: true }, orderBy: { createdAt: "desc" } });
+        id = child?.id;
+        if (!id) throw Object.assign(new Error("bad_status"), { status: 400 });
+      } else {
+        const row = await deliverOrder(
+          companyId, saleId,
+          ((p.locationId as string) ?? vanId) as string,
+          Number(p.paid ?? 0),
+          { opId: op.opId, at: occurredAt },
+        );
+        id = row.id;
+      }
+    } else if (op.kind === "sale-cancel") {
+      // Offline cancellation: reverses stock + debt like the online button.
+      // Already-cancelled → success (idempotent replay).
+      // Mandob (Vendeur) has no facture actions — not via replay either.
+      const canceller = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
+      if ((canceller?.role ?? "Vendeur") === "Vendeur") throw Object.assign(new Error("forbidden"), { status: 403 });
+      const { cancelSale } = await import("@/lib/sales/service");
+      const saleId = p.saleId as string;
+      if (!saleId) throw Object.assign(new Error("bad_sale"), { status: 400 });
+      const target = await prisma.sale.findFirst({ where: { id: saleId, companyId }, select: { id: true, status: true } });
+      if (!target) throw Object.assign(new Error("not_found"), { status: 404 });
+      if (target.status !== "CANCELLED") await cancelSale(companyId, saleId);
+      id = saleId;
+    } else if (op.kind === "sale-reopen") {
+      // Offline redelivery fix: reopen a DELIVERED order back to CONFIRMED.
+      // Already open → success (idempotent replay).
+      // Mandob (Vendeur) has no facture actions — not via replay either.
+      const reopener = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
+      if ((reopener?.role ?? "Vendeur") === "Vendeur") throw Object.assign(new Error("forbidden"), { status: 403 });
+      const { reopenOrder } = await import("@/lib/sales/service");
+      const saleId = p.saleId as string;
+      if (!saleId) throw Object.assign(new Error("bad_sale"), { status: 400 });
+      const target = await prisma.sale.findFirst({ where: { id: saleId, companyId }, select: { id: true, status: true, kind: true } });
+      if (!target) throw Object.assign(new Error("not_found"), { status: 404 });
+      if (target.kind !== "ORDER") throw Object.assign(new Error("bad_kind"), { status: 400 });
+      if (target.status !== "DELIVERED") {
+        if (target.status !== "CONFIRMED") throw Object.assign(new Error("bad_status"), { status: 400 });
+      } else {
+        await reopenOrder(companyId, saleId);
+      }
+      id = saleId;
     } else if (op.kind === "client-return") {
       const { createClientReturn } = await import("@/lib/sales/service");
       const row = await createClientReturn(
         companyId,
         {
-          clientId: p.clientId as string,
+          clientId: (await resolveClientId(companyId, p.clientId, created)) as string,
           saleId: (p.saleId as string) ?? null,
           locationId: ((p.locationId as string) ?? vanId) as string,
           refundType: (p.refundType as "CASH" | "DEBT_CREDIT") ?? "DEBT_CREDIT",
@@ -260,6 +563,11 @@ async function applyOp(
       );
       id = row.id;
     } else if (op.kind === "transfer-declare") {
+      // Restock requests are livreur-only: a Vendeur declares nothing
+      // (UI hides the section; the proxy bounces the page; this is the
+      // last gate before stock moves).
+      const declarer = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
+      if ((declarer?.role ?? "Vendeur") === "Vendeur") throw Object.assign(new Error("forbidden"), { status: 403 });
       const row = await declareTransfer(
         companyId,
         userId,
@@ -282,7 +590,23 @@ async function applyOp(
           : [],
       });
       id = row.id;
+    } else if (op.kind === "transfer-reject") {
+      // Offline refusal/cancellation: holdings flow back like online.
+      // Non-DECLARED at apply time surfaces as a failed op for the owner.
+      const { resolveTransfer } = await import("@/lib/inventory/service");
+      const action = p.action === "cancel" ? "cancel" : "reject";
+      const row = await resolveTransfer(companyId, userId, p.transferId as string, { action });
+      id = row.id;
     } else if (op.kind === "stop-update") {
+      // A driver may only tick his OWN van's stops (Admin bypasses).
+      const staffer = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
+      if ((staffer?.role ?? "Vendeur") !== "Admin" && vanId) {
+        const stop = await prisma.tourneeStop.findFirst({
+          where: { id: p.stopId as string, tournee: { companyId, locationId: vanId } },
+          select: { id: true },
+        });
+        if (!stop) throw Object.assign(new Error("forbidden"), { status: 403 });
+      }
       const row = await updateStop(companyId, p.stopId as string, {
         visited: p.visited as boolean | undefined,
         sold: p.sold as boolean | undefined,
@@ -327,6 +651,12 @@ export async function handleSync(input: SyncInput) {
     include: { location: true, user: true },
   });
   if (!device) throw Object.assign(new Error("bad_device"), { status: 401 });
+  // Revoked phone or deactivated driver: refuse everything (the phone wipes
+  // its offline credential on these errors and forces an online login).
+  const deviceUser = (device as { user?: { isActive?: boolean } | null }).user;
+  if (deviceUser && deviceUser.isActive === false) {
+    throw Object.assign(new Error("user_inactive"), { status: 401 });
+  }
   const companyId = device.companyId;
   const settings = await getOrCreateSettings(companyId);
 
@@ -348,8 +678,12 @@ export async function handleSync(input: SyncInput) {
   // Dependency-ordered application (client before its ticket, etc.).
   const ordered = sortOps(input.ops ?? []);
   const applied: OpResult[] = [];
+  // opId → created customer id within THIS batch (pending: resolution).
+  const created = new Map<string, string>();
   for (const op of ordered) {
-    applied.push(await applyOp(companyId, device.id, userId, vanId, op));
+    const r = await applyOp(companyId, device.id, userId, vanId, op, created);
+    if (r.ok && r.id && op.kind === "client") created.set(op.opId, r.id);
+    applied.push(r);
   }
 
   // Pull: everything the van needs to keep selling offline.
@@ -420,7 +754,7 @@ export async function handleSync(input: SyncInput) {
     vanId ? vanHolds(companyId, vanId).then((h) => h.holds) : [],
     prisma.company.findUnique({
       where: { id: companyId },
-      select: { name: true, phone: true, address: true, rc: true, nif: true, ai: true, logoUrl: true },
+      select: { id: true, name: true, phone: true, address: true, rc: true, nif: true, ai: true, logoUrl: true },
     }),
     getWebBuildId(),
     getApkMeta(),

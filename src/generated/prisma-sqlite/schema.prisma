@@ -94,6 +94,10 @@ model CompanySettings {
   ticketLang              String  @default("fr")
   /// Purchase picker: only the chosen supplier's products (default ON).
   supplierFilterEnabled   Boolean @default(true)
+  /// Expected départ time for vans ("HH:MM", null = no late flag).
+  workStartAt             String?
+  /// A journée longer than this (hours) flags overtime on presence.
+  maxDayHours             Float?  @default(10)
   /// Public internet domain for this install's phones
   /// (e.g. client1.distribuili.khiatadz.com, no scheme). The Devices setup QR
   /// uses it when set, so vans reach the PC through the tunnel from anywhere.
@@ -721,20 +725,25 @@ model ClientReturnLine {
 
 /// Daily van visit list (admin-planned, vendeur-executed, optimized en route).
 model Tournee {
-  id         String    @id @default(cuid())
-  companyId  String
-  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  date       DateTime
-  locationId String
-  location   Store     @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  secteurId  String?
-  secteur    Secteur?  @relation(fields: [secteurId], references: [id], onDelete: SetNull)
-  status     String    @default("OPEN")
-  notes      String?
+  id          String    @id @default(cuid())
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  date        DateTime
+  locationId  String
+  location    Store     @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  secteurId   String?
+  secteur     Secteur?  @relation(fields: [secteurId], references: [id], onDelete: SetNull)
+  status      String    @default("OPEN")
+  notes       String?
   /// Day tracking set by the livreur/vendeur: départ → fin de journée.
-  startedAt  DateTime?
-  finishedAt DateTime?
-  createdAt  DateTime  @default(now())
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  /// GPS position captured at each stamp (best-effort, null when denied).
+  startedLat  Float?
+  startedLng  Float?
+  finishedLat Float?
+  finishedLng Float?
+  createdAt   DateTime  @default(now())
 
   stops TourneeStop[]
   sales Sale[]
@@ -868,7 +877,40 @@ model TunnelSlot {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  deployments ClientDeployment[]
+
   @@map("tunnel_slots")
+}
+
+/// Vendor-side client deployments: one row per sold client version. The
+/// worker (scripts/provision-worker) picks up `pending` rows and builds the
+/// server side automatically: subdomain + port + database + nginx vhost +
+/// tunnel pairing, then flips the row to `active` (or `failed`).
+/// Domain rules (owner decisions, enforced below + in the API):
+/// - `domain` (the FIRST/baked domain) is vendor-only: never returned to the
+///   client, never editable, never deletable — the row itself has no DELETE
+///   endpoint, only activate/deactivate.
+/// - The client may set ONE override domain with their activation code only
+///   (`domainOverride`); flipping `overrideActive` chooses which one serves.
+model ClientDeployment {
+  id             String      @id @default(cuid())
+  client         String      @unique
+  version        String
+  domain         String
+  domainOverride String?
+  overrideActive Boolean     @default(false)
+  /// Shop PC bound to this deployment (activation-code changes resolve here).
+  machineId      String?
+  tunnelSlotId   String?
+  tunnelSlot     TunnelSlot? @relation(fields: [tunnelSlotId], references: [id], onDelete: SetNull)
+  /// pending → provisioning | active | failed | deactivated
+  status         String      @default("pending")
+  lastError      String?
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@map("client_deployments")
 }
 
 // ─── Mobile sync ─────────────────────────────────────────────────────────────
@@ -1049,6 +1091,10 @@ model Expense {
   createdAt   DateTime     @default(now())
   deletedAt   DateTime?
 
+  /// Offline idempotency key: the sync opId that created this expense.
+  opId String?
+
+  @@unique([companyId, opId])
   @@index([companyId, expenseDate])
   @@index([companyId, typeId])
   @@map("expenses")

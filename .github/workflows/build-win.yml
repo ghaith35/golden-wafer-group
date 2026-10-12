@@ -1,0 +1,70 @@
+// Builds the per-client Windows x64 installer on a real Windows runner,
+// where `next build` traces win32-x64 native modules and electron-builder
+// emits an x64 .exe. Building Windows installers on macOS cross-compiles the
+// shell but ships darwin .node files → "not reachable". Prefer this for every
+// customer-facing .exe.
+//
+// Trigger: manual (Actions → Build Windows client → Run workflow), or on
+// version tags. Requires repo secrets: LICENSE_PUBLIC_KEY (or
+// LICENSE_PRIVATE_KEY). Optional signing: CSC_LINK_B64 (pfx bytes, base64),
+// CSC_KEY_PASSWORD, CSC_TIMESTAMP_SERVER.
+name: Build Windows client
+
+on:
+  workflow_dispatch:
+    inputs:
+      client:
+        description: "Client id (build-client.json key)"
+        required: true
+        default: "golden-wafer-group"
+      domain:
+        description: "Client public domain (https://…)"
+        required: true
+        default: "https://dist-client1.khiatadz.com"
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Write per-client identity
+        shell: bash
+        env:
+          CLIENT: ${{ inputs.client }}
+          DOMAIN: ${{ inputs.domain }}
+          TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+        run: |
+          node scripts/set-client.mjs "${CLIENT:-golden-wafer-group}" "${DOMAIN:-https://dist-client1.khiatadz.com}" "${TUNNEL_TOKEN:-}"
+
+      - name: Fetch cloudflared (win-x64)
+        run: node scripts/fetch-cloudflared.mjs --only=win-x64
+
+      - name: Build installer (signed when secrets present)
+        shell: bash
+        env:
+          LICENSE_PUBLIC_KEY: ${{ secrets.LICENSE_PUBLIC_KEY }}
+          LICENSE_PRIVATE_KEY: ${{ secrets.LICENSE_PRIVATE_KEY }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_TIMESTAMP_SERVER: ${{ secrets.CSC_TIMESTAMP_SERVER }}
+        run: |
+          if [ -n "${CSC_LINK:-}" ]; then echo "$CSC_LINK" | base64 -d > "$RUNNER_TEMP/cert.pfx"; export CSC_LINK="$RUNNER_TEMP/cert.pfx"; fi
+          node scripts/dist-client.mjs --target=win
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-setup
+          path: |
+            dist-electron/*Setup*.exe
+            dist-electron/latest.yml

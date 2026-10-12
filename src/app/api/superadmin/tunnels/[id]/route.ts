@@ -18,3 +18,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   await audit(su.admin.adminId, "tunnel.revoke", "tunnel", id, { subdomain: slot.subdomain });
   return NextResponse.json(row);
 }
+
+/// Hard-delete a slot (row + Cloudflare tunnel/DNS best-effort). Deployments
+/// pointing at it fall back to NULL via the relation. Prefer revoke for
+/// history; delete only removes test/junk rows.
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const su = await requireSuperAdmin();
+  if (!su.ok) return su.response;
+  const { id } = await params;
+  const slot = await prisma.tunnelSlot.findUnique({ where: { id } });
+  if (!slot) return NextResponse.json({ error: "not_found" }, { status: 404 });
+  await revokeTunnel(slot.domain, slot.tunnelId);
+  await prisma.tunnelSlot.delete({ where: { id } });
+  await audit(su.admin.adminId, "tunnel.delete", "tunnel", id, { subdomain: slot.subdomain });
+  return NextResponse.json({ ok: true });
+}

@@ -57,6 +57,14 @@ export type TicketLabels = {
   qty: string;
   price: string;
   unitPrice: string;
+  /// Share feedback (optional so older call sites keep compiling).
+  copied?: string;
+  shareFail?: string;
+  pdfSaved?: string;
+  pdfShared?: string;
+  printFail?: string;
+  pdfPreview?: string;
+  save?: string;
 };
 
 const num = (v: number | string | null | undefined): number => Number(v ?? 0);

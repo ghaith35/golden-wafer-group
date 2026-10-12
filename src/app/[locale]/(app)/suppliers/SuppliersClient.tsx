@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { LayoutGrid, List, MapPin, Phone, Plus } from "lucide-react";
+import { LayoutGrid, List, MapPin, Phone, Plus, Users, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { RowActions } from "@/components/ui/RowActions";
+import { KpiCard } from "@/components/ui/Card";
 import { SupplierForm, EMPTY_SUPPLIER, type SupplierData } from "./SupplierForm";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -104,8 +105,21 @@ export function SuppliersClient({
 
   return (
     <div className="space-y-4 p-5 md:p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">{labels.title}</h1>
+      <div className="grid grid-cols-2 gap-2">
+        <KpiCard
+          label={labels.title}
+          value={String(rows.length)}
+          icon={<Users size={18} />}
+          accent="bg-sky-500/15 text-sky-600"
+          compact
+        />
+        <KpiCard
+          label={labels.balance}
+          value={dzMoney(rows.reduce((s, r) => s + Math.max(0, Number(r.balance ?? 0)), 0))}
+          icon={<Wallet size={18} />}
+          accent="bg-red-500/15 text-red-500"
+          compact
+        />
       </div>
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
       <div className="flex gap-2">

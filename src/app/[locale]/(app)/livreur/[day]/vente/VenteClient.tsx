@@ -4,17 +4,22 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowDownUp, ArrowLeft, Check, Minus, Plus, Printer, QrCode, Share2, X } from "lucide-react";
+import { ArrowDownUp, ArrowLeft, Check, Minus, Plus, Printer, QrCode, Share2, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { CameraBox } from "@/components/scan/CameraBox";
 import { TicketView, type TicketLabels, type TicketVM } from "@/components/sales/TicketView";
 import { factorOf, normFactor, priceForUnit, saleUnits } from "@/components/products/UnitQty";
+import { mergeTiers, resolveTierPrice } from "@/lib/pricing";
 import { beepAdd, beepConfirm } from "@/lib/beep";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { getVanSnapshot, getOutbox, queueOp, type VanSnapshot } from "@/lib/sync/client";
+import { getVanSnapshot, getOutbox, getPendingClients, queueOp, goPage, saleErrText, queueErrText, type VanSnapshot } from "@/lib/sync/client";
+import { PdfViewer } from "@/components/sales/PdfViewer";
+import { printTicketNative } from "@/lib/print-ticket";
+
 import { checkOfflineSale, pendingEffects } from "@/lib/sync/offline-rules";
 import type { OutboxRow } from "@/lib/sync/offline-db";
 
@@ -28,11 +33,10 @@ type Prod = {
   conversions: Array<{ unitId: string; factor: unknown; unit: { name: string } }>;
   category: { id: string; name: string } | null;
 };
-type Line = { productId: string; unitId: string | null; qty: number; unitPrice: number };
+type Line = { productId: string; unitId: string | null; qty: number; unitPrice: number; tierId: string | null };
 
 function priceFor(p: Prod, tierId: string | null): number {
-  const tp = tierId ? p.tierPrices.find((x) => x.tierId === tierId) : null;
-  return tp ? Number(tp.price) : Number(p.salePrice ?? 0);
+  return resolveTierPrice(p.tierPrices, p.salePrice, tierId);
 }
 
 /// Step 4 — Vente as a PAGE: scan popup → products → qty sheet → facture → print.
@@ -46,10 +50,12 @@ export function VenteClient({
   products,
   categories,
   vanStock,
+  tiers,
   allowPieces,
   labels,
   ticketLabels,
   ticketLang,
+  editingTicket = null,
 }: {
   locale: string;
   day: string;
@@ -60,21 +66,42 @@ export function VenteClient({
   products: Prod[];
   categories: Array<{ id: string; name: string }>;
   vanStock: Record<string, number>;
+  tiers: Array<{ id: string; name: string }>;
   allowPieces: boolean;
   labels: Record<string, string>;
   ticketLabels: TicketLabels;
   ticketLang: "ar" | "fr";
+  /// Edit mode: rewrite a posted ticket (factures ✎) — lines/paid prefilled,
+  /// client locked, save goes back to the factures list (no print preview).
+  editingTicket?: {
+    id: string;
+    paid: number;
+    notes: string | null;
+    lines: Array<{ productId: string; unitId: string | null; qty: number; unitPrice: number }>;
+  } | null;
 }) {
   const router = useRouter();
   const [scanOpen, setScanOpen] = useState(!initialClient);
+  const [scanError, setScanError] = useState<string | null>(null);
   /// Strict QR (settings toggle ON): only a real scan counts, and the server
   /// rejects the ticket otherwise.
   const [qrStrict, setQrStrict] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [client, setClient] = useState<Client | null>(initialClient);
+  /// Price-tier toggle: which category NEW lines take. Defaults to the
+  /// client's own category (each client opens on his prices); switching
+  /// never rewrites lines already in the facture — a sale can mix tiers.
+  const [selTier, setSelTier] = useState<string | null>(initialClient?.tierId ?? null);
+  useEffect(() => {
+    setSelTier(client?.tierId ?? null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client?.id]);
   const [cat, setCat] = useState("");
+  const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
   const [pq, setPq] = useState("");
-  const [lines, setLines] = useState<Line[]>([]);
+  const [lines, setLines] = useState<Line[]>(
+    editingTicket?.lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, tierId: null })) ?? []
+  );
   const [showFacture, setShowFacture] = useState(false);
   const [qtyFor, setQtyFor] = useState<Prod | null>(null);
   const [qtyPacks, setQtyPacks] = useState(1);
@@ -82,7 +109,15 @@ export function VenteClient({
   /// Edit mode: tapping a product already in the facture edits its single
   /// line — one line per product, never duplicates.
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
-  const [paid, setPaid] = useState("");
+  const [paid, setPaid] = useState(editingTicket ? String(editingTicket.paid) : "");
+  // The received amount defaults to the full total when the facture opens
+  // (the driver edits it down only for partial payments).
+  useEffect(() => {
+    if (showFacture && paid === "" && total > 0) {
+      setPaid(String(Math.round(total * 100) / 100));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showFacture]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [doneId, setDoneId] = useState<string | null>(null);
@@ -92,7 +127,6 @@ export function VenteClient({
   const [doneTicket, setDoneTicket] = useState<TicketVM | null>(null);
   const [ticketCo, setTicketCo] = useState<{ company: { name: string; phone?: string | null; address?: string | null; rc?: string | null; nif?: string | null; logoUrl?: string | null }; width: "58" | "80"; currency: string } | null>(null);
   const [ticketQr, setTicketQr] = useState<string | null>(null);
-  const [isNative, setIsNative] = useState(false);
   const [gallery, setGallery] = useState<Prod | null>(null);
   const [gIdx, setGIdx] = useState(0);
   const [freshStock, setFreshStock] = useState<number | null>(null);
@@ -103,6 +137,10 @@ export function VenteClient({
   /// Offline snapshot (first sync seeds the whole catalog): used whenever a
   /// fetch fails so the van keeps selling with zero connection.
   const [snap, setSnap] = useState<VanSnapshot | null>(null);
+  /// Tier catalogue: server props merged with the fresher snapshot.
+  const effTiers = mergeTiers(tiers, snap?.tiers);
+  const tierName = (id: string | null) =>
+    id == null ? (labels.tierBase ?? "") : (effTiers.find((t) => t.id === id)?.name ?? labels.tierBase ?? "");
   /// Queued (unsynced) ops — their effects are subtracted from local stock so
   /// an offline sale can't promise the same units twice.
   const [ops, setOps] = useState<OutboxRow[]>([]);
@@ -110,6 +148,10 @@ export function VenteClient({
   useEffect(() => {
     getVanSnapshot().then(setSnap).catch(() => {});
     getOutbox().then(setOps).catch(() => {});
+    // Warm this exact page URL (query included) so back-navigation works offline.
+    try {
+      void import("@/lib/sync/client").then((m) => m.prefetchPages([window.location.href])).catch(() => {});
+    } catch { /* never break the page */ }
   }, []);
   const pressTimer = useRef(0);
   const touchX = useRef<number | null>(null);
@@ -118,14 +160,11 @@ export function VenteClient({
 
   useEffect(() => {
     let dead = false;
-    import("@capacitor/core").then(({ Capacitor }) => {
-      if (!dead) setIsNative(Capacitor.isNativePlatform());
-    }).catch(() => {});
     fetch("/api/settings/public", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (dead) return;
-        if (d?.qrStrictMode) {
+        if (d?.qrStrictMode && !editingTicket) {
           setQrStrict(true);
           setScanned(false);
           setScanOpen(true);
@@ -139,7 +178,7 @@ export function VenteClient({
       .catch(() => {
         // Offline: fall back to the synced snapshot's flag.
         if (!dead) getVanSnapshot().then((s) => {
-          if (s?.settings.qrStrictMode) {
+          if (s?.settings.qrStrictMode && !editingTicket) {
             setQrStrict(true);
             setScanned(false);
             setScanOpen(true);
@@ -199,9 +238,12 @@ export function VenteClient({
   })();
   /// Pending (unsynced) effects: sold-but-not-synced units are already gone.
   const pendingStock = pendingEffects(snap, ops, vanId).stock;
-  const stockOf = (pid: string) => (vanStock[pid] ?? snapStock?.[pid] ?? 0) + (pendingStock[pid] ?? 0);
-  /// Sellable right now (free): holds split when present, else the total.
-  const freeOf = (pid: string) => (freeMap ? (freeMap[pid] ?? 0) : stockOf(pid)) + (pendingStock[pid] ?? 0);
+  /// Base stock without pending effects (server/snapshot truth).
+  const baseOf = (pid: string) => vanStock[pid] ?? snapStock?.[pid] ?? 0;
+  const stockOf = (pid: string) => baseOf(pid) + (pendingStock[pid] ?? 0);
+  /// Sellable right now (free): holds split when present, else the total —
+  /// pending applied EXACTLY once (stockOf already includes it).
+  const freeOf = (pid: string) => (freeMap ? (freeMap[pid] ?? 0) : baseOf(pid)) + (pendingStock[pid] ?? 0);
 
   const filteredProducts = effProducts.filter(
     (p) =>
@@ -212,29 +254,102 @@ export function VenteClient({
 
   function onScan(text: string) {
     const code = text.includes("/") ? text.split("/").pop()! : text;
-    const match = (rows: Client[]) => rows.find((c) => c.code === code) ?? rows[0];
+    // Exact code match only: NEVER fall back to the first row — charging the
+    // wrong client is worse than no match. Unknown codes show an error.
+    const match = (rows: Client[]) => rows.find((c) => c.code === code) ?? null;
+    const noMatch = () => setScanError(labels.qrNotFound ?? "not_found");
+    // Clients created on this phone but not yet synced are matchable too —
+    // their id flows as pending:<opId> and resolves server-side at sync.
+    const withPending = async (rows: Client[]): Promise<Client[]> => {
+      try {
+        const pend = await getPendingClients();
+        const extra: Client[] = pend.map((p) => ({
+          id: `pending:${p.opId}`, name: p.name, code: p.code,
+          phone: p.phone, tierId: p.tierId, balance: 0,
+        }));
+        const seen = new Set(rows.map((r) => r.code));
+        return [...rows, ...extra.filter((e) => !seen.has(e.code))];
+      } catch {
+        return rows;
+      }
+    };
     fetch(`/api/clients?q=${encodeURIComponent(code)}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : []))
-      .then((rows: Client[]) => {
-        const hit = match(rows);
+      .then(async (rows: Client[]) => {
+        const hit = match(await withPending(rows));
         if (hit) {
+          setScanError(null);
           setClient(hit);
           setScanned(true);
           setScanOpen(false);
           beepAdd();
+        } else {
+          noMatch();
         }
       })
-      .catch(() => {
-        // Offline: match the synced client list.
-        const hit = snap ? match(snap.clients as unknown as Client[]) : undefined;
+      .catch(async () => {
+        // Offline: match the synced client list + this phone's pending ones.
+        // No snapshot yet (never synced): say "sync first" — the code isn't
+        // wrong, the phone just has no client list to match against.
+        const noHit = () => {
+          if (!snap) setScanError(labels.syncFirst ?? labels.qrNotFound ?? "not_found");
+          else noMatch();
+        };
+        const hit = snap ? match(await withPending(snap.clients as unknown as Client[])) : undefined;
         if (hit) {
+          setScanError(null);
           setClient(hit);
           setScanned(true);
           setScanOpen(false);
           beepAdd();
+        } else {
+          try {
+            const pend = await getPendingClients();
+            const solo = pend.find((p) => p.code === code);
+            if (solo) {
+              setScanError(null);
+              setClient({
+                id: `pending:${solo.opId}`, name: solo.name, code: solo.code,
+                phone: solo.phone, tierId: solo.tierId, balance: 0,
+              });
+              setScanned(true);
+              setScanOpen(false);
+              beepAdd();
+            } else {
+              noHit();
+            }
+          } catch {
+            noHit();
+          }
         }
       });
   }
+
+  // Deep link with an unsynced client (?client=pending:<opId>): resolve it
+  // from this phone's outbox instead of the server.
+  useEffect(() => {
+    if (initialClient) return;
+    let dead = false;
+    (async () => {
+      try {
+        const m = /[?&]client=(pending%3A[^&]+|pending:[^&]+)/.exec(window.location.search);
+        if (!m) return;
+        const id = decodeURIComponent(m[1]);
+        const pend = await getPendingClients();
+        const hit = pend.find((p) => `pending:${p.opId}` === id);
+        if (hit && !dead) {
+          setClient({
+            id, name: hit.name, code: hit.code,
+            phone: hit.phone, tierId: hit.tierId, balance: 0,
+          });
+          setScanned(true);
+          setScanOpen(false);
+        }
+      } catch { /* stay on scan */ }
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function packOf(p: Prod) {
     return p.conversions
@@ -263,8 +378,12 @@ export function VenteClient({
     } else {
       setEditingIdx(null);
       setQtyFor(p);
-      setQtyPacks(1);
-      setQtyUnits(0);
+      // Packless products sell by the unit (the units stepper is the only
+      // one shown) — default to 1 unit, not 1 phantom pack, or Confirm
+      // silently adds nothing and the driver thinks the button is dead.
+      const hasPack = p.conversions.some((c) => Number(c.factor) > 1);
+      setQtyPacks(hasPack ? 1 : 0);
+      setQtyUnits(hasPack ? 0 : 1);
     }
     setFreshStock(null);
     // Fresh FREE stock for this product (cards may be stale).
@@ -298,14 +417,16 @@ export function VenteClient({
     const packs = f ? Math.min(qtyPacks, Math.floor(avail / f)) : 0;
     const units = Math.min(qtyUnits, Math.floor(avail));
     const opts = saleUnits({ ...p, conversions: p.conversions.map((c) => ({ ...c, factor: Number(c.factor) })) } as never, allowPieces);
-    const base = priceFor(p, client?.tierId ?? null);
+    // New lines take the TOGGLED tier (fallback: base sell). Lines already
+    // in the facture keep theirs — the toggle never rewrites them.
+    const base = priceFor(p, selTier);
     const row =
       pack && packs > 0
-        ? { productId: p.id, unitId: pack.unitId, qty: packs, unitPrice: priceForUnit(base, f) }
+        ? { productId: p.id, unitId: pack.unitId, qty: packs, unitPrice: priceForUnit(base, f), tierId: selTier }
         : units > 0 && opts.some((o) => o.id === (p.baseUnitId ?? ""))
-          ? { productId: p.id, unitId: p.baseUnitId, qty: units, unitPrice: base }
+          ? { productId: p.id, unitId: p.baseUnitId, qty: units, unitPrice: base, tierId: selTier }
           : units > 0
-            ? { productId: p.id, unitId: null, qty: units, unitPrice: base }
+            ? { productId: p.id, unitId: null, qty: units, unitPrice: base, tierId: selTier }
             : null;
     if (!row) {
       // Zeroed while editing: drop the line instead of keeping a 0 line.
@@ -334,7 +455,7 @@ export function VenteClient({
     if (!lines.length || saving || submittingRef.current) return;
     submittingRef.current = true;
     try {
-      if (qrStrict && (!client || !scanned)) {
+      if (qrStrict && !editingTicket && (!client || !scanned)) {
         setError("qr_required");
         setScanOpen(true);
         return;
@@ -347,15 +468,56 @@ export function VenteClient({
         ops,
         channel: "VAN",
         clientId: client?.id ?? null,
-        lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0 })),
+        lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })),
         remise: 0,
         paid: paidNow,
-        qrScanned: scanned,
+        // Edit mode rewrites server-side (no QR rule there) — don't force a
+        // rescan for a ticket that was already accepted.
+        qrScanned: scanned || !!editingTicket,
         vanId,
       });
       if (!check.ok) {
-        setError(check.error);
+        setError(saleErrText(labels, check.error) ?? "failed");
         if (check.error === "qr_required") setScanOpen(true);
+        return;
+      }
+      // Edit mode: rewrite the posted ticket, then back to the factures
+      // list (no print preview — it prints from there). Online only: there is
+      // no offline edit op, so say so loudly instead of dying silently.
+      if (editingTicket) {
+        if (typeof navigator !== "undefined" && navigator.onLine === false) {
+          setError(labels.offline ?? "offline");
+          return;
+        }
+        setSaving(true);
+        setError(null);
+        try {
+          const res = await fetch(`/api/sales/${editingTicket.id}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "edit",
+              clientId: client?.id ?? null,
+              locationId: vanId,
+              tierId: client?.tierId ?? null,
+              paid: paidNow,
+              notes: editingTicket.notes,
+              lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })),
+            }),
+          });
+          const d = await res.json().catch(() => null);
+          if (!res.ok) {
+            setError(saleErrText(labels, d?.error) ?? "failed");
+            return;
+          }
+          beepConfirm();
+          goPage(router, `/${locale}/livreur/${day}/factures`);
+        } catch {
+          // Server unreachable mid-edit (dropped connection, not validation).
+          setError(labels.offline ?? "offline");
+        } finally {
+          setSaving(false);
+        }
         return;
       }
       // Snapshot for the print preview (lines/client are cleared below).
@@ -379,7 +541,7 @@ export function VenteClient({
         tourneeId,
         qrScanned: scanned,
         paid: paidNow,
-        lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0 })),
+        lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })),
       };
       try {
         const res = await fetch("/api/sales/tickets", {
@@ -389,7 +551,7 @@ export function VenteClient({
         });
         const d = await res.json().catch(() => null);
         if (!res.ok) {
-          setError(d?.error ?? "failed");
+          setError(saleErrText(labels, d?.error) ?? "failed");
           return;
         }
         beepConfirm();
@@ -418,14 +580,15 @@ export function VenteClient({
         });
         setLines([]);
         setShowFacture(false);
+        setPaid("");
       } catch {
         // Offline: queue the ticket, it syncs as an immediate sale later.
         // Preview renders from the local snapshot (number assigned on sync).
         try {
           await queueOp("ticket", body as unknown as Record<string, unknown>);
           setOps(await getOutbox());
-        } catch {
-          setError("save_failed");
+        } catch (e) {
+          setError(queueErrText(labels, e));
           return;
         }
         beepConfirm();
@@ -447,6 +610,7 @@ export function VenteClient({
         });
         setLines([]);
         setShowFacture(false);
+        setPaid("");
       } finally {
         setSaving(false);
       }
@@ -468,7 +632,30 @@ export function VenteClient({
     return () => { dead = true; };
   }, [doneTicket]);
 
-  function doPrint() {
+  async function doPrint() {
+    // Native APK first: system print dialog with printer selection
+    // (window.print() is a no-op inside the WebView).
+    if (doneTicket) {
+      const res = await printTicketNative({
+        ticket: doneTicket,
+        company: { name: ticketCo?.company.name ?? "", phone: ticketCo?.company.phone ?? null, address: ticketCo?.company.address ?? null, rc: ticketCo?.company.rc ?? null, nif: ticketCo?.company.nif ?? null, logoUrl: ticketCo?.company.logoUrl ?? null },
+        width: ticketCo?.width ?? "80",
+        labels: ticketLabels,
+        lang: ticketLang,
+        qrDataUrl: ticketQr,
+      });
+      if (res.ok) return;
+      // APK but the dialog didn't open (old shell, no print service…):
+      // window.print below is a no-op there — say so loudly (with the
+      // reason) instead of a dead button.
+      try {
+        const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+        if (cap?.isNativePlatform?.()) {
+          setSharedMsg(`${ticketLabels.printFail ?? "print failed"} (${res.reason})`);
+          return;
+        }
+      } catch { /* fall through to window.print */ }
+    }
     document.body.classList.add("ticket-printing");
     const done = () => document.body.classList.remove("ticket-printing");
     window.addEventListener("afterprint", done, { once: true });
@@ -476,36 +663,11 @@ export function VenteClient({
     window.print();
   }
 
-  function ticketText(): string {
-    if (!doneTicket) return "";
-    const L = [
-      ticketCo?.company.name ?? "",
-      ticketCo?.company.phone ?? "",
-      `N° ${doneTicket.number}`,
-      doneTicket.client ? `${doneTicket.client.name} (${doneTicket.client.code ?? ""})` : "",
-      "----------------",
-      ...doneTicket.lines.map((l) => `${l.name}  ${l.qty} x ${l.unitPrice} = ${l.lineTotal}`),
-      "----------------",
-      `${ticketLabels.total}: ${doneTicket.total}`,
-      `${ticketLabels.paid}: ${doneTicket.paid}`,
-      `${ticketLabels.due}: ${Number(doneTicket.total) - Number(doneTicket.paid)}`,
-      ticketLabels.thanks,
-    ];
-    return L.filter((x) => x !== "").join("\n");
-  }
-
-  async function doShare() {
-    try {
-      const { Share } = await import("@capacitor/share");
-      await Share.share({ title: `N° ${doneTicket?.number ?? ""}`, text: ticketText() });
-    } catch {
-      // Web fallback: copy to clipboard.
-      try {
-        await navigator.clipboard.writeText(ticketText());
-      } catch { /* ignore */ }
-    }
-  }
-
+  /// Share opens the in-app PDF viewer (A4 sheet, offline): the driver
+  /// sees the facture, then shares/saves the real PDF from inside it.
+  /// sharedMsg survives for the print-failure notice (APK without plugin).
+  const [pdfView, setPdfView] = useState(false);
+  const [sharedMsg, setSharedMsg] = useState<string | null>(null);
   function closeDone() {
     setDoneId(null);
     setDoneTicket(null);
@@ -530,14 +692,15 @@ export function VenteClient({
       <div className="flex items-center gap-2">
         <button
           aria-label="back"
-          onClick={() => router.push(`/${locale}/livreur/${day}/dashboard${client ? `?client=${client.id}` : ""}`)}
+          onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard${client ? `?client=${client.id}` : ""}`)}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
         >
           <ArrowLeft size={18} className="rtl:rotate-180" />
         </button>
         <button
           onClick={() => setScanOpen(true)}
-          className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-(--brand-500) bg-(--brand-500)/5 p-2.5 text-start"
+          disabled={!!editingTicket}
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-(--brand-500) bg-(--brand-500)/5 p-2.5 text-start disabled:opacity-80"
         >
           <QrCode size={17} className="shrink-0 text-(--brand-600)" />
           <span className="min-w-0 flex-1">
@@ -547,6 +710,33 @@ export function VenteClient({
         </button>
       </div>
 
+      {/* Price-tier toggle: which category NEW lines take (default: the
+          client's own). Already-added lines keep their price — a sale can
+          mix tiers. Products without the toggled price keep base sell. */}
+      {effTiers.length > 0 && (
+        <div className="flex gap-1.5 overflow-x-auto pb-0.5" dir="ltr">
+          <button
+            type="button"
+            data-testid="tier-base"
+            onClick={() => setSelTier(null)}
+            className={cn("min-h-11 shrink-0 rounded-full px-3 py-2 text-xs font-black", selTier == null ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken) opacity-70")}
+          >
+            {labels.tierBase ?? ""}
+          </button>
+          {effTiers.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              data-testid={`tier-${t.id}`}
+              onClick={() => setSelTier(selTier === t.id ? null : t.id)}
+              className={cn("min-h-11 max-w-28 shrink-0 truncate rounded-full px-3 py-2 text-xs font-black", selTier === t.id ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken) opacity-70")}
+            >
+              {t.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {!showFacture ? (
         <>
           <div className="flex gap-2">
@@ -555,11 +745,11 @@ export function VenteClient({
             </div>
           </div>
           <div className="flex gap-1.5 overflow-x-auto pb-0.5">
-            <button onClick={() => setCat("")} className={cn("min-h-11 shrink-0 rounded-full px-3 py-2 text-xs font-black", cat === "" ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken) opacity-70")}>
+            <button onClick={() => setCat("")} className={cn("min-h-11 shrink-0 rounded-full px-3 py-2 text-xs font-black", cat === "" ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken) opacity-70")}>
               {labels.allCats}
             </button>
             {effCategories.map((c) => (
-              <button key={c.id} onClick={() => setCat(cat === c.id ? "" : c.id)} className={cn("min-h-11 max-w-28 shrink-0 truncate rounded-full px-3 py-2 text-xs font-black", cat === c.id ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken) opacity-70")}>
+              <button key={c.id} onClick={() => setCat(cat === c.id ? "" : c.id)} className={cn("min-h-11 max-w-28 shrink-0 truncate rounded-full px-3 py-2 text-xs font-black", cat === c.id ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken) opacity-70")}>
                 {c.name}
               </button>
             ))}
@@ -567,7 +757,7 @@ export function VenteClient({
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {filteredProducts.map((p) => {
               const img = p.images[0]?.url;
-              const base = priceFor(p, client?.tierId ?? null);
+              const base = priceFor(p, selTier);
               const pack = p.conversions.filter((c) => Number(c.factor) > 1).sort((a, b) => Number(a.factor) - Number(b.factor))[0];
               const stock = freeOf(p.id);
               const held = heldMap[p.id] ?? 0;
@@ -592,7 +782,7 @@ export function VenteClient({
                   className="relative overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay)"
                 >
                   {inSale && (
-                    <span className="absolute end-1.5 top-1.5 z-10 rounded-full bg-(--brand-500) px-2 py-0.5 text-[11px] font-black tabular-nums text-white" dir="ltr">
+                    <span className="absolute end-1.5 top-1.5 z-10 rounded-full bg-(--brand-500) px-2 py-0.5 text-[11px] font-black tabular-nums text-(--brand-contrast)" dir="ltr">
                       ×{dzMoney(Number(inSale.qty))}
                     </span>
                   )}
@@ -655,23 +845,53 @@ export function VenteClient({
         <div className="space-y-2">
           <div className="space-y-1.5">
             {lines.map((l, i) => {
-              const p = effProducts.find((x) => x.id === l.productId);
+              const p = effProducts.find((x) => x.id === l.productId) ?? products.find((x) => x.id === l.productId);
+              const img = p?.images?.[0]?.url;
               return (
-                <div key={i} className="rounded-xl border border-(--border-default) p-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0 flex-1 truncate text-[13px] font-bold">{p?.name ?? l.productId.slice(-4)}</div>
-                    <div className="shrink-0 text-sm font-black tabular-nums" dir="ltr">{dzMoney(l.qty * l.unitPrice)}</div>
-                  </div>
-                  <div className="mt-1.5 flex items-center justify-between gap-2">
-                    <div className="text-[11px] tabular-nums opacity-60" dir="ltr">{dzMoney(l.unitPrice)}</div>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <button aria-label="-" onClick={() => bump(i, -1)} className="flex h-10 w-10 items-center justify-center rounded-lg bg-(--bg-sunken)">
-                        <Minus size={15} />
-                      </button>
-                      <span className="w-8 text-center text-sm font-black tabular-nums">{l.qty}</span>
-                      <button aria-label="+" onClick={() => bump(i, 1)} className="flex h-10 w-10 items-center justify-center rounded-lg bg-(--bg-sunken)">
-                        <Plus size={15} />
-                      </button>
+                <div key={i} className="flex gap-2 rounded-xl border border-(--border-default) p-2">
+                  {img ? (
+                    <button
+                      type="button"
+                      onClick={() => setZoom({ src: img, name: p?.name ?? "" })}
+                      aria-label={p?.name ?? ""}
+                      className="shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--brand-500)"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img} alt={p?.name ?? ""} className="h-14 w-14 rounded-lg object-cover" loading="lazy" />
+                    </button>
+                  ) : (
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-xl opacity-50">📦</span>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1 truncate text-[13px] font-bold">
+                        {p?.name ?? l.productId.slice(-4)}{" "}
+                        <span className="rounded-full bg-(--bg-sunken) px-1.5 py-px text-[10px] font-black opacity-70">
+                          {tierName(l.tierId)}
+                        </span>
+                      </div>
+                      <div className="shrink-0 text-sm font-black tabular-nums" dir="ltr">{dzMoney(l.qty * l.unitPrice)}</div>
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-between gap-2">
+                      <div className="text-[11px] tabular-nums opacity-60" dir="ltr">{dzMoney(l.unitPrice)}</div>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <button
+                          type="button"
+                          aria-label={labels.remove ?? "Remove"}
+                          title={labels.remove ?? "Remove"}
+                          onClick={() => setLines((prev) => prev.filter((_, j) => j !== i))}
+                          className="flex h-10 w-10 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                        <button aria-label="-" onClick={() => bump(i, -1)} className="flex h-10 w-10 items-center justify-center rounded-lg bg-(--bg-sunken)">
+                          <Minus size={15} />
+                        </button>
+                        <span className="w-8 text-center text-sm font-black tabular-nums">{l.qty}</span>
+                        <button aria-label="+" onClick={() => bump(i, 1)} className="flex h-10 w-10 items-center justify-center rounded-lg bg-(--bg-sunken)">
+                          <Plus size={15} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -688,7 +908,7 @@ export function VenteClient({
             <Input value={paid} onChange={(e) => setPaid(e.target.value)} inputMode="decimal" placeholder={dzMoney(total)} dir="ltr" />
           </div>
           {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
-          <Button onClick={() => void confirmSale()} disabled={saving || !lines.length} className="h-12 w-full text-base">
+          <Button onClick={() => void confirmSale()} disabled={saving || !lines.length} data-testid="confirm-sale" className="h-12 w-full text-base">
             {saving ? "…" : `${labels.confirm} · ${dzMoney(total)}`}
           </Button>
         </div>
@@ -719,7 +939,8 @@ export function VenteClient({
               camUnsupported: labels.camUnsupported ?? "",
             }}
           />
-          <Button variant="secondary" onClick={() => router.push(`/${locale}/livreur/${day}/dashboard`)} className="w-full">
+          {scanError && <p className="rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{scanError}</p>}
+          <Button variant="secondary" onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard`)} className="w-full">
             <ArrowLeft size={15} className="me-1 rtl:rotate-180" />
             {labels.backToDash ?? labels.backToProducts}
           </Button>
@@ -729,7 +950,7 @@ export function VenteClient({
       {/* Qty popup — centered, with van stock cap */}
       {qtyFor && (() => {
         const pack = packOf(qtyFor);
-        const base = priceFor(qtyFor, client?.tierId ?? null);
+        const base = priceFor(qtyFor, selTier);
         const live = freshStock ?? freeOf(qtyFor.id);
         const avail = Math.max(0, live);
         const f = pack ? normFactor(Number(pack.factor)) : 0;
@@ -747,7 +968,7 @@ export function VenteClient({
               <div className={cn("mb-2 rounded-xl bg-(--bg-sunken) p-2.5", live < 0 ? "text-red-500" : "")}>
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-xs font-bold opacity-60">{labels.stock}</span>
-                  <span className="text-base font-black tabular-nums"><bdi>{packs}</bdi> {pack ? pack.unit.name : (qtyFor.baseUnit?.name ?? "")}{pack && rest > 0 ? <> + <bdi>{rest}</bdi> {qtyFor.baseUnit?.name ?? ""}</> : null}</span>
+                  <span className="text-base font-black tabular-nums"><bdi>{pack ? packs : Math.floor(avail)}</bdi> {pack ? pack.unit.name : (qtyFor.baseUnit?.name ?? "")}{pack && rest > 0 ? <> + <bdi>{rest}</bdi> {qtyFor.baseUnit?.name ?? ""}</> : null}</span>
                 </div>
                 {pack && (
                   <div className="mt-1 space-y-0.5 border-t border-(--border-default) pt-1 text-xs font-bold tabular-nums opacity-80">
@@ -799,7 +1020,7 @@ export function VenteClient({
               )}
               <div className="mt-3 flex gap-2">
                   <Button variant="secondary" onClick={() => closeQty()} className="flex-1">{labels.cancel}</Button>
-                <Button onClick={addQty} disabled={qtyPacks <= 0 && qtyUnits <= 0} className="flex-[2]">{labels.confirm}</Button>
+                <Button onClick={addQty} disabled={qtyPacks <= 0 && qtyUnits <= 0} data-testid="qty-confirm" className="flex-[2]">{labels.confirm}</Button>
               </div>
             </div>
           </div>
@@ -835,19 +1056,19 @@ export function VenteClient({
         )}
       </Modal>
 
-      {/* Done → print preview popup (or queued note when offline).
-          Rendered in a body-level portal so the print CSS can isolate the
-          ticket from the rest of the page. */}
-      {doneId !== null && (doneQueued || !doneTicket || typeof document === "undefined"
-        ? (
-          <Modal open onClose={closeDone} title={labels.saved} subtitle="" icon={<Check size={18} />}>
-            <p className="text-xs font-bold opacity-60">{labels.ticketQueued ?? labels.printHint}</p>
-            <div className="mt-2 flex gap-2">
-              <Button variant="secondary" onClick={closeDone} className="flex-1">{labels.cancel}</Button>
-            </div>
-          </Modal>
-        )
-        : createPortal(
+      {/* Done → print preview popup. Always the full facture — online with
+          the server number, offline from the local snapshot (number comes
+          at sync). doneQueued only adds the queued banner on top. Rendered
+          in a body-level portal so the print CSS can isolate the ticket. */}
+      {doneId !== null && !doneTicket && (
+        <Modal open onClose={closeDone} title={labels.saved} subtitle="" icon={<Check size={18} />}>
+          <p className="text-xs font-bold opacity-60">{labels.ticketQueued ?? labels.printHint}</p>
+          <div className="mt-2 flex gap-2">
+            <Button variant="secondary" onClick={closeDone} className="flex-1">{labels.cancel}</Button>
+          </div>
+        </Modal>
+      )}
+      {doneId !== null && doneTicket && typeof document !== "undefined" && createPortal(
           <div className="ticket-print-scope fixed inset-0 z-[70] overflow-y-auto bg-black/60 p-3">
             <div className="mx-auto w-fit max-w-full">
               <div className="overflow-hidden rounded-2xl bg-white shadow-2xl">
@@ -865,26 +1086,40 @@ export function VenteClient({
                 <Button variant="secondary" onClick={closeDone} className="flex-1" aria-label={labels.cancel}>
                   <X size={16} />
                 </Button>
-                {isNative && (
-                  <Button variant="secondary" onClick={() => void doShare()} className="flex-1">
-                    <Share2 size={16} className="me-1" />
-                    {ticketLabels.share}
-                  </Button>
-                )}
-                <Button onClick={doPrint} className="flex-[2]">
+                <Button variant="secondary" onClick={() => setPdfView(true)} data-testid="pv-share" className="flex-1">
+                  <Share2 size={16} className="me-1" />
+                  {ticketLabels.share}
+                </Button>
+                <Button onClick={doPrint} data-testid="pv-print" className="flex-[2]">
                   <Printer size={16} className="me-1" />
                   {labels.print}
                 </Button>
               </div>
-              <div className="no-print mx-auto max-w-full pb-8 text-center" style={{ width: `${ticketCo?.width ?? "80"}mm` }}>
-                <Link href={`/${locale}/sales/${doneId}/ticket`} target="_blank" className="text-xs font-bold text-white/80 underline">
-                  {labels.printTitle ?? labels.print}
-                </Link>
-              </div>
+              {pdfView && doneTicket && (
+                <PdfViewer
+                  ticket={doneTicket}
+                  company={{ name: ticketCo?.company.name ?? "", phone: ticketCo?.company.phone ?? null, address: ticketCo?.company.address ?? null, rc: ticketCo?.company.rc ?? null, nif: ticketCo?.company.nif ?? null, logoUrl: ticketCo?.company.logoUrl ?? null }}
+                  lang={ticketLang}
+                  labels={ticketLabels}
+                  qrDataUrl={ticketQr}
+                  onClose={() => setPdfView(false)}
+                />
+              )}
+              {sharedMsg && (
+                <div className="no-print mx-auto max-w-full pb-8 text-center text-xs font-bold text-white/90" style={{ width: `${ticketCo?.width ?? "80"}mm` }}>
+                  {sharedMsg}
+                </div>
+              )}
+              {doneQueued && (
+                <div className="no-print mx-auto max-w-full pb-8 text-center text-xs font-bold text-white/90" style={{ width: `${ticketCo?.width ?? "80"}mm` }}>
+                  {labels.ticketQueued ?? labels.printHint}
+                </div>
+              )}
             </div>
           </div>,
           document.body
-        ))}
+        )}
+      {zoom && <ImageLightbox src={zoom.src} alt={zoom.name} caption={zoom.name} onClose={() => setZoom(null)} />}
     </div>
   );
 }

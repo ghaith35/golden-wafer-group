@@ -12,6 +12,17 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const parsed = expenseSchema.partial().safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return NextResponse.json({ error: "validation_error", issues: parsed.error.issues }, { status: 400 });
   const d = parsed.data;
+  // Staff may only edit their OWN van's rows, and never move them elsewhere.
+  if (session.role !== "Admin") {
+    const ownVan = await prisma.store.findFirst({
+      where: { companyId: session.companyId, kind: "VAN", userId: session.userId },
+      select: { id: true },
+    });
+    if (!ownVan || existing.locationId !== ownVan.id) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
+    delete d.locationId;
+  }
   if (d.typeId) {
     const t = await prisma.expenseType.findFirst({ where: { id: d.typeId, companyId: session.companyId }, select: { id: true } });
     if (!t) return NextResponse.json({ error: "bad_type" }, { status: 400 });
@@ -37,10 +48,19 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  if (session.role !== "Admin") return NextResponse.json({ error: "forbidden" }, { status: 403 });
   const { id } = await params;
   const existing = await prisma.expense.findFirst({ where: { id, companyId: session.companyId, deletedAt: null } });
   if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
+  // Admin, or staff deleting their OWN van's rows (soft delete — kept for audit).
+  if (session.role !== "Admin") {
+    const ownVan = await prisma.store.findFirst({
+      where: { companyId: session.companyId, kind: "VAN", userId: session.userId },
+      select: { id: true },
+    });
+    if (!ownVan || existing.locationId !== ownVan.id) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
+  }
   await prisma.expense.update({ where: { id }, data: { deletedAt: new Date() } });
   return NextResponse.json({ ok: true });
 }

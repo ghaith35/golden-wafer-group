@@ -50,7 +50,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
 
   const isAdmin = session.role === "Admin";
   const actions = [
-    { href: "pos", label: tn("pos"), Icon: Store, cls: "bg-gradient-brand text-white", adminOnly: true },
+    { href: "pos", label: tn("pos"), Icon: Store, cls: "bg-gradient-brand text-(--brand-contrast)", adminOnly: true },
     { href: "sales/tickets/new", label: tn("sales"), Icon: ShoppingCart, cls: "bg-sky-500/15 text-sky-600", adminOnly: false },
     { href: "clients", label: tn("clients"), Icon: Users, cls: "bg-emerald-500/15 text-emerald-600", adminOnly: false },
     { href: "products", label: tn("inventory"), Icon: Boxes, cls: "bg-violet-500/15 text-violet-500", adminOnly: true },
@@ -62,51 +62,45 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
 
   return (
     <div className="space-y-5 p-5 md:p-6">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h1 className="text-xl font-black">{t("title")}</h1>
-          <p className="text-xs font-semibold opacity-60">
-            {now.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-          </p>
-        </div>
-      </div>
-
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         <KpiCard
           label={`${t("today")} · ${tr("sales")}`}
           value={fmt(Number(todaySales._sum.total ?? 0))}
-          icon={<ShoppingCart size={20} />}
+          icon={<ShoppingCart size={21} />}
           accent="bg-emerald-500/15 text-emerald-600"
         />
         <KpiCard
           label={`${t("month")} · ${tr("sales")}`}
           value={fmt(monthTotal)}
-          icon={<TrendingUp size={20} />}
+          icon={<TrendingUp size={21} />}
           accent="bg-sky-500/15 text-sky-600"
         />
         <KpiCard
           label={`${t("month")} · ${t("margin")}`}
           value={fmt(monthTotal - monthCogs)}
-          icon={<Percent size={20} />}
-          accent="bg-gradient-brand text-white"
+          icon={<Percent size={21} />}
+          accent="bg-(--brand-500)/15 text-(--brand-600)"
         />
         <KpiCard
           label={t("lowStock")}
           value={String(lowStock)}
-          icon={<AlertTriangle size={20} />}
+          icon={<AlertTriangle size={21} />}
           accent={cn(lowStock > 0 ? "bg-amber-500/15 text-amber-600" : "bg-(--bg-sunken) text-(--text-secondary)")}
+          valueClassName={cn(lowStock > 0 && "text-amber-600")}
         />
         <KpiCard
           label={t("clientsOwe")}
           value={fmt(Number(clientDebts._sum.balance ?? 0))}
-          icon={<Users size={20} />}
+          icon={<Users size={21} />}
           accent="bg-red-500/15 text-red-500"
+          valueClassName={cn(Number(clientDebts._sum.balance ?? 0) > 0 && "text-red-500")}
         />
         <KpiCard
           label={t("weOwe")}
           value={fmt(Number(supplierDebts._sum.balance ?? 0))}
-          icon={<Truck size={20} />}
+          icon={<Truck size={21} />}
           accent="bg-orange-500/15 text-orange-500"
+          valueClassName={cn(Number(supplierDebts._sum.balance ?? 0) > 0 && "text-orange-500")}
         />
       </div>
 
@@ -115,12 +109,12 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
           <Link
             key={href}
             href={`/${locale}/${href}`}
-            className="flex flex-col items-center gap-1.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 text-center  transition-all hover:-translate-y-0.5 hover:border-(--brand-500) hover:shadow-md"
+            className="dash-lift flex flex-col items-center gap-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5 text-center transition-all hover:-translate-y-1 hover:border-(--brand-500) hover:shadow-lg active:scale-[0.98]"
           >
-            <span className={cn("flex h-10 w-10 items-center justify-center rounded-xl", cls)}>
-              <Icon size={19} />
+            <span className={cn("flex h-11 w-11 items-center justify-center rounded-2xl", cls)}>
+              <Icon size={20} />
             </span>
-            <span className="text-[11px] font-bold leading-tight">{label}</span>
+            <span className="text-xs font-black leading-tight">{label}</span>
           </Link>
         ))}
       </div>

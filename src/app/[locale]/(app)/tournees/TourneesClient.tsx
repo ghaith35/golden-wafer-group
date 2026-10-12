@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, ChevronRight, ChevronLeft, CalendarDays, Pencil, Trash2, Crosshair } from "lucide-react";
+import { Plus, ChevronRight, ChevronLeft, CalendarCheck, CalendarDays, Pencil, Trash2, Crosshair, Route } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { KpiCard } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 import { compareNatural } from "@/lib/sort";
 import { TourneeDay } from "./[id]/TourneeDay";
@@ -186,18 +187,28 @@ export function TourneesClient({
 
   return (
     <div className="space-y-4 p-5 md:p-6 lg:flex lg:h-[calc(100dvh-57px)] lg:flex-col lg:space-y-3 lg:overflow-hidden">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-brand text-white shadow-lg">
-            <CalendarDays size={22} />
-          </div>
-          <div>
-            <h1 className="text-xl font-black leading-tight">{labels.title}</h1>
-            <p className="text-xs opacity-60">
-              {vans.length} · {weekRows.length} · {totalStops} {labels.stops}
-            </p>
-          </div>
-        </div>
+      <div className="grid shrink-0 grid-cols-3 gap-2">
+        <KpiCard
+          label={labels.today}
+          value={String(weekRows.filter((r) => sameDay(new Date(r.date as string), today)).length)}
+          icon={<CalendarCheck size={18} />}
+          accent="bg-emerald-500/15 text-emerald-600"
+          compact
+        />
+        <KpiCard
+          label={labels.open}
+          value={String(weekRows.filter((r) => r.status === "OPEN").length)}
+          icon={<Route size={18} />}
+          accent="bg-sky-500/15 text-sky-600"
+          compact
+        />
+        <KpiCard
+          label={labels.stops}
+          value={String(totalStops)}
+          icon={<CalendarDays size={18} />}
+          accent="bg-violet-500/15 text-violet-500"
+          compact
+        />
       </div>
       <div className="flex gap-2">
         {isAdmin && (
@@ -206,26 +217,24 @@ export function TourneesClient({
             {labels.neW}
           </Button>
         )}
-        <div className="flex-1">
-          <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
-        </div>
-      </div>
-
-      {/* GPS refresh */}
-      <div className="flex shrink-0 items-center gap-2">
         {geoOn && (
           <button
             type="button"
             onClick={() => locate()}
             disabled={locating}
             title={labels.locate}
-            className="ms-auto flex shrink-0 items-center gap-1.5 rounded-xl border border-dashed border-(--border-default) px-3 py-2 text-xs font-black text-(--text-secondary) transition-colors hover:border-(--brand-500) hover:text-(--brand-600) disabled:opacity-50"
+            className="flex shrink-0 items-center gap-1.5 rounded-xl border border-dashed border-(--border-default) px-3 py-2 text-xs font-black text-(--text-secondary) transition-colors hover:border-(--brand-500) hover:text-(--brand-600) disabled:opacity-50"
           >
             <Crosshair size={14} className={locating ? "animate-spin" : ""} />
             {locating ? "…" : labels.locate}
           </button>
         )}
+        <div className="flex-1">
+          <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
       </div>
+
+      {/* GPS refresh */}
       {geoOn && geoError && (
         <p className="shrink-0 rounded-xl bg-red-500/10 px-3 py-2 text-[11px] font-bold text-red-500">{labels.geoDenied}</p>
       )}
@@ -288,7 +297,7 @@ export function TourneesClient({
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={v.imageUrl} alt="" className="h-full w-full object-cover" />
                       ) : (
-                        <span className="flex h-full w-full items-center justify-center bg-gradient-brand text-base text-white">
+                        <span className="flex h-full w-full items-center justify-center bg-gradient-brand text-base text-(--brand-contrast)">
                           🚚
                         </span>
                       )}

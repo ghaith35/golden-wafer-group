@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Boxes, PackageX, Plus, Pencil, Trash2, Upload, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -11,7 +11,9 @@ import { ProductGallery } from "@/components/products/ProductGallery";
 import { packBreakdown, priceForUnit, showColisage } from "@/components/products/UnitQty";
 import { levelLabel } from "@/lib/products/colisage";
 import { ProductCardDetails } from "@/components/products/ProductCardDetails";
+import { KpiCard } from "@/components/ui/Card";
 import { ProductForm, type ProductData, type Ref } from "./ProductForm";
+import { ProductImportModal } from "./ProductImportModal";
 import { cn } from "@/lib/utils";
 import { dz, dzMoney } from "@/lib/format";
 
@@ -108,6 +110,7 @@ export function ProductsClient({
   const [details, setDetails] = useState<Full | null>(null);
   const [deleting, setDeleting] = useState<Row | { id: string; name: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
 
   async function reload() {
     const res = await fetch("/api/products");
@@ -219,16 +222,40 @@ export function ProductsClient({
   );
 
   return (
-    <div className="space-y-4 p-5 md:p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">{labels.title}</h1>
+    <div className="flex flex-col space-y-4 p-5 md:p-6 lg:h-[calc(100dvh-3.5rem)] lg:overflow-hidden lg:pb-4">
+      <div className="grid shrink-0 grid-cols-3 gap-2">
+        <KpiCard
+          label={labels.title}
+          value={String(rows.length)}
+          icon={<Boxes size={18} />}
+          accent="bg-sky-500/15 text-sky-600"
+          compact
+        />
+        <KpiCard
+          label={labels.stockValue}
+          value={dzMoney(Object.values(stockById).reduce((s, e) => s + Number(e.value ?? 0), 0))}
+          icon={<Wallet size={18} />}
+          accent="bg-emerald-500/15 text-emerald-600"
+          compact
+        />
+        <KpiCard
+          label={labels.alerts}
+          value={String(rows.filter((p) => Number(p.stockQty ?? 0) <= 0).length)}
+          icon={<PackageX size={18} />}
+          accent="bg-amber-500/15 text-amber-600"
+          compact
+        />
       </div>
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
-      <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex shrink-0 flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex gap-2 lg:flex-1">
           <Button onClick={() => setCreating(true)} className="shrink-0">
             <Plus size={16} className="me-1" />
             {labels.neW}
+          </Button>
+          <Button onClick={() => setImporting(true)} variant="secondary" className="shrink-0">
+            <Upload size={16} className="me-1" />
+            {labels.import}
           </Button>
           <div className="min-w-40 flex-1">
             <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
@@ -265,7 +292,7 @@ export function ProductsClient({
         </div>
       </div>
       {view === "list" ? (
-        <div className="space-y-2">
+        <div className="min-h-0 space-y-2 lg:flex-1 lg:overflow-y-auto lg:pb-2">
           {filtered.map((p) => (
             <div
               key={p.id}
@@ -294,7 +321,7 @@ export function ProductsClient({
           ))}
         </div>
       ) : (
-      <div className={GRID_CLS[view]}>
+      <div className={cn(GRID_CLS[view], "min-h-0 lg:flex-1 lg:overflow-y-auto lg:pb-2")}>
         {filtered.map((p) => (
           <div
             key={p.id}
@@ -499,6 +526,13 @@ export function ProductsClient({
         onConfirm={confirmDelete}
         title={labels.deleteTitle}
         message={deleting ? labels.deleteMessage.replace("{name}", deleting.name) : ""}
+      />
+
+      <ProductImportModal
+        open={importing}
+        onClose={() => setImporting(false)}
+        onDone={() => void reload()}
+        labels={labels}
       />
     </div>
   );

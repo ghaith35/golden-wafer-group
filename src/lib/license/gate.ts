@@ -11,6 +11,14 @@ export function isLocalMode(): boolean {
   return process.env.DISTRIBUILI_DB === "local";
 }
 
+/// Desktop-shell detection: the Electron BrowserWindow sends the default
+/// Chromium UA containing "Electron/<ver>" — phone/desktop browsers never do
+/// (tunnel + LAN proxy it transparently). Phone traffic skips the activation
+/// gates below; the desktop shell stays fully gated.
+export function isDesktopUserAgent(ua: string | null | undefined): boolean {
+  return /electron/i.test(ua ?? "");
+}
+
 function publicKey(): crypto.KeyObject | null {
   const b64 = process.env.DISTRIBUILI_LICENSE_PUBLIC_KEY;
   if (!b64 || b64 === "REPLACE_AT_DEPLOY") return null;

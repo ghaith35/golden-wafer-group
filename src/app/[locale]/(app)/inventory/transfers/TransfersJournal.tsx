@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Truck, Warehouse } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { BackButton } from "@/components/ui/BackButton";
+import { UnsyncedBadge } from "@/components/sync/UnsyncedBadge";
+import { getUnsyncedDocKeys } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
 
 const STATUS_COLOR: Record<string, string> = {
@@ -56,6 +58,23 @@ export function TransfersJournal({
   statusLabel: Record<string, string>;
 }) {
   const [q, setQ] = useState("");
+  const [unsynced, setUnsynced] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    let on = true;
+    const load = () => {
+      getUnsyncedDocKeys().then((s) => {
+        if (on) setUnsynced(s);
+      }).catch(() => {});
+    };
+    load();
+    window.addEventListener("online", load);
+    window.addEventListener("focus", load);
+    return () => {
+      on = false;
+      window.removeEventListener("online", load);
+      window.removeEventListener("focus", load);
+    };
+  }, []);
   const [preset, setPreset] = useState<Preset>("all");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -144,7 +163,7 @@ export function TransfersJournal({
               onClick={() => setPreset(v)}
               className={cn(
                 "h-8 rounded-full px-3 text-xs font-black transition-colors",
-                preset === v ? "bg-gradient-brand text-white shadow" : "bg-(--bg-sunken) opacity-70 hover:opacity-100"
+                preset === v ? "bg-gradient-brand text-(--brand-contrast) shadow" : "bg-(--bg-sunken) opacity-70 hover:opacity-100"
               )}
             >
               {label}
@@ -233,6 +252,7 @@ export function TransfersJournal({
               <span className={cn("shrink-0 rounded-full px-2 py-1 text-[10px] font-black", STATUS_COLOR[r.status] ?? "")}>
                 {statusLabel[r.status] ?? r.status}
               </span>
+              {unsynced.has(r.id) && <UnsyncedBadge className="shrink-0" />}
             </Link>
           ))}
         </div>

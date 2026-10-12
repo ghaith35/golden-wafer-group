@@ -68,31 +68,35 @@ export default async function PurchasesPage({ params }: { params: Promise<{ loca
     newProduct: tp("new"),
   };
   return (
-    <div className="space-y-4 p-5 md:p-6">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="flex flex-col space-y-4 p-5 md:p-6 lg:h-[calc(100dvh-3.5rem)] lg:overflow-hidden lg:pb-4">
+      <div className="grid shrink-0 grid-cols-2 gap-2 lg:grid-cols-4">
         <KpiCard
           label={t("kpiMonth")}
           value={fmt(monthTotal)}
-          icon={<TrendingUp size={20} />}
+          icon={<TrendingUp size={18} />}
           accent="bg-sky-500/15 text-sky-600"
+          compact
         />
         <KpiCard
           label={t("kpiCount")}
           value={String(monthCount)}
-          icon={<ReceiptText size={20} />}
+          icon={<ReceiptText size={18} />}
           accent="bg-violet-500/15 text-violet-500"
+          compact
         />
         <KpiCard
           label={t("kpiRemaining")}
           value={fmt(remaining)}
-          icon={<Wallet size={20} />}
+          icon={<Wallet size={18} />}
           accent="bg-red-500/15 text-red-500"
+          compact
         />
         <KpiCard
           label={t("kpiAvg")}
           value={fmt(avg)}
-          icon={<BarChart3 size={20} />}
+          icon={<BarChart3 size={18} />}
           accent="bg-emerald-500/15 text-emerald-600"
+          compact
         />
       </div>
       <PurchasesClient

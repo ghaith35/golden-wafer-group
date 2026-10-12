@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { Crosshair, Navigation, RefreshCw, Truck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { KpiCard } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 import type { VanMark } from "@/components/map/VansMap";
 
@@ -125,11 +126,30 @@ export function SuiviClient({ labels }: { labels: Record<string, string> }) {
 
   return (
     <div className="space-y-4 p-5 md:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="flex items-center gap-2 text-xl font-black">
-          <Navigation size={20} className="text-(--brand-600)" />
-          {labels.title}
-        </h1>
+      <div className="grid grid-cols-3 gap-2">
+        <KpiCard
+          label={labels.online}
+          value={String(vans.filter((v) => statusOf(v.seenAt, tick) === "online").length)}
+          icon={<Navigation size={18} />}
+          accent="bg-emerald-500/15 text-emerald-600"
+          compact
+        />
+        <KpiCard
+          label={labels.stale}
+          value={String(vans.filter((v) => statusOf(v.seenAt, tick) === "stale").length)}
+          icon={<Truck size={18} />}
+          accent="bg-amber-500/15 text-amber-600"
+          compact
+        />
+        <KpiCard
+          label={labels.offline}
+          value={String(vans.filter((v) => { const s = statusOf(v.seenAt, tick); return s === "offline" || s === "nosignal"; }).length)}
+          icon={<Crosshair size={18} />}
+          accent="bg-red-500/15 text-red-500"
+          compact
+        />
+      </div>
+      <div className="flex flex-wrap items-center justify-end gap-2">
         <div className="flex items-center gap-2">
           <label className="flex cursor-pointer items-center gap-1.5 text-xs font-bold opacity-70">
             <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} />

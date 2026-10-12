@@ -39,6 +39,8 @@ export async function createPurchase(companyId: string, input: PurchaseInput) {
   const conversions = await prisma.productUnitConversion.findMany({ where: { productId: { in: productIds } } });
   const factorOf = (productId: string, unitId: string | null | undefined): number => {
     if (!unitId) return 1;
+    // The base unit is factor 1 by definition — it has no conversion row.
+    if (byId.get(productId)?.baseUnitId === unitId) return 1;
     const c = conversions.find((x) => x.productId === productId && x.unitId === unitId);
     if (!c) throw Object.assign(new Error("bad_unit"), { status: 400 });
     const f = Number(c.factor);
@@ -289,10 +291,13 @@ export async function updatePurchase(companyId: string, id: string, input: Purch
   const productIds = [...new Set(input.lines.map((l) => l.productId))];
   const products = await prisma.product.findMany({ where: { id: { in: productIds }, companyId } });
   if (products.length !== productIds.length) throw Object.assign(new Error("bad_product"), { status: 400 });
+  const baseOf = new Map(products.map((p) => [p.id, p.baseUnitId ?? null]));
 
   const conversions = await prisma.productUnitConversion.findMany({ where: { productId: { in: productIds } } });
   const factorOf = (productId: string, unitId: string | null | undefined): number => {
     if (!unitId) return 1;
+    // The base unit is factor 1 by definition — it has no conversion row.
+    if (baseOf.get(productId) === unitId) return 1;
     const c = conversions.find((x) => x.productId === productId && x.unitId === unitId);
     if (!c) throw Object.assign(new Error("bad_unit"), { status: 400 });
     const f = Number(c.factor);

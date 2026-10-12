@@ -22,10 +22,28 @@ export type ApkMeta = {
 
 export async function getApkMeta(): Promise<ApkMeta> {
   const root = process.cwd();
-  const gradle = await readFile(join(root, "android", "app", "build.gradle"), "utf-8").catch(() => "");
-  const code = Number(/versionCode\s+(\d+)/.exec(gradle)?.[1] ?? 0);
-  if (!(code > 0)) return null;
-  const name = /versionName\s+"([^"]+)"/.exec(gradle)?.[1] ?? "";
+  // version.json (written next to the APK at publish time) is the source of
+  // truth: android/app/build.gradle is NOT deployed with the server, and a
+  // stale copy of it once told every phone "1.7" for weeks while 1.10 was
+  // already downloadable. Gradle remains as a dev fallback.
+  let code = 0;
+  let name = "";
+  try {
+    const meta = JSON.parse(await readFile(join(root, "public", "apk", "version.json"), "utf-8")) as {
+      versionCode?: unknown;
+      versionName?: unknown;
+    };
+    if (typeof meta.versionCode === "number") code = meta.versionCode;
+    if (typeof meta.versionName === "string") name = meta.versionName;
+  } catch {
+    /* fall through to gradle */
+  }
+  if (!(code > 0)) {
+    const gradle = await readFile(join(root, "android", "app", "build.gradle"), "utf-8").catch(() => "");
+    code = Number(/versionCode\s+(\d+)/.exec(gradle)?.[1] ?? 0);
+    if (!(code > 0)) return null;
+    name = /versionName\s+"([^"]+)"/.exec(gradle)?.[1] ?? "";
+  }
   let size: number | null = null;
   let builtAt: string | null = null;
   try {

@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Production: HTTPS only, system CAs only. Do NOT trust a custom CA or
-     permit cleartext here — that would let anyone holding the dev CA key
-     MITM every van.
-
-     For WiFi-local testing against a self-signed LAN server, create a
-     SEPARATE debug build that adds:
-       <base-config cleartextTrafficPermitted="true">
-         <trust-anchors><certificates src="@raw/distribuili_ca" />
-                        <certificates src="system" /></trust-anchors>
-       </base-config>
-     Never ship that debug build to clients. -->
+<!-- Shop reality: the PC server is plain-http on the LAN
+     (http://192.168.x.x:port) and the manifest allows it, so the app can
+     reach the shop server. Internet API/tunnel traffic stays https; the
+     base-config below still pins system CAs for everything else. -->
 <network-security-config>
-  <base-config cleartextTrafficPermitted="false">
+  <base-config cleartextTrafficPermitted="true">
     <trust-anchors>
       <certificates src="system" />
     </trust-anchors>

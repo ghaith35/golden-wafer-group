@@ -33,6 +33,7 @@ export default async function SuppliersPage({ params }: { params: Promise<{ loca
       secteurs={secteurs}
       labels={{
         title: t("title"), neW: t("new"), search: tc("search"), empty: t("empty"),
+        balance: t("balance"),
         details: tc("details"), edit: tc("edit"), delete: tc("delete"),
         deleteTitle: tc("deleteTitle"), deleteMessage: tc("deleteMessage"),
         name: tcl("name"), phone: tcl("phone"), address: tcl("address"),

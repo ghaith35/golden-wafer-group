@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Banknote, ClipboardList, Package, Plus, ReceiptText, RefreshCw, Truck, UserPlus, UserRound, Wallet } from "lucide-react";
+import { ArrowLeft, Banknote, ClipboardList, Package, PackageCheck, Plus, ReceiptText, RefreshCw, Truck, UserRound, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
-import { queueOp, getLastSync, pendingCount } from "@/lib/sync/client";
+import { queueOp, getLastSync, pendingCount, getPendingClients, goPage, warmJourneePages } from "@/lib/sync/client";
+import { OnlineBadge } from "@/components/sync/OnlineBadge";
 import { SyncModal } from "@/components/sync/SyncModal";
 import { dzMoney } from "@/lib/format";
+import { canSell } from "@/lib/staff-permissions";
 import { cn } from "@/lib/utils";
 
 /// Step 3 — Dashboard hub: sale, factures, commande, commandes, stock, sync.
@@ -22,6 +24,9 @@ export function DashClient({
   dayTotal,
   readyCount,
   tournee,
+  dueCash,
+  declared,
+  role,
   labels,
 }: {
   locale: string;
@@ -33,12 +38,15 @@ export function DashClient({
   dayTotal: number;
   readyCount: number;
   tournee: { id: string; status: string; startedAt: string | null; finishedAt: string | null } | null;
+  dueCash: number;
+  declared: number | null;
+  role: string;
   labels: Record<string, string>;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(0);
   const [lastSync, setLastSync] = useState<string | null>(null);
-  /// Till declaration state.
+  /// Till declaration state (pre-filled from his sales — still editable).
   const [tillOpen, setTillOpen] = useState(false);
   const [tillAmount, setTillAmount] = useState("");
   const [tillNotes, setTillNotes] = useState("");
@@ -54,48 +62,103 @@ export function DashClient({
     tournee ? { startedAt: tournee.startedAt, finishedAt: tournee.finishedAt } : null
   );
   const [stamping, setStamping] = useState(false);
+  /// Fin-journée recap (warns, never blocks).
+  const [finishOpen, setFinishOpen] = useState(false);
   // Live elapsed counter while the day is open.
   const [nowTick, setNowTick] = useState(() => Date.now());
+  /// Mounted flag: the ticking seconds must not render during hydration —
+  /// server HTML seconds never equal the client's (React #418), so the
+  /// timer appears right after mount instead.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   useEffect(() => {
     if (!stamp?.startedAt || stamp.finishedAt) return;
     const id = window.setInterval(() => setNowTick(Date.now()), 1000);
     return () => window.clearInterval(id);
   }, [stamp?.startedAt, stamp?.finishedAt]);
-  const qs = client ? `?client=${client.id}` : "";
+  /// Client resolved on-device when the URL carries an unsynced one
+  /// (?client=pending:<opId>): the server can't know it yet.
+  const [pendClient, setPendClient] = useState<typeof client>(null);
+  useEffect(() => {
+    if (client) return;
+    let dead = false;
+    (async () => {
+      try {
+        const m = /[?&]client=(pending%3A[^&]+|pending:[^&]+)/.exec(window.location.search);
+        if (!m) return;
+        const id = decodeURIComponent(m[1]);
+        const pend = await getPendingClients();
+        const hit = pend.find((p) => `pending:${p.opId}` === id);
+        if (hit && !dead) setPendClient({ id, name: hit.name, code: hit.code, phone: hit.phone, balance: 0 });
+      } catch { /* stay client-less */ }
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const effClient = client ?? pendClient;
+  const qs = effClient ? `?client=${effClient.id}` : "";
+
+  /// Best-effort GPS fix for day stamps (never blocks).
+  async function stampPos(): Promise<{ lat: number; lng: number } | null> {
+    try {
+      if (!("geolocation" in navigator)) return null;
+      const p: GeolocationPosition = await new Promise((res, rej) =>
+        navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 })
+      );
+      return { lat: p.coords.latitude, lng: p.coords.longitude };
+    } catch {
+      return null;
+    }
+  }
 
   async function stampDay(kind: "start" | "finish") {
     if (!tournee || stamping) return;
     setStamping(true);
     setDayError(null);
+    const pos = await stampPos();
+    const geo = pos ? { lat: pos.lat, lng: pos.lng } : {};
     try {
       const res = await fetch(`/api/tournees/${tournee.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: kind }),
+        body: JSON.stringify({ action: kind, ...geo }),
       });
       const d = await res.json().catch(() => null);
       if (res.ok && d) {
         setStamp({ startedAt: d.startedAt ?? null, finishedAt: d.finishedAt ?? null });
         setDayPending(false);
+        if (kind === "finish") setFinishOpen(false);
         return;
       }
       setDayError(d?.error ?? "failed");
     } catch {
       // Offline: queue the stamp, show it optimistically as pending.
       try {
-        await queueOp(kind === "start" ? "day-start" : "day-finish", { tourneeId: tournee.id });
+        await queueOp(kind === "start" ? "day-start" : "day-finish", { tourneeId: tournee.id, ...geo });
         const now = new Date().toISOString();
         setStamp((s) => ({
           startedAt: kind === "start" ? now : (s?.startedAt ?? null),
           finishedAt: kind === "finish" ? now : (s?.finishedAt ?? null),
         }));
         setDayPending(true);
+        if (kind === "finish") setFinishOpen(false);
       } catch {
         setDayError("save_failed");
       }
     } finally {
       setStamping(false);
     }
+  }
+
+  /// Open the fin-journée recap with a fresh pending-ops count.
+  async function openFinish() {
+    setDayError(null);
+    try {
+      setPending(await pendingCount());
+    } catch { /* keep last known */ }
+    setFinishOpen(true);
   }
 
   async function refreshSync() {
@@ -106,9 +169,24 @@ export function DashClient({
   }
   useEffect(() => {
     void refreshSync();
+    // Warm the journée pages while online so everything works fully offline.
+    // The exact current URL first (query included: dashboard?client=X is a
+    // different cache entry than the bare dashboard).
+    warmJourneePages(locale, day);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /// Declare the counted till for TODAY (online, else queued for sync).
+  /// The amount comes pre-filled with the auto-computed due cash
+  /// (his sales collected + payments − expenses − cash returns).
+  function openTill() {
+    setTillMsg(null);
+    setTillError(null);
+    if (tillAmount === "" && Number.isFinite(dueCash) && dueCash > 0) {
+      setTillAmount(String(Math.round(dueCash * 100) / 100));
+    }
+    setTillOpen(true);
+  }
   async function submitTill() {
     if (tillSaving || tillAmount === "") return;
     setTillSaving(true);
@@ -147,23 +225,27 @@ export function DashClient({
   }
 
   const tiles: Array<{ key: string; label: string; badge?: number; Icon: typeof Plus; cls: string; go: () => void }> = [
-    { key: "sale", label: labels.newSale, Icon: Plus, cls: "bg-(--brand-500) text-white", go: () => router.push(`/${locale}/livreur/${day}/vente${qs}`) },
-    { key: "factures", label: labels.factures, Icon: ReceiptText, cls: "bg-sky-500/15 text-sky-600", go: () => router.push(`/${locale}/livreur/${day}/factures`) },
-    { key: "order", label: labels.newCommand, Icon: ClipboardList, cls: "bg-violet-500/15 text-violet-500", go: () => router.push(`/${locale}/livreur/${day}/commande${qs}`) },
-    { key: "orders", label: labels.commandes, Icon: ClipboardList, cls: "bg-indigo-500/15 text-indigo-500", go: () => router.push(`/${locale}/livreur/${day}/commandes`) },
-    { key: "ready", label: labels.ready, badge: readyCount, Icon: Truck, cls: "bg-emerald-500/15 text-emerald-600", go: () => router.push(`/${locale}/livreur/${day}/commandes?ready=1`) },
-    { key: "stock", label: labels.stock, Icon: Package, cls: "bg-amber-500/15 text-amber-600", go: () => router.push(`/${locale}/livreur/${day}/stock`) },
-    { key: "till", label: labels.declare, Icon: Banknote, cls: "bg-lime-500/15 text-lime-600", go: () => { setTillOpen(true); setTillMsg(null); } },
-    { key: "client", label: labels.newClient, Icon: UserPlus, cls: "bg-teal-500/15 text-teal-600", go: () => router.push(`/${locale}/livreur/${day}/clients/new`) },
-    { key: "dayClients", label: labels.clients, Icon: UserRound, cls: "bg-cyan-500/15 text-cyan-600", go: () => router.push(`/${locale}/livreur/${day}`) },
+    { key: "sale", label: labels.newSale, Icon: Plus, cls: "bg-(--brand-500) text-(--brand-contrast)", go: () => goPage(router, `/${locale}/livreur/${day}/vente${qs}`) },
+    { key: "factures", label: labels.factures, Icon: ReceiptText, cls: "bg-sky-500/15 text-sky-600", go: () => goPage(router, `/${locale}/livreur/${day}/factures`) },
+    { key: "order", label: labels.newCommand, Icon: ClipboardList, cls: "bg-violet-500/15 text-violet-500", go: () => goPage(router, `/${locale}/livreur/${day}/commande${qs}`) },
+    { key: "orders", label: labels.commandes, Icon: ClipboardList, cls: "bg-indigo-500/15 text-indigo-500", go: () => goPage(router, `/${locale}/livreur/${day}/commandes`) },
+    { key: "ready", label: labels.ready, badge: readyCount, Icon: Truck, cls: "bg-emerald-500/15 text-emerald-600", go: () => goPage(router, `/${locale}/livreur/${day}/commandes?ready=1`) },
+    { key: "demande", label: labels.restock ?? "Restock", Icon: PackageCheck, cls: "bg-teal-500/15 text-teal-600", go: () => goPage(router, `/${locale}/livreur/${day}/demande`) },
+    { key: "stock", label: labels.stock, Icon: Package, cls: "bg-amber-500/15 text-amber-600", go: () => goPage(router, `/${locale}/livreur/${day}/stock`) },
+    { key: "till", label: labels.declare, Icon: Banknote, cls: "bg-lime-500/15 text-lime-600", go: () => { openTill(); } },
+    { key: "expense", label: labels.expense, Icon: Wallet, cls: "bg-orange-500/15 text-orange-600", go: () => goPage(router, `/${locale}/livreur/${day}/expenses`) },
+    { key: "dayClients", label: labels.clients, Icon: UserRound, cls: "bg-cyan-500/15 text-cyan-600", go: () => goPage(router, `/${locale}/livreur/${day}`) },
   ];
+  // Vendeur (مندوب): orders/stock/sync only — no sale creation, no factures,
+  // no restock requests.
+  const visibleTiles = canSell(role) ? tiles : tiles.filter((t) => t.key !== "sale" && t.key !== "factures" && t.key !== "demande");
 
   return (
     <div className="space-y-3 p-4 pb-8 md:p-5">
       <div className="flex items-center gap-2">
         <button
           aria-label="back"
-          onClick={() => router.push(`/${locale}/livreur/${day}`)}
+          onClick={() => goPage(router, `/${locale}/livreur/${day}`)}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
         >
           <ArrowLeft size={18} className="rtl:rotate-180" />
@@ -172,19 +254,20 @@ export function DashClient({
           <h1 className="truncate text-lg font-black">{labels.title}</h1>
           <p className="truncate text-xs opacity-60">{vanName}</p>
         </div>
+        <OnlineBadge onlineLabel={labels.online ?? "online"} offlineLabel={labels.offline ?? "offline"} />
       </div>
 
-      {client && (
+      {effClient && (
         <div className="flex items-center gap-2.5 rounded-2xl border border-(--brand-500) bg-(--brand-500)/5 p-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500) text-white">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500) text-(--brand-contrast)">
             <UserRound size={19} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-base font-black">{client.name}</div>
-            <div className="truncate font-mono text-[11px] opacity-60" dir="ltr">{client.code}</div>
+            <div className="truncate text-base font-black">{effClient.name}{effClient.id.startsWith("pending:") ? " ⏳" : ""}</div>
+            <div className="truncate font-mono text-[11px] opacity-60" dir="ltr">{effClient.code}</div>
           </div>
           <button
-            onClick={() => router.push(`/${locale}/livreur/${day}`)}
+            onClick={() => goPage(router, `/${locale}/livreur/${day}`)}
             className="shrink-0 rounded-lg bg-(--bg-sunken) px-3 py-2 text-xs font-black"
           >
             {labels.clients}
@@ -219,7 +302,7 @@ export function DashClient({
               {dayPending && stamp?.startedAt && !stamp?.finishedAt ? ` ⏳` : ""}
             </span>
           </div>
-          {stamp?.startedAt && (() => {
+          {stamp?.startedAt && mounted && (() => {
             const end = stamp.finishedAt ? new Date(stamp.finishedAt).getTime() : nowTick;
             const s = Math.max(0, Math.floor((end - new Date(stamp.startedAt).getTime()) / 1000));
             const hh = String(Math.floor(s / 3600)).padStart(2, "0");
@@ -240,7 +323,7 @@ export function DashClient({
                 {labels.startDay}
               </Button>
             ) : !stamp?.finishedAt ? (
-              <Button onClick={() => void stampDay("finish")} disabled={stamping} variant="secondary" className="h-12 flex-1 text-base">
+              <Button onClick={() => void openFinish()} disabled={stamping} variant="secondary" className="h-12 flex-1 text-base">
                 {labels.finishDay}
               </Button>
             ) : null}
@@ -259,14 +342,14 @@ export function DashClient({
       )}
 
       <div className="grid grid-cols-2 gap-2">
-        {tiles.map(({ key, label, badge, Icon, cls, go }) => (
+        {visibleTiles.map(({ key, label, badge, Icon, cls, go }) => (
           <button
             key={key}
             onClick={go}
             className="relative flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 shadow-sm transition-all active:scale-[0.98]"
           >
             {(badge ?? 0) > 0 && (
-              <span className="absolute end-2 top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-(--brand-500) px-1.5 text-[11px] font-black text-white tabular-nums">
+              <span className="absolute end-2 top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-(--brand-500) px-1.5 text-[11px] font-black text-(--brand-contrast) tabular-nums">
                 {badge}
               </span>
             )}
@@ -285,7 +368,7 @@ export function DashClient({
           </span>
           <span className="text-[13px] font-black">{labels.syncT}{pending > 0 ? ` (${pending})` : ""}</span>
           <span className="text-[10px] opacity-50">
-            {lastSync ? `${labels.lastSync}: ${new Date(lastSync).toLocaleTimeString()}` : labels.pending}
+            {lastSync ? `${labels.lastSync}: ${new Date(lastSync).toLocaleTimeString(`${locale}-u-nu-latn`)}` : labels.pending}
           </span>
         </button>
       </div>
@@ -306,6 +389,7 @@ export function DashClient({
           serverTitle: labels.syncServerTitle, changeServer: labels.syncChangeServer,
           serverScanHint: labels.syncServerScanHint, serverPendingBlock: labels.syncServerPendingBlock,
           serverQuarantined: labels.syncServerQuarantined, serverReset: labels.syncServerReset,
+          offlineReady: labels.syncOfflineReady, offlineNotReady: labels.syncOfflineNotReady,
           webUpdateTitle: labels.syncWebUpdateTitle, webLater: labels.syncWebLater, webValidate: labels.syncWebValidate,
           nativeTitle: labels.syncNativeTitle, nativeGo: labels.syncNativeGo,
           history: labels.syncHistory, noHistory: labels.syncNoHistory, clearHistory: labels.syncClearHistory,
@@ -314,12 +398,54 @@ export function DashClient({
           updateTitle: labels.syncUpdateTitle, checkUpdate: labels.syncCheckUpdate,
           webOk: labels.syncWebOk, webNew: labels.syncWebNew, updateNow: labels.syncUpdateNow,
           downloadApk: labels.syncDownloadApk, apkHint: labels.syncApkHint,
+          clockSkew: labels.syncClockSkew,
         }}
       />
+
+      {/* Fin de journée recap: what the day produced, before locking it.
+          Warns on undeclared till / unsynced ops — never blocks. */}
+      <Modal open={finishOpen} onClose={() => setFinishOpen(false)} title={labels.finishDay} subtitle={vanName} icon="🏁" width="sm">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between rounded-xl bg-(--bg-sunken) px-3 py-2 text-sm font-bold">
+            <span className="opacity-60">{labels.recapSales ?? ""}</span>
+            <span className="tabular-nums" dir="ltr">{dayCount} · {dzMoney(dayTotal)}</span>
+          </div>
+          <div className="flex items-center justify-between rounded-xl bg-(--bg-sunken) px-3 py-2 text-sm font-bold">
+            <span className="opacity-60">{labels.recapDue ?? ""}</span>
+            <span className="tabular-nums" dir="ltr">{dzMoney(dueCash)}</span>
+          </div>
+          <div className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-bold ${declared == null ? "bg-amber-500/10 text-amber-600" : "bg-(--bg-sunken)"}`}>
+            <span className="opacity-80">{labels.recapDeclared ?? ""}</span>
+            <span className="tabular-nums" dir="ltr">{declared == null ? (labels.recapNotDeclared ?? "!") : dzMoney(declared)}</span>
+          </div>
+          {declared == null && (
+            <p className="rounded-xl bg-amber-500/10 p-2.5 text-xs font-bold text-amber-600">{labels.recapNotDeclared ?? ""}</p>
+          )}
+          {pending > 0 && (
+            <p className="rounded-xl bg-amber-500/10 p-2.5 text-xs font-bold text-amber-600">
+              {labels.recapPending ?? ""} ({pending})
+            </p>
+          )}
+          {dayError && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{dayError}</p>}
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setFinishOpen(false)} className="flex-1" disabled={stamping}>
+              {labels.cancel}
+            </Button>
+            <Button onClick={() => void stampDay("finish")} disabled={stamping} className="flex-[2]">
+              {stamping ? "…" : labels.finishDay}
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* تسليم الصندوق: counted till → DECLARED (online, else queued). */}
       <Modal open={tillOpen} onClose={() => setTillOpen(false)} title={labels.declare} subtitle={vanName} icon="💵" width="sm">
         <div className="space-y-3">
+          {Number.isFinite(dueCash) && dueCash > 0 && (
+            <p className="rounded-xl bg-(--bg-sunken) p-2.5 text-xs font-bold opacity-80" dir="auto">
+              {labels.dueHint ?? ""} <bdi className="tabular-nums">{dzMoney(dueCash)}</bdi>
+            </p>
+          )}
           <div>
             <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.amount}</label>
             <Input type="number" min={0} step="any" value={tillAmount} onChange={(e) => setTillAmount(e.target.value)} dir="ltr" inputMode="decimal" />
@@ -338,6 +464,7 @@ export function DashClient({
           </div>
         </div>
       </Modal>
+
     </div>
   );
 }

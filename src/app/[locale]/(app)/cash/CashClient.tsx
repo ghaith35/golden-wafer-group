@@ -209,14 +209,14 @@ export function CashClient({
         <div className="flex gap-2">
           <button
             onClick={() => setTab("v")}
-            className={cn("rounded-lg px-4 py-2 text-sm font-bold", tab === "v" ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken)")}
+            className={cn("rounded-lg px-4 py-2 text-sm font-bold", tab === "v" ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken)")}
           >
             {labels.versements}
           </button>
           {depositsOn && (
             <button
               onClick={() => setTab("d")}
-              className={cn("rounded-lg px-4 py-2 text-sm font-bold", tab === "d" ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken)")}
+              className={cn("rounded-lg px-4 py-2 text-sm font-bold", tab === "d" ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken)")}
             >
               {labels.deposits}
             </button>
@@ -318,7 +318,7 @@ export function CashClient({
                   <button
                     key={k}
                     onClick={() => { setKind(k); setParty(""); }}
-                    className={cn("rounded-lg px-3 py-1.5 text-sm font-bold", kind === k ? "bg-(--brand-500) text-white" : "bg-(--bg-sunken)")}
+                    className={cn("rounded-lg px-3 py-1.5 text-sm font-bold", kind === k ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken)")}
                   >
                     {labels[k]}
                   </button>

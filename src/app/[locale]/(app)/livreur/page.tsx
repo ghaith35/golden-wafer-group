@@ -8,7 +8,8 @@ import { DaysClient } from "./DaysClient";
 
 /// Step 1 — Journée: pick a weekday, then go to its clients.
 /// Locked while a journée is open (started, not finished): jumps straight
-/// back into it. Finishing re-opens this page.
+/// into its dashboard — the clock page only shows before départ is stamped.
+/// Finishing re-opens this page.
 export default async function LivreurDaysPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -28,7 +29,7 @@ export default async function LivreurDaysPage({ params }: { params: Promise<{ lo
       orderBy: { startedAt: "desc" },
       select: { date: true },
     });
-    if (open) redirect(`/${locale}/livreur/${daySlug(new Date(open.date))}/start`);
+    if (open) redirect(`/${locale}/livreur/${daySlug(new Date(open.date))}/dashboard`);
   }
   return (
     <DaysClient

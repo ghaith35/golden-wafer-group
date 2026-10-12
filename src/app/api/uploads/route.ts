@@ -3,6 +3,7 @@ import { writeFile, mkdir } from "node:fs/promises";
 import { join, extname } from "node:path";
 import { randomBytes } from "node:crypto";
 import { getSession } from "@/lib/auth/session";
+import { uploadsRoot } from "@/lib/uploads/store";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED = new Map([
@@ -27,7 +28,10 @@ export async function POST(req: Request) {
 
   const ext = ALLOWED.get(file.type) ?? extname(file.name);
   const name = `${randomBytes(12).toString("hex")}${ext}`;
-  const dir = join(process.cwd(), "public", "uploads", sub);
+  // Persistent app-data storage (see src/lib/uploads/store.ts): bundle
+  // public/ dirs are wiped from view on every update — uploads must not live
+  // there or product images break after the next update.
+  const dir = join(uploadsRoot(), sub);
   await mkdir(dir, { recursive: true });
   await writeFile(join(dir, name), Buffer.from(await file.arrayBuffer()));
   return NextResponse.json({ url: `/uploads/${sub}/${name}` }, { status: 201 });

@@ -33,9 +33,18 @@ export async function signAccessToken(payload: SessionPayload): Promise<string> 
 }
 
 export async function signRefreshToken(payload: SessionPayload): Promise<string> {
+  // Random jti (Web Crypto — edge-safe, unlike node:crypto): two logins in
+  // the same second (double-tap on a slow line, two devices at once) must
+  // NEVER mint the same token — the refresh_tokens table keys on the token
+  // hash and a collision 500s a legit login.
+  const jti =
+    typeof globalThis.crypto?.randomUUID === "function"
+      ? globalThis.crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   return new SignJWT({ ...payload, _type: "refresh" })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
+    .setJti(jti)
     .setExpirationTime("365d")
     .sign(secret());
 }

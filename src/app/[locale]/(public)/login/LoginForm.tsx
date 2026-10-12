@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { Eye, EyeOff, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { QrScanner } from "@/components/scan/QrScanner";
+import { getOfflineCred, hasOfflineUnlock, markOfflineUnlocked, saveOfflineCred, saveOfflineQr, tryOfflineUnlock, tryOfflineQrUnlock } from "@/lib/sync/client";
 
 export function LoginForm({ dark = false }: { dark?: boolean }) {
   const t = useTranslations("login");
@@ -17,14 +19,51 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
   const [showPassword, setShowPassword] = useState(false);
   const [qrInput, setQrInput] = useState("");
   const [scanning, setScanning] = useState(false);
-  const [scanSupported, setScanSupported] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [scanError, setScanError] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  /// Offline unlock: no connection but a cached credential from the first
+  /// online login exists — verify on-device instead of the server.
+  const [offline, setOffline] = useState(false);
+  useEffect(() => {
+    const on = () => {
+      try { setOffline(false); } catch { /* ignore */ }
+    };
+    window.addEventListener("online", on);
+    return () => {
+      window.removeEventListener("online", on);
+    };
+  }, []);
+
+  // If a previous session cached credentials, offer the username immediately.
+  // Offline with a valid unlock session (opened within the credential
+  // lifetime): skip the form and go straight into the journée — the service
+  // worker serves the cached pages, snapshot + outbox keep everything working.
+  useEffect(() => {
+    try {
+      const c = getOfflineCred();
+      if (c && !username) setUsername(c.username);
+      if (typeof window !== "undefined" && navigator.onLine === false && hasOfflineUnlock()) {
+        redirectAfterLogin(c?.role);
+      }
+    } catch { /* no cache */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function redirectAfterLogin(role?: string) {
     // Livreur lands straight on the Journée picker (no dashboard detour).
     if (role === "Livreur") {
+      // Offline: /livreur is an uncached server redirect (dead end without
+      // connection) — enter today's cached dashboard directly instead.
+      try {
+        if (typeof window !== "undefined" && window.navigator?.onLine === false) {
+          const d = new Date();
+          window.location.assign(`/${locale}/livreur/${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}/dashboard`);
+          return;
+        }
+      } catch {
+        /* fall through to the default entry */
+      }
       window.location.assign(`/${locale}/livreur`);
       return;
     }
@@ -60,6 +99,14 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
         return false;
       }
       const d = await res.json().catch(() => null);
+      // QR login also opens the offline session (reopening the app
+      // offline within the credential lifetime goes straight in) AND caches
+      // the badge itself — drivers who never type a password unlock later
+      // by scanning again, with zero connection.
+      try {
+        markOfflineUnlocked();
+        saveOfflineQr(trimmed, d?.user?.username ?? "", d?.user?.role ?? "");
+      } catch { /* offline cache is best-effort */ }
       redirectAfterLogin(d?.user?.role);
       return true;
     } finally {
@@ -83,7 +130,25 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
           body: JSON.stringify({ username: trimmedUsername, password }),
         });
       } catch {
-        setError(t("networkError"));
+        // No connection: fall back to the on-device credential cache from
+        // the first online login (30-day TTL, 5-tries lockout inside).
+        const r = tryOfflineUnlock(trimmedUsername, password);
+        if (r.ok) {
+          const c = getOfflineCred();
+          setOffline(true);
+          redirectAfterLogin(c?.role);
+          return;
+        }
+        if (r.error === "locked") {
+          setError(t("lockedOut"));
+          return;
+        }
+        if (r.error === "no_cache") {
+          setOffline(true);
+          setError(t("connectOnce"));
+          return;
+        }
+        setError(t("invalidError"));
         return;
       }
       if (res.status === 401) {
@@ -106,92 +171,74 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
       // `from` is set by the proxy (?from=/dashboard). Read it from the URL
       // directly so this component doesn't need a Suspense boundary.
       const d = await res.json().catch(() => null);
+      // Cache the credential for future offline logins (staff only inside).
+      // A fresh login also opens the offline session at once, so the
+      // driver isn't asked for the password again on next offline open —
+      // and settles any deferred offline logout (this session is truth).
+      try {
+        saveOfflineCred(trimmedUsername, password, d?.user?.role ?? "");
+        markOfflineUnlocked();
+        localStorage.removeItem("dili_logout_pending");
+      } catch { /* offline cache is best-effort */ }
       redirectAfterLogin(d?.user?.role);
     } finally {
       setLoading(false);
     }
   }
 
-  // Camera QR scan via the native BarcodeDetector (no extra dependency).
-  // Stops automatically after a successful login.
-  useEffect(() => {
-    setScanSupported(typeof window !== "undefined" && "BarcodeDetector" in window);
-  }, []);
-
-  useEffect(() => {
-    if (!scanning) return;
-    let stopped = false;
-    let stream: MediaStream | null = null;
-    let raf = 0;
-    const BD = (window as unknown as { BarcodeDetector?: new (opts: { formats: string[] }) => { detect(v: HTMLVideoElement): Promise<Array<{ rawValue: string }>> } }).BarcodeDetector;
-    if (!BD) {
-      setScanning(false);
-      return;
-    }
-    const detector = new BD({ formats: ["qr_code"] });
-    (async () => {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-      } catch {
-        if (!stopped) {
-          setError(t("error"));
+  // Camera QR scan via the shared QrScanner (native BarcodeDetector with
+  // jsQR fallback + frozen-preview watchdog). Stops after a successful login.
+  // Offline the scanned badge unlocks against the cached mapping from the
+  // last online QR login — no connection, no typing.
+  async function onScanDetect(text: string) {
+    try {
+      if (typeof navigator !== "undefined" && navigator.onLine === false) {
+        const r = tryOfflineQrUnlock(text);
+        if (r.ok) {
+          setScanning(false);
+          setError(null);
+          redirectAfterLogin(r.role);
+        } else if (r.error === "no_cache") {
+          setError(t("connectOnce"));
+          setScanning(false);
+        } else {
+          setError(t("invalidError"));
           setScanning(false);
         }
         return;
       }
-      if (stopped) {
-        stream.getTracks().forEach((tr) => tr.stop());
-        return;
-      }
-      const video = videoRef.current;
-      if (!video) return;
-      video.srcObject = stream;
-      await video.play().catch(() => {});
-      const tick = async () => {
-        if (stopped) return;
-        try {
-          const codes = await detector.detect(video);
-          if (codes.length > 0 && codes[0].rawValue) {
-            const ok = await loginWithQr(codes[0].rawValue);
-            if (ok) {
-              setScanning(false);
-              return;
-            }
-          }
-        } catch { /* keep scanning */ }
-        raf = window.setTimeout(() => tick(), 400);
-      };
-      tick();
-    })();
-    return () => {
-      stopped = true;
-      window.clearTimeout(raf);
-      stream?.getTracks().forEach((tr) => tr.stop());
-      if (videoRef.current) videoRef.current.srcObject = null;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scanning]);
+    } catch { /* fall through to the online path */ }
+    const ok = await loginWithQr(text);
+    if (ok) setScanning(false);
+  }
 
   const labelCls = dark
-    ? "mb-1 block text-xs font-semibold uppercase tracking-wide text-white/60"
+    ? "mb-1.5 block text-[13px] font-semibold text-white/50"
     : "mb-1 block text-xs font-semibold uppercase tracking-wide opacity-70";
   const inputCls = dark
-    ? "bg-white/10 border-white/15 text-white caret-white placeholder:text-white/35 focus:border-lime-400 focus:bg-white/10 focus:text-white"
+    ? "h-12 rounded-lg border-white/10 bg-white/[0.06] text-white caret-white placeholder:text-white/30 focus:border-[#b5dc63]/70 focus:bg-white/[0.08] focus:text-white"
     : undefined;
   const tabCls = (active: boolean) =>
     `flex-1 rounded-lg px-3 py-2 text-sm font-bold transition ${
       active
         ? dark
-          ? "bg-lime-400 text-black"
+          ? "bg-[#b5dc63] text-[#17271e]"
           : "bg-(--brand-500)/10 text-(--brand-600)"
         : dark
-          ? "text-white/60 hover:bg-white/10"
+          ? "text-white/55 hover:bg-white/10 hover:text-white"
           : "opacity-60 hover:bg-(--bg-sunken)"
     }`;
+  const primaryDark = "h-12 w-full bg-[#b5dc63] text-base font-bold text-[#17271e] hover:bg-[#c8e87f] hover:opacity-100";
+  const secondaryDark = "w-full border-white/10 bg-white/10 text-white hover:bg-white/15";
 
   return (
     <div className="space-y-4">
-      <div className={`flex gap-1 rounded-xl p-1 ${dark ? "bg-white/5" : "bg-(--bg-sunken)"}`}>
+      {offline && (
+        <p className="rounded-xl bg-amber-500/10 p-2.5 text-center text-xs font-black text-amber-600" dir="auto">
+          📴 {t("offlineMode")}
+        </p>
+      )}
+      <div className={`flex gap-1 rounded-xl p-1 ${dark ? "bg-black/25" : "bg-(--bg-sunken)"}`}>
         <button type="button" onClick={() => { setTab("pw"); setScanning(false); setError(null); }} className={tabCls(tab === "pw")}>
           {t("tabPassword")}
         </button>
@@ -203,9 +250,8 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
         </button>
       </div>
 
-      {tab === "pw" ? (
-        <form onSubmit={onSubmit} className="auth-dark space-y-4">
-          <div>
+            {tab === "pw" ? (
+        <form onSubmit={onSubmit} className="auth-dark space-y-4">          <div>
             <label htmlFor="login-username" className={labelCls}>{t("username")}</label>
             <Input
               id="login-username"
@@ -251,30 +297,56 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
             </div>
           </div>
           {error && <p role="alert" className={`text-sm ${dark ? "text-rose-300" : "text-red-500"}`}>{error}</p>}
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className={dark ? primaryDark : "w-full"} disabled={loading}>
             {loading ? `${t("submit")}…` : t("submit")}
           </Button>
         </form>
       ) : (
+        // QR badge scan works offline too (camera + bundled decoder, unlock
+        // against the cached badge) — no "connect once" wall anymore.
         <div className="auth-dark space-y-3">
           <p className={`text-xs ${dark ? "text-white/60" : "opacity-60"}`}>{t("qrHint")}</p>
           {scanning ? (
             <div className="overflow-hidden rounded-xl border border-white/10 bg-black">
-              <video ref={videoRef} className="h-56 w-full object-cover" muted playsInline />
+              <QrScanner
+                key="login-scan"
+                className="h-56 w-full object-cover"
+                onDetect={(v) => void onScanDetect(v)}
+                onError={() => {
+                  setScanError(true);
+                  setScanning(false);
+                  setError(t("error"));
+                }}
+              />
             </div>
           ) : (
-            <video ref={videoRef} className="hidden" muted playsInline />
-          )}
-          {scanSupported && (
             <Button
               type="button"
               variant="secondary"
-              className="w-full"
-              onClick={() => setScanning((s) => !s)}
+              className={dark ? secondaryDark : undefined}
+              onClick={() => {
+                setScanError(false);
+                setError(null);
+                setScanning(true);
+              }}
               disabled={loading}
             >
-              {scanning ? t("scanStop") : t("scanStart")}
+              {t("scanStart")}
             </Button>
+          )}
+          {scanning && (
+            <Button
+              type="button"
+              variant="secondary"
+              className={dark ? secondaryDark : undefined}
+              onClick={() => setScanning(false)}
+              disabled={loading}
+            >
+              {t("scanStop")}
+            </Button>
+          )}
+          {scanError && (
+            <p role="alert" className={`text-xs ${dark ? "text-white/60" : "opacity-60"}`}>{t("scanRetryHint")}</p>
           )}
           <div>
             <label htmlFor="login-qrtoken" className={labelCls}>{t("tabQr")}</label>
@@ -292,7 +364,7 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
             />
           </div>
           {error && <p role="alert" className={`text-sm ${dark ? "text-rose-300" : "text-red-500"}`}>{error}</p>}
-          <Button type="button" className="w-full" disabled={loading || !qrInput.trim()} onClick={() => void loginWithQr(qrInput)}>
+          <Button type="button" className={dark ? primaryDark : "w-full"} disabled={loading || !qrInput.trim()} onClick={() => void loginWithQr(qrInput)}>
             {loading ? `${t("qrLogin")}…` : t("qrLogin")}
           </Button>
         </div>

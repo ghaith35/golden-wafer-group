@@ -16,6 +16,7 @@ const EPS = 1e-9;
 
 export const KIND_PRIORITY: Record<string, number> = {
   client: 0,
+  "client-update": 1,
   "day-start": 1,
   ticket: 2,
   order: 2,
@@ -194,11 +195,40 @@ export function checkOfflineClient(
   ops: OutboxRow[],
   input: { phone?: string | null },
 ): { ok: true } | { ok: false; error: string } {
-  const phone = (input.phone ?? "").trim();
-  if (phone && !/^(0)(5|6|7)[0-9]{8}$/.test(phone)) return { ok: false, error: "bad_phone" };
-  if (phone) {
-    const dupSnap = snap?.clients.some((c) => (c.phone ?? "") === phone);
-    const dupQueue = ops.some((o) => o.kind === "client" && String((o.payload as Record<string, unknown>).phone ?? "") === phone);
+  return checkClientPhone(snap, ops, null, input.phone);
+}
+
+/// Same, for EDITING an existing client: duplicates exclude the client
+/// itself (snapshot + queued creates + queued updates of OTHER clients).
+export function checkOfflineClientUpdate(
+  snap: VanSnapshot | null,
+  ops: OutboxRow[],
+  selfId: string,
+  input: { phone?: string | null },
+): { ok: true } | { ok: false; error: string } {
+  return checkClientPhone(snap, ops, selfId, input.phone);
+}
+
+function checkClientPhone(
+  snap: VanSnapshot | null,
+  ops: OutboxRow[],
+  selfId: string | null,
+  phone?: string | null,
+): { ok: true } | { ok: false; error: string } {
+  const p = (phone ?? "").trim();
+  if (p && !/^(0)(5|6|7)[0-9]{8}$/.test(p)) return { ok: false, error: "bad_phone" };
+  if (p) {
+    const dupSnap = snap?.clients.some((c) => c.id !== selfId && (c.phone ?? "") === p);
+    const dupQueue = ops.some((o) => {
+      const q = o.payload as Record<string, unknown>;
+      if (o.kind === "client") return String(q.phone ?? "") === p;
+      if (o.kind === "client-update") {
+        const qid = typeof q.clientId === "string" ? q.clientId : null;
+        if (qid === selfId || (selfId?.startsWith("pending:") && qid === selfId)) return false;
+        return String((q.patch as Record<string, unknown> | undefined)?.phone ?? "") === p;
+      }
+      return false;
+    });
     if (dupSnap || dupQueue) return { ok: false, error: "duplicate_phone" };
   }
   return { ok: true };
