@@ -14,8 +14,12 @@
  * v11: purge EVERYTHING (a pre-v11 worker cached the HTML offline page
  * under chunk URLs on flaky networks — every later load SyntaxError'd and
  * the error-card reload looped forever). Plus a content-type guard below
- * so a mismatched body can never poison the static cache again. */
-const VERSION = "dili-sw-v11";
+ * so a mismatched body can never poison the static cache again.
+ * v12: tunnel-down navigations (phone online, shop PC off) RESOLVE with
+ * Cloudflare's 530 / Error 1033 page instead of rejecting — serve the
+ * cache fallback for any 5xx document, or the driver sticks on the
+ * Cloudflare error with a warm cache sitting unused. */
+const VERSION = "dili-sw-v12";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 
@@ -187,6 +191,21 @@ function docResponse(req) {
   try {
     return fetch(req).then(
       (res) => {
+        // Phone online but server/tunnel down: Cloudflare answers the
+        // navigation itself (HTTP 530 / Error 1033 page) so fetch
+        // RESOLVES — without this check the driver sticks on the
+        // Cloudflare error even with a warm cache. Any 5xx means
+        // "server can't serve": work from cache instead. 4xx stays
+        // served as-is (real app answers: unknown day, login…), and
+        // 5xx is never cached (isCacheablePage needs res.ok), so the
+        // error page can neither show nor poison the cache.
+        let dead = false;
+        try {
+          dead = Number(res.status) >= 500;
+        } catch {
+          dead = false;
+        }
+        if (dead) return offlineFallback(req);
         // Clone SYNCHRONOUSLY here: once this callback returns, the
         // navigation starts consuming the body and any later clone throws
         // "body is already used" (that bug kept the whole page cache empty).
