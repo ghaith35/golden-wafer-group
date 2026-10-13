@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, ChevronLeft, LogOut, Menu, Minus, Moon, Plus, Sun, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { serverUnreachable, popCrumb } from "@/lib/sync/client";
-import { SyncBadge } from "@/components/sync/SyncBadge";
+import { SyncBadge, type SyncBadgeLabels } from "@/components/sync/SyncBadge";
 import { isDarkNow, toggleDark, THEME_CHANGED_EVENT } from "@/components/theme/ThemeSelector";
 
 /// Route segment → `nav` translation key. Segments without a key fall back to
@@ -89,7 +89,7 @@ export function TopBar({
 }: {
   onMenuClick: () => void;
   onLogout: () => void;
-  syncLabels: { offline: string; pending: string; sync: string; synced: string; noDevice: string };
+  syncLabels: SyncBadgeLabels;
   hideMenu?: boolean;
   username?: string | null;
 }) {

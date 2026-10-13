@@ -180,7 +180,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setCollapsed(next);
   }
 
-  const syncLabels = { offline: ts("offline"), pending: ts("pending"), sync: ts("sync"), synced: ts("synced"), noDevice: ts("noDevice") };
+  const syncLabels = {
+    offline: ts("offline"), pending: ts("pending"), sync: ts("sync"), synced: ts("synced"), noDevice: ts("noDevice"),
+    upload: ts("upload"), download: ts("download"), images: ts("images"),
+    applied: ts("applied"), failed: ts("failed"), remaining: ts("remaining"),
+    retry: ts("retry"), failedOps: ts("failedOps"),
+    pairing: ts("pairing"), pairFail: ts("pairFail"), syncOk: ts("syncOk"), syncNow: ts("syncNow"),
+  };
   const connLabels = {
     title: ts("connLost"), hint: ts("connLostHint"), pendingSaved: ts("pendingSaved"),
     continueOffline: ts("continueOffline"), retry: ts("retryNow"),
