@@ -241,11 +241,14 @@ export function DashClient({
     { key: "expense", label: labels.expense, Icon: Wallet, cls: "bg-orange-500/15 text-orange-600", go: () => goPage(router, `/${locale}/livreur/${day}/expenses`) },
     { key: "dayClients", label: labels.clients, Icon: UserRound, cls: "bg-cyan-500/15 text-cyan-600", go: () => goPage(router, `/${locale}/livreur/${day}`) },
   ];
-  // Vendeur (مندوب): orders/stock/sync only — no sale creation, no factures,
-  // no restock requests, no "ready to deliver" lane.
+  // Vendeur (مندوب): orders/stock/expenses only — no sale creation, no
+  // factures, no restock requests, no "ready to deliver" lane, no till
+  // (cash-box) declaration. Money side = expenses only.
+  const notSeller = ["sale", "factures", "demande"];
+  const vendeurOnly = ["ready", "till"];
   const visibleTiles = canSell(role)
     ? tiles
-    : tiles.filter((t) => t.key !== "sale" && t.key !== "factures" && t.key !== "demande" && (role !== "Vendeur" || t.key !== "ready"));
+    : tiles.filter((t) => !notSeller.includes(t.key) && (role !== "Vendeur" || !vendeurOnly.includes(t.key)));
 
   return (
     <div className="space-y-3 p-4 pb-8 md:p-5">
