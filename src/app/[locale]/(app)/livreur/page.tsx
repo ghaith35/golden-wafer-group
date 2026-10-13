@@ -35,7 +35,7 @@ export default async function LivreurDaysPage({ params }: { params: Promise<{ lo
     <DaysClient
       locale={locale}
       van={van ? JSON.parse(JSON.stringify(van)) : null}
-      labels={{ title: t("title"), days: t("days"), empty: t("empty") }}
+      labels={{ title: session.role === "Vendeur" ? t("getCommand") : t("title"), days: t("days"), empty: t("empty") }}
     />
   );
 }

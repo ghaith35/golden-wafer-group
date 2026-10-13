@@ -51,8 +51,9 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
   }, []);
 
   function redirectAfterLogin(role?: string) {
-    // Livreur lands straight on the Journée picker (no dashboard detour).
-    if (role === "Livreur") {
+    // Livreur + Vendeur land straight on the van flow (no dashboard detour —
+    // the Vendeur must never see the admin dashboard, exactly like Livreur).
+    if (role === "Livreur" || role === "Vendeur") {
       // Offline: /livreur is an uncached server redirect (dead end without
       // connection) — enter today's cached dashboard directly instead.
       try {

@@ -284,7 +284,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       { key: depotView ? "vanDepot" : "vanStock", href: `livreur/${day}/stock`, Icon: Package },
       { key: "vanExpense", href: `livreur/${day}/expenses`, Icon: Wallet },
       { key: "vanClients", href: `livreur/${day}`, Icon: UserRound },
-      { key: "livreur", href: "livreur", Icon: Smartphone },
+      // Vendeur enters the same van flow, but it reads "Get command" —
+      // never "sell van".
+      { key: role === "Vendeur" ? "vendeurFlow" : "livreur", href: "livreur", Icon: Smartphone },
     ];
     return sell ? items : items.filter((i) => i.key !== "vanSale" && i.key !== "vanFactures" && i.key !== "vanDemande");
   }

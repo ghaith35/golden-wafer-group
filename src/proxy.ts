@@ -232,9 +232,13 @@ export async function proxy(request: NextRequest) {
       const ok = LIVREUR_PAGES.some((p) => isPath(routePath, p));
       if (!ok) return NextResponse.redirect(new URL(localized("/livreur"), request.url));
     } else if (claims.role === "Vendeur") {
-      // Mandob: no sale creation, no factures — anywhere.
+      // Mandob: no sale creation, no factures — anywhere. And never the
+      // admin dashboard (like Livreur): the van flow is his whole app.
+      if (isPath(routePath, "/dashboard")) {
+        return NextResponse.redirect(new URL(localized("/livreur"), request.url));
+      }
       if (isPath(routePath, "/sales")) {
-        return NextResponse.redirect(new URL(localized("/dashboard"), request.url));
+        return NextResponse.redirect(new URL(localized("/livreur"), request.url));
       }
       const seg = routePath.split("/").filter(Boolean);
       if (seg[0] === "livreur" && (seg[2] === "vente" || seg[2] === "factures" || seg[2] === "demande")) {

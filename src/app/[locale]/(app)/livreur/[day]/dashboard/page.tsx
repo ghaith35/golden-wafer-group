@@ -80,7 +80,7 @@ export default async function LivreurDashPage({
       })()}
       role={session.role}
       labels={{
-        title: t("title"), newSale: t("newSale"), factures: t("factures"),
+        title: session.role === "Vendeur" ? t("getCommand") : t("title"), newSale: t("newSale"), factures: t("factures"),
         clients: t("clients"), total: t("total"), stock: t("stock"), stockDepot: t("stockDepot"),
         ready: t("ready"),
         newCommand: t("newCommand"), commandes: t("commandes"), syncT: t("syncT"),
