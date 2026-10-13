@@ -55,6 +55,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ loc
           redeliverT: t("redeliverT"), redeliverM: t("redeliverM"),
           assignT: t("assignT"), deliverT: t("deliverT"), van: t("van"),
           confirmLoad: t("confirmLoad"), confirmLoadT: t("confirmLoadT"), confirmLoadM: t("confirmLoadM"),
+          siteCheck: t("siteCheck"), siteSale: t("siteSale"), siteClient: t("siteClient"), awayFromClient: t("awayFromClient"),
         }}
       />
     </div>

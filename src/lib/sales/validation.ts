@@ -31,6 +31,10 @@ export const ticketSchema = z.object({
   remise: z.coerce.number().finite().min(0).optional(),
   paid: z.coerce.number().finite().min(0).nullish(),
   notes: z.string().max(500).nullish(),
+  /// Silent sale-site fix from the phone (van tickets): never required,
+  /// stripped to null when out of range — the sale must never fail on it.
+  saleLat: z.coerce.number().finite().nullish(),
+  saleLng: z.coerce.number().finite().nullish(),
   lines: z.array(saleLineSchema).min(1).max(200),
 });
 

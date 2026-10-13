@@ -708,6 +708,12 @@ model Sale {
   qrScanned   Boolean     @default(false)
   /// Order placed by the client through the portal (staff validates).
   isPortal    Boolean     @default(false)
+  /// Silent sale-site check (van tickets): GPS captured on the phone at
+  /// sale time + distance to the client's registered position, for the
+  /// admin only. Null = no fix (denied/offline) or client has no position.
+  saleLat     Float?
+  saleLng     Float?
+  saleDistM   Float?
   notes       String?
   date        DateTime    @default(now())
   createdAt   DateTime    @default(now())

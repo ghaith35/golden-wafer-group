@@ -241,6 +241,8 @@ async function applyOp(
           remise: Number(p.remise ?? 0),
           paid: p.paid == null ? null : Number(p.paid),
           notes: (p.notes as string) ?? null,
+          saleLat: p.saleLat == null ? null : Number(p.saleLat),
+          saleLng: p.saleLng == null ? null : Number(p.saleLng),
           lines: p.lines as never,
         },
         { opId: op.opId, occurredAt },

@@ -374,6 +374,22 @@ export async function createTicket(
 
   const date = opts?.occurredAt ?? new Date();
   const season = await ensureSeasonFor(companyId, date);
+  // Silent sale-site check (admin eyes only): phone fix vs the client's
+  // registered position. Out-of-range/missing → all null, never a failure.
+  const { computeSaleDistM } = await import("./site-check");
+  const { haversineM } = await import("@/lib/geo-math");
+  const inRange = (v: unknown, lim: number) =>
+    typeof v === "number" && Number.isFinite(v) && Math.abs(v) <= lim ? v : null;
+  const fixLat = inRange(input.saleLat, 90);
+  const fixLng = inRange(input.saleLng, 180);
+  const siteCheck = {
+    saleLat: fixLat,
+    saleLng: fixLng,
+    saleDistM:
+      fixLat == null || fixLng == null
+        ? null
+        : computeSaleDistM(fixLat, fixLng, client?.gpsLat ?? null, client?.gpsLng ?? null, haversineM),
+  };
   return prisma.$transaction(async (tx) => {
     const number = await nextDocNumber(tx, companyId, "sale_ticket", date.getFullYear(), SERIES.TICKET);
 
@@ -421,6 +437,7 @@ export async function createTicket(
         qrScanned: input.qrScanned ?? false,
         notes: input.notes ?? null,
         date,
+        ...siteCheck,
         lines: {
           create: priced.map((l, i) => ({
             productId: l.productId,

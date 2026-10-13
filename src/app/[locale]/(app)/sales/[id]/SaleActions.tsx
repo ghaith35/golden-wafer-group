@@ -27,8 +27,12 @@ export type SaleDetail = {
   locationId: string | null;
   tierId: string | null;
   notes: string | null;
-  client: { id: string; name: string; code: string } | null;
+  client: { id: string; name: string; code: string; gpsLat?: number | null; gpsLng?: number | null } | null;
   location: { id: string; name: string; kind?: string } | null;
+  /// Silent sale-site check (admin eyes only — never shown to the driver).
+  saleLat?: number | null;
+  saleLng?: number | null;
+  saleDistM?: number | null;
   lines: Array<{
     id: string;
     productId: string;
@@ -65,6 +69,63 @@ function MiniMetric({ label, value, tone }: { label: string; value: string; tone
         tone === "teal" ? "text-emerald-600" : tone === "gold" ? "text-amber-600" : "text-red-500"
       )}>
         {value}
+      </div>
+    </div>
+  );
+}
+
+/// Silent sale-site check (admin eyes only — the driver never sees this):
+/// where the phone was at sale time vs the client's registered position.
+/// Renders nothing when there is no fix (denied/unavailable/legacy sale).
+/// 500m+ reads as "away from the client".
+function SiteCheckCard({ sale, labels }: { sale: SaleDetail; labels: Record<string, string> }) {
+  const lat = sale.saleLat;
+  const lng = sale.saleLng;
+  if (typeof lat !== "number" || typeof lng !== "number" || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const dist = typeof sale.saleDistM === "number" && Number.isFinite(sale.saleDistM) ? sale.saleDistM : null;
+  const away = dist != null && dist >= 500;
+  const fmtDist = dist == null ? "—" : dist < 1000 ? `${Math.round(dist)} m` : `${(dist / 1000).toFixed(1)} km`;
+  const saleUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+  const clat = sale.client?.gpsLat;
+  const clng = sale.client?.gpsLng;
+  const clientUrl = typeof clat === "number" && typeof clng === "number" && Number.isFinite(clat) && Number.isFinite(clng)
+    ? `https://www.google.com/maps?q=${clat},${clng}`
+    : null;
+  return (
+    <div className={cn(
+      "rounded-2xl border p-3",
+      away ? "border-red-500/40 bg-red-500/5" : "border-(--border-default) bg-(--bg-overlay)"
+    )}>
+      <div className="flex items-center gap-2">
+        <span className="text-base">📍</span>
+        <div className="min-w-0 flex-1">
+          <div className="text-xs font-black">
+            {labels.siteCheck ?? "Sale site"}
+            {dist != null && (
+              <span className={cn(
+                "ms-2 rounded-full px-2 py-0.5 text-[10px] tabular-nums",
+                away ? "bg-red-500/15 text-red-500" : "bg-emerald-500/15 text-emerald-600"
+              )} dir="ltr">
+                {fmtDist}
+              </span>
+            )}
+          </div>
+          <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] font-bold opacity-70">
+            <a href={saleUrl} target="_blank" rel="noreferrer" className="underline" dir="ltr">
+              {labels.siteSale ?? "sale"} 📍
+            </a>
+            {clientUrl && (
+              <a href={clientUrl} target="_blank" rel="noreferrer" className="underline" dir="ltr">
+                {labels.siteClient ?? "client"} 📍
+              </a>
+            )}
+          </div>
+        </div>
+        {away && (
+          <span className="shrink-0 rounded-full bg-red-500/15 px-2 py-1 text-[10px] font-black text-red-500">
+            ⚠ {labels.awayFromClient ?? ""}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -212,6 +273,7 @@ export function SaleActions({
           />
         </div>
       </div>
+      <SiteCheckCard sale={sale} labels={labels} />
       <Card>
         <div className="mb-2 flex items-center justify-between">
           <span className="text-[11px] font-black uppercase tracking-wide opacity-50">

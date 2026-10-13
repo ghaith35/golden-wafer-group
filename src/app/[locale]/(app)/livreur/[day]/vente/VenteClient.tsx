@@ -120,6 +120,26 @@ export function VenteClient({
   }, [showFacture]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /// Silent sale-site fix (admin eyes only — no UI, never blocks the sale):
+  /// warmed while the driver builds the facture so a fix is usually ready
+  /// at save time; null when denied/unavailable.
+  const siteFix = useRef<{ lat: number; lng: number } | null>(null);
+  function warmSiteFix() {
+    try {
+      if (!("geolocation" in navigator)) return;
+      navigator.geolocation.getCurrentPosition(
+        (p) => {
+          siteFix.current = { lat: p.coords.latitude, lng: p.coords.longitude };
+        },
+        () => {},
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 120000 }
+      );
+    } catch { /* never break the sale */ }
+  }
+  useEffect(() => {
+    warmSiteFix();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client?.id]);
   const [doneId, setDoneId] = useState<string | null>(null);
   const [doneQueued, setDoneQueued] = useState(false);
   /// Print preview: created ticket (server response or local snapshot when
@@ -533,6 +553,9 @@ export function VenteClient({
       const snapPaid = paidNow;
       setSaving(true);
       setError(null);
+      // Silent sale-site fix (admin eyes only): whatever fix is warm, or
+      // nothing — the sale never waits for GPS.
+      const fix = siteFix.current;
       const body = {
         clientId: client?.id ?? null,
         locationId: vanId,
@@ -540,6 +563,7 @@ export function VenteClient({
         channel: "VAN",
         tourneeId,
         qrScanned: scanned,
+        ...(fix ? { saleLat: fix.lat, saleLng: fix.lng } : {}),
         paid: paidNow,
         lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })),
       };
