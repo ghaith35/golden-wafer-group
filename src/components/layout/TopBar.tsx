@@ -104,8 +104,13 @@ export function TopBar({
   const locale = useLocale();
 
   return (
+    <>
+    {/* Punch-hole phones: solid white strip behind the status bar / camera
+        cutout (clock, wifi, battery) so it never blends with the app.
+        Zero-height where there is no cutout — invisible elsewhere. */}
+    <div aria-hidden className="fixed inset-x-0 top-0 z-30 h-[env(safe-area-inset-top)] bg-white print:hidden" />
     <header className={cn(
-      "fixed inset-x-0 top-0 z-30 flex items-center gap-2 border-b border-(--border-default) bg-(--bg-overlay) px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] print:hidden md:px-5 md:py-0 md:pt-[env(safe-area-inset-top)] md:h-[calc(3.5rem+env(safe-area-inset-top))]",
+      "fixed inset-x-0 top-[env(safe-area-inset-top)] z-30 flex items-center gap-2 border-b border-(--border-default) bg-(--bg-overlay) px-3 pb-2 pt-2 print:hidden md:px-5 md:py-0 md:h-14",
       sidebarOffset === "wide" ? "lg:start-60" : sidebarOffset === "slim" ? "lg:start-[68px]" : ""
     )}>
       <DesktopBackButton />
@@ -131,6 +136,7 @@ export function TopBar({
       <ThemeToggle />
       <UserMenu username={username} onLogout={onLogout} />
     </header>
+    </>
   );
 }
 
