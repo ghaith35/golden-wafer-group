@@ -10,6 +10,7 @@ import { recordCrumb, serverUnreachable, startReachabilityProbe } from "@/lib/sy
 import { canSell } from "@/lib/staff-permissions";
 import { TopBar, LanguageSwitcher } from "@/components/layout/TopBar";
 import { ConnLostDialog } from "@/components/sync/ConnLostDialog";
+import { watchChunkErrors } from "@/lib/chunk-reload";
 import { VanTracker } from "@/components/track/VanTracker";
 import { AutoUpdate } from "@/components/sync/AutoUpdate";
 import { useSavedDistances } from "@/lib/geo";
@@ -105,6 +106,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     // so the first offline save never pays init cost — or discovers a broken
     // plugin only when the driver is already offline with a customer waiting.
     void import("@/lib/sync/offline-db").then((m) => m.db.ready().catch(() => {})).catch(() => {});
+    // Stale-deploy chunk failures ("failed to load chunk") heal with one
+    // guarded reload instead of a dead button mid-sale.
+    const stopChunkWatch = watchChunkErrors();
+    return () => {
+      try {
+        stopChunkWatch();
+      } catch { /* ignore */ }
+    };
   }, []);
 
   // Offline link safety net: Next <Link> transitions need the network (RSC).

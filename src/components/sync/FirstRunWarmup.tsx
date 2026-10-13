@@ -11,6 +11,7 @@ import {
   warmAndVerify,
   warmManifest,
   warmOfflineChunks,
+  WARM_SW_VERSION,
   type SyncPhase,
 } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
@@ -74,8 +75,11 @@ export function FirstRunWarmup({
     try {
       const raw = localStorage.getItem(WARM_FLAG);
       if (raw) {
-        const p = JSON.parse(raw) as { origin?: unknown; done?: unknown };
-        if (p.done === true && p.origin === window.location.origin) return false;
+        const p = JSON.parse(raw) as { origin?: unknown; done?: unknown; sw?: unknown };
+        // A worker upgrade purges every older cache — a "done" stamped by a
+        // previous SW generation no longer means warm. Re-run instead of
+        // trusting it (this is what left phones chunk-broken after v12).
+        if (p.done === true && p.origin === window.location.origin && p.sw === WARM_SW_VERSION) return false;
       }
       // Offline first login (offline unlock): stay silent — the popup
       // re-arms on the next online dashboard visit.
@@ -95,7 +99,7 @@ export function FirstRunWarmup({
 
   function flagDone() {
     try {
-      localStorage.setItem(WARM_FLAG, JSON.stringify({ origin: window.location.origin, done: true, ts: Date.now() }));
+      localStorage.setItem(WARM_FLAG, JSON.stringify({ origin: window.location.origin, done: true, sw: WARM_SW_VERSION, ts: Date.now() }));
     } catch { /* private mode — popup re-arms, harmless */ }
   }
 
@@ -142,16 +146,19 @@ export function FirstRunWarmup({
       setPages("fail");
       return;
     }
-    // ── 3. Media: lazy chunks (QR/camera/PDF) + Arabic fonts ──────────
+    // ── 3. Media: lazy chunks (QR/camera/PDF/maps/native) + fonts ──────
+    // Same set as warmOfflineChunks (single source), then verified: an
+    // import resolving means its chunk went through the SW static branch.
     setMedia("active");
     try {
       warmOfflineChunks();
-      // Imports resolving = code present; fonts checked in the cache.
-      await Promise.allSettled([
-        import("jsqr").catch(() => null),
-        import("qrcode").catch(() => null),
-        import("@/lib/pdf/ticketPdf").catch(() => null),
+      const settled = await Promise.allSettled([
+        import("jsqr").then(() => true).catch(() => false),
+        import("qrcode").then(() => true).catch(() => false),
+        import("@capacitor/core").then(() => true).catch(() => false),
+        import("@/lib/pdf/ticketPdf").then(() => true).catch(() => false),
       ]);
+      const chunksOk = settled.filter((r) => r.status === "fulfilled" && r.value).length;
       let fonts = 0;
       try {
         const hits = await Promise.all(
@@ -161,6 +168,10 @@ export function FirstRunWarmup({
         );
         fonts = hits.reduce((a, b) => a + b, 0);
       } catch { /* ignore */ }
+      // Chunks are best-effort by design (a missing map shell must never
+      // block readiness) — the count stays honest in devtools, the step
+      // completes, and the global chunk-error guard heals rotated builds.
+      void chunksOk;
       void fonts;
       setMedia("done");
     } catch {

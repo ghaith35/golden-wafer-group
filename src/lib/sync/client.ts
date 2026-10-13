@@ -1022,17 +1022,23 @@ export function startReachabilityProbe(): void {
 /// and dead printing the first time it goes offline. These run through the
 /// service worker's static branch, so one online fetch caches them for later.
 /// Fire-and-forget: failures are silently ignored.
+/// Keep in sync with FirstRunWarmup's media step (same set, verified there).
 export function warmOfflineChunks(): void {
   try {
     if (typeof window === "undefined" || window.navigator?.onLine === false) return;
     void import("jsqr").catch(() => {});
     void import("qrcode").catch(() => {});
+    void import("@capacitor/core").catch(() => {});
     void import("@capacitor/browser").catch(() => {});
     void import("@capacitor/share").catch(() => {});
     void import("@capacitor/filesystem").catch(() => {});
     // A4 facture PDF builder (+ its jsPDF chunk) and the Amiri fonts it
     // shapes Arabic with — the Share button must work fully offline.
     void import("@/lib/pdf/ticketPdf").catch(() => {});
+    // Offline map shells (leaflet + tiles layer): the carte page dynamic-
+    // imports these — unwarmed, it dies with a chunk error offline.
+    void import("@/components/map/TourneeMap").catch(() => {});
+    void import("@/components/map/VansMap").catch(() => {});
     for (const f of ["/fonts/amiri-regular.ttf", "/fonts/amiri-bold.ttf"]) {
       fetch(f, { cache: "force-cache" }).catch(() => {});
     }
@@ -1040,6 +1046,13 @@ export function warmOfflineChunks(): void {
     /* never break the page */
   }
 }
+
+/// Service-worker cache generation the offline warmup is verified against.
+/// MUST match VERSION in public/sw.js (a worker upgrade purges every older
+/// cache — phones must re-warm, and the first-run flag below carries this
+/// so a stale "done" from a previous generation never counts). Enforced by
+/// tests/unit/offline-warmup.test.ts.
+export const WARM_SW_VERSION = "dili-sw-v12";
 
 /// Warm the service-worker's page cache for the given same-origin document
 /// URLs while online, so the journée loop keeps working fully offline.
