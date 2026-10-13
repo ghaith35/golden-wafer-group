@@ -105,7 +105,7 @@ export function TopBar({
 
   return (
     <header className={cn(
-      "fixed inset-x-0 top-0 z-30 flex items-center gap-2 border-b border-(--border-default) bg-(--bg-overlay) px-3 py-2 print:hidden md:px-5 md:h-14 md:py-0",
+      "fixed inset-x-0 top-0 z-30 flex items-center gap-2 border-b border-(--border-default) bg-(--bg-overlay) px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] print:hidden md:px-5 md:py-0 md:pt-[env(safe-area-inset-top)] md:h-[calc(3.5rem+env(safe-area-inset-top))]",
       sidebarOffset === "wide" ? "lg:start-60" : sidebarOffset === "slim" ? "lg:start-[68px]" : ""
     )}>
       <DesktopBackButton />

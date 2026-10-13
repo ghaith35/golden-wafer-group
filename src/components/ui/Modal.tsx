@@ -65,7 +65,7 @@ export function Modal({
       role="dialog"
       aria-modal
       aria-label={title}
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 p-3 backdrop-blur-sm md:items-center md:p-5"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm md:items-center md:p-5"
     >
       <div
         className={cn(

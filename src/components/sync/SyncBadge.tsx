@@ -361,7 +361,7 @@ export function SyncBadge({ labels, forceShow = false }: { labels: SyncBadgeLabe
         <div
           role="dialog"
           aria-label={labels.sync}
-          className="fixed inset-x-3 top-[64px] z-50 overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 shadow-2xl sm:absolute sm:inset-x-auto sm:start-0 sm:top-[calc(100%+8px)] sm:w-72 sm:max-w-[92vw]"
+          className="fixed inset-x-3 top-[calc(64px+env(safe-area-inset-top))] z-50 overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 shadow-2xl sm:absolute sm:inset-x-auto sm:start-0 sm:top-[calc(100%+8px)] sm:w-72 sm:max-w-[92vw]"
         >
           <div className="mb-2 flex items-center gap-2">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-(--brand-600)">

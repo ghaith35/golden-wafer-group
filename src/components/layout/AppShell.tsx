@@ -276,6 +276,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     const depotView = role === "Vendeur";
     const items: Item[] = [
       { key: "vanDash", href: `livreur/${day}/dashboard`, Icon: LayoutDashboard },
+      { key: "vanTournee", href: `livreur/${day}/start`, Icon: Route },
       { key: "vanSale", href: `livreur/${day}/vente`, Icon: Plus },
       { key: "vanFactures", href: `livreur/${day}/factures`, Icon: ReceiptText },
       { key: "vanOrder", href: `livreur/${day}/commande`, Icon: ClipboardList },
@@ -366,7 +367,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <div className={cn("pt-[60px] transition-all duration-300 ease-in-out md:pt-14 print:pt-0", !hideChrome && (collapsed ? "lg:ps-[68px]" : "lg:ps-60"))}>
+      <div className={cn("pt-[calc(60px+env(safe-area-inset-top))] transition-all duration-300 ease-in-out md:pt-[calc(3.5rem+env(safe-area-inset-top))] print:pt-0", !hideChrome && (collapsed ? "lg:ps-[68px]" : "lg:ps-60"))}>
         <TopBar onMenuClick={() => setNavOpen(true)} onLogout={logout} syncLabels={syncLabels} forceSyncShow={role !== "Admin"} hideMenu={hideChrome} username={username} sidebarOffset={hideChrome ? "none" : collapsed ? "slim" : "wide"} />
         <main className={!hideChrome && visibleTabs.length > 0 ? "pb-20 lg:pb-0" : ""}>{children}</main>
         {/* Global connection-loss dialog: one controlled reload into offline
