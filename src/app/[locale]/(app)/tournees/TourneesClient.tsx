@@ -25,6 +25,7 @@ type Row = {
   id: string;
   date: unknown;
   status: string;
+  autoClosed?: boolean | null;
   location: { id: string; name: string };
   secteur: { id: string; name: string } | null;
   stops: BoardStop[];
@@ -332,6 +333,7 @@ export function TourneesClient({
                             </span>
                             <span className="mt-0.5 block text-[11px] font-bold opacity-70">
                               {t.stops.length} {labels.stops}
+                              {t.autoClosed ? ` · ⚠ ${labels.unclosed}` : ""}
                             </span>
                           </button>
                           {isAdmin && (

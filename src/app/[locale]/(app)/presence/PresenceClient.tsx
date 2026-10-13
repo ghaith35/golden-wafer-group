@@ -14,6 +14,7 @@ type Row = {
   id: string;
   date: unknown;
   status: string;
+  autoClosed?: boolean | null;
   startedAt: string | null;
   finishedAt: string | null;
   startedLat: number | null;
@@ -23,12 +24,13 @@ type Row = {
   location: { id: string; name: string; matricule: string | null; user: { fullName: string } | null };
 };
 
-/// Late départ / overtime day, computed from company expectations.
+/// Late départ / overtime / unended day, computed from company expectations.
+/// `unclosed` = the driver never ended the journée — the system closed it.
 function flagsOf(
   r: Row,
   workStartAt: string | null,
   maxDayHours: number,
-): { late: boolean; overtime: boolean } {
+): { late: boolean; overtime: boolean; unclosed: boolean } {
   let late = false;
   if (workStartAt && r.startedAt) {
     const [h, m] = workStartAt.split(":").map(Number);
@@ -42,7 +44,7 @@ function flagsOf(
     overtime =
       (new Date(r.finishedAt).getTime() - new Date(r.startedAt).getTime()) / 3600000 > maxDayHours;
   }
-  return { late, overtime };
+  return { late, overtime, unclosed: r.autoClosed === true };
 }
 
 function mapsUrl(lat: number | null, lng: number | null): string | null {
@@ -173,7 +175,7 @@ export function PresenceClient({
 
   return (
     <div className="space-y-4 p-5 md:p-6">
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <KpiCard
           label={labels.start}
           value={String(visible.filter((r) => r.startedAt).length)}
@@ -193,6 +195,13 @@ export function PresenceClient({
           value={String(visible.filter((r) => r.startedAt && !r.finishedAt).length)}
           icon={<Flag size={18} />}
           accent="bg-amber-500/15 text-amber-600"
+          compact
+        />
+        <KpiCard
+          label={labels.unclosed}
+          value={String(visible.filter((r) => r.autoClosed).length)}
+          icon={<Flag size={18} />}
+          accent="bg-red-500/15 text-red-500"
           compact
         />
       </div>
@@ -263,6 +272,11 @@ export function PresenceClient({
                   {r.location.user ? ` · ${r.location.user.fullName}` : ""}
                 </div>
               </div>
+              {fl.unclosed && (
+                <span className="shrink-0 rounded-full bg-red-500/15 px-2 py-1 text-[10px] font-black text-red-500">
+                  ⚠ {labels.unclosed}
+                </span>
+              )}
               {fl.late && (
                 <span className="shrink-0 rounded-full bg-red-500/15 px-2 py-1 text-[10px] font-black text-red-500">
                   {labels.late}

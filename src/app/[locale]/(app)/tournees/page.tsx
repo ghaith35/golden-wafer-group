@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { sortByName } from "@/lib/sort";
+import { closeStaleDays } from "@/lib/tournees/service";
 import { TourneesClient } from "./TourneesClient";
 
 export default async function TourneesPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -12,6 +13,8 @@ export default async function TourneesPage({ params }: { params: Promise<{ local
   if (!session) redirect(`/${locale}/login`);
   const t = await getTranslations("tournees");
   const tc = await getTranslations("common");
+  // Past unfinished journées end here, flagged — the week grid marks them.
+  await closeStaleDays(session.companyId).catch(() => {});
   const rows = await prisma.tournee.findMany({
     where: { companyId: session.companyId },
     include: {
@@ -54,6 +57,7 @@ export default async function TourneesPage({ params }: { params: Promise<{ local
         unitMin: t("unitMin"), geoManual: t("geoManual"),
         edit: tc("edit"), delete: tc("delete"),
         deleteTitle: tc("deleteTitle"), deleteMessage: tc("deleteMessage"),
+        unclosed: t("unclosed"),
         save: tc("save"), cancel: tc("cancel"),
         weekday: t("weekday"), van: t("van"), secteur: t("secteur"), notes: tc("notes"),
         autofill: t("fill"), clear: tc("cancel"),

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 import { tourneeSchema, tourneeStopsSchema, stopUpdateSchema } from "@/lib/sales/validation";
+import { algiersDayKey, endOfAlgiersDay, isPastAlgiersDay } from "./days";
 
 type TourneeInput = z.infer<typeof tourneeSchema>;
 
@@ -191,6 +192,9 @@ export async function startDay(
   occurredAt?: Date | null,
   stamp?: DayStamp | null,
 ) {
+  // Rolling over: yesterday's unfinished journée ends here, flagged —
+  // a new day never starts on top of a dangling one.
+  await closeStaleDays(companyId).catch(() => {});
   const tournee = await assertCanStamp(companyId, userId, role, tourneeId);
   // Idempotent: a retried/duplicated offline stamp is a success, not an error.
   if (tournee.startedAt) return tournee;
@@ -214,19 +218,62 @@ export async function finishDay(
   occurredAt?: Date | null,
   stamp?: DayStamp | null,
 ) {
+  await closeStaleDays(companyId).catch(() => {});
   const tournee = await assertCanStamp(companyId, userId, role, tourneeId);
+  // Already ended (manually or by the system): idempotent success, and an
+  // auto-close flag is NEVER cleared by a late stamp.
   if (tournee.finishedAt) return tournee;
   if (tournee.status !== "OPEN") throw Object.assign(new Error("bad_status"), { status: 400 });
   if (!tournee.startedAt) throw Object.assign(new Error("not_started"), { status: 400 });
   const lat = cleanCoord(stamp?.lat);
   const lng = cleanCoord(stamp?.lng);
+  // A journée finished after its own calendar day counts as unended-in-time:
+  // record the stamp but keep it flagged for the admin.
+  const late = isPastAlgiersDay(new Date(tournee.date));
   return prisma.tournee.update({
     where: { id: tournee.id },
     data: {
       finishedAt: occurredAt ?? new Date(),
+      ...(late ? { autoClosed: true } : {}),
       ...(lat != null && lng != null ? { finishedLat: lat, finishedLng: lng } : {}),
     },
   });
+}
+
+/// Auto-close: every started-but-unfinished journée from a past Algiers day
+/// ends at 23:59:59 of its own day, flagged for the admin. Runs lazily from
+/// startDay/finishDay (every deployment, no cron) and from the admin boards
+/// on load (so flags appear even if the driver never returns).
+export async function closeStaleDays(companyId: string, now = new Date()): Promise<{ closed: string[] }> {
+  const today = algiersDayKey(now);
+  // Small bounded set (one row per van per day): filter the calendar day in
+  // JS so server/shop-PC timezones can never shift the boundary.
+  const open = await prisma.tournee.findMany({
+    where: { companyId, status: "OPEN", startedAt: { not: null }, finishedAt: null },
+    select: { id: true, date: true },
+    orderBy: { date: "asc" },
+    take: 500,
+  });
+  const closed: string[] = [];
+  for (const t of open) {
+    let key = "";
+    try {
+      key = algiersDayKey(new Date(t.date));
+    } catch {
+      continue;
+    }
+    if (key >= today) continue;
+    try {
+      await prisma.tournee.update({
+        where: { id: t.id },
+        data: { finishedAt: endOfAlgiersDay(new Date(t.date)), autoClosed: true },
+      });
+      closed.push(t.id);
+    } catch {
+      /* one bad row never blocks the rest */
+    }
+  }
+  return { closed };
 }
 
 /// Admin manual correction of départ / fin de journée (presence board).
@@ -242,7 +289,9 @@ export async function setTourneeTimes(
   if (startedAt && Number.isNaN(startedAt.getTime())) throw Object.assign(new Error("bad_time"), { status: 400 });
   if (finishedAt && Number.isNaN(finishedAt.getTime())) throw Object.assign(new Error("bad_time"), { status: 400 });
   if (startedAt && finishedAt && finishedAt < startedAt) throw Object.assign(new Error("bad_range"), { status: 400 });
-  return prisma.tournee.update({ where: { id: tournee.id }, data: { startedAt, finishedAt } });
+  // Explicit admin correction takes ownership: a reviewed/corrected day is
+  // no longer "unended" — the flag clears, the stamps stay as set.
+  return prisma.tournee.update({ where: { id: tournee.id }, data: { startedAt, finishedAt, autoClosed: false } });
 }
 
 export { tourneeStopsSchema };

@@ -310,7 +310,8 @@
     "missingFields": "Choisissez un camion",
     "duplicateDay": "Ce camion a déjà une tournée ouverte ce jour",
     "secteurRequired": "Choisissez un secteur — tous ses clients seront ajoutés",
-    "allClients": "tous les clients du secteur"
+    "allClients": "tous les clients du secteur",
+    "unclosed": "Clôturée auto — journée non terminée"
   },
   "inventory": {
     "title": "Stock",
@@ -1121,6 +1122,7 @@
     "qrShared": "Partagé ✓",
     "qrSaveFail": "Échec — réessayez",
     "dayQueued": "⏳ Enregistré — sera synchronisé",
+    "autoClosedDay": "Journée clôturée auto — non terminée à temps",
     "all": "Tous",
     "expense": "Dépenses",
     "expenseLabel": "Motif",
@@ -1178,7 +1180,8 @@
     "week": "Semaine",
     "allDays": "Tous les jours",
     "late": "En retard",
-    "overtime": "Sup."
+    "overtime": "Sup.",
+    "unclosed": "Non clôturée"
   },
   "cashDaily": {
     "title": "Caisse du jour",

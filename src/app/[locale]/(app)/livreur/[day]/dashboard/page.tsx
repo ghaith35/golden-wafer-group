@@ -55,7 +55,7 @@ export default async function LivreurDashPage({
     }),
     prisma.tournee.findFirst({
       where: { companyId: session.companyId, locationId: van.id, date: { gte: dayStart, lte: dayEnd } },
-      select: { id: true, status: true, startedAt: true, finishedAt: true },
+      select: { id: true, status: true, startedAt: true, finishedAt: true, autoClosed: true },
       orderBy: { createdAt: "desc" },
     }),
     // Live till math for the auto-filled declaration (from his sales).
@@ -107,7 +107,7 @@ export default async function LivreurDashPage({
         syncNativeTitle: tc("nativeTitle"), syncNativeGo: tc("nativeGo"),
         newClient: t("newClient"), startDay: t("startDay"), finishDay: t("finishDay"), elapsed: t("elapsed"),
         online: t("online"), offline: t("offline"),
-        dayQueued: t("dayQueued"), noTournee: t("noTournee"),
+        dayQueued: t("dayQueued"), noTournee: t("noTournee"), autoClosedDay: t("autoClosedDay"),
         declare: t("declare"), declaredOk: t("declaredOk"), queuedOk: t("queuedOk"),
         recapSales: t("recapSales"), recapDue: t("recapDue"), recapDeclared: t("recapDeclared"),
         recapNotDeclared: t("recapNotDeclared"), recapPending: t("recapPending"),

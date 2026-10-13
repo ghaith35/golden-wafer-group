@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { listSeasons } from "@/lib/season/seasons";
+import { closeStaleDays } from "@/lib/tournees/service";
 import { PresenceClient } from "./PresenceClient";
 /// Admin view: départ / fin de journée per van and day, with month filter.
 export default async function PresencePage({
@@ -27,6 +28,9 @@ export default async function PresencePage({
   if (!months.includes(now.getMonth() + 1)) months.push(now.getMonth() + 1);
   months.sort((a, b) => b - a);
   const month = months.includes(Number(sp.month)) ? Number(sp.month) : now.getMonth() + 1;
+  // Unfinished past journées end here, flagged — the board below shows them
+  // even if the driver never syncs again.
+  await closeStaleDays(session.companyId).catch(() => {});
   const rangeStart = new Date(year, month - 1, 1);
   const rangeEnd = new Date(year, month, 1);
   const rows = await prisma.tournee.findMany({
@@ -56,6 +60,7 @@ export default async function PresencePage({
         title: t("title"), van: t("van"), driver: t("driver"), start: t("start"),
         end: t("end"), duration: t("duration"), empty: t("empty"), open: t("open"),
         week: t("week"), allDays: t("allDays"), late: t("late"), overtime: t("overtime"),
+        unclosed: t("unclosed"),
         edit: tc("edit"), save: tc("save"), cancel: tc("cancel"),
       }}
     />

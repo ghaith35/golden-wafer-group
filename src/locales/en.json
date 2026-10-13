@@ -310,7 +310,8 @@
     "missingFields": "Pick a van first",
     "duplicateDay": "This van already has an open tour that day",
     "secteurRequired": "Pick a secteur — all its clients will be added",
-    "allClients": "all secteur clients"
+    "allClients": "all secteur clients",
+    "unclosed": "Auto-closed — day never ended"
   },
   "inventory": {
     "title": "Inventory",
@@ -1121,6 +1122,7 @@
     "qrShared": "Shared ✓",
     "qrSaveFail": "Save failed — retry",
     "dayQueued": "⏳ Saved — will sync",
+    "autoClosedDay": "Your day was auto-closed — never ended in time",
     "all": "All",
     "expense": "Expenses",
     "expenseLabel": "Details",
@@ -1178,7 +1180,8 @@
     "week": "Week",
     "allDays": "All days",
     "late": "Late",
-    "overtime": "OT"
+    "overtime": "OT",
+    "unclosed": "Unclosed"
   },
   "cashDaily": {
     "title": "Daily till",

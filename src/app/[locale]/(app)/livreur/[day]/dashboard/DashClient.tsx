@@ -38,7 +38,7 @@ export function DashClient({
   dayCount: number;
   dayTotal: number;
   readyCount: number;
-  tournee: { id: string; status: string; startedAt: string | null; finishedAt: string | null } | null;
+  tournee: { id: string; status: string; startedAt: string | null; finishedAt: string | null; autoClosed?: boolean | null } | null;
   dueCash: number;
   declared: number | null;
   role: string;
@@ -57,6 +57,7 @@ export function DashClient({
   /// Day-stamp offline state.
   const [dayPending, setDayPending] = useState(false);
   const [dayError, setDayError] = useState<string | null>(null);
+  const [dayAuto, setDayAuto] = useState(false);
   /// Sync popup (both directions + progress bar).
   const [syncOpen, setSyncOpen] = useState(false);
   const [stamp, setStamp] = useState<{ startedAt: string | null; finishedAt: string | null } | null>(
@@ -130,6 +131,9 @@ export function DashClient({
       if (res.ok && d) {
         setStamp({ startedAt: d.startedAt ?? null, finishedAt: d.finishedAt ?? null });
         setDayPending(false);
+        // The system ended a past journée (he never closed it in time) —
+        // say so plainly instead of a silent finished state.
+        if (d.autoClosed) setDayAuto(true);
         if (kind === "finish") setFinishOpen(false);
         return;
       }
@@ -331,6 +335,9 @@ export function DashClient({
           </div>
           {dayPending && (
             <p className="mt-2 rounded-xl bg-amber-500/10 p-2 text-xs font-bold text-amber-600">{labels.dayQueued ?? ""}</p>
+          )}
+          {(dayAuto || tournee?.autoClosed) && (
+            <p className="mt-2 rounded-xl bg-red-500/10 p-2 text-xs font-bold text-red-500">⚠ {labels.autoClosedDay ?? ""}</p>
           )}
           {dayError && (
             <p className="mt-2 rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{dayError}</p>
