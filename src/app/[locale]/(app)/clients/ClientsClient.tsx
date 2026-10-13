@@ -174,9 +174,8 @@ export function ClientsClient({
         />
       </div>
       <div className="flex shrink-0 flex-wrap gap-2">
-        <Button onClick={() => setCreating(true)} className="shrink-0">
-          <Plus size={16} className="me-1" />
-          {labels.neW}
+        <Button onClick={() => setCreating(true)} className="shrink-0" aria-label={labels.neW} title={labels.neW}>
+          <Plus size={16} />
         </Button>
         <Button onClick={() => setImporting(true)} variant="secondary" className="shrink-0">
           <Upload size={16} className="me-1" />
