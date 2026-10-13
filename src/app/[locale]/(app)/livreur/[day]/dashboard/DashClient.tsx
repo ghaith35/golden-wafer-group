@@ -277,13 +277,13 @@ export function DashClient({
       )}
 
       <div className="grid grid-cols-2 gap-2">
-        <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 text-center">
-          <ReceiptText size={18} className="mx-auto text-(--brand-600)" />
-          <div className="mt-1 text-xl font-black tabular-nums">{dayCount}</div>
+        <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2 text-center sm:p-3">
+          <ReceiptText size={16} className="mx-auto text-(--brand-600) sm:size-[18px]" />
+          <div className="mt-0.5 text-lg font-black tabular-nums sm:mt-1 sm:text-xl">{dayCount}</div>
         </div>
-        <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 text-center">
-          <Wallet size={18} className="mx-auto text-(--brand-600)" />
-          <div className="mt-1 truncate text-xl font-black tabular-nums" dir="ltr">{dzMoney(dayTotal)}</div>
+        <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2 text-center sm:p-3">
+          <Wallet size={16} className="mx-auto text-(--brand-600) sm:size-[18px]" />
+          <div className="mt-0.5 truncate text-lg font-black tabular-nums sm:mt-1 sm:text-xl" dir="ltr">{dzMoney(dayTotal)}</div>
         </div>
       </div>
 
@@ -342,33 +342,39 @@ export function DashClient({
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2">
+      {/* Responsive tile density: 3 columns on phones so the whole set
+          fits near one view, 4 on large phones/tablets, 5 on desktop.
+          Tiles stay ≥76px tall (comfortable touch target) with truncated
+          labels — nothing overflows or cuts off on narrow screens. */}
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-5">
         {visibleTiles.map(({ key, label, badge, Icon, cls, go }) => (
           <button
             key={key}
             onClick={go}
-            className="relative flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 shadow-sm transition-all active:scale-[0.98]"
+            className="relative flex min-h-[84px] flex-col items-center justify-center gap-1 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2 shadow-sm transition-all active:scale-[0.98] sm:min-h-20 sm:gap-1.5 sm:p-3"
           >
             {(badge ?? 0) > 0 && (
-              <span className="absolute end-2 top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-(--brand-500) px-1.5 text-[11px] font-black text-(--brand-contrast) tabular-nums">
+              <span className="absolute end-1.5 top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-(--brand-500) px-1 text-[10px] font-black text-(--brand-contrast) tabular-nums sm:end-2 sm:top-2 sm:h-6 sm:min-w-6 sm:text-[11px]">
                 {badge}
               </span>
             )}
-            <span className={cn("flex h-11 w-11 items-center justify-center rounded-xl", cls)}>
-              <Icon size={20} />
+            <span className={cn("flex h-9 w-9 items-center justify-center rounded-xl sm:h-11 sm:w-11", cls)}>
+              <Icon size={18} className="sm:hidden" />
+              <Icon size={20} className="hidden sm:block" />
             </span>
-            <span className="text-[13px] font-black">{label}</span>
+            <span className="w-full truncate px-0.5 text-center text-[11px] font-black sm:text-[13px]">{label}</span>
           </button>
         ))}
         <button
           onClick={() => setSyncOpen(true)}
-          className="flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 shadow-sm transition-all active:scale-[0.98]"
+          className="flex min-h-[84px] flex-col items-center justify-center gap-1 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2 shadow-sm transition-all active:scale-[0.98] sm:min-h-20 sm:gap-1.5 sm:p-3"
         >
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600">
-            <RefreshCw size={20} />
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 sm:h-11 sm:w-11">
+            <RefreshCw size={18} className="sm:hidden" />
+            <RefreshCw size={20} className="hidden sm:block" />
           </span>
-          <span className="text-[13px] font-black">{labels.syncT}{pending > 0 ? ` (${pending})` : ""}</span>
-          <span className="text-[10px] opacity-50">
+          <span className="w-full truncate px-0.5 text-center text-[11px] font-black sm:text-[13px]">{labels.syncT}{pending > 0 ? ` (${pending})` : ""}</span>
+          <span className="w-full truncate px-0.5 text-center text-[9px] opacity-50 sm:text-[10px]">
             {lastSync ? `${labels.lastSync}: ${new Date(lastSync).toLocaleTimeString(`${locale}-u-nu-latn`)}` : labels.pending}
           </span>
         </button>
