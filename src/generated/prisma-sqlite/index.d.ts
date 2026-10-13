@@ -38084,12 +38084,18 @@ export namespace Prisma {
     remise: Decimal | null
     total: Decimal | null
     paid: Decimal | null
+    saleLat: number | null
+    saleLng: number | null
+    saleDistM: number | null
   }
 
   export type SaleSumAggregateOutputType = {
     remise: Decimal | null
     total: Decimal | null
     paid: Decimal | null
+    saleLat: number | null
+    saleLng: number | null
+    saleDistM: number | null
   }
 
   export type SaleMinAggregateOutputType = {
@@ -38112,6 +38118,9 @@ export namespace Prisma {
     offList: boolean | null
     qrScanned: boolean | null
     isPortal: boolean | null
+    saleLat: number | null
+    saleLng: number | null
+    saleDistM: number | null
     notes: string | null
     date: Date | null
     createdAt: Date | null
@@ -38139,6 +38148,9 @@ export namespace Prisma {
     offList: boolean | null
     qrScanned: boolean | null
     isPortal: boolean | null
+    saleLat: number | null
+    saleLng: number | null
+    saleDistM: number | null
     notes: string | null
     date: Date | null
     createdAt: Date | null
@@ -38166,6 +38178,9 @@ export namespace Prisma {
     offList: number
     qrScanned: number
     isPortal: number
+    saleLat: number
+    saleLng: number
+    saleDistM: number
     notes: number
     date: number
     createdAt: number
@@ -38179,12 +38194,18 @@ export namespace Prisma {
     remise?: true
     total?: true
     paid?: true
+    saleLat?: true
+    saleLng?: true
+    saleDistM?: true
   }
 
   export type SaleSumAggregateInputType = {
     remise?: true
     total?: true
     paid?: true
+    saleLat?: true
+    saleLng?: true
+    saleDistM?: true
   }
 
   export type SaleMinAggregateInputType = {
@@ -38207,6 +38228,9 @@ export namespace Prisma {
     offList?: true
     qrScanned?: true
     isPortal?: true
+    saleLat?: true
+    saleLng?: true
+    saleDistM?: true
     notes?: true
     date?: true
     createdAt?: true
@@ -38234,6 +38258,9 @@ export namespace Prisma {
     offList?: true
     qrScanned?: true
     isPortal?: true
+    saleLat?: true
+    saleLng?: true
+    saleDistM?: true
     notes?: true
     date?: true
     createdAt?: true
@@ -38261,6 +38288,9 @@ export namespace Prisma {
     offList?: true
     qrScanned?: true
     isPortal?: true
+    saleLat?: true
+    saleLng?: true
+    saleDistM?: true
     notes?: true
     date?: true
     createdAt?: true
@@ -38375,6 +38405,9 @@ export namespace Prisma {
     offList: boolean
     qrScanned: boolean
     isPortal: boolean
+    saleLat: number | null
+    saleLng: number | null
+    saleDistM: number | null
     notes: string | null
     date: Date
     createdAt: Date
@@ -38421,6 +38454,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: boolean
+    saleLng?: boolean
+    saleDistM?: boolean
     notes?: boolean
     date?: boolean
     createdAt?: boolean
@@ -38459,6 +38495,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: boolean
+    saleLng?: boolean
+    saleDistM?: boolean
     notes?: boolean
     date?: boolean
     createdAt?: boolean
@@ -38493,6 +38532,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: boolean
+    saleLng?: boolean
+    saleDistM?: boolean
     notes?: boolean
     date?: boolean
     createdAt?: boolean
@@ -38527,6 +38569,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: boolean
+    saleLng?: boolean
+    saleDistM?: boolean
     notes?: boolean
     date?: boolean
     createdAt?: boolean
@@ -38534,7 +38579,7 @@ export namespace Prisma {
     opId?: boolean
   }
 
-  export type SaleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "seasonId" | "kind" | "status" | "channel" | "number" | "clientId" | "locationId" | "tierId" | "createdById" | "tourneeId" | "sourceId" | "remise" | "total" | "paid" | "offList" | "qrScanned" | "isPortal" | "notes" | "date" | "createdAt" | "updatedAt" | "opId", ExtArgs["result"]["sale"]>
+  export type SaleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "seasonId" | "kind" | "status" | "channel" | "number" | "clientId" | "locationId" | "tierId" | "createdById" | "tourneeId" | "sourceId" | "remise" | "total" | "paid" | "offList" | "qrScanned" | "isPortal" | "saleLat" | "saleLng" | "saleDistM" | "notes" | "date" | "createdAt" | "updatedAt" | "opId", ExtArgs["result"]["sale"]>
   export type SaleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     client?: boolean | Sale$clientArgs<ExtArgs>
@@ -38616,6 +38661,14 @@ export namespace Prisma {
        * Order placed by the client through the portal (staff validates).
        */
       isPortal: boolean
+      /**
+       * Silent sale-site check (van tickets): GPS captured on the phone at
+       * sale time + distance to the client's registered position, for the
+       * admin only. Null = no fix (denied/offline) or client has no position.
+       */
+      saleLat: number | null
+      saleLng: number | null
+      saleDistM: number | null
       notes: string | null
       date: Date
       createdAt: Date
@@ -39077,6 +39130,9 @@ export namespace Prisma {
     readonly offList: FieldRef<"Sale", 'Boolean'>
     readonly qrScanned: FieldRef<"Sale", 'Boolean'>
     readonly isPortal: FieldRef<"Sale", 'Boolean'>
+    readonly saleLat: FieldRef<"Sale", 'Float'>
+    readonly saleLng: FieldRef<"Sale", 'Float'>
+    readonly saleDistM: FieldRef<"Sale", 'Float'>
     readonly notes: FieldRef<"Sale", 'String'>
     readonly date: FieldRef<"Sale", 'DateTime'>
     readonly createdAt: FieldRef<"Sale", 'DateTime'>
@@ -43315,6 +43371,7 @@ export namespace Prisma {
     startedLng: number | null
     finishedLat: number | null
     finishedLng: number | null
+    autoClosed: boolean | null
     createdAt: Date | null
   }
 
@@ -43332,6 +43389,7 @@ export namespace Prisma {
     startedLng: number | null
     finishedLat: number | null
     finishedLng: number | null
+    autoClosed: boolean | null
     createdAt: Date | null
   }
 
@@ -43349,6 +43407,7 @@ export namespace Prisma {
     startedLng: number
     finishedLat: number
     finishedLng: number
+    autoClosed: number
     createdAt: number
     _all: number
   }
@@ -43382,6 +43441,7 @@ export namespace Prisma {
     startedLng?: true
     finishedLat?: true
     finishedLng?: true
+    autoClosed?: true
     createdAt?: true
   }
 
@@ -43399,6 +43459,7 @@ export namespace Prisma {
     startedLng?: true
     finishedLat?: true
     finishedLng?: true
+    autoClosed?: true
     createdAt?: true
   }
 
@@ -43416,6 +43477,7 @@ export namespace Prisma {
     startedLng?: true
     finishedLat?: true
     finishedLng?: true
+    autoClosed?: true
     createdAt?: true
     _all?: true
   }
@@ -43520,6 +43582,7 @@ export namespace Prisma {
     startedLng: number | null
     finishedLat: number | null
     finishedLng: number | null
+    autoClosed: boolean
     createdAt: Date
     _count: TourneeCountAggregateOutputType | null
     _avg: TourneeAvgAggregateOutputType | null
@@ -43556,6 +43619,7 @@ export namespace Prisma {
     startedLng?: boolean
     finishedLat?: boolean
     finishedLng?: boolean
+    autoClosed?: boolean
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
@@ -43579,6 +43643,7 @@ export namespace Prisma {
     startedLng?: boolean
     finishedLat?: boolean
     finishedLng?: boolean
+    autoClosed?: boolean
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
@@ -43599,6 +43664,7 @@ export namespace Prisma {
     startedLng?: boolean
     finishedLat?: boolean
     finishedLng?: boolean
+    autoClosed?: boolean
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
@@ -43619,10 +43685,11 @@ export namespace Prisma {
     startedLng?: boolean
     finishedLat?: boolean
     finishedLng?: boolean
+    autoClosed?: boolean
     createdAt?: boolean
   }
 
-  export type TourneeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "date" | "locationId" | "secteurId" | "status" | "notes" | "startedAt" | "finishedAt" | "startedLat" | "startedLng" | "finishedLat" | "finishedLng" | "createdAt", ExtArgs["result"]["tournee"]>
+  export type TourneeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "date" | "locationId" | "secteurId" | "status" | "notes" | "startedAt" | "finishedAt" | "startedLat" | "startedLng" | "finishedLat" | "finishedLng" | "autoClosed" | "createdAt", ExtArgs["result"]["tournee"]>
   export type TourneeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
@@ -43671,6 +43738,11 @@ export namespace Prisma {
       startedLng: number | null
       finishedLat: number | null
       finishedLng: number | null
+      /**
+       * Auto-close: started but never finished the same day — the system ends
+       * it at day end and flags it to the admin (driver didn't end journée).
+       */
+      autoClosed: boolean
       createdAt: Date
     }, ExtArgs["result"]["tournee"]>
     composites: {}
@@ -44113,6 +44185,7 @@ export namespace Prisma {
     readonly startedLng: FieldRef<"Tournee", 'Float'>
     readonly finishedLat: FieldRef<"Tournee", 'Float'>
     readonly finishedLng: FieldRef<"Tournee", 'Float'>
+    readonly autoClosed: FieldRef<"Tournee", 'Boolean'>
     readonly createdAt: FieldRef<"Tournee", 'DateTime'>
   }
     
@@ -69726,6 +69799,9 @@ export namespace Prisma {
     offList: 'offList',
     qrScanned: 'qrScanned',
     isPortal: 'isPortal',
+    saleLat: 'saleLat',
+    saleLng: 'saleLng',
+    saleDistM: 'saleDistM',
     notes: 'notes',
     date: 'date',
     createdAt: 'createdAt',
@@ -69797,6 +69873,7 @@ export namespace Prisma {
     startedLng: 'startedLng',
     finishedLat: 'finishedLat',
     finishedLng: 'finishedLng',
+    autoClosed: 'autoClosed',
     createdAt: 'createdAt'
   };
 
@@ -72554,6 +72631,9 @@ export namespace Prisma {
     offList?: BoolFilter<"Sale"> | boolean
     qrScanned?: BoolFilter<"Sale"> | boolean
     isPortal?: BoolFilter<"Sale"> | boolean
+    saleLat?: FloatNullableFilter<"Sale"> | number | null
+    saleLng?: FloatNullableFilter<"Sale"> | number | null
+    saleDistM?: FloatNullableFilter<"Sale"> | number | null
     notes?: StringNullableFilter<"Sale"> | string | null
     date?: DateTimeFilter<"Sale"> | Date | string
     createdAt?: DateTimeFilter<"Sale"> | Date | string
@@ -72591,6 +72671,9 @@ export namespace Prisma {
     offList?: SortOrder
     qrScanned?: SortOrder
     isPortal?: SortOrder
+    saleLat?: SortOrderInput | SortOrder
+    saleLng?: SortOrderInput | SortOrder
+    saleDistM?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     date?: SortOrder
     createdAt?: SortOrder
@@ -72633,6 +72716,9 @@ export namespace Prisma {
     offList?: BoolFilter<"Sale"> | boolean
     qrScanned?: BoolFilter<"Sale"> | boolean
     isPortal?: BoolFilter<"Sale"> | boolean
+    saleLat?: FloatNullableFilter<"Sale"> | number | null
+    saleLng?: FloatNullableFilter<"Sale"> | number | null
+    saleDistM?: FloatNullableFilter<"Sale"> | number | null
     notes?: StringNullableFilter<"Sale"> | string | null
     date?: DateTimeFilter<"Sale"> | Date | string
     createdAt?: DateTimeFilter<"Sale"> | Date | string
@@ -72670,6 +72756,9 @@ export namespace Prisma {
     offList?: SortOrder
     qrScanned?: SortOrder
     isPortal?: SortOrder
+    saleLat?: SortOrderInput | SortOrder
+    saleLng?: SortOrderInput | SortOrder
+    saleDistM?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     date?: SortOrder
     createdAt?: SortOrder
@@ -72705,6 +72794,9 @@ export namespace Prisma {
     offList?: BoolWithAggregatesFilter<"Sale"> | boolean
     qrScanned?: BoolWithAggregatesFilter<"Sale"> | boolean
     isPortal?: BoolWithAggregatesFilter<"Sale"> | boolean
+    saleLat?: FloatNullableWithAggregatesFilter<"Sale"> | number | null
+    saleLng?: FloatNullableWithAggregatesFilter<"Sale"> | number | null
+    saleDistM?: FloatNullableWithAggregatesFilter<"Sale"> | number | null
     notes?: StringNullableWithAggregatesFilter<"Sale"> | string | null
     date?: DateTimeWithAggregatesFilter<"Sale"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"Sale"> | Date | string
@@ -72990,6 +73082,7 @@ export namespace Prisma {
     startedLng?: FloatNullableFilter<"Tournee"> | number | null
     finishedLat?: FloatNullableFilter<"Tournee"> | number | null
     finishedLng?: FloatNullableFilter<"Tournee"> | number | null
+    autoClosed?: BoolFilter<"Tournee"> | boolean
     createdAt?: DateTimeFilter<"Tournee"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     location?: XOR<StoreScalarRelationFilter, StoreWhereInput>
@@ -73012,6 +73105,7 @@ export namespace Prisma {
     startedLng?: SortOrderInput | SortOrder
     finishedLat?: SortOrderInput | SortOrder
     finishedLng?: SortOrderInput | SortOrder
+    autoClosed?: SortOrder
     createdAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
     location?: StoreOrderByWithRelationInput
@@ -73037,6 +73131,7 @@ export namespace Prisma {
     startedLng?: FloatNullableFilter<"Tournee"> | number | null
     finishedLat?: FloatNullableFilter<"Tournee"> | number | null
     finishedLng?: FloatNullableFilter<"Tournee"> | number | null
+    autoClosed?: BoolFilter<"Tournee"> | boolean
     createdAt?: DateTimeFilter<"Tournee"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     location?: XOR<StoreScalarRelationFilter, StoreWhereInput>
@@ -73059,6 +73154,7 @@ export namespace Prisma {
     startedLng?: SortOrderInput | SortOrder
     finishedLat?: SortOrderInput | SortOrder
     finishedLng?: SortOrderInput | SortOrder
+    autoClosed?: SortOrder
     createdAt?: SortOrder
     _count?: TourneeCountOrderByAggregateInput
     _avg?: TourneeAvgOrderByAggregateInput
@@ -73084,6 +73180,7 @@ export namespace Prisma {
     startedLng?: FloatNullableWithAggregatesFilter<"Tournee"> | number | null
     finishedLat?: FloatNullableWithAggregatesFilter<"Tournee"> | number | null
     finishedLng?: FloatNullableWithAggregatesFilter<"Tournee"> | number | null
+    autoClosed?: BoolWithAggregatesFilter<"Tournee"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Tournee"> | Date | string
   }
 
@@ -77401,6 +77498,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -77438,6 +77538,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -77461,6 +77564,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -77498,6 +77604,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -77528,6 +77637,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -77548,6 +77660,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -77575,6 +77690,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -77855,6 +77973,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     location: StoreCreateNestedOneWithoutTourneesInput
@@ -77877,6 +77996,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
@@ -77893,6 +78013,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
@@ -77915,6 +78036,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
@@ -77934,6 +78056,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
   }
 
@@ -77948,6 +78071,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -77965,6 +78089,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -81926,6 +82051,9 @@ export namespace Prisma {
     offList?: SortOrder
     qrScanned?: SortOrder
     isPortal?: SortOrder
+    saleLat?: SortOrder
+    saleLng?: SortOrder
+    saleDistM?: SortOrder
     notes?: SortOrder
     date?: SortOrder
     createdAt?: SortOrder
@@ -81937,6 +82065,9 @@ export namespace Prisma {
     remise?: SortOrder
     total?: SortOrder
     paid?: SortOrder
+    saleLat?: SortOrder
+    saleLng?: SortOrder
+    saleDistM?: SortOrder
   }
 
   export type SaleMaxOrderByAggregateInput = {
@@ -81959,6 +82090,9 @@ export namespace Prisma {
     offList?: SortOrder
     qrScanned?: SortOrder
     isPortal?: SortOrder
+    saleLat?: SortOrder
+    saleLng?: SortOrder
+    saleDistM?: SortOrder
     notes?: SortOrder
     date?: SortOrder
     createdAt?: SortOrder
@@ -81986,6 +82120,9 @@ export namespace Prisma {
     offList?: SortOrder
     qrScanned?: SortOrder
     isPortal?: SortOrder
+    saleLat?: SortOrder
+    saleLng?: SortOrder
+    saleDistM?: SortOrder
     notes?: SortOrder
     date?: SortOrder
     createdAt?: SortOrder
@@ -81997,6 +82134,9 @@ export namespace Prisma {
     remise?: SortOrder
     total?: SortOrder
     paid?: SortOrder
+    saleLat?: SortOrder
+    saleLng?: SortOrder
+    saleDistM?: SortOrder
   }
 
   export type SaleScalarRelationFilter = {
@@ -82190,6 +82330,7 @@ export namespace Prisma {
     startedLng?: SortOrder
     finishedLat?: SortOrder
     finishedLng?: SortOrder
+    autoClosed?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -82214,6 +82355,7 @@ export namespace Prisma {
     startedLng?: SortOrder
     finishedLat?: SortOrder
     finishedLng?: SortOrder
+    autoClosed?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -82231,6 +82373,7 @@ export namespace Prisma {
     startedLng?: SortOrder
     finishedLat?: SortOrder
     finishedLng?: SortOrder
+    autoClosed?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -89966,6 +90109,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -90001,6 +90147,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -90072,6 +90221,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
     location: StoreCreateNestedOneWithoutTourneesInput
     secteur?: SecteurCreateNestedOneWithoutTourneesInput
@@ -90092,6 +90242,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
@@ -90998,6 +91149,9 @@ export namespace Prisma {
     offList?: BoolFilter<"Sale"> | boolean
     qrScanned?: BoolFilter<"Sale"> | boolean
     isPortal?: BoolFilter<"Sale"> | boolean
+    saleLat?: FloatNullableFilter<"Sale"> | number | null
+    saleLng?: FloatNullableFilter<"Sale"> | number | null
+    saleDistM?: FloatNullableFilter<"Sale"> | number | null
     notes?: StringNullableFilter<"Sale"> | string | null
     date?: DateTimeFilter<"Sale"> | Date | string
     createdAt?: DateTimeFilter<"Sale"> | Date | string
@@ -91073,6 +91227,7 @@ export namespace Prisma {
     startedLng?: FloatNullableFilter<"Tournee"> | number | null
     finishedLat?: FloatNullableFilter<"Tournee"> | number | null
     finishedLng?: FloatNullableFilter<"Tournee"> | number | null
+    autoClosed?: BoolFilter<"Tournee"> | boolean
     createdAt?: DateTimeFilter<"Tournee"> | Date | string
   }
 
@@ -92216,6 +92371,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -92251,6 +92409,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -93109,6 +93270,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     location: StoreCreateNestedOneWithoutTourneesInput
@@ -93129,6 +93291,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
@@ -93560,6 +93723,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -93595,6 +93761,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -94238,6 +94407,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -94273,6 +94445,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -94344,6 +94519,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     secteur?: SecteurCreateNestedOneWithoutTourneesInput
@@ -94364,6 +94540,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
@@ -97143,6 +97320,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -97178,6 +97358,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -100222,6 +100405,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     location: StoreCreateNestedOneWithoutTourneesInput
@@ -100243,6 +100427,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
   }
@@ -100265,6 +100450,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -100301,6 +100489,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -100328,6 +100519,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -100363,6 +100557,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -100795,6 +100992,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
@@ -100816,6 +101014,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
   }
@@ -100844,6 +101043,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -100880,6 +101082,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -100950,6 +101155,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -100986,6 +101194,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -101091,6 +101302,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -101127,6 +101341,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -101378,6 +101595,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -101414,6 +101634,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -101708,6 +101931,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -101744,6 +101970,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -102285,6 +102514,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -102320,6 +102552,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -102585,6 +102820,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     location: StoreCreateNestedOneWithoutTourneesInput
@@ -102606,6 +102842,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
   }
@@ -102698,6 +102935,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
@@ -102719,6 +102957,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
   }
@@ -108103,6 +108342,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -108138,6 +108380,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
   }
 
@@ -108985,6 +109228,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -109020,6 +109266,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -109049,6 +109298,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -109114,6 +109366,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
     secteur?: SecteurUpdateOneWithoutTourneesNestedInput
@@ -109134,6 +109387,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
@@ -109152,6 +109406,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -109837,6 +110092,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -109956,6 +110214,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -109991,6 +110252,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -110020,6 +110284,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -110339,6 +110606,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
   }
 
@@ -110484,6 +110752,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
@@ -110504,6 +110773,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
@@ -110522,6 +110792,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -110585,6 +110856,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -110752,6 +111026,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -110787,6 +111064,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -110816,6 +111096,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -110951,6 +111234,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -110986,6 +111272,7 @@ export namespace Prisma {
     startedLng?: number | null
     finishedLat?: number | null
     finishedLng?: number | null
+    autoClosed?: boolean
     createdAt?: Date | string
   }
 
@@ -111272,6 +111559,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -111307,6 +111597,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -111336,6 +111629,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -111401,6 +111697,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     secteur?: SecteurUpdateOneWithoutTourneesNestedInput
@@ -111421,6 +111718,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
@@ -111439,6 +111737,7 @@ export namespace Prisma {
     startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -111790,6 +112089,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -111898,6 +112200,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -111933,6 +112238,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -111962,6 +112270,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -112940,6 +113251,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -112987,6 +113301,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -113022,6 +113339,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -113051,6 +113371,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -113202,6 +113525,9 @@ export namespace Prisma {
     offList?: boolean
     qrScanned?: boolean
     isPortal?: boolean
+    saleLat?: number | null
+    saleLng?: number | null
+    saleDistM?: number | null
     notes?: string | null
     date?: Date | string
     createdAt?: Date | string
@@ -113252,6 +113578,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -113287,6 +113616,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -113316,6 +113648,9 @@ export namespace Prisma {
     offList?: BoolFieldUpdateOperationsInput | boolean
     qrScanned?: BoolFieldUpdateOperationsInput | boolean
     isPortal?: BoolFieldUpdateOperationsInput | boolean
+    saleLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    saleDistM?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

@@ -87,6 +87,7 @@ export function TopBar({
   forceSyncShow = false,
   hideMenu = false,
   username = null,
+  sidebarOffset = "none",
 }: {
   onMenuClick: () => void;
   onLogout: () => void;
@@ -94,12 +95,19 @@ export function TopBar({
   forceSyncShow?: boolean;
   hideMenu?: boolean;
   username?: string | null;
+  /// Fixed-header compensation for the desktop sidebar (which the header
+  /// must not slide under): none (no sidebar) | slim (collapsed 68px) |
+  /// wide (expanded 15rem). Mobile is always full-width.
+  sidebarOffset?: "none" | "slim" | "wide";
 }) {
   const t = useTranslations("nav");
   const locale = useLocale();
 
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-(--border-default) bg-(--bg-overlay) px-3 py-2 print:hidden md:px-5 md:h-14 md:py-0">
+    <header className={cn(
+      "fixed inset-x-0 top-0 z-30 flex items-center gap-2 border-b border-(--border-default) bg-(--bg-overlay) px-3 py-2 print:hidden md:px-5 md:h-14 md:py-0",
+      sidebarOffset === "wide" ? "lg:start-60" : sidebarOffset === "slim" ? "lg:start-[68px]" : ""
+    )}>
       <DesktopBackButton />
       {!hideMenu && (
       <button

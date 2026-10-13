@@ -448,6 +448,9 @@ exports.Prisma.SaleScalarFieldEnum = {
   offList: 'offList',
   qrScanned: 'qrScanned',
   isPortal: 'isPortal',
+  saleLat: 'saleLat',
+  saleLng: 'saleLng',
+  saleDistM: 'saleDistM',
   notes: 'notes',
   date: 'date',
   createdAt: 'createdAt',
@@ -507,6 +510,7 @@ exports.Prisma.TourneeScalarFieldEnum = {
   startedLng: 'startedLng',
   finishedLat: 'finishedLat',
   finishedLng: 'finishedLng',
+  autoClosed: 'autoClosed',
   createdAt: 'createdAt'
 };
 
