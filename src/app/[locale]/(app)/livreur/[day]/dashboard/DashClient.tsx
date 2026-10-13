@@ -236,14 +236,16 @@ export function DashClient({
     { key: "orders", label: labels.commandes, Icon: ClipboardList, cls: "bg-indigo-500/15 text-indigo-500", go: () => goPage(router, `/${locale}/livreur/${day}/commandes`) },
     { key: "ready", label: labels.ready, badge: readyCount, Icon: Truck, cls: "bg-emerald-500/15 text-emerald-600", go: () => goPage(router, `/${locale}/livreur/${day}/commandes?ready=1`) },
     { key: "demande", label: labels.restock ?? "Restock", Icon: PackageCheck, cls: "bg-teal-500/15 text-teal-600", go: () => goPage(router, `/${locale}/livreur/${day}/demande`) },
-    { key: "stock", label: labels.stock, Icon: Package, cls: "bg-amber-500/15 text-amber-600", go: () => goPage(router, `/${locale}/livreur/${day}/stock`) },
+    { key: "stock", label: role === "Vendeur" ? (labels.stockDepot ?? labels.stock) : labels.stock, Icon: Package, cls: "bg-amber-500/15 text-amber-600", go: () => goPage(router, `/${locale}/livreur/${day}/stock`) },
     { key: "till", label: labels.declare, Icon: Banknote, cls: "bg-lime-500/15 text-lime-600", go: () => { openTill(); } },
     { key: "expense", label: labels.expense, Icon: Wallet, cls: "bg-orange-500/15 text-orange-600", go: () => goPage(router, `/${locale}/livreur/${day}/expenses`) },
     { key: "dayClients", label: labels.clients, Icon: UserRound, cls: "bg-cyan-500/15 text-cyan-600", go: () => goPage(router, `/${locale}/livreur/${day}`) },
   ];
   // Vendeur (مندوب): orders/stock/sync only — no sale creation, no factures,
-  // no restock requests.
-  const visibleTiles = canSell(role) ? tiles : tiles.filter((t) => t.key !== "sale" && t.key !== "factures" && t.key !== "demande");
+  // no restock requests, no "ready to deliver" lane.
+  const visibleTiles = canSell(role)
+    ? tiles
+    : tiles.filter((t) => t.key !== "sale" && t.key !== "factures" && t.key !== "demande" && (role !== "Vendeur" || t.key !== "ready"));
 
   return (
     <div className="space-y-3 p-4 pb-8 md:p-5">

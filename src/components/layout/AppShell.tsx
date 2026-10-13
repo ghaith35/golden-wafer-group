@@ -267,6 +267,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       day = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
     }
     const sell = canSell(role);
+    const depotView = role === "Vendeur";
     const items: Item[] = [
       { key: "vanDash", href: `livreur/${day}/dashboard`, Icon: LayoutDashboard },
       { key: "vanSale", href: `livreur/${day}/vente`, Icon: Plus },
@@ -274,7 +275,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       { key: "vanOrder", href: `livreur/${day}/commande`, Icon: ClipboardList },
       { key: "vanOrders", href: `livreur/${day}/commandes`, Icon: ClipboardCheck },
       { key: "vanDemande", href: `livreur/${day}/demande`, Icon: PackageCheck },
-      { key: "vanStock", href: `livreur/${day}/stock`, Icon: Package },
+      { key: depotView ? "vanDepot" : "vanStock", href: `livreur/${day}/stock`, Icon: Package },
       { key: "vanExpense", href: `livreur/${day}/expenses`, Icon: Wallet },
       { key: "vanClients", href: `livreur/${day}`, Icon: UserRound },
       { key: "livreur", href: "livreur", Icon: Smartphone },
