@@ -151,6 +151,9 @@ export function DayClients({
   const [fActivity, setFActivity] = useState("");
   const [fWilaya, setFWilaya] = useState("");
   const [fSecteur, setFSecteur] = useState("");
+  /// GPS fix captured in the edit form (null = keep the card's position).
+  const [fGps, setFGps] = useState<{ lat: number; lng: number } | null>(null);
+  const [capturing, setCapturing] = useState(false);
   const [editBusy, setEditBusy] = useState(false);
   const [editMsg, setEditMsg] = useState<string | null>(null);
   const [editErr, setEditErr] = useState<string | null>(null);
@@ -171,6 +174,7 @@ export function DayClients({
     setFActivity("");
     setFWilaya("");
     setFSecteur("");
+    setFGps(c.gpsLat != null && c.gpsLng != null ? { lat: c.gpsLat, lng: c.gpsLng } : null);
     setEditMsg(null);
     setEditErr(null);
     setEditOpen(true);
@@ -195,6 +199,9 @@ export function DayClients({
           if (typeof patch.activityType === "string") setFActivity(patch.activityType);
           if (typeof patch.wilayaCode === "number") setFWilaya(String(patch.wilayaCode));
           if (typeof patch.secteurId === "string") setFSecteur(patch.secteurId);
+          if (typeof patch.gpsLat === "number" && typeof patch.gpsLng === "number") {
+            setFGps({ lat: patch.gpsLat, lng: patch.gpsLng });
+          }
         }
         return;
       }
@@ -221,6 +228,29 @@ export function DayClients({
       /* prefill stands */
     }
   }
+  /// One-shot GPS capture for the edit form (never blocks: 8s timeout,
+  /// denied/unavailable leaves the form untouched).
+  function captureGps() {
+    if (capturing) return;
+    try {
+      if (!("geolocation" in navigator)) return;
+    } catch {
+      return;
+    }
+    setCapturing(true);
+    try {
+      navigator.geolocation.getCurrentPosition(
+        (p) => {
+          setFGps({ lat: p.coords.latitude, lng: p.coords.longitude });
+          setCapturing(false);
+        },
+        () => setCapturing(false),
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+      );
+    } catch {
+      setCapturing(false);
+    }
+  }
   /// Save the edit: PATCH online, queue `client-update` offline, rewrite
   /// the queued create for own pending clients. Financial fields are never
   /// sent (engine whitelists driver-safe fields either way).
@@ -236,6 +266,17 @@ export function DayClients({
     if (fActivity.trim()) patch.activityType = fActivity.trim();
     if (fWilaya) patch.wilayaCode = Number(fWilaya);
     if (fSecteur) patch.secteurId = fSecteur;
+    // GPS captured in the form: driver-safe field, queued offline like the
+    // rest and whitelisted by the engine either way. Sent only when it
+    // differs from the card (no-op saves stay empty).
+    if (fGps && Number.isFinite(fGps.lat) && Number.isFinite(fGps.lng)) {
+      const la = Math.round(fGps.lat * 1e6) / 1e6;
+      const ln = Math.round(fGps.lng * 1e6) / 1e6;
+      if (la !== c.gpsLat || ln !== c.gpsLng) {
+        patch.gpsLat = la;
+        patch.gpsLng = ln;
+      }
+    }
     if (Object.keys(patch).length === 0) {
       setEditOpen(false);
       return;
@@ -674,6 +715,21 @@ export function DayClients({
                       ))}
                     </select>
                   </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-bold uppercase opacity-60">GPS</label>
+                  <button
+                    type="button"
+                    onClick={captureGps}
+                    disabled={capturing}
+                    className="flex h-11 w-full items-center gap-2 rounded-lg border border-(--border-default) bg-(--bg-surface) px-3 text-sm font-bold outline-none focus:border-(--brand-500) disabled:opacity-60"
+                  >
+                    <MapPin size={15} className="shrink-0 text-(--brand-600)" />
+                    <span className="min-w-0 flex-1 truncate text-start font-mono text-xs tabular-nums" dir="ltr">
+                      {capturing ? "…" : fGps ? `${fGps.lat.toFixed(5)}, ${fGps.lng.toFixed(5)}` : (labels.useGps ?? "GPS")}
+                    </span>
+                    <Crosshair size={15} className={cn("shrink-0 opacity-60", capturing && "animate-spin")} />
+                  </button>
                 </div>
                 {editErr && <p className="rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{editErr}</p>}
                 <div className="flex gap-2">
