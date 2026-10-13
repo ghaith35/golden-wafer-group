@@ -12,6 +12,7 @@ import { TopBar, LanguageSwitcher } from "@/components/layout/TopBar";
 import { ConnLostDialog } from "@/components/sync/ConnLostDialog";
 import { watchChunkErrors } from "@/lib/chunk-reload";
 import { VanTracker } from "@/components/track/VanTracker";
+import { LocationPrompt } from "@/components/track/LocationPrompt";
 import { AutoUpdate } from "@/components/sync/AutoUpdate";
 import { useSavedDistances } from "@/lib/geo";
 
@@ -328,6 +329,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Van APK auto GPS: activates only when a device token is bound.
           Desktop browsers have none — zero behavior change there. */}
       <VanTracker />
+      {/* No-fix banner (van phones): summons the Android allow-location
+          form when the office can't see the driver. Token-gated inside. */}
+      <LocationPrompt
+        labels={{ title: ts("locTitle"), hint: ts("locHint"), enable: ts("locEnable"), deniedHint: ts("locDenied") }}
+      />
       {/* Silent web updates + native APK banner (phones). No-op when fresh. */}
       <AutoUpdate />
       {/* Desktop sidebar — hidden on the Journée picker until a day is chosen.

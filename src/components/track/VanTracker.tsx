@@ -33,30 +33,27 @@ export function VanTracker() {
     let lastReport = 0;
     let inFlight = false;
 
-    function fix(): Promise<GeolocationPosition> {
-      return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-          reject(new Error("no_geolocation"));
-          return;
-        }
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 15000,
-        });
-      });
+    /// Native-aware fix (Capacitor GPS in the APK — the WebView's own
+    /// geolocation never prompts there — browser API on the web).
+    async function fix(): Promise<{ lat: number; lng: number; accuracy: number; speedKmh: number | null } | null> {
+      try {
+        const { getGpsFix } = await import("@/lib/van-gps");
+        return await getGpsFix();
+      } catch {
+        return null;
+      }
     }
 
-    async function report(p: GeolocationPosition) {
+    async function report(p: { lat: number; lng: number; accuracy: number; speedKmh: number | null }) {
       await fetch("/api/track", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           deviceToken: token,
-          lat: p.coords.latitude,
-          lng: p.coords.longitude,
-          accuracy: Math.round(p.coords.accuracy ?? 0) || undefined,
-          speed: p.coords.speed != null && p.coords.speed >= 0 ? Math.round(p.coords.speed * 3.6 * 10) / 10 : undefined,
+          lat: p.lat,
+          lng: p.lng,
+          accuracy: Math.round(p.accuracy ?? 0) || undefined,
+          speed: p.speedKmh ?? undefined,
         }),
       }).catch(() => {});
       lastReport = Date.now();

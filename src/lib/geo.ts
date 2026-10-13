@@ -16,10 +16,7 @@ export function useLivePosition() {
   const [geoError, setGeoError] = useState(false);
 
   const locate = useCallback(() => {
-    if (!("geolocation" in navigator)) {
-      setGeoError(true);
-      return;
-    }
+    // Native-aware fix (see useSavedDistances below).
     setLocating(true);
     setGeoError(false);
     const done = (lat: number, lng: number) => {
@@ -30,24 +27,15 @@ export function useLivePosition() {
       setGeoError(true);
       setLocating(false);
     };
-    const onError = (highAccuracy: boolean) => (e: GeolocationPositionError) => {
-      // High accuracy fails indoors / on weak GPS — retry with any fix
-      // before giving up (error code 2 = unavailable, 3 = timeout).
-      if (highAccuracy && (e.code === 2 || e.code === 3)) {
-        navigator.geolocation.getCurrentPosition(
-          (p) => done(p.coords.latitude, p.coords.longitude),
-          () => fail(),
-          { enableHighAccuracy: false, timeout: 15000 }
-        );
-      } else {
+    void import("./van-gps").then(async (m) => {
+      try {
+        const f = await m.getGpsFix();
+        if (f) done(f.lat, f.lng);
+        else fail();
+      } catch {
         fail();
       }
-    };
-    navigator.geolocation.getCurrentPosition(
-      (p) => done(p.coords.latitude, p.coords.longitude),
-      onError(true),
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
+    }).catch(() => fail());
   }, []);
 
   /** Manual fallback (GPS denied / desktop app without location service). */
@@ -280,10 +268,9 @@ export function useSavedDistances(units: TripUnits) {
 
   const locate = useCallback(
     (done?: (pos: LatLng) => void) => {
-      if (!("geolocation" in navigator)) {
-        setGeoError(true);
-        return;
-      }
+      // Native-aware fix (Capacitor GPS in the APK — the WebView's own
+      // geolocation never prompts there — browser API on the web, with
+      // the low-accuracy retry preserved for urban canyons).
       setLocating(true);
       setGeoError(false);
       const apply = (lat: number, lng: number) => {
@@ -295,22 +282,15 @@ export function useSavedDistances(units: TripUnits) {
         setGeoError(true);
         setLocating(false);
       };
-      const onError = (highAccuracy: boolean) => (e: GeolocationPositionError) => {
-        if (highAccuracy && (e.code === 2 || e.code === 3)) {
-          navigator.geolocation.getCurrentPosition(
-            (p) => apply(p.coords.latitude, p.coords.longitude),
-            () => fail(),
-            { enableHighAccuracy: false, timeout: 15000 }
-          );
-        } else {
+      void import("@/lib/van-gps").then(async (m) => {
+        try {
+          const f = await m.getGpsFix();
+          if (f) apply(f.lat, f.lng);
+          else fail();
+        } catch {
           fail();
         }
-      };
-      navigator.geolocation.getCurrentPosition(
-        (p) => apply(p.coords.latitude, p.coords.longitude),
-        onError(true),
-        { enableHighAccuracy: true, timeout: 8000 }
-      );
+      }).catch(() => fail());
     },
     [refresh]
   );
