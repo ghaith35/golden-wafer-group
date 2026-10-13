@@ -84,12 +84,14 @@ export function TopBar({
   onMenuClick,
   onLogout,
   syncLabels,
+  forceSyncShow = false,
   hideMenu = false,
   username = null,
 }: {
   onMenuClick: () => void;
   onLogout: () => void;
   syncLabels: SyncBadgeLabels;
+  forceSyncShow?: boolean;
   hideMenu?: boolean;
   username?: string | null;
 }) {
@@ -112,7 +114,7 @@ export function TopBar({
 
       <SectionTitle />
 
-      <SyncBadge labels={syncLabels} />
+      <SyncBadge labels={syncLabels} forceShow={forceSyncShow} />
 
       <div className="hidden items-center gap-2 md:flex">
         <ZoomControl />

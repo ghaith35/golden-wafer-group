@@ -365,7 +365,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <div className={cn("transition-all duration-300 ease-in-out", !hideChrome && visibleTabs.length > 0 && (collapsed ? "lg:ps-[68px]" : "lg:ps-60"))}>
-        <TopBar onMenuClick={() => setNavOpen(true)} onLogout={logout} syncLabels={syncLabels} hideMenu={hideChrome} username={username} />
+        <TopBar onMenuClick={() => setNavOpen(true)} onLogout={logout} syncLabels={syncLabels} forceSyncShow={role !== "Admin"} hideMenu={hideChrome} username={username} />
         <main className={!hideChrome && visibleTabs.length > 0 ? "pb-20 lg:pb-0" : ""}>{children}</main>
         {/* Global connection-loss dialog: one controlled reload into offline
             mode instead of a silently half-broken page. Mounted for every

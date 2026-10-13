@@ -37,7 +37,7 @@ type Step = { label: string; state: "active" | "done" | "error"; detail: string 
 /// counts, failed-ops repair — inside a dropdown panel, no navigation.
 /// Fresh APK drivers (no token yet) also see the pill: it's their pairing
 /// entry. Desktop admins without a device keep seeing nothing (as before).
-export function SyncBadge({ labels }: { labels: SyncBadgeLabels }) {
+export function SyncBadge({ labels, forceShow = false }: { labels: SyncBadgeLabels; forceShow?: boolean }) {
   // Default online: server renders the same, the true state syncs on mount
   // (reading navigator during render mismatches hydration when offline).
   const [online, setOnline] = useState(true);
@@ -326,8 +326,9 @@ export function SyncBadge({ labels }: { labels: SyncBadgeLabels }) {
     }
   }
 
-  // Desktop web without a device token: nothing to sync.
-  if (!showPill) return null;
+  // Desktop web without a device token: nothing to sync — unless the
+  // shell forces it (staff roles always get their sync button).
+  if (!showPill && !forceShow) return null;
 
   return (
     <div ref={boxRef} className="relative shrink-0">
