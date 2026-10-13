@@ -419,20 +419,18 @@ export function DayClients({
           disabled={locating}
           title={labels.actualiser}
           aria-label={labels.actualiser}
-          className="flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-(--border-default) px-3 text-xs font-black"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
         >
-          <Crosshair size={15} className={cn(locating && "animate-spin")} />
-          {labels.actualiser}
+          <Crosshair size={16} className={cn(locating && "animate-spin")} />
         </button>
         <button
           type="button"
           onClick={() => setAdding(true)}
           title={labels.newClient}
           aria-label={labels.newClient}
-          className="flex h-11 shrink-0 items-center gap-1.5 rounded-xl bg-(--brand-500) px-3 text-xs font-black text-(--brand-contrast)"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500) text-(--brand-contrast)"
         >
-          <UserPlus size={15} />
-          {labels.newClient}
+          <UserPlus size={17} />
         </button>
       </div>
       {geoError && <p className="rounded-xl bg-red-500/10 p-2 text-xs font-bold text-red-500">{labels.geoDenied}</p>}

@@ -299,8 +299,9 @@ export function LanguageSwitcher({ tone = "light" }: { tone?: "light" | "onDark"
           type="button"
           onClick={() => switchLang(l)}
           aria-pressed={l === locale}
+          title={LANGUAGE_FULL[l]}
           className={cn(
-            "min-h-10 rounded-lg px-3.5 text-xs font-black transition-colors",
+            "min-h-10 min-w-11 rounded-lg px-2 text-xs font-black transition-colors sm:px-3.5",
             l === locale
               ? tone === "onDark"
                 ? "bg-[#5f8f2e] text-white shadow"
@@ -310,7 +311,10 @@ export function LanguageSwitcher({ tone = "light" }: { tone?: "light" | "onDark"
                 : "text-(--text-secondary) hover:text-(--text-primary)"
           )}
         >
-          {LANGUAGE_FULL[l]}
+          {/* Compact code on phones (full names overflow narrow drawers),
+              full name from sm up. */}
+          <span className="sm:hidden">{l.toUpperCase()}</span>
+          <span className="hidden sm:block">{LANGUAGE_FULL[l]}</span>
         </button>
       ))}
     </div>
