@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Truck, Boxes, ShoppingCart, ShoppingBag, Wallet, BarChart3, Settings, Bus, Map, Route, Store, PanelLeftClose, PanelLeftOpen, Crosshair, Package, Satellite, ClipboardList, Smartphone, Clock, Banknote } from "lucide-react";
+import { LayoutDashboard, Users, Truck, Boxes, ShoppingCart, ShoppingBag, Wallet, BarChart3, Settings, Bus, Map, Route, Store, PanelLeftClose, PanelLeftOpen, Crosshair, Package, PackageCheck, Satellite, ClipboardList, ClipboardCheck, Smartphone, Clock, Banknote, Plus, ReceiptText, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { goPage, recordCrumb, serverUnreachable, startReachabilityProbe } from "@/lib/sync/client";
+import { recordCrumb, serverUnreachable, startReachabilityProbe } from "@/lib/sync/client";
+import { canSell } from "@/lib/staff-permissions";
 import { TopBar, LanguageSwitcher } from "@/components/layout/TopBar";
 import { ConnLostDialog } from "@/components/sync/ConnLostDialog";
 import { VanTracker } from "@/components/track/VanTracker";
@@ -78,7 +79,6 @@ const GROUPS: Array<{ label: string; items: Item[]; adminOnly?: boolean }> = [
 
 /// Mobile bottom tab bar — fixed keys so sidebar regroups never shift it.
 const TAB_KEYS = ["dashboard", "clients", "suppliers", "sales"];
-const TAB_KEYS_LIVREUR = ["livreur"];
 const TABS: Item[] = TAB_KEYS.flatMap((k) => GROUPS.flatMap((g) => g.items).filter((i) => i.key === k));
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -252,10 +252,40 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // Van-only menu for every non-admin (Vendeur + Livreur + unknown).
   const vanOnlyMenu = role !== "Admin";
 
+  /// Staff sidebar = every dashboard card (mirrors the day hub tiles, same
+  /// gating: Vendeur never sees sale/factures/demande). Day-scoped from the
+  /// URL while inside a journée, else today. Action-tiles (till/sync modals)
+  /// have no page — the hub entry below reaches them.
+  function staffDayItems(): Item[] {
+    let day = "";
+    try {
+      const m = (pathname ?? "").match(/\/livreur\/(\d{4}-\d{1,2}-\d{1,2})/);
+      if (m) day = m[1];
+    } catch { /* fall through to today */ }
+    if (!day) {
+      const d = new Date();
+      day = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    }
+    const sell = canSell(role);
+    const items: Item[] = [
+      { key: "vanDash", href: `livreur/${day}/dashboard`, Icon: LayoutDashboard },
+      { key: "vanSale", href: `livreur/${day}/vente`, Icon: Plus },
+      { key: "vanFactures", href: `livreur/${day}/factures`, Icon: ReceiptText },
+      { key: "vanOrder", href: `livreur/${day}/commande`, Icon: ClipboardList },
+      { key: "vanOrders", href: `livreur/${day}/commandes`, Icon: ClipboardCheck },
+      { key: "vanDemande", href: `livreur/${day}/demande`, Icon: PackageCheck },
+      { key: "vanStock", href: `livreur/${day}/stock`, Icon: Package },
+      { key: "vanExpense", href: `livreur/${day}/expenses`, Icon: Wallet },
+      { key: "vanClients", href: `livreur/${day}`, Icon: UserRound },
+      { key: "livreur", href: "livreur", Icon: Smartphone },
+    ];
+    return sell ? items : items.filter((i) => i.key !== "vanSale" && i.key !== "vanFactures" && i.key !== "vanDemande");
+  }
+
   const visibleGroups = (vanOnlyMenu
     ? [{
-        label: "group_distribution",
-        items: GROUPS.flatMap((g) => g.items).filter((i) => i.key === "livreur"),
+        label: "group_livreur",
+        items: staffDayItems(),
       }]
     : GROUPS.map((g) => ({
         ...g,
@@ -265,8 +295,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     // The van workspace (الشاحنة / بيع الشاحنة) is staff-only: admins manage
     // vans from الشاحنات / مخزون الشاحنات instead.
     .filter((g) => g.label !== "group_livreur" || isStaff);
+  // Staff have no bottom tab bar (the sell-van tab is gone) — every section
+  // lives in the sidebar/drawer instead. Admins keep their four tabs.
   const visibleTabs = vanOnlyMenu
-    ? TAB_KEYS_LIVREUR.flatMap((k) => GROUPS.flatMap((g) => g.items).filter((i) => i.key === k))
+    ? []
     : TABS.filter((t) => {
         const item = GROUPS.flatMap((g) => g.items).find((i) => i.key === t.key);
         return !isStaff || !item?.adminOnly;
@@ -325,46 +357,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <div className={cn("transition-all duration-300 ease-in-out", !hideChrome && (collapsed ? "lg:ps-[68px]" : "lg:ps-60"))}>
+      <div className={cn("transition-all duration-300 ease-in-out", !hideChrome && visibleTabs.length > 0 && (collapsed ? "lg:ps-[68px]" : "lg:ps-60"))}>
         <TopBar onMenuClick={() => setNavOpen(true)} onLogout={logout} syncLabels={syncLabels} hideMenu={hideChrome} username={username} />
-        <main className={hideChrome ? "" : "pb-20 lg:pb-0"}>{children}</main>
+        <main className={!hideChrome && visibleTabs.length > 0 ? "pb-20 lg:pb-0" : ""}>{children}</main>
         {/* Global connection-loss dialog: one controlled reload into offline
             mode instead of a silently half-broken page. Mounted for every
             role — drivers need it most, admins hit dead tunnels too. */}
         <ConnLostDialog labels={connLabels} />
         {!hideChrome && visibleTabs.length > 0 && (
         <nav className="fixed inset-x-0 bottom-0 flex border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)] print:hidden lg:hidden">
-          {visibleTabs.map((item) =>
-            item.key === "livreur" ? (
-              <LivreurTodayTab key={item.key} locale={locale} label={t(item.key)} Icon={item.Icon} go={(href) => goPage(router, href)} />
-            ) : (
-              <Link key={item.key} href={`/${locale}/${item.href}`} className="flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold leading-tight opacity-70">
-                <item.Icon size={19} />
-                <span className="max-w-full truncate">{t(item.key)}</span>
-              </Link>
-            )
-          )}
+          {visibleTabs.map((item) => (
+            <Link key={item.key} href={`/${locale}/${item.href}`} className="flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold leading-tight opacity-70">
+              <item.Icon size={19} />
+              <span className="max-w-full truncate">{t(item.key)}</span>
+            </Link>
+          ))}
         </nav>
         )}
       </div>
     </div>
-  );
-}
-
-/// Van-sale bottom tab: jumps straight to TODAY's dashboard hub
-/// (all sections: sale, orders, stock, sync…) instead of the clock page.
-function LivreurTodayTab({ locale, label, Icon, go }: { locale: string; label: string; Icon: Item["Icon"]; go: (href: string) => void }) {
-  const d = new Date();
-  const slug = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-  return (
-    <button
-      type="button"
-      onClick={() => go(`/${locale}/livreur/${slug}/dashboard`)}
-      className="flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold leading-tight opacity-70"
-    >
-      <Icon size={19} />
-      <span className="max-w-full truncate">{label}</span>
-    </button>
   );
 }
 
