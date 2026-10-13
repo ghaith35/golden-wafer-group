@@ -1059,23 +1059,26 @@ export function prefetchPages(urls: string[]): void {
 /// that are distinct SW cache entries). Call on every journée entry while
 /// online — never navigating to a cold URL is what keeps the WebView off
 /// the browser error page when the network drops mid-tour.
+export function warmManifest(locale: string, day: string): string[] {
+  return [
+    `/${locale}/livreur`,
+    `/${locale}/login`,
+    `/${locale}/livreur/${day}`,
+    `/${locale}/livreur/${day}/start`,
+    `/${locale}/livreur/${day}/dashboard`,
+    `/${locale}/livreur/${day}/vente`,
+    `/${locale}/livreur/${day}/commande`,
+    `/${locale}/livreur/${day}/commandes`,
+    `/${locale}/livreur/${day}/factures`,
+    `/${locale}/livreur/${day}/demande`,
+    `/${locale}/livreur/${day}/expenses`,
+    `/${locale}/livreur/${day}/stock`,
+    `/${locale}/livreur/${day}/clients/new`,
+  ];
+}
 export function warmJourneePages(locale: string, day: string): void {
   try {
-    const pages = [
-      `/${locale}/livreur`,
-      `/${locale}/login`,
-      `/${locale}/livreur/${day}`,
-      `/${locale}/livreur/${day}/start`,
-      `/${locale}/livreur/${day}/dashboard`,
-      `/${locale}/livreur/${day}/vente`,
-      `/${locale}/livreur/${day}/commande`,
-      `/${locale}/livreur/${day}/commandes`,
-      `/${locale}/livreur/${day}/factures`,
-      `/${locale}/livreur/${day}/demande`,
-      `/${locale}/livreur/${day}/expenses`,
-      `/${locale}/livreur/${day}/stock`,
-      `/${locale}/livreur/${day}/clients/new`,
-    ];
+    const pages = warmManifest(locale, day);
     prefetchPages(pages);
     try {
       prefetchPages([window.location.href]);
@@ -1084,6 +1087,42 @@ export function warmJourneePages(locale: string, day: string): void {
     // needs offline (QR camera fallback, ticket print/share).
     warmOfflineChunks();
   } catch { /* never break the page */ }
+}
+
+/// Fetch-then-verify variant for the first-run warmup: every URL is fetched
+/// as a page document (so the SW stores it) and then checked with
+/// caches.match, giving an honest cached/missing verdict per screen instead
+/// of fire-and-forget hope. Never throws — failures report per URL.
+export async function warmAndVerify(urls: string[]): Promise<Array<{ url: string; ok: boolean }>> {
+  const out: Array<{ url: string; ok: boolean }> = [];
+  try {
+    if (typeof window === "undefined" || window.navigator?.onLine === false) {
+      return urls.map((url) => ({ url, ok: false }));
+    }
+    for (const url of urls) {
+      try {
+        const res = await fetch(url, { credentials: "same-origin", headers: { Accept: "text/html" } });
+        // Read the body so the SW can finish storing before we verify.
+        try {
+          await res.clone().arrayBuffer().catch(() => null);
+        } catch { /* ignore */ }
+        let hit = null;
+        try {
+          hit = await caches.match(url);
+        } catch {
+          hit = null;
+        }
+        out.push({ url, ok: res.ok && !!hit });
+      } catch {
+        out.push({ url, ok: false });
+      }
+    }
+  } catch {
+    for (const url of urls) {
+      if (!out.some((o) => o.url === url)) out.push({ url, ok: false });
+    }
+  }
+  return out;
 }
 
 /// Warm the image cache for the van catalog so product photos render

@@ -116,6 +116,11 @@ export default async function LivreurDashPage({
         transferts: t("transferts"), reject: t("reject"), errSaveFailed: t("errSaveFailed"),
         noTransfers: t("noTransfers"), restock: t("restock"),
         syncClockSkew: tc("clockSkew"),
+        warmTitle: tc("warmTitle"), warmHint: tc("warmHint"),
+        warmSync: tc("warmSync"), warmPages: tc("warmPages"), warmMedia: tc("warmMedia"),
+        warmDone: tc("warmDone"), warmDoneHint: tc("warmDoneHint"),
+        warmPairNeeded: tc("warmPairNeeded"), warmPairHint: tc("warmPairHint"),
+        warmOpenSync: tc("warmOpenSync"), warmRetry: tc("warmRetry"),
       }}
     />
   );

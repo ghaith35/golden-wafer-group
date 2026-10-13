@@ -162,8 +162,7 @@ describe("serverUnreachable", () => {  beforeEach(() => {
   });
 });
 
-describe("reachability probe (tunnel-down counts as down)", () => {
-  beforeEach(() => {
+describe("reachability probe (tunnel-down counts as down)", () => {  beforeEach(() => {
     vi.resetModules();
   });
 
@@ -223,5 +222,48 @@ describe("reachability probe (tunnel-down counts as down)", () => {
     expect(await m.probeReachabilityNow()).toBe(false);
     expect(await m.probeReachabilityNow()).toBe(false);
     expect(seen).toEqual([false]); // flipped once, repeats stay silent
+  });
+});
+
+describe("first-run warmup manifest", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  it("warmManifest covers the whole driver loop for the day", async () => {
+    installFakes(true);
+    const m = await import("@/lib/sync/client");
+    const urls = m.warmManifest("ar", "2026-10-13");
+    for (const tail of ["vente", "commande", "commandes", "factures", "demande", "stock", "expenses", "clients/new", "start", "dashboard"]) {
+      expect(urls.some((u: string) => u === `/ar/livreur/2026-10-13/${tail}`)).toBe(true);
+    }
+    expect(urls).toContain("/ar/livreur");
+    expect(urls).toContain("/ar/login");
+  });
+
+  it("warmAndVerify reports per-URL cache verdicts, never throws", async () => {
+    installFakes(true);
+    const cached = new Set(["/ar/livreur/2026-10-13/dashboard"]);
+    vi.stubGlobal("caches", {
+      match: async (u: string) => (cached.has(u) ? { url: u } : null),
+    });
+    vi.stubGlobal("fetch", async (u: string) => ({
+      status: u.includes("demande") ? 500 : 200,
+      ok: !u.includes("demande"),
+      clone: () => ({ arrayBuffer: async () => new ArrayBuffer(0) }),
+    }));
+    const m = await import("@/lib/sync/client");
+    const out = await m.warmAndVerify(["/ar/livreur/2026-10-13/dashboard", "/ar/livreur/2026-10-13/demande"]);
+    expect(out).toEqual([
+      { url: "/ar/livreur/2026-10-13/dashboard", ok: true },
+      { url: "/ar/livreur/2026-10-13/demande", ok: false },
+    ]);
+  });
+
+  it("warmAndVerify offline short-circuits to all-missing", async () => {
+    installFakes(false);
+    const m = await import("@/lib/sync/client");
+    const out = await m.warmAndVerify(["/ar/livreur"]);
+    expect(out).toEqual([{ url: "/ar/livreur", ok: false }]);
   });
 });

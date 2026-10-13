@@ -9,6 +9,7 @@ import { Modal } from "@/components/ui/Modal";
 import { queueOp, getLastSync, pendingCount, getPendingClients, goPage, warmJourneePages } from "@/lib/sync/client";
 import { OnlineBadge } from "@/components/sync/OnlineBadge";
 import { SyncModal } from "@/components/sync/SyncModal";
+import { FirstRunWarmup } from "@/components/sync/FirstRunWarmup";
 import { dzMoney } from "@/lib/format";
 import { canSell } from "@/lib/staff-permissions";
 import { cn } from "@/lib/utils";
@@ -399,6 +400,22 @@ export function DashClient({
           webOk: labels.syncWebOk, webNew: labels.syncWebNew, updateNow: labels.syncUpdateNow,
           downloadApk: labels.syncDownloadApk, apkHint: labels.syncApkHint,
           clockSkew: labels.syncClockSkew,
+        }}
+      />
+
+      {/* First-login warmup: fresh phones cache the whole driver app
+          (sync + every screen verified) once, then vanish. Re-arms until
+          a full run succeeds — dismiss only postpones. */}
+      <FirstRunWarmup
+        locale={locale}
+        day={day}
+        onOpenSync={() => setSyncOpen(true)}
+        labels={{
+          title: labels.warmTitle, hint: labels.warmHint,
+          stepSync: labels.warmSync, stepPages: labels.warmPages, stepMedia: labels.warmMedia,
+          done: labels.warmDone, doneHint: labels.warmDoneHint,
+          pairNeeded: labels.warmPairNeeded, pairHint: labels.warmPairHint,
+          openSync: labels.warmOpenSync, retry: labels.warmRetry,
         }}
       />
 
