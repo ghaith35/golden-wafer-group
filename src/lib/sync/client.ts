@@ -890,12 +890,50 @@ export function goPage(router: { push: (href: string) => void }, href: string): 
 /// only knows the PHONE has a network — wifi on + shop server dead still reads
 /// "online", and every client-side transition then dies on its RSC fetch.
 /// This heartbeat learns the truth (relative /api/sync health — same origin,
-/// no auth, no CORS) and goPage / the link interceptor steer around a dead
-/// server instead of into it. Unknown or stale = assume up (fast path).
+/// no auth, no CORS) and goPage / the link interceptor / the offline dialog
+/// steer around a dead server instead of into it. Unknown or stale = assume
+/// up (fast path).
 const REACH_KEY = "dili_server_reach_v1";
 const PROBE_EVERY_MS = 20000;
 const REACH_FRESH_MS = 45000;
 let probeStarted = false;
+
+/// Transition subscribers (offline dialog, sync pill…): notified whenever the
+/// known server state FLIPS. In-memory per tab; the stored row below keeps
+/// late mounters honest. Callbacks must never throw (guarded here anyway).
+type ReachCb = (reachable: boolean) => void;
+const reachSubs = new Set<ReachCb>();
+let lastReach: boolean | null = null;
+function emitReach(ok: boolean): void {
+  if (lastReach === ok) return;
+  lastReach = ok;
+  for (const cb of [...reachSubs]) {
+    try {
+      cb(ok);
+    } catch {
+      /* never break the probe */
+    }
+  }
+}
+export function subscribeReachability(cb: ReachCb): () => void {
+  reachSubs.add(cb);
+  return () => {
+    reachSubs.delete(cb);
+  };
+}
+/// Best-known state right now: live probe memory first, stored row fallback.
+export function isServerReachable(): boolean {
+  if (lastReach !== null) return lastReach;
+  return !serverUnreachable();
+}
+function storeReach(ok: boolean): void {
+  try {
+    sessionStorage.setItem(REACH_KEY, JSON.stringify({ ok, ts: Date.now() }));
+  } catch {
+    /* private mode */
+  }
+  emitReach(ok);
+}
 function readReach(): { ok: boolean; ts: number } | null {
   try {
     const raw = sessionStorage.getItem(REACH_KEY);
@@ -925,12 +963,14 @@ async function probeOnce(): Promise<void> {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 4000);
     try {
-      // Any HTTP answer — even a 500 — means the server is alive. Only a
-      // network-level throw means unreachable.
-      await fetch("/api/sync", { method: "GET", cache: "no-store", credentials: "omit", signal: ctrl.signal });
-      sessionStorage.setItem(REACH_KEY, JSON.stringify({ ok: true, ts: Date.now() }));
+      // Only sub-500 answers mean "server alive": a dead tunnel RESOLVES
+      // with Cloudflare's 530 error page (fetch does NOT reject), which
+      // must count as DOWN — otherwise every phone reports reachable
+      // while staring at Error 1033. 401/404/405 = the server answered.
+      const res = await fetch("/api/sync", { method: "GET", cache: "no-store", credentials: "omit", signal: ctrl.signal });
+      storeReach(res.status < 500);
     } catch {
-      sessionStorage.setItem(REACH_KEY, JSON.stringify({ ok: false, ts: Date.now() }));
+      storeReach(false);
     } finally {
       clearTimeout(t);
     }
@@ -938,12 +978,24 @@ async function probeOnce(): Promise<void> {
     /* never break the page */
   }
 }
+/// Manual re-check (the offline dialog's "retry" button): resolves with the
+/// fresh verdict so the caller can close the dialog without waiting a tick.
+export async function probeReachabilityNow(): Promise<boolean> {
+  try {
+    await probeOnce();
+  } catch {
+    /* verdict below is best-effort */
+  }
+  return isServerReachable();
+}
 export function startReachabilityProbe(): void {
   try {
     if (probeStarted || typeof window === "undefined") return;
     probeStarted = true;
     void probeOnce();
     window.addEventListener("online", () => void probeOnce());
+    // Browser-reported loss is instant truth — don't wait for the next tick.
+    window.addEventListener("offline", () => storeReach(false));
     document.addEventListener("visibilitychange", () => {
       try {
         if (!document.hidden) void probeOnce();

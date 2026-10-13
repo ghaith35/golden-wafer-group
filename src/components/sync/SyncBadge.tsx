@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { pendingCount, syncNow, getLastSync, getDeviceToken, shouldAutoSync, AUTO_SYNC_MS } from "@/lib/sync/client";
+import { isServerReachable, pendingCount, subscribeReachability, syncNow, getLastSync, getDeviceToken, shouldAutoSync, AUTO_SYNC_MS } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
 
 /// Offline/sync status pill: online state, pending ops, last sync, manual sync.
@@ -16,8 +16,10 @@ export function SyncBadge({ labels }: { labels: { offline: string; pending: stri
 
   useEffect(() => {
     let live = true;
+    // Server truth, not the browser flag: wifi-on/server-dead must read
+    // red here too, or the pill claims "synced" while staring at Error 1033.
     try {
-      setOnline(navigator.onLine);
+      setOnline(isServerReachable());
     } catch { /* assume online */ }
     const refresh = async () => {
       if (!live) return;
@@ -40,13 +42,22 @@ export function SyncBadge({ labels }: { labels: { offline: string; pending: stri
         busyRef = false;
       }
     };
-    const on = () => {
-      setOnline(true);
-      void auto();
+    // Server truth drives the pill + the auto-flush (tunnel-down with
+    // wifi on must go red and stay quiet here too). The browser events
+    // stay as a fast path — the probe confirms right after.
+    const onReach = (ok: boolean) => {
+      if (!live) return;
+      setOnline(ok);
+      if (ok) void auto();
     };
-    const off = () => setOnline(false);
-    window.addEventListener("online", on);
-    window.addEventListener("offline", off);
+    const unsub = subscribeReachability(onReach);
+    const onWin = () => {
+      try {
+        setOnline(isServerReachable());
+      } catch { /* ignore */ }
+    };
+    window.addEventListener("online", onWin);
+    window.addEventListener("offline", onWin);
     const t = setInterval(() => {
       void refresh();
     }, 5000);
@@ -58,7 +69,12 @@ export function SyncBadge({ labels }: { labels: { offline: string; pending: stri
       void (async () => {
         try {
           const hidden = typeof document !== "undefined" && document.hidden;
-          const online = typeof navigator === "undefined" || navigator.onLine !== false;
+          let online = typeof navigator === "undefined" || navigator.onLine !== false;
+          try {
+            // Server truth gates the flush: hammering a dead tunnel with
+            // the outbox only quarantines good ops behind doomed retries.
+            online = online && isServerReachable();
+          } catch { /* keep the browser flag */ }
           let token = false;
           try {
             token = !!getDeviceToken();
@@ -73,8 +89,9 @@ export function SyncBadge({ labels }: { labels: { offline: string; pending: stri
     }, AUTO_SYNC_MS);
     return () => {
       live = false;
-      window.removeEventListener("online", on);
-      window.removeEventListener("offline", off);
+      unsub();
+      window.removeEventListener("online", onWin);
+      window.removeEventListener("offline", onWin);
       clearInterval(t);
       clearInterval(beat);
     };

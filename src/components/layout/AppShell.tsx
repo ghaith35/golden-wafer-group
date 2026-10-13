@@ -8,6 +8,7 @@ import { LayoutDashboard, Users, Truck, Boxes, ShoppingCart, ShoppingBag, Wallet
 import { cn } from "@/lib/utils";
 import { goPage, recordCrumb, serverUnreachable, startReachabilityProbe } from "@/lib/sync/client";
 import { TopBar, LanguageSwitcher } from "@/components/layout/TopBar";
+import { ConnLostDialog } from "@/components/sync/ConnLostDialog";
 import { VanTracker } from "@/components/track/VanTracker";
 import { AutoUpdate } from "@/components/sync/AutoUpdate";
 import { useSavedDistances } from "@/lib/geo";
@@ -180,6 +181,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   const syncLabels = { offline: ts("offline"), pending: ts("pending"), sync: ts("sync"), synced: ts("synced"), noDevice: ts("noDevice") };
+  const connLabels = {
+    title: ts("connLost"), hint: ts("connLostHint"), pendingSaved: ts("pendingSaved"),
+    continueOffline: ts("continueOffline"), retry: ts("retryNow"),
+    backOnline: ts("backOnline"), syncing: ts("syncingNow"),
+  };
   const tg = useTranslations("tournees");
   const gpsLabels = { locate: tg("locate"), geoDenied: tg("geoDenied") };
 
@@ -322,6 +328,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className={cn("transition-all duration-300 ease-in-out", !hideChrome && (collapsed ? "lg:ps-[68px]" : "lg:ps-60"))}>
         <TopBar onMenuClick={() => setNavOpen(true)} onLogout={logout} syncLabels={syncLabels} hideMenu={hideChrome} username={username} />
         <main className={hideChrome ? "" : "pb-20 lg:pb-0"}>{children}</main>
+        {/* Global connection-loss dialog: one controlled reload into offline
+            mode instead of a silently half-broken page. Mounted for every
+            role — drivers need it most, admins hit dead tunnels too. */}
+        <ConnLostDialog labels={connLabels} />
         {!hideChrome && visibleTabs.length > 0 && (
         <nav className="fixed inset-x-0 bottom-0 flex border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)] print:hidden lg:hidden">
           {visibleTabs.map((item) =>

@@ -161,3 +161,67 @@ describe("serverUnreachable", () => {  beforeEach(() => {
     expect(m.serverUnreachable()).toBe(false); // stale → assume up
   });
 });
+
+describe("reachability probe (tunnel-down counts as down)", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  function installWithFetch(fetchImpl: () => Promise<{ status: number }>) {
+    installFakes(true);
+    const listeners: Record<string, Array<() => void>> = {};
+    vi.stubGlobal("window", {
+      localStorage: undefined,
+      sessionStorage: undefined,
+      navigator: { onLine: true },
+      location: { origin: "http://x", pathname: "/", search: "" },
+      addEventListener: vi.fn((t: string, f: () => void) => void (listeners[t] ??= []).push(f)),
+      removeEventListener: vi.fn(),
+      setTimeout,
+      clearTimeout,
+    });
+    vi.stubGlobal("document", {
+      hidden: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    });
+    vi.stubGlobal("fetch", fetchImpl);
+    // AbortController exists in node; the probe only needs the signal.
+    return listeners;
+  }
+
+  it("Cloudflare 530 resolves fetch but stores DOWN + notifies", async () => {
+    installWithFetch(async () => ({ status: 530 }));
+    const m = await import("@/lib/sync/client");
+    const seen: boolean[] = [];
+    m.subscribeReachability((ok: boolean) => void seen.push(ok));
+    expect(await m.probeReachabilityNow()).toBe(false);
+    expect(m.serverUnreachable()).toBe(true);
+    expect(m.isServerReachable()).toBe(false);
+    expect(seen).toEqual([false]);
+  });
+
+  it("HTTP 200 stores UP; 401 (no session) still means the server is alive", async () => {
+    installWithFetch(async () => ({ status: 200 }));
+    let m = await import("@/lib/sync/client");
+    expect(await m.probeReachabilityNow()).toBe(true);
+    expect(m.serverUnreachable()).toBe(false);
+
+    vi.resetModules();
+    installWithFetch(async () => ({ status: 401 }));
+    m = await import("@/lib/sync/client");
+    expect(await m.probeReachabilityNow()).toBe(true);
+  });
+
+  it("network throw stores DOWN; no duplicate notifications on repeat", async () => {
+    installWithFetch(async () => {
+      throw new Error("tunnel down");
+    });
+    const m = await import("@/lib/sync/client");
+    const seen: boolean[] = [];
+    m.subscribeReachability((ok: boolean) => void seen.push(ok));
+    expect(await m.probeReachabilityNow()).toBe(false);
+    expect(await m.probeReachabilityNow()).toBe(false);
+    expect(seen).toEqual([false]); // flipped once, repeats stay silent
+  });
+});
