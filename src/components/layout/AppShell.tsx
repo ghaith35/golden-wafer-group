@@ -199,7 +199,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
   const connLabels = {
     title: ts("connLost"), hint: ts("connLostHint"), pendingSaved: ts("pendingSaved"),
-    continueOffline: ts("continueOffline"), retry: ts("retryNow"),
+    continueOffline: ts("continueOffline"), switching: ts("switching"), offlineReady: ts("offlineReady"),
+    retry: ts("retryNow"),
     backOnline: ts("backOnline"), syncing: ts("syncingNow"),
   };
   const tg = useTranslations("tournees");

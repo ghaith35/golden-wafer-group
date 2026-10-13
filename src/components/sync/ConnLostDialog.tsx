@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, RefreshCw, WifiOff } from "lucide-react";
+import { CheckCircle2, Loader2, RefreshCw, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import {
@@ -18,10 +18,16 @@ export type ConnLostLabels = {
   hint: string;
   pendingSaved: string;
   continueOffline: string;
+  switching: string;
+  offlineReady: string;
   retry: string;
   backOnline: string;
   syncing: string;
 };
+
+/// Handoff flag: set right before the offline reload so the fresh page can
+/// greet the driver ("working offline") instead of a blank load.
+const SWITCH_FLAG = "dili_offline_switch_v1";
 
 /// Connection-loss dialog (global, mounted once in the app shell).
 /// Fires ONLY on a live ONLINE → OFFLINE transition mid-session — never on
@@ -38,12 +44,27 @@ export function ConnLostDialog({ labels }: { labels: ConnLostLabels }) {
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(0);
   const [retrying, setRetrying] = useState(false);
-  const [toast, setToast] = useState<"online" | null>(null);
+  const [switching, setSwitching] = useState(false);
+  const [toast, setToast] = useState<"online" | "ready" | null>(null);
   const wasReachable = useRef<boolean | null>(null);
   const toastTimer = useRef<number | null>(null);
 
   useEffect(() => {
     startReachabilityProbe();
+    // Fresh after an offline switch (reloaded by the button below): greet
+    // instead of a blank load — the driver knows the switch landed.
+    // Mount-gate (client-only sessionStorage read; server HTML stays null
+    // so hydration always matches).
+    try {
+      const raw = sessionStorage.getItem(SWITCH_FLAG);
+      if (raw && Date.now() - Number(raw) < 15000) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- mount gate, see above
+        setToast("ready");
+        if (toastTimer.current) window.clearTimeout(toastTimer.current);
+        toastTimer.current = window.setTimeout(() => setToast(null), 3000);
+      }
+      sessionStorage.removeItem(SWITCH_FLAG);
+    } catch { /* ignore */ }
     try {
       wasReachable.current = isServerReachable();
     } catch {
@@ -81,11 +102,22 @@ export function ConnLostDialog({ labels }: { labels: ConnLostLabels }) {
   function goOffline() {
     // Full document load (NOT router.push): client-side transitions need
     // the network for RSC — the worker serves the cached shell instead.
+    // Instant feedback FIRST (spinner + label swap, button locked) plus a
+    // handoff flag for the other side — the tap must feel alive even when
+    // the load itself takes seconds on a weak phone.
+    if (switching) return;
+    setSwitching(true);
     try {
-      window.location.reload();
-    } catch {
-      setOpen(false);
-    }
+      sessionStorage.setItem(SWITCH_FLAG, String(Date.now()));
+    } catch { /* greeting is best-effort */ }
+    window.setTimeout(() => {
+      try {
+        window.location.reload();
+      } catch {
+        setOpen(false);
+        setSwitching(false);
+      }
+    }, 350);
   }
 
   async function retry() {
@@ -126,20 +158,31 @@ export function ConnLostDialog({ labels }: { labels: ConnLostLabels }) {
             <p className="text-[13px] font-bold leading-6">{labels.hint}</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => void retry()} disabled={retrying} className="flex-1" aria-label={labels.retry}>
+            <Button variant="secondary" onClick={() => void retry()} disabled={retrying || switching} className="flex-1" aria-label={labels.retry}>
               <RefreshCw size={16} className={retrying ? "animate-spin" : ""} />
             </Button>
-            <Button onClick={goOffline} className="flex-[2]">
-              {labels.continueOffline}
+            <Button onClick={goOffline} disabled={switching} className="flex-[2]">
+              {switching ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 size={16} className="animate-spin" />
+                  {labels.switching}
+                </span>
+              ) : (
+                labels.continueOffline
+              )}
             </Button>
           </div>
         </div>
       </Modal>
-      {toast === "online" && (
+      {toast !== null && (
         <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[60] flex justify-center px-4 lg:bottom-6">
           <div className="flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2.5 text-[13px] font-black text-white shadow-2xl">
             <CheckCircle2 size={16} />
-            <span>{labels.backOnline} · {labels.syncing}…</span>
+            {toast === "online" ? (
+              <span>{labels.backOnline} · {labels.syncing}…</span>
+            ) : (
+              <span>{labels.offlineReady} ✓</span>
+            )}
           </div>
         </div>
       )}

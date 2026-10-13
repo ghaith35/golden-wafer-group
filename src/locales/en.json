@@ -722,6 +722,7 @@
     "connLostHint": "Nothing is lost — everything is saved on the phone. Keep selling offline and queued operations will send automatically when back.",
     "pendingSaved": "operations saved on the phone",
     "continueOffline": "Continue offline",
+    "switching": "Opening offline mode…",
     "retryNow": "Retry",
     "backOnline": "Back online",
     "syncingNow": "Syncing",

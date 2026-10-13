@@ -722,6 +722,7 @@
     "connLostHint": "Rien n'est perdu — tout est enregistré sur le téléphone. Continuez à vendre hors ligne, les opérations partiront toutes seules au retour.",
     "pendingSaved": "opérations enregistrées sur le téléphone",
     "continueOffline": "Continuer hors ligne",
+    "switching": "Ouverture hors ligne…",
     "retryNow": "Réessayer",
     "backOnline": "De retour en ligne",
     "syncingNow": "Synchronisation",
