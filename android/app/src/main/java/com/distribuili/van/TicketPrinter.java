@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import com.getcapacitor.Plugin;
@@ -20,6 +22,11 @@ import java.util.List;
 /// picker (network / Bluetooth / USB print services) instead of a dead
 /// button. Registered in MainActivity; called from the web app as
 /// Capacitor.Plugins.TicketPrinter.print({ html, name }).
+///
+/// The print WebView MUST be attached to the window hierarchy (invisible,
+/// 1x1 px): a detached WebView never runs a measure/layout pass, so its
+/// print adapter emits BLANK pages — the dialog opens, the job "succeeds",
+/// nothing comes out of the printer. That was the production bug.
 @CapacitorPlugin(name = "TicketPrinter")
 public class TicketPrinter extends Plugin {
 
@@ -39,6 +46,7 @@ public class TicketPrinter extends Plugin {
             return;
         }
         getActivity().runOnUiThread(() -> {
+            WebView wv = null;
             try {
                 Context ctx = getContext();
                 PrintManager pm = (PrintManager) ctx.getSystemService(Context.PRINT_SERVICE);
@@ -46,18 +54,23 @@ public class TicketPrinter extends Plugin {
                     call.reject("no_print_service");
                     return;
                 }
-                WebView wv = new WebView(ctx);
-                // Off-screen but laid out: the print adapter needs measured content.
-                wv.layout(0, 0, 600, 1200);
+                final ViewGroup root =
+                    (ViewGroup) getActivity().getWindow().getDecorView();
+                wv = new WebView(ctx);
+                wv.setVisibility(View.INVISIBLE);
+                // Attached but invisible: participates in measure/layout, so
+                // the print adapter renders real content; 1px, no flicker.
+                root.addView(wv, new ViewGroup.LayoutParams(1, 1));
                 liveViews.add(wv);
-                wv.setWebViewClient(new WebViewClient() {
+                final WebView view = wv;
+                view.setWebViewClient(new WebViewClient() {
                     @Override
-                    public void onPageFinished(WebView view, String url) {
-                        super.onPageFinished(view, url);
+                    public void onPageFinished(WebView v, String url) {
+                        super.onPageFinished(v, url);
                         // Let remote images (logo) settle before measuring.
-                        view.postDelayed(() -> {
+                        v.postDelayed(() -> {
                             try {
-                                PrintDocumentAdapter adapter = view.createPrintDocumentAdapter(name);
+                                PrintDocumentAdapter adapter = v.createPrintDocumentAdapter(name);
                                 // Null attributes = printer defaults; the HTML
                                 // carries its own @page size (58/80mm).
                                 pm.print(name, adapter, null);
@@ -65,25 +78,56 @@ public class TicketPrinter extends Plugin {
                             } catch (Exception e) {
                                 call.reject(e.getMessage() != null ? e.getMessage() : "print_failed");
                             } finally {
-                                view.postDelayed(() -> {
-                                    try { view.destroy(); } catch (Exception ignored) {}
-                                    liveViews.remove(view);
-                                }, 60_000);
+                                // The framework snapshots the adapter at print()
+                                // time — detach after a grace delay, keep the
+                                // instance alive a while longer for slow jobs.
+                                v.postDelayed(() -> detach(view), 5_000);
                             }
                         }, 400);
+                    }
+
+                    @Override
+                    public void onReceivedError(
+                        WebView v,
+                        android.webkit.WebResourceRequest request,
+                        android.webkit.WebResourceError error
+                    ) {
+                        super.onReceivedError(v, request, error);
+                        // Sub-resource failures (offline logo) must not kill
+                        // the ticket: onPageFinished still fires for the
+                        // document itself, which is all the adapter needs.
                     }
                 });
                 wv.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
             } catch (Exception e) {
+                if (wv != null) detach(wv);
                 call.reject(e.getMessage() != null ? e.getMessage() : "print_failed");
             }
         });
     }
 
+    private void detach(WebView view) {
+        try {
+            if (getActivity() != null) {
+                final ViewGroup root =
+                    (ViewGroup) getActivity().getWindow().getDecorView();
+                root.removeView(view);
+            }
+        } catch (Exception ignored) {
+            /* already gone */
+        }
+        try {
+            view.destroy();
+        } catch (Exception ignored) {
+            /* already gone */
+        }
+        liveViews.remove(view);
+    }
+
     @Override
     protected void handleOnDestroy() {
-        for (WebView wv : liveViews) {
-            try { wv.destroy(); } catch (Exception ignored) {}
+        for (WebView wv : new ArrayList<>(liveViews)) {
+            detach(wv);
         }
         liveViews.clear();
     }
