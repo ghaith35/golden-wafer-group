@@ -4,9 +4,12 @@
 /// flow — the driver now gets a real A4 facture he can keep or forward).
 /// Never throws; returns where the file went for UI feedback.
 ///
-/// 1. native APK: write into Documents + open the system share sheet
-///    (WhatsApp / gallery / Drive / … — the driver picks). The sheet
-///    failing still leaves the saved file → "saved".
+/// 1. native APK: write into the app Cache (the only dir the Share
+///    FileProvider grants by default — Documents/public dirs throw
+///    "sharing not allowed", which used to surface as a silent "saved"
+///    with no chooser) + open the system share sheet via the `files`
+///    array (WhatsApp / gallery / Drive / … — the driver picks). The
+///    sheet failing still leaves a copy in Documents → "saved".
 /// 2. browsers: Web Share API with the file when available.
 /// 3. fallback: classic blob download.
 /// Fully offline: the blob is built in memory, no network anywhere.
@@ -32,20 +35,29 @@ export async function sharePdfFile(opts: {
 }): Promise<PdfShareWhere> {
   const { fileName, blob, title } = opts;
   if (typeof window === "undefined") return "failed";
-  // 1. Native first.
+  // 1. Native first: Cache dir (FileProvider-shareable) + `files` array
+  // (the `url`-only + Documents combo is rejected by the Share plugin on
+  // Android 10+ scoped storage → silent "saved" with no chooser).
   try {
     const { Capacitor } = await import("@capacitor/core");
     if (Capacitor.isNativePlatform()) {
       try {
         const { Filesystem, Directory } = await import("@capacitor/filesystem");
         const base64 = await blobToB64(blob);
-        await Filesystem.writeFile({ path: fileName, data: base64, directory: Directory.Documents });
+        await Filesystem.writeFile({ path: fileName, data: base64, directory: Directory.Cache });
         try {
           const { Share } = await import("@capacitor/share");
-          const uri = await Filesystem.getUri({ path: fileName, directory: Directory.Documents });
-          await Share.share({ title, url: uri.uri });
+          const uri = await Filesystem.getUri({ path: fileName, directory: Directory.Cache });
+          await Share.share({ title, text: title, dialogTitle: title, files: [uri.uri] });
           return "shared";
         } catch {
+          // Chooser failed/dismissed: keep a user-visible copy in Documents
+          // so "saved" is truthful (Cache is app-private).
+          try {
+            await Filesystem.writeFile({ path: fileName, data: base64, directory: Directory.Documents });
+          } catch {
+            /* cache copy still exists */
+          }
           return "saved";
         }
       } catch {
