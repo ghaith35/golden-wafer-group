@@ -10,7 +10,7 @@
 
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import { applyArabicFont, loadArabicFont, pdfAr, urlToDataUrl } from "./arabicPdf";
+import { applyArabicFont, loadArabicFont, pdfAr, pdfArLtr, urlToDataUrl } from "./arabicPdf";
 import type { TicketVM } from "@/components/sales/TicketView";
 import type { TicketCompany } from "@/lib/print-ticket";
 
@@ -36,11 +36,15 @@ export const FRENCH_LABELS = {
   price: "P.U",
 };
 
-/// French number format (1 500,00). Pure Latin → pdfAr passes it through.
+/// French number format (1 500,00) with plain spaces — narrow-NBSP group
+/// separators miss from some fonts and render as garbage. Pure Latin →
+/// pdfAr passes it through.
 function money(v: unknown): string {
   const n = Number(v ?? 0);
   if (!Number.isFinite(n)) return "0,00";
-  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return n
+    .toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    .replace(/[  ]/g, " ");
 }
 
 function pdfDate(iso: unknown): string {
@@ -83,7 +87,9 @@ export async function buildTicketPdf(input: TicketPdfInput): Promise<Blob> {
   const right = pageW - margin;
 
   const F = applyArabicFont(doc, await loadArabicFont());
-  const T = (s: string) => (F === "Amiri" ? pdfAr(s) : s);
+  // French invoice = LTR base direction (Arabic names keep their RTL runs);
+  // Arabic invoice keeps the RTL-base shaping.
+  const T = (s: string) => (F === "Amiri" ? (lang === "fr" ? pdfArLtr(s) : pdfAr(s)) : s);
 
   // ── Header: logo + company (left) · FACTURE block (right) ──────────────
   let y = 15;

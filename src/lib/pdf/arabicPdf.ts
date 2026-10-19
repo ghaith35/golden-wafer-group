@@ -28,6 +28,32 @@ export function pdfAr(input: string): string {
     .join(" ");
 }
 
+/// LTR-base sibling for the French invoice: token order is KEPT (French
+/// reading direction) and only runs of Arabic tokens are reversed+reshaped,
+/// so "Client : محمد (CLT-1)" stays in French order while "منتج تجريبي"
+/// still renders correctly. Pure Latin strings pass through untouched.
+export function pdfArLtr(input: string): string {
+  if (!AR_RE.test(input)) return input;
+  const glued = input.replace(/(\d)[ \u00A0\u202F](?=\d)/g, "$1 ");
+  const toks = glued.split(/ +/);
+  const out: string[] = [];
+  let run: string[] = [];
+  let runRtl = false;
+  const flush = () => {
+    if (run.length === 0) return;
+    out.push(...(runRtl ? run.reverse().map((t) => convertArabic(t)) : run));
+    run = [];
+  };
+  for (const t of toks) {
+    const rtl = AR_RE.test(t);
+    if (run.length > 0 && rtl !== runRtl) flush();
+    runRtl = rtl;
+    run.push(t);
+  }
+  flush();
+  return out.join(" ");
+}
+
 export type FontPack = { reg: string; bold: string } | null;
 let fontCache: FontPack | undefined;
 
