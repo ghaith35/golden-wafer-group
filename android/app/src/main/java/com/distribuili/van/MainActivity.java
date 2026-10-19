@@ -17,5 +17,9 @@ public class MainActivity extends BridgeActivity {
         // window.print() is a no-op inside the APK WebView).
         registerPlugin(TicketPrinter.class);
         super.onCreate(savedInstanceState);
+        // Remote pages (client https servers opened from the launcher) never
+        // get the native bridge injection — re-graft it after each page load
+        // so print/share/filesystem work there too. Local pages self-skip.
+        RemoteBridgePatch.attach(getBridge());
     }
 }
