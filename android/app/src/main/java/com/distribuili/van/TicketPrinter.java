@@ -37,6 +37,13 @@ public class TicketPrinter extends Plugin {
     public void print(PluginCall call) {
         String html = call.getString("html");
         String name = call.getString("name", "ticket");
+        // Thermal roll width from the app's ticket setting (58/80mm): the
+        // dialog would otherwise default to A4 (system default when no
+        // thermal printer is pre-selected). Falls back to defaults if the
+        // printer rejects the custom size.
+        int widthMm = call.getInt("widthMm", 80);
+        if (widthMm != 58 && widthMm != 80) widthMm = 80;
+        final int rollWidthMm = widthMm;
         if (html == null || html.isEmpty()) {
             call.reject("missing_html");
             return;
@@ -84,7 +91,7 @@ public class TicketPrinter extends Plugin {
                             @Override
                             public void run() {
                                 if (view.getContentHeight() > 0 || ++tries > 30) {
-                                    view.postDelayed(() -> doPrint(view, printManager, name, call), 400);
+                                    view.postDelayed(() -> doPrint(view, printManager, name, rollWidthMm, call), 400);
                                 } else {
                                     view.postDelayed(this, 120);
                                 }
@@ -112,12 +119,27 @@ public class TicketPrinter extends Plugin {
         });
     }
 
-    private void doPrint(WebView view, PrintManager pm, String name, PluginCall call) {
+    private void doPrint(WebView view, PrintManager pm, String name, int widthMm, PluginCall call) {
         try {
             PrintDocumentAdapter adapter = view.createPrintDocumentAdapter(name);
-            // Null attributes = printer defaults; the HTML carries its own
-            // @page size (58/80mm).
-            pm.print(name, adapter, null);
+            try {
+                // Ask for the thermal roll explicitly (narrow preview instead
+                // of A4). Length 297mm paginates longer tickets; the roll
+                // service cuts per page. NO_MARGINS = full-bleed ticket.
+                int widthMils = (int) Math.round(widthMm * 1000.0 / 25.4);
+                PrintAttributes.MediaSize media = new PrintAttributes.MediaSize(
+                    "ticket_" + widthMm, widthMm + "mm roll", widthMils, 11693);
+                PrintAttributes attrs = new PrintAttributes.Builder()
+                    .setMediaSize(media)
+                    .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
+                    .setColorMode(PrintAttributes.COLOR_MODE_MONOCHROME)
+                    .build();
+                pm.print(name, adapter, attrs);
+            } catch (Exception ignored) {
+                // Printer rejected the custom size — system defaults (A4)
+                // still let the user pick paper manually in the dialog.
+                pm.print(name, adapter, null);
+            }
             call.resolve();
         } catch (Exception e) {
             call.reject(e.getMessage() != null ? e.getMessage() : "print_failed");

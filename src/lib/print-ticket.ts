@@ -124,7 +124,7 @@ function isDesktop(): boolean {
 }
 
 export type TicketPrinterPlugin = {
-  print: (o: { html: string; name: string }) => Promise<unknown>;
+  print: (o: { html: string; name: string; widthMm?: number }) => Promise<unknown>;
 };
 
 export type PrintTicketResult = { ok: true } | { ok: false; reason: string };
@@ -152,10 +152,11 @@ export async function printTicketNative(args: {
       origin,
     });
     const name = `facture-${String(args.ticket.number ?? "ticket")}`;
+    const widthMm = args.width === "58" ? 58 : 80;
     // 1. Capacitor-idiomatic proxy (bridges to the native TicketPrinter).
     try {
       const plugin = registerPlugin<TicketPrinterPlugin>("TicketPrinter");
-      await plugin.print({ html, name });
+      await plugin.print({ html, name, widthMm });
       return { ok: true };
     } catch {
       /* fall through to the legacy lookup */
@@ -167,7 +168,7 @@ export async function printTicketNative(args: {
       };
       const plugin = cap?.Capacitor?.Plugins?.TicketPrinter;
       if (!plugin) return { ok: false, reason: "no_plugin" };
-      await plugin.print({ html, name });
+      await plugin.print({ html, name, widthMm });
       return { ok: true };
     } catch (e) {
       return { ok: false, reason: e instanceof Error ? e.message : "print_failed" };
