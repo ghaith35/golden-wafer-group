@@ -10,7 +10,7 @@
 
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import { applyArabicFont, loadArabicFont, pdfAr, pdfArLtr, urlToDataUrl } from "./arabicPdf";
+import { applyArabicFont, loadArabicFont, pdfAr, urlToDataUrl } from "./arabicPdf";
 import type { TicketVM } from "@/components/sales/TicketView";
 import type { TicketCompany } from "@/lib/print-ticket";
 
@@ -87,17 +87,16 @@ export async function buildTicketPdf(input: TicketPdfInput): Promise<Blob> {
   const right = pageW - margin;
 
   const F = applyArabicFont(doc, await loadArabicFont());
-  // French invoice = LTR base direction (Arabic names keep their RTL runs);
-  // Arabic invoice keeps the RTL-base shaping.
-  const T = (s: string) => (F === "Amiri" ? (lang === "fr" ? pdfArLtr(s) : pdfAr(s)) : s);
+  // RTL layout (everything starts from the right): full RTL-base shaping
+  // for every string — pure French passes through untouched.
+  const T = (s: string) => (F === "Amiri" ? pdfAr(s) : s);
 
-  // ── Header: logo + company (left) · FACTURE block (right) ──────────────
+  // ── Header: logo + company (right) · FACTURE block (left) ──────────────
   let y = 15;
   const logo = company.logoUrl ? await urlToDataUrl(company.logoUrl) : null;
-  const textX = margin + (logo ? 30 : 0);
   if (logo) {
     try {
-      doc.addImage(logo.data, logo.format, margin, 11, 24, 24);
+      doc.addImage(logo.data, logo.format, right - 24, 11, 24, 24);
     } catch {
       /* ignore */
     }
@@ -105,37 +104,38 @@ export async function buildTicketPdf(input: TicketPdfInput): Promise<Blob> {
   doc.setFont(F, "bold");
   doc.setFontSize(19);
   doc.setTextColor(...BLACK);
-  doc.text(T(company.name || ""), textX, y);
+  doc.text(T(company.name || ""), right - (logo ? 30 : 0), y, { align: "right" });
   y += 6;
   doc.setFont(F, "normal");
   doc.setFontSize(9);
   doc.setTextColor(...GREY);
+  const infoX = right - (logo ? 30 : 0);
   if (company.address) {
-    doc.text(T(company.address), textX, y);
+    doc.text(T(company.address), infoX, y, { align: "right" });
     y += 4.5;
   }
   if (company.phone) {
-    doc.text(T(`Tél : ${company.phone}`), textX, y);
+    doc.text(T(`Tél : ${company.phone}`), infoX, y, { align: "right" });
     y += 4.5;
   }
   const fiscal = [company.rc && `RC : ${company.rc}`, company.nif && `NIF : ${company.nif}`]
     .filter(Boolean)
     .join("  ·  ");
   if (fiscal) {
-    doc.text(T(fiscal), textX, y);
+    doc.text(T(fiscal), infoX, y, { align: "right" });
     y += 4.5;
   }
-  // Right: FACTURE title + number + date.
+  // Left: FACTURE title + number + date.
   doc.setFont(F, "bold");
   doc.setFontSize(24);
   doc.setTextColor(...BLACK);
-  doc.text(T(L.facture.toUpperCase()), right, 19, { align: "right" });
+  doc.text(T(L.facture.toUpperCase()), margin, 19);
   doc.setFontSize(12);
-  doc.text(T(`N° ${t.number ?? ""}`), right, 26, { align: "right" });
+  doc.text(T(`N° ${t.number ?? ""}`), margin, 26);
   doc.setFont(F, "normal");
   doc.setFontSize(9);
   doc.setTextColor(...GREY);
-  doc.text(T(`${L.date} : ${pdfDate(t.date)}`), right, 31, { align: "right" });
+  doc.text(T(`${L.date} : ${pdfDate(t.date)}`), margin, 31);
   y = Math.max(y, 36);
 
   // ── Client band (black) ────────────────────────────────────────────────
@@ -147,25 +147,25 @@ export async function buildTicketPdf(input: TicketPdfInput): Promise<Blob> {
   const clientLeft = t.client
     ? `${L.client} : ${t.client.name ?? ""}${t.client.code ? `  (${t.client.code})` : ""}${t.client.phone ? `  ·  ${t.client.phone}` : ""}`
     : `${L.client} : —`;
-  doc.text(T(clientLeft), margin + 3, y + 6);
+  doc.text(T(clientLeft), right - 3, y + 6, { align: "right" });
   if (t.location?.name) {
-    doc.text(T(`${L.van} : ${t.location.name}`), right - 3, y + 6, { align: "right" });
+    doc.text(T(`${L.van} : ${t.location.name}`), margin + 3, y + 6);
   }
   y += 14;
 
-  // ── Lines table ────────────────────────────────────────────────────────
-  const head = [T("#"), T(L.product), T(L.qty), T(`${L.price} (DA)`), T(`${L.total} (DA)`)].map(
+  // ── Lines table (starts from the right: Total ··· #) ────────────────────
+  const head = [T(`${L.total} (DA)`), T(`${L.price} (DA)`), T(L.qty), T(L.product), T("#")].map(
     (h, i) => ({
       content: h,
-      styles: { halign: (i === 1 ? "left" : i === 0 ? "center" : "right") as "left" | "center" | "right" },
+      styles: { halign: (i === 4 ? "center" : "right") as "center" | "right" },
     }),
   );
   const body = (t.lines ?? []).map((l, i) => [
-    { content: String(i + 1), styles: { halign: "center" as const } },
-    { content: T(String(l.name ?? "")), styles: { halign: "left" as const } },
-    { content: String(l.qty ?? ""), styles: { halign: "right" as const } },
-    { content: money(l.unitPrice), styles: { halign: "right" as const } },
     { content: money(l.lineTotal), styles: { halign: "right" as const } },
+    { content: money(l.unitPrice), styles: { halign: "right" as const } },
+    { content: String(l.qty ?? ""), styles: { halign: "right" as const } },
+    { content: T(String(l.name ?? "")), styles: { halign: "right" as const } },
+    { content: String(i + 1), styles: { halign: "center" as const } },
   ]);
   const footerCompany = T(company.name || "");
   const footerNum = T(`N° ${t.number ?? ""}`);
@@ -191,17 +191,17 @@ export async function buildTicketPdf(input: TicketPdfInput): Promise<Blob> {
     },
     alternateRowStyles: { fillColor: [...ZEBRA] },
     columnStyles: {
-      0: { cellWidth: 12 },
+      0: { cellWidth: 34 },
+      1: { cellWidth: 32 },
       2: { cellWidth: 22 },
-      3: { cellWidth: 32 },
-      4: { cellWidth: 34 },
+      4: { cellWidth: 12 },
     },
     margin: { left: margin, right: margin },
     didDrawPage: () => {
       doc.setFont(F, "normal");
       doc.setFontSize(8);
       doc.setTextColor(...GREY);
-      doc.text(footerCompany, margin, pageH - 10);
+      doc.text(footerCompany, right, pageH - 10, { align: "right" });
       const n = doc.getNumberOfPages();
       doc.text(
         T(`${L.page} ${doc.getCurrentPageInfo().pageNumber} / ${n}`),
@@ -209,11 +209,11 @@ export async function buildTicketPdf(input: TicketPdfInput): Promise<Blob> {
         pageH - 10,
         { align: "center" },
       );
-      doc.text(footerNum, right, pageH - 10, { align: "right" });
+      doc.text(footerNum, margin, pageH - 10);
     },
   });
 
-  // ── Totals (right block, boxed Reste) ──────────────────────────────────
+  // ── Totals (left block, boxed Reste) ───────────────────────────────────
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let ty = (doc as any).lastAutoTable.finalY + 7;
   const total = Number(t.total ?? 0);
@@ -223,15 +223,15 @@ export async function buildTicketPdf(input: TicketPdfInput): Promise<Blob> {
     doc.setFont(F, bold ? "bold" : "normal");
     doc.setFontSize(size);
     doc.setTextColor(...(bold ? BLACK : INK));
-    doc.text(T(`${label} : ${val} DA`), right, ty, { align: "right" });
+    doc.text(T(`${label} : ${val} DA`), margin, ty);
     ty += size > 10 ? 7 : 5.5;
   };
-  if (Number(t.remise ?? 0) > 0) row(String(L.remise ?? "Remise"), `− ${money(t.remise)}`, false, 10);
+  if (Number(t.remise ?? 0) > 0) row(String(L.remise ?? "Remise"), `- ${money(t.remise)}`, false, 10);
   row(String(L.total ?? "Total"), money(total), true, 12);
   row(String(L.paid ?? "Payé"), money(paid), false, 10);
   doc.setDrawColor(...BLACK);
   doc.setLineWidth(0.4);
-  doc.rect(right - 78, ty - 5, 78, 8);
+  doc.rect(margin, ty - 5, 78, 8);
   row(String(L.due ?? "Reste"), money(due), true, 12);
 
   // ── QR + thanks (new page if tight) ────────────────────────────────────
