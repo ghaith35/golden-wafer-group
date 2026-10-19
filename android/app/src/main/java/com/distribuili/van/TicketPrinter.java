@@ -58,32 +58,38 @@ public class TicketPrinter extends Plugin {
                     (ViewGroup) getActivity().getWindow().getDecorView();
                 wv = new WebView(ctx);
                 wv.setVisibility(View.INVISIBLE);
-                // Attached but invisible: participates in measure/layout, so
-                // the print adapter renders real content; 1px, no flicker.
-                root.addView(wv, new ViewGroup.LayoutParams(1, 1));
+                // Attached AND real ticket width: a 1px view never produces a
+                // usable layout, so the print adapter emits BLANK pages. 576px
+                // ≈ 80mm thermal width; the adapter scales to the printer.
+                // INVISIBLE (not GONE): participates in measure/layout while
+                // staying off-screen. Height wraps the ticket content.
+                root.addView(
+                    wv,
+                    new ViewGroup.LayoutParams(
+                        576, ViewGroup.LayoutParams.WRAP_CONTENT));
                 liveViews.add(wv);
                 final WebView view = wv;
+                final PrintManager printManager = pm;
                 view.setWebViewClient(new WebViewClient() {
                     @Override
                     public void onPageFinished(WebView v, String url) {
                         super.onPageFinished(v, url);
-                        // Let remote images (logo) settle before measuring.
-                        v.postDelayed(() -> {
-                            try {
-                                PrintDocumentAdapter adapter = v.createPrintDocumentAdapter(name);
-                                // Null attributes = printer defaults; the HTML
-                                // carries its own @page size (58/80mm).
-                                pm.print(name, adapter, null);
-                                call.resolve();
-                            } catch (Exception e) {
-                                call.reject(e.getMessage() != null ? e.getMessage() : "print_failed");
-                            } finally {
-                                // The framework snapshots the adapter at print()
-                                // time — detach after a grace delay, keep the
-                                // instance alive a while longer for slow jobs.
-                                v.postDelayed(() -> detach(view), 5_000);
+                        // Wait until the engine has measured real content
+                        // (the logo may still be loading — the ticket itself
+                        // is local HTML, so contentHeight gates the layout,
+                        // not the network). Print anyway after ~4s, never hang.
+                        v.postDelayed(new Runnable() {
+                            int tries = 0;
+
+                            @Override
+                            public void run() {
+                                if (view.getContentHeight() > 0 || ++tries > 30) {
+                                    view.postDelayed(() -> doPrint(view, printManager, name, call), 400);
+                                } else {
+                                    view.postDelayed(this, 120);
+                                }
                             }
-                        }, 400);
+                        }, 300);
                     }
 
                     @Override
@@ -98,12 +104,29 @@ public class TicketPrinter extends Plugin {
                         // document itself, which is all the adapter needs.
                     }
                 });
-                wv.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
+                wv.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
             } catch (Exception e) {
                 if (wv != null) detach(wv);
                 call.reject(e.getMessage() != null ? e.getMessage() : "print_failed");
             }
         });
+    }
+
+    private void doPrint(WebView view, PrintManager pm, String name, PluginCall call) {
+        try {
+            PrintDocumentAdapter adapter = view.createPrintDocumentAdapter(name);
+            // Null attributes = printer defaults; the HTML carries its own
+            // @page size (58/80mm).
+            pm.print(name, adapter, null);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject(e.getMessage() != null ? e.getMessage() : "print_failed");
+        } finally {
+            // The framework snapshots the adapter at print() time — detach
+            // after a grace delay, keep the instance alive a while longer
+            // for slow jobs.
+            view.postDelayed(() -> detach(view), 5_000);
+        }
     }
 
     private void detach(WebView view) {

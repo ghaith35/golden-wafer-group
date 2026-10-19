@@ -10,6 +10,7 @@ import type { TicketCompany } from "@/lib/print-ticket";
 /// fetch that stalled offline on some phones (hang with no resolve/reject).
 /// The heavy PDF builder stays lazy (proven cached) by contrast.
 import { savePdfFile, sharePdfFile } from "@/lib/share-ticket";
+import { FRENCH_LABELS } from "@/lib/pdf/ticketPdf";
 
 /// In-app facture viewer: the driver SEES the real A4 PDF (built offline by
 /// ticketPdf) and shares/saves it from here — like a Chrome PDF viewer.
@@ -56,7 +57,9 @@ export function PdfViewer({
       }
       try {
         const { buildTicketPdf } = await import("@/lib/pdf/ticketPdf");
-        const blob = await buildTicketPdf({ ticket, company, lang, labels, qrDataUrl: qrDataUrl ?? null });
+        // The exported file is always the French monochrome invoice
+        // (the on-screen preview keeps the UI language).
+        const blob = await buildTicketPdf({ ticket, company, lang: "fr", labels: FRENCH_LABELS, qrDataUrl: qrDataUrl ?? null });
         if (dead) return;
         blobRef.current = blob;
         obj = URL.createObjectURL(blob);
@@ -78,7 +81,7 @@ export function PdfViewer({
     if (blobRef.current) return blobRef.current;
     try {
       const { buildTicketPdf } = await import("@/lib/pdf/ticketPdf");
-      const blob = await buildTicketPdf({ ticket, company, lang, labels, qrDataUrl: qrDataUrl ?? null });
+      const blob = await buildTicketPdf({ ticket, company, lang: "fr", labels: FRENCH_LABELS, qrDataUrl: qrDataUrl ?? null });
       blobRef.current = blob;
       return blob;
     } catch {
