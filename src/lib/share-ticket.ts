@@ -16,6 +16,24 @@
 
 export type PdfShareWhere = "shared" | "saved" | "failed";
 
+/// Desktop shell bridge (Electron preload). Present only inside the
+/// dmg/exe apps — `undefined` on web and phones, and missing entirely on
+/// old shells (which predate the pdf-open/pdf-save channels).
+type DesktopBridge = {
+  isDesktop?: boolean;
+  pdfOpen?: (args: { fileName: string; base64: string }) => Promise<{ ok?: boolean }>;
+  pdfSave?: (args: { fileName: string; base64: string }) => Promise<{ ok?: boolean; canceled?: boolean }>;
+};
+
+function desktopBridge(): DesktopBridge | null {
+  try {
+    const d = (window as unknown as { distribuili?: DesktopBridge }).distribuili;
+    return d?.isDesktop === true ? d : null;
+  } catch {
+    return null;
+  }
+}
+
 function blobToB64(blob: Blob): Promise<string> {
   return blob.arrayBuffer().then((buf) => {
     const bytes = new Uint8Array(buf);
@@ -35,6 +53,18 @@ export async function sharePdfFile(opts: {
 }): Promise<PdfShareWhere> {
   const { fileName, blob, title } = opts;
   if (typeof window === "undefined") return "failed";
+  // 0. Desktop shell (dmg/exe): open the PDF in the OS default viewer
+  // (print / share from there — the desktop share sheet). Missing channel
+  // (old shell) falls through to the web methods below, never throws.
+  try {
+    const d = desktopBridge();
+    if (d?.pdfOpen) {
+      const r = await d.pdfOpen({ fileName, base64: await blobToB64(blob) });
+      if (r?.ok) return "shared";
+    }
+  } catch {
+    /* fall through */
+  }
   // 1. Native first: Cache dir (FileProvider-shareable) + `files` array
   // (the `url`-only + Documents combo is rejected by the Share plugin on
   // Android 10+ scoped storage → silent "saved" with no chooser).
@@ -102,9 +132,21 @@ export async function sharePdfFile(opts: {
 export async function savePdfFile(opts: {
   fileName: string;
   blob: Blob;
-}): Promise<"saved" | "failed"> {
+}): Promise<"saved" | "failed" | "cancelled"> {
   const { fileName, blob } = opts;
   if (typeof window === "undefined") return "failed";
+  // Desktop shell: native save dialog. Cancel is its own outcome (the
+  // viewer shows no message for it); missing channel falls through.
+  try {
+    const d = desktopBridge();
+    if (d?.pdfSave) {
+      const r = await d.pdfSave({ fileName, base64: await blobToB64(blob) });
+      if (r?.ok) return "saved";
+      if (r?.canceled) return "cancelled";
+    }
+  } catch {
+    /* fall through to download */
+  }
   try {
     const { Capacitor } = await import("@capacitor/core");
     if (Capacitor.isNativePlatform()) {

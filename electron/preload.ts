@@ -30,6 +30,8 @@ contextBridge.exposeInMainWorld("distribuili", {
   },
   serverGetUrl: invoke("server-get-url"),
   serverSaveUrl: invoke("server-save-url"),
+  pdfOpen: invoke("pdf-open"),
+  pdfSave: invoke("pdf-save"),
   onUpdateProgress: (cb: (pct: number) => void) => {
     const listener = (_e: unknown, pct: number) => cb(pct);
     ipcRenderer.on("update-progress", listener as never);
@@ -57,6 +59,8 @@ declare global {
       bundleApply: () => Promise<never>;
       serverGetUrl: () => Promise<never>;
       serverSaveUrl: (url: string) => Promise<never>;
+      pdfOpen: (args: { fileName: string; base64: string }) => Promise<{ ok?: boolean; path?: string; error?: string }>;
+      pdfSave: (args: { fileName: string; base64: string }) => Promise<{ ok?: boolean; canceled?: boolean; path?: string; error?: string }>;
       onUpdateProgress: (cb: (pct: number) => void) => () => void;
       onBundleProgress: (cb: (pct: number) => void) => () => void;
     };

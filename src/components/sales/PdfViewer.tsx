@@ -119,6 +119,7 @@ export function PdfViewer({
       }
       const where = await savePdfFile({ fileName: `${fileBase}.pdf`, blob });
       if (where === "saved") setMsg(labels.pdfSaved ?? "saved ✓");
+      else if (where === "cancelled") setMsg(null);
       else setMsg(labels.shareFail ?? "share failed");
     } catch {
       setMsg(labels.shareFail ?? "share failed");

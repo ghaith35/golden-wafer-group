@@ -109,6 +109,20 @@ function isNative(): boolean {
   }
 }
 
+/// Desktop shell (dmg/exe): never the Capacitor native path — the desktop
+/// prints through window.print() (system dialog, printer picker), which
+/// works in Electron. Without this guard a misdetected platform would
+/// surface "plugin is not implemented" instead of printing.
+function isDesktop(): boolean {
+  try {
+    return (
+      (window as unknown as { distribuili?: { isDesktop?: boolean } }).distribuili?.isDesktop === true
+    );
+  } catch {
+    return false;
+  }
+}
+
 export type TicketPrinterPlugin = {
   print: (o: { html: string; name: string }) => Promise<unknown>;
 };
@@ -130,7 +144,8 @@ export async function printTicketNative(args: {
   qrDataUrl?: string | null;
 }): Promise<PrintTicketResult> {
   try {
-    if (typeof window === "undefined" || !isNative()) return { ok: false, reason: "not_native" };
+    if (typeof window === "undefined" || !isNative() || isDesktop())
+      return { ok: false, reason: isDesktop() ? "desktop_window_print" : "not_native" };
     const origin = window.location.origin;
     const html = ticketPrintHtml(args.ticket, args.company, args.width, args.labels, args.lang, {
       qrDataUrl: args.qrDataUrl ?? null,

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, nativeImage, shell, ipcMain, Tray } from "electron";
+import { app, BrowserWindow, Menu, nativeImage, shell, ipcMain, Tray, dialog } from "electron";
 import { TRAY_ICON_B64 } from "./tray-icon";
 import { join } from "node:path";
 import { existsSync, readFileSync, writeFileSync, copyFileSync, appendFileSync, mkdirSync } from "node:fs";
@@ -133,6 +133,51 @@ function registerServerUrlIpc(): void {
       return { ok: true, url: effServerUrl() };
     } catch {
       return { ok: false, error: "bad_url" };
+    }
+  });
+}
+
+// ── Facture PDF handoff to the OS ─────────────────────────────────────────
+// The renderer cannot reach other apps from inside the sandbox, so the
+// desktop shell does it: "open" writes the PDF to temp and launches the
+// OS default viewer (print / share / WhatsApp-desktop from there — the
+// desktop equivalent of the phone's share sheet); "save" shows the native
+// save dialog. Old shells lack these channels — the renderer detects that
+// and falls back to download, never throwing.
+function cleanPdfName(v: unknown): string {
+  const s = String(v || "facture.pdf").replace(/[^\w.\-()\[\\] ]+/g, "_").slice(0, 80) || "facture.pdf";
+  return s.toLowerCase().endsWith(".pdf") ? s : `${s}.pdf`;
+}
+
+function registerPdfIpc(): void {
+  ipcMain.handle("pdf-open", async (_e, args: { fileName?: unknown; base64?: unknown }) => {
+    try {
+      const b64 = String(args?.base64 || "");
+      if (!b64) return { ok: false, error: "empty" };
+      const { tmpdir } = require("node:os") as typeof import("node:os");
+      const dir = join(tmpdir(), "distribuili-pdf");
+      if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+      const p = join(dir, `${Date.now()}-${cleanPdfName(args?.fileName)}`);
+      writeFileSync(p, Buffer.from(b64, "base64"));
+      const err = await shell.openPath(p);
+      return err ? { ok: false, error: err } : { ok: true, path: p };
+    } catch (e) {
+      return { ok: false, error: String(e) };
+    }
+  });
+  ipcMain.handle("pdf-save", async (_e, args: { fileName?: unknown; base64?: unknown }) => {
+    try {
+      const b64 = String(args?.base64 || "");
+      if (!b64) return { ok: false, error: "empty" };
+      const res = await dialog.showSaveDialog({
+        defaultPath: cleanPdfName(args?.fileName),
+        filters: [{ name: "PDF", extensions: ["pdf"] }],
+      });
+      if (res.canceled || !res.filePath) return { ok: false, canceled: true };
+      writeFileSync(res.filePath, Buffer.from(b64, "base64"));
+      return { ok: true, path: res.filePath };
+    } catch (e) {
+      return { ok: false, error: String(e) };
     }
   });
 }
@@ -1258,6 +1303,7 @@ app.whenReady().then(async () => {
   registerUpdaterIpc(log);
   registerBundleIpc(log);
   registerServerUrlIpc();
+  registerPdfIpc();
   // Standard menus: without the Edit menu macOS disables Cmd+C/X/V/A/Z
   // app-wide (text can be selected but never copied). Roles give native
   // shortcuts + localized labels for free.
