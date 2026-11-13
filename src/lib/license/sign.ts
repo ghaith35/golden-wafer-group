@@ -9,13 +9,25 @@ function privateKey(): crypto.KeyObject {
   return crypto.createPrivateKey({ key: Buffer.from(b64, "base64"), format: "der", type: "pkcs8" });
 }
 
+/// Legacy installers baked a different public key. Devices listed in
+/// LICENSE_ALT_MACHINES (comma-separated machine ids) are signed with
+/// LICENSE_PRIVATE_KEY_ALT (the key that installer trusts); everyone else is untouched.
+function privateKeyFor(machineId: unknown): crypto.KeyObject {
+  const alt = process.env.LICENSE_PRIVATE_KEY_ALT;
+  const ids = (process.env.LICENSE_ALT_MACHINES || "").split(",").map((x) => x.trim()).filter(Boolean);
+  if (alt && typeof machineId === "string" && ids.includes(machineId)) {
+    return crypto.createPrivateKey({ key: Buffer.from(alt, "base64"), format: "der", type: "pkcs8" });
+  }
+  return privateKey();
+}
+
 function b64url(buf: Buffer): string {
   return buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 export function signToken(payload: Record<string, unknown>): string {
   const body = b64url(Buffer.from(JSON.stringify(payload), "utf8"));
-  const sig = crypto.sign(null, Buffer.from(body, "utf8"), privateKey());
+  const sig = crypto.sign(null, Buffer.from(body, "utf8"), privateKeyFor(payload.machineId));
   return `${body}.${b64url(sig)}`;
 }
 
