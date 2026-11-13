@@ -4,9 +4,9 @@
 set -euo pipefail
 
 COMPOSE="docker compose -f docker-compose.prod.yml"
-# Host port + health URL follow APP_PORT (default keeps the old 3002).
-# e.g. APP_PORT=3005 bash scripts/deploy.sh
-export APP_PORT="${APP_PORT:-3002}"
+# Host port + health URL follow APP_PORT. Default 3005 = the nginx upstream
+# (distribuili_app); 3002 belongs to monstore. POSTGRES_PASSWORD comes from .env.
+export APP_PORT="${APP_PORT:-3005}"
 APP_URL="${APP_URL:-http://127.0.0.1:${APP_PORT}/api/health}"
 
 echo "==> git pull"
