@@ -31,6 +31,10 @@ ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+# Standalone tracing can miss transitive deps (e.g. xtend/mutable via pg);
+# fill in anything absent without overwriting traced modules.
+COPY --from=builder /app/node_modules /tmp/nm_full
+RUN cp -rn /tmp/nm_full/. ./node_modules/ && rm -rf /tmp/nm_full
 COPY --from=builder /app/public ./public
 EXPOSE 3000
 CMD ["node", "server.js"]
