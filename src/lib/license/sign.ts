@@ -55,9 +55,15 @@ export function normalizeActivationKey(key: string): string {
   return String(key || "").toUpperCase().replace(/[^0-9A-Z]/g, "");
 }
 
+/// Crockford forgiveness: the alphabet has no I/L/O, so a typed O/I/L can only
+/// mean 0/1/1 (the UI font makes 0 and O look identical). Applied to both sides.
+function canonicalKey(key: string): string {
+  return normalizeActivationKey(key).replace(/O/g, "0").replace(/[IL]/g, "1");
+}
+
 export function activationKeysEqual(a: string, b: string): boolean {
-  const na = normalizeActivationKey(a);
-  const nb = normalizeActivationKey(b);
+  const na = canonicalKey(a);
+  const nb = canonicalKey(b);
   const ba = Buffer.from(na, "utf8");
   const bb = Buffer.from(nb, "utf8");
   if (ba.length !== bb.length) return false;
