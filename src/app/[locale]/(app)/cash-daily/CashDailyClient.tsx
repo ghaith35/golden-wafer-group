@@ -11,6 +11,7 @@ import { KpiCard } from "@/components/ui/Card";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
+import { ErrText } from "@/components/ui/ErrText";
 type CloseInfo = {
   id: string;
   status: "DECLARED" | "CLOSED";
@@ -367,7 +368,7 @@ export function CashDailyClient({
               <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.notes}</label>
               <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
             </div>
-            {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+            {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
             <div className="flex gap-2">
               <Button variant="secondary" onClick={() => setModal(null)} className="flex-1">{labels.cancel}</Button>
               <Button onClick={() => void submit()} disabled={busy} className="flex-[2]">

@@ -1,12 +1,12 @@
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 import { tourneeSchema, tourneeStopsSchema, stopUpdateSchema } from "@/lib/sales/validation";
-import { algiersDayKey, endOfAlgiersDay, isPastAlgiersDay } from "./days";
+import { addDaysKey, algiersDayKey, algiersDayRange, endOfAlgiersDay, isPastAlgiersDay, weekStartKey } from "./days";
 
 type TourneeInput = z.infer<typeof tourneeSchema>;
 
 export async function createTournee(companyId: string, input: TourneeInput) {
-  const location = await prisma.store.findFirst({ where: { id: input.locationId, companyId, kind: "VAN" } });
+  const location = await prisma.store.findFirst({ where: { id: input.locationId, companyId, kind: "VAN", isActive: true } });
   if (!location) throw Object.assign(new Error("van_required"), { status: 400 });
   if (input.secteurId) {
     const sec = await prisma.secteur.findFirst({ where: { id: input.secteurId, companyId } });
@@ -16,12 +16,8 @@ export async function createTournee(companyId: string, input: TourneeInput) {
   if (Number.isNaN(date.getTime())) throw Object.assign(new Error("bad_date"), { status: 400 });
 
   // One open tour per van per day — the board assumes a single column owner.
-  const dayStart = new Date(date);
-  dayStart.setHours(0, 0, 0, 0);
-  const dayEnd = new Date(dayStart);
-  dayEnd.setDate(dayEnd.getDate() + 1);
   const clash = await prisma.tournee.findFirst({
-    where: { companyId, locationId: input.locationId, status: "OPEN", date: { gte: dayStart, lt: dayEnd } },
+    where: { companyId, locationId: input.locationId, status: "OPEN", date: algiersDayRange(date) },
     select: { id: true },
   });
   if (clash) throw Object.assign(new Error("duplicate_day"), { status: 400 });
@@ -140,21 +136,36 @@ export async function closeTournee(companyId: string, tourneeId: string) {
     await tx.tournee.update({ where: { id: tournee.id }, data: { status: "CLOSED" } });
     let carryoverId: string | null = null;
     if (unvisited.length) {
-      const next = new Date(tournee.date);
-      next.setDate(next.getDate() + 1);
-      const draft = await tx.tournee.create({
-        data: {
-          companyId,
-          date: next,
-          locationId: tournee.locationId,
-          secteurId: tournee.secteurId,
-          notes: `Carry-over from ${tournee.date.toISOString().slice(0, 10)}`,
-        },
+      const next = new Date(tournee.date.getTime() + 86_400_000);
+      // Reuse an already-open tour of this van tomorrow (the board shows one
+      // per cell) — append the unvisited clients it doesn't have yet.
+      const existing = await tx.tournee.findFirst({
+        where: { companyId, locationId: tournee.locationId, status: "OPEN", date: algiersDayRange(next) },
+        include: { stops: { select: { clientId: true } } },
       });
-      for (let i = 0; i < unvisited.length; i++) {
-        await tx.tourneeStop.create({ data: { tourneeId: draft.id, clientId: unvisited[i].clientId, position: i } });
+      if (existing) {
+        const have = new Set(existing.stops.map((s) => s.clientId));
+        let pos = existing.stops.length;
+        for (const u of unvisited) {
+          if (have.has(u.clientId)) continue;
+          await tx.tourneeStop.create({ data: { tourneeId: existing.id, clientId: u.clientId, position: pos++ } });
+        }
+        carryoverId = existing.id;
+      } else {
+        const draft = await tx.tournee.create({
+          data: {
+            companyId,
+            date: next,
+            locationId: tournee.locationId,
+            secteurId: tournee.secteurId,
+            notes: `Carry-over from ${tournee.date.toISOString().slice(0, 10)}`,
+          },
+        });
+        for (let i = 0; i < unvisited.length; i++) {
+          await tx.tourneeStop.create({ data: { tourneeId: draft.id, clientId: unvisited[i].clientId, position: i } });
+        }
+        carryoverId = draft.id;
       }
-      carryoverId = draft.id;
     }
     return {
       report: { visited, sold, skipped, unvisited: unvisited.length, salesTotal, sales: tournee.sales.length },
@@ -324,4 +335,98 @@ export async function moveStop(companyId: string, stopId: string, toTourneeId: s
   await prisma.tourneeStop.update({ where: { id: stopId }, data: { tourneeId: toTourneeId, position } });
   const remaining = await prisma.tourneeStop.count({ where: { tourneeId: stop.tourneeId } });
   return { ok: true, sourceEmpty: remaining === 0 };
+}
+
+/// One weekly plan for every week. The "live plan" of a van is its OPEN tours
+/// from the current week onward; each van+weekday cell is copied forward
+/// (same secteur, else same stops) for `weeks` weeks starting at weekKey, only
+/// for days that are not in the past. Deleting a cell (all its open future
+/// tours) ends that plan — nothing is regenerated from history.
+export async function ensureWeekTours(companyId: string, weekKey: string, weeks = 1): Promise<number> {
+  const today = algiersDayKey(new Date());
+  const thisWeek = weekStartKey(today);
+  const from = algiersDayRange(new Date(`${thisWeek}T12:00:00Z`)).gte;
+  const live = await prisma.tournee.findMany({
+    where: { companyId, status: "OPEN", date: { gte: from } },
+    orderBy: { date: "desc" },
+    take: 2000,
+    select: { date: true, locationId: true, secteurId: true, stops: { select: { clientId: true }, orderBy: { position: "asc" } } },
+  });
+  type Tpl = { secteurId: string | null; clientIds: string[] };
+  const templates = new Map<string, Tpl>(); // `${vanId}|${offset}` → latest
+  for (const t of live) {
+    const key = algiersDayKey(t.date);
+    const offset = (new Date(`${key}T00:00:00Z`).getUTCDay() + 1) % 7;
+    const k = `${t.locationId}|${offset}`;
+    if (!templates.has(k)) templates.set(k, { secteurId: t.secteurId, clientIds: t.stops.map((x) => x.clientId) });
+  }
+  if (!templates.size) return 0;
+  const first = weekKey < thisWeek ? thisWeek : weekKey;
+  const lastDay = addDaysKey(first, 7 * weeks - 1);
+  const startR = algiersDayRange(new Date(`${first}T12:00:00Z`)).gte;
+  const endR = algiersDayRange(new Date(`${lastDay}T12:00:00Z`)).lt;
+  const existing = await prisma.tournee.findMany({
+    where: { companyId, date: { gte: startR, lt: endR } },
+    select: { date: true, locationId: true },
+  });
+  const have = new Set(existing.map((e) => `${e.locationId}|${algiersDayKey(e.date)}`));
+  let created = 0;
+  for (let w = 0; w < weeks; w++) {
+    for (const [k, tpl] of templates) {
+      const [vanId, off] = k.split("|");
+      const dayKey = addDaysKey(first, 7 * w + Number(off));
+      if (dayKey < today || have.has(`${vanId}|${dayKey}`)) continue;
+      try {
+        await createTournee(companyId, {
+          locationId: vanId,
+          date: dayKey,
+          secteurId: tpl.secteurId ?? undefined,
+          clientIds: tpl.secteurId ? [] : tpl.clientIds,
+        } as never);
+        have.add(`${vanId}|${dayKey}`);
+        created++;
+      } catch {
+        // van archived / client gone / duplicate → skip this cell
+      }
+    }
+  }
+  return created;
+}
+
+/// Other tours of the same van + weekday that are still part of the plan:
+/// OPEN, not started, today or later.
+async function seriesSiblings(companyId: string, tourneeId: string) {
+  const t = await prisma.tournee.findFirst({ where: { id: tourneeId, companyId } });
+  if (!t) return [];
+  const offset = (new Date(`${algiersDayKey(t.date)}T00:00:00Z`).getUTCDay() + 1) % 7;
+  const from = algiersDayRange(new Date(`${algiersDayKey(new Date())}T12:00:00Z`)).gte;
+  const rows = await prisma.tournee.findMany({
+    where: { companyId, locationId: t.locationId, status: "OPEN", startedAt: null, date: { gte: from }, id: { not: t.id } },
+    select: { id: true, date: true },
+  });
+  return rows.filter((r) => (new Date(`${algiersDayKey(r.date)}T00:00:00Z`).getUTCDay() + 1) % 7 === offset).map((r) => r.id);
+}
+
+/// Edit once → every future week follows (stops of the cell copied over).
+export async function propagateStops(companyId: string, tourneeId: string) {
+  const src = await prisma.tournee.findFirst({
+    where: { id: tourneeId, companyId },
+    include: { stops: { orderBy: { position: "asc" }, select: { clientId: true } } },
+  });
+  if (!src || src.status !== "OPEN") return;
+  for (const id of await seriesSiblings(companyId, tourneeId)) {
+    await prisma.$transaction(async (tx) => {
+      await tx.tourneeStop.deleteMany({ where: { tourneeId: id } });
+      for (let i = 0; i < src.stops.length; i++) {
+        await tx.tourneeStop.create({ data: { tourneeId: id, clientId: src.stops[i].clientId, position: i } });
+      }
+      await tx.tournee.update({ where: { id }, data: { secteurId: src.secteurId } });
+    });
+  }
+}
+
+/// Delete a cell from the plan: this tour plus every future open copy.
+export async function deleteSeries(companyId: string, tourneeId: string) {
+  const ids = await seriesSiblings(companyId, tourneeId);
+  await prisma.tournee.deleteMany({ where: { companyId, id: { in: [...ids, tourneeId] } } });
 }

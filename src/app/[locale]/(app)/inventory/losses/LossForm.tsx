@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { UnitQty, PackInfo, factorOf, baseNameOf } from "@/components/products/UnitQty";
 
+import { ErrText } from "@/components/ui/ErrText";
 const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
 const MOTIVES = ["BREAKAGE", "EXPIRED", "GIFT", "LOSS", "OTHER"] as const;
 
@@ -80,7 +81,7 @@ export function LossForm({
   return (
     <div className="space-y-3">
       <h1 className="text-xl font-bold">{labels.title}</h1>
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       {done && <p className="rounded-lg bg-emerald-500/10 p-2 text-sm text-emerald-600">✓</p>}
       <Card>
         <div className="grid gap-2">

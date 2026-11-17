@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
+import { ErrText } from "@/components/ui/ErrText";
 export type RefRow = { id: string; name: string; symbol?: string | null; isActive: boolean };
 
 export function RefList({
@@ -63,7 +64,7 @@ export function RefList({
   return (
     <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4">
       <h2 className="mb-3 text-sm font-bold">{title}</h2>
-      {error && <p className="mb-2 rounded-lg bg-red-500/10 p-2 text-sm font-bold text-red-500">{error}</p>}
+      {error && <p className="mb-2 rounded-lg bg-red-500/10 p-2 text-sm font-bold text-red-500"><ErrText code={error} /></p>}
       <div className="mb-3 flex gap-2">
         {extra && (
           <select

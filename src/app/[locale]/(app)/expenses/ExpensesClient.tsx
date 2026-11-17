@@ -10,7 +10,9 @@ import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { RowActions } from "@/components/ui/RowActions";
 import { dz, dzMoney, fmtDT } from "@/lib/format";
+import { useDataVersion } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Row = {
   id: string;
   label: string;
@@ -58,7 +60,7 @@ function ExpenseForm({
 
   return (
     <div className="grid gap-2">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <Input placeholder={labels.label} value={label} onChange={(e) => setLabel(e.target.value)} />
       <div className="grid grid-cols-2 gap-2">
         <Input
@@ -139,10 +141,11 @@ export function ExpensesClient({
     if (res.ok) setRows(await res.json());
   }
 
+  const dataV = useDataVersion();
   useEffect(() => {
     reload().catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [month, fType, fLoc]);
+  }, [month, fType, fLoc, dataV]);
 
   function validate(v: { label: string; amount: string }) {
     if (!v.label.trim() || !v.amount || Number(v.amount) <= 0) return "missing_fields";
@@ -269,7 +272,7 @@ export function ExpensesClient({
         />
       </div>
       {error && !creating && !editing && (
-        <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>
+        <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>
       )}
 
       <div className="flex shrink-0 flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">

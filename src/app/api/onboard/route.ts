@@ -47,6 +47,8 @@ export async function POST(req: Request) {
           settings: { create: { defaultLocale: "ar", currency: "DZD" } },
         },
       });
+      // Main depot from day one (stock, van loading and commandes need it).
+      await tx.store.create({ data: { companyId: company.id, name: "المستودع الرئيسي", kind: "DEPOT" } });
       const user = await tx.user.create({
         data: {
           companyId: company.id,

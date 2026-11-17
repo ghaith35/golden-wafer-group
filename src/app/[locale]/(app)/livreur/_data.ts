@@ -8,3 +8,25 @@ export async function getLivreurVan(companyId: string, userId: string): Promise<
     select: { id: true, name: true, matricule: true },
   });
 }
+
+/// Départ/fin stamps of the van's tour on a given day (null = no tour yet).
+export async function getDayStamp(
+  companyId: string,
+  vanId: string,
+  date: Date,
+): Promise<{ startedAt: string | null; finishedAt: string | null } | null> {
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(date);
+  end.setHours(23, 59, 59, 999);
+  const t = await prisma.tournee.findFirst({
+    where: { companyId, locationId: vanId, date: { gte: start, lte: end } },
+    select: { startedAt: true, finishedAt: true },
+    orderBy: { createdAt: "desc" },
+  });
+  if (!t) return null;
+  return {
+    startedAt: t.startedAt ? t.startedAt.toISOString() : null,
+    finishedAt: t.finishedAt ? t.finishedAt.toISOString() : null,
+  };
+}

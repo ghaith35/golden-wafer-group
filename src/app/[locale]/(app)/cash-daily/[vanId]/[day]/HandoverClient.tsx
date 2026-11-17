@@ -9,6 +9,7 @@ import { BackButton } from "@/components/ui/BackButton";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Row = {
   vanId: string;
   dayIso: string;
@@ -207,7 +208,7 @@ export function HandoverClient({
                   <Input value={notes} onChange={(e) => setNotes(e.target.value)} dir="auto" />
                 </div>
               </div>
-              {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+              {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Button
                   variant="secondary"

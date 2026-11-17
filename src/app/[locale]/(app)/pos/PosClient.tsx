@@ -10,6 +10,7 @@ import { UnitQty, factorOf, baseNameOf, packBreakdown, priceForUnit, saleUnits, 
 import { ProductCardDetails } from "@/components/products/ProductCardDetails";
 import { cn } from "@/lib/utils";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Product = {
   id: string;
   name: string;
@@ -289,7 +290,7 @@ export function PosClient({
 
   return (
     <div className="space-y-4 p-5 md:p-6">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
 
       <div className="grid items-start gap-4 lg:h-[calc(100dvh-190px)] lg:grid-cols-[minmax(0,1fr)_380px]">
         {/* ── Product shelf (start side) ── */}

@@ -11,6 +11,7 @@ import { ProductPicker } from "@/components/products/ProductPicker";
 import { queueOp } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Place = {
   id: string;
   name: string;
@@ -18,7 +19,7 @@ type Place = {
   imageUrl?: string | null;
   matricule?: string | null;
   marque?: string | null;
-  user?: { fullName: string } | null;
+  user?: { fullName: string; role?: string } | null;
 };
 
 function placeDriver(p: Place): string {
@@ -203,9 +204,13 @@ function PlaceIcon({ kind, size = 18 }: { kind: string; size?: number }) {
 
 const STEPS = ["stepRoute", "stepLines", "stepReview"] as const;
 
+/// A van driven by a Vendeur (مندوب) never holds stock: it must not be
+/// offered as a source or destination, whatever screen opened the form.
+const holdsStock = (p: Place) => !(p.kind === "VAN" && p.user?.role === "Vendeur");
+
 export function TransferForm({
   locale,
-  locations,
+  locations: allLocations,
   products,
   presetFrom,
   presetTo,
@@ -239,17 +244,20 @@ export function TransferForm({
   fromKinds?: string[];
   toKinds?: string[];
 }) {
+  const locations = allLocations.filter(holdsStock);
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [from, setFrom] = useState(presetFrom);
-  const [to, setTo] = useState(presetTo);
+  // A preset pointing at a van that cannot hold stock is dropped.
+  const okId = (id: string) => (id && !allLocations.some((l) => l.id === id && !holdsStock(l)) ? id : "");
+  const [from, setFrom] = useState(okId(presetFrom));
+  const [to, setTo] = useState(okId(presetTo));
   const [cash, setCash] = useState(0);
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<Array<{ productId: string; unitId: string; qty: number }>>([{ productId: "", unitId: "", qty: 1 }]);
   const [avail, setAvail] = useState<Record<string, number>>({});
   /// True when avail comes from the last sync (offline): numbers may be stale.
   const [snapAvail, setSnapAvail] = useState(false);
-  const [availLoaded, setAvailLoaded] = useState(!presetFrom);
+  const [availLoaded, setAvailLoaded] = useState(!okId(presetFrom));
   const [stockByLoc, setStockByLoc] = useState<Record<string, { units: number; skus: number }>>({});
   const [stockKnown, setStockKnown] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -491,7 +499,7 @@ export function TransferForm({
 
   return (
     <div className="mx-auto flex min-h-[55vh] w-full max-w-4xl flex-col space-y-4 p-5 md:p-6">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       {queued && <p className="rounded-lg bg-amber-500/10 p-2 text-sm font-bold text-amber-600">{labels.queued}</p>}
 
       {/* Stepper: each step owns its trailing connector so segments stay even */}

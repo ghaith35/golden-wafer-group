@@ -97,7 +97,7 @@ function setupPageHtml(current: string, error: string): string {
 .card{background:#1e293b;border-radius:16px;padding:28px;max-width:420px;width:92%;box-shadow:0 10px 40px #0008}
 h1{font-size:18px;margin:0 0 6px}p{font-size:13px;opacity:.7;margin:0 0 14px}
 input{width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:14px;direction:ltr}
-button{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#65a30d;color:#fff;font-size:15px;font-weight:800;cursor:pointer}
+button{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#3b82f6;color:#fff;font-size:15px;font-weight:800;cursor:pointer}
 .err{color:#f87171;font-size:13px;min-height:20px;margin-top:8px}</style></head>
 <body><div class="card"><h1>🖥️ عنوان السيرفر</h1>
 <p>أدخل عنوان السيرفر (دومين أو IP الشبكة) — مثال:<br><code dir="ltr">https://vente.mondomaine.dz</code> أو <code dir="ltr">http://192.168.1.50:32517</code></p>
@@ -1209,9 +1209,9 @@ function startupPageHtml(
 <style>
 *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#173d2b;color:#f7f9f5;font-family:-apple-system,BlinkMacSystemFont,"Geeza Pro",sans-serif}
 main{width:min(100% - 40px,440px);padding:40px 24px;text-align:center}
-.mark{width:58px;height:58px;margin:0 auto 19px;display:grid;place-items:center;border-radius:15px;background:#b5dc63;color:#173d2b;font-size:26px;font-weight:900}
+.mark{width:58px;height:58px;margin:0 auto 19px;display:grid;place-items:center;border-radius:15px;background:#60a5fa;color:#0f172a;font-size:26px;font-weight:900}
 .brand{margin:0;font:800 15px/1.2 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:1.4px;direction:ltr;color:#d9e8d7}
-.spinner{width:38px;height:38px;margin:38px auto 20px;border:3px solid rgba(255,255,255,.22);border-top-color:#b5dc63;border-radius:50%;animation:spin .85s linear infinite}
+.spinner{width:38px;height:38px;margin:38px auto 20px;border:3px solid rgba(255,255,255,.22);border-top-color:#60a5fa;border-radius:50%;animation:spin .85s linear infinite}
 h1{margin:0;font-size:26px;line-height:1.5;font-weight:800}p{margin:7px 0 0;color:#c3d4c6;font-size:15px;line-height:1.8}
 .fr{margin-top:24px;font-size:17px;font-weight:700;color:#fff;direction:ltr}.fr-note{margin-top:3px;font-size:14px}
 @keyframes spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.spinner{animation-duration:2.5s}}
@@ -1228,6 +1228,8 @@ function createWindow() {
     width: 1400,
     height: 900,
     show: false,
+    // Like ZZ Sanitaire: no always-visible menu bar on Windows (Alt reveals it).
+    autoHideMenuBar: true,
     webPreferences: { preload: join(__dirname, "preload.js"), contextIsolation: true, nodeIntegration: false, devTools: true },
   });
   mainWindow.once("ready-to-show", () => {
@@ -1304,6 +1306,13 @@ app.whenReady().then(async () => {
   registerBundleIpc(log);
   registerServerUrlIpc();
   registerPdfIpc();
+  // Interface zoom (top-bar − / + and Ctrl/Cmd + − 0): native page zoom so
+  // vh/px layouts scale like browser zoom. The renderer owns the saved value.
+  ipcMain.handle("ui-zoom-set", (e, pct: unknown) => {
+    const n = typeof pct === "number" && Number.isFinite(pct) ? Math.min(200, Math.max(50, pct)) : 100;
+    e.sender.setZoomFactor(n / 100);
+    return n;
+  });
   // Standard menus: without the Edit menu macOS disables Cmd+C/X/V/A/Z
   // app-wide (text can be selected but never copied). Roles give native
   // shortcuts + localized labels for free.

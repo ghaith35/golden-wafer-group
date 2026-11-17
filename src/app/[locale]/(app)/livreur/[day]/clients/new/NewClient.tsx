@@ -11,7 +11,9 @@ import { clientQrPayload, generateOfflineClientCode } from "@/lib/clients/valida
 import { compareNatural } from "@/lib/sort";
 import QRCode from "qrcode";
 import { cn } from "@/lib/utils";
+import { useSyncedState } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 /// Livreur adds a client: online → POST /api/clients, offline → outbox.
 /// The account code is minted ON THE PHONE (time + random — unique per
 /// device, no two livreurs mint the same), so the QR is shown/printed
@@ -53,7 +55,7 @@ export function NewClient({
   const [wilaya, setWilaya] = useState("");
   const [secteur, setSecteur] = useState("");
   const [tier, setTier] = useState("");
-  const [secteurList, setSecteurList] = useState(secteurs);
+  const [secteurList, setSecteurList] = useSyncedState(secteurs);
   const [showSecteur, setShowSecteur] = useState(false);
   const [secteurName, setSecteurName] = useState("");
   const [secteurBusy, setSecteurBusy] = useState(false);
@@ -346,7 +348,7 @@ export function NewClient({
       {queued && (
         <p className="rounded-xl bg-amber-500/10 p-2.5 text-xs font-bold text-amber-600">⏳ queued offline — will sync</p>
       )}
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
 
       <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
         <div className="mb-2 flex items-center gap-2">

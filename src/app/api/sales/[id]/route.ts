@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
-import { deliverSchema, ticketSchema } from "@/lib/sales/validation";
-import { confirmOrder, deliverOrder, createInvoice, cancelSale, uncancelDelivery, reopenOrder, moveSale, assignOrder, confirmAndLoadOrder, updateTicket } from "@/lib/sales/service";
+import { deliverSchema, orderSchema, ticketSchema } from "@/lib/sales/validation";
+import { confirmOrder, deliverOrder, createInvoice, cancelSale, uncancelDelivery, reopenOrder, moveSale, assignOrder, confirmAndLoadOrder, updateTicket, updateOrder, deleteOrder } from "@/lib/sales/service";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -65,6 +65,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       if (!parsed.success) return NextResponse.json({ error: "validation_error", issues: parsed.error.issues }, { status: 400 });
       return NextResponse.json(await assignOrder(session.companyId, id, parsed.data.locationId));
     }
+    if (action === "update-order") {
+      // Admin only: vendeurs/livreurs can never change a submitted order.
+      if (session.role !== "Admin") return NextResponse.json({ error: "forbidden" }, { status: 403 });
+      const parsed = orderSchema.safeParse(body);
+      if (!parsed.success) return NextResponse.json({ error: "validation_error", issues: parsed.error.issues }, { status: 400 });
+      return NextResponse.json(await updateOrder(session.companyId, id, parsed.data));
+    }
     if (action === "confirm-load") {
       // Admin only: moves depot stock — livreurs never call this.
       if (session.role !== "Admin") return NextResponse.json({ error: "forbidden" }, { status: 403 });
@@ -90,6 +97,19 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json(await updateTicket(session.companyId, id, parsed.data));
     }
     return NextResponse.json({ error: "bad_action" }, { status: 400 });
+  } catch (e) {
+    const err = e as Error & { status?: number };
+    return NextResponse.json({ error: err.message }, { status: err.status ?? 500 });
+  }
+}
+
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (session.role !== "Admin") return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  const { id } = await params;
+  try {
+    return NextResponse.json(await deleteOrder(session.companyId, id));
   } catch (e) {
     const err = e as Error & { status?: number };
     return NextResponse.json({ error: err.message }, { status: err.status ?? 500 });

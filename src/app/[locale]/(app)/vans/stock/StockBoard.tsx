@@ -259,8 +259,7 @@ export function StockBoard({
 
   async function openPopup(vanId: string, dir: "load" | "unload" | "van2van") {
     setPopup({ vanId, dir });
-    if (refs) return;
-    setRefsBusy(true);
+    setRefsBusy(true); // always refetch: new products/locations must appear
     try {
       const [locs, prods] = await Promise.all([
         fetch("/api/locations").then((r) => (r.ok ? r.json() : [])),

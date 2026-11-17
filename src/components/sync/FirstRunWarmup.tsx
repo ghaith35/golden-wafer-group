@@ -8,8 +8,7 @@ import {
   getDeviceToken,
   isServerReachable,
   syncNow,
-  warmAndVerify,
-  warmManifest,
+  prepareOfflinePages,
   warmOfflineChunks,
   WARM_SW_VERSION,
   type SyncPhase,
@@ -30,7 +29,7 @@ export type FirstRunLabels = {
   retry: string;
 };
 
-const WARM_FLAG = "dili_first_warm_v1";
+const WARM_FLAG = "dili_first_warm_v2";
 
 type StepState = "idle" | "active" | "done" | "fail" | "pair";
 
@@ -46,11 +45,13 @@ type StepState = "idle" | "active" | "done" | "fail" | "pair";
 export function FirstRunWarmup({
   locale,
   day,
+  role,
   labels,
   onOpenSync,
 }: {
   locale: string;
   day: string;
+  role: string;
   labels: FirstRunLabels;
   onOpenSync: () => void;
 }) {
@@ -132,15 +133,13 @@ export function FirstRunWarmup({
     // ── 2. Pages: every journée screen, verified in cache ─────────────
     setPages("active");
     try {
-      const results = await warmAndVerify(warmManifest(locale, day));
+      const results = await prepareOfflinePages(locale, day, role);
       const ok = results.filter((r) => r.ok).length;
       setPagesDetail(`${ok}/${results.length}`);
-      if (ok === 0) {
+      if (ok !== results.length) {
         setPages("fail");
         return;
       }
-      // Partial (e.g. 12/13) still counts: the missing screen falls back
-      // to the cached dashboard offline, and the count stays visible.
       setPages("done");
     } catch {
       setPages("fail");

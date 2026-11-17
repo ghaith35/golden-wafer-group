@@ -4,6 +4,7 @@
     "tagline": "Distribution management system"
   },
   "nav": {
+    "refresh": "Refresh",
     "dashboard": "Dashboard",
     "clients": "Customers",
     "suppliers": "Suppliers",
@@ -30,7 +31,7 @@
     "expand": "Expand",
     "collapse": "Collapse",
     "vans": "Vans",
-    "vanStock": "Van stocks",
+    "vanStock": "Van stock",
     "livreursVendeurs": "Courier / Pre-seller",
     "carte": "Map",
     "tournees": "Routes",
@@ -44,17 +45,15 @@
     "vanSale": "New sale",
     "vanFactures": "Invoices",
     "vanOrder": "New order",
-    "vanOrders": "Orders",
+    "vanOrders": "Van requests",
     "vanDemande": "Request stock",
     "vanDepot": "Depot stock",
-    "vanStock": "Van stock",
     "vanExpense": "Expenses",
     "vanClients": "Today's clients",
     "presence": "Attendance",
     "debtsClients": "Customer debts",
     "debtsSuppliers": "Supplier debts",
-    "dailyCash": "Daily till",
-    "vanOrders": "Van requests"
+    "dailyCash": "Daily till"
   },
   "login": {
     "title": "Login",
@@ -76,7 +75,16 @@
     "offlineMode": "Offline mode — signing in on-device",
     "connectOnce": "No connection and never activated — connect online once first",
     "lockedOut": "Locked after failed tries — retry shortly",
-    "scanRetryHint": "Camera unavailable on this phone — paste the code below or retry."
+    "scanRetryHint": "Camera unavailable on this phone — paste the code below or retry.",
+    "forgot": "Forgot password?",
+    "resetTitle": "Reset password",
+    "resetHint": "Enter the activation key this software was activated with to set a new administrator password.",
+    "activationKey": "Activation key",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "resetSubmit": "Set password",
+    "resetDone": "Password changed. Sign in with it now.",
+    "resetClose": "OK"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -274,7 +282,9 @@
     "pdfSaved": "Invoice PDF saved ✓",
     "pdfShared": "Invoice shared ✓",
     "printFail": "Print failed — update the app, then check the printer",
-    "pdfPreview": "Invoice preview"
+    "pdfPreview": "Invoice preview",
+    "deleteOrderT": "Delete this order",
+    "deleteOrderM": "The order and its products will be permanently deleted."
   },
   "tournees": {
     "title": "Routes",
@@ -318,7 +328,11 @@
     "duplicateDay": "This van already has an open tour that day",
     "secteurRequired": "Pick a secteur — all its clients will be added",
     "allClients": "all secteur clients",
-    "unclosed": "Auto-closed — day never ended"
+    "unclosed": "Auto-closed — day never ended",
+    "repeatWeekly": "Repeat weekly (12 weeks)",
+    "actionFailed": "Action failed",
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week"
   },
   "inventory": {
     "title": "Inventory",
@@ -405,6 +419,7 @@
     "new": "New product",
     "name": "Product name",
     "reference": "Reference",
+    "autoGenerate": "Auto-generate",
     "barcode": "Barcode",
     "colisage": "Packing",
     "category": "Category",
@@ -559,7 +574,9 @@
       "devices": "Devices",
       "devicesDesc": "Linked sale devices and sync",
       "license": "License",
-      "licenseDesc": "Activation keys and machines"
+      "licenseDesc": "Activation keys and machines",
+      "data": "Data",
+      "dataDesc": "Reset data by section"
     },
     "gpsEnabled": "GPS location",
     "gpsHint": "Position button and distances (sidebar, tours)",
@@ -975,7 +992,25 @@
     "role": "Role",
     "roleLivreur": "Driver",
     "roleVendeur": "Salesman",
-    "phone": "Phone"
+    "phone": "Phone",
+    "delUsage": {
+      "usageTitle": "This van has history",
+      "usageIntro": "“{name}” still has:",
+      "usageQuestion": "Do you want to delete it anyway?",
+      "uStock": "Products in stock",
+      "uTransfers": "Transfers",
+      "uCounts": "Stock counts",
+      "uLosses": "Stock losses",
+      "uReturns": "Client returns",
+      "uTournees": "Tours",
+      "uCloses": "Daily closings",
+      "usageKept": "Kept (unlinked from the van): {sales} sales and {expenses} expenses.",
+      "warnTitle": "Final warning",
+      "warnBody": "Everything listed above will be permanently deleted along with the van. This cannot be undone.",
+      "warnConfirm": "Delete everything",
+      "back": "Back",
+      "yes": "Yes, continue"
+    }
   },
   "carte": {
     "title": "Map",
@@ -1182,7 +1217,14 @@
     "myRequests": "My requests",
     "modify": "Edit",
     "depot": "Depot",
-    "remove": "Remove"
+    "remove": "Remove",
+    "gateStartT": "Start your tour first",
+    "gateStartM": "Sales and orders are only available while your tour is in progress.",
+    "gateStartBtn": "Start tour",
+    "gateEndT": "End your tour first",
+    "gateEndM": "Goods requests are only available after you end your tour.",
+    "gateEndBtn": "Back to my tour",
+    "lockedHint": "Locked"
   },
   "presence": {
     "title": "Attendance",
@@ -1428,5 +1470,185 @@
     "depHow4": "Later updates go by bundle — no reinstall",
     "tunnelSubdomain": "Client name (subdomain, optional)",
     "tunnelHint": "Empty = auto-allocate. Domain + token go into their installer."
+  },
+  "legacyClientQr": {
+    "link": "Link old QR code",
+    "replace": "Replace old QR code",
+    "unlink": "Remove old QR code",
+    "selected": "QR selected. Save the client to link it.",
+    "linked": "Old QR code linked",
+    "hint": "Scan the client’s QR from the old app or choose a photo. Save the client to apply the change.",
+    "invalid": "Scan a valid QR code from the old app."
+  },
+  "errors": {
+    "bad_legacy_qr": "This QR code cannot be linked.",
+    "duplicate_legacy_qr": "This old QR code is already linked to another client.",
+    "unauthorized": "Session expired, please sign in again",
+    "unauthenticated": "Session expired, please sign in again",
+    "forbidden": "You are not allowed to do this",
+    "forbidden_role": "Not allowed for this role",
+    "not_found": "Item not found",
+    "validation_error": "Invalid data, check the fields",
+    "bad_status": "Not possible in the current status",
+    "bad_location": "Invalid location",
+    "bad_client": "Invalid client",
+    "bad_date": "Invalid date",
+    "bad_action": "Unknown action",
+    "bad_unit": "Invalid unit",
+    "bad_tier": "Invalid price category",
+    "bad_supplier": "Invalid supplier",
+    "bad_product": "Invalid product",
+    "bad_category": "Invalid category",
+    "bad_secteur": "Invalid sector",
+    "bad_van": "Invalid van",
+    "bad_phone": "Invalid phone number",
+    "bad_amount": "Invalid amount",
+    "bad_user": "Invalid user",
+    "bad_sale": "Invalid sale",
+    "bad_tournee": "Invalid tour",
+    "remise_disabled": "Discounts are disabled",
+    "invalid_credentials": "Wrong username or password",
+    "rate_limited": "Too many attempts, try again later",
+    "overpaid": "Paid amount exceeds the total",
+    "overpayment": "Payment exceeds the amount due",
+    "no_van": "No van assigned",
+    "insufficient_stock": "Not enough stock",
+    "no_depot": "No main depot yet",
+    "qr_required": "Scan the client's QR code first",
+    "duplicate_phone": "Phone number already used",
+    "duplicate_code": "Code already used",
+    "duplicate_name": "Name already used",
+    "duplicate_username": "Username already taken",
+    "duplicate_day": "This van already has a tour that day",
+    "driver_busy": "Driver already assigned to another van",
+    "weak_password": "Password too short (6 characters minimum)",
+    "save_failed": "Could not save",
+    "delete_failed": "Could not delete",
+    "update_failed": "Could not update",
+    "load_failed": "Could not load",
+    "upload_failed": "Upload failed",
+    "sync_failed": "Sync failed",
+    "failed": "Operation failed",
+    "has_returns": "Cannot delete: linked returns exist",
+    "has_payment": "Cannot delete: a payment exists",
+    "has_children": "Cannot delete: linked documents exist",
+    "cannot_edit_self": "You cannot edit your own account here",
+    "debt_disabled": "Credit sales are disabled",
+    "credit_limit_exceeded": "Credit limit exceeded",
+    "client_required": "Choose a client",
+    "cash_only": "This client pays cash only",
+    "lines_required": "Add at least one product",
+    "location_required": "Choose a location",
+    "supplier_required": "Choose a supplier",
+    "name_required": "Name is required",
+    "secteur_required": "Choose a sector",
+    "fields_required": "Fill in the required fields",
+    "missing_fields": "Fill in the required fields",
+    "phone_required": "Phone number is required",
+    "empty_order": "The order is empty",
+    "van_unassigned": "No van is assigned to you",
+    "van_not_assigned": "This van is not assigned to you",
+    "same_location": "Source and destination are the same",
+    "already_closed": "Already closed",
+    "already_invoiced": "Already invoiced",
+    "already_exists": "Already exists",
+    "pack_only_qty": "Whole packs only",
+    "piece_sale_forbidden": "Selling by piece is not allowed",
+    "multidepot_disabled": "Multiple depots are disabled",
+    "deposits_disabled": "Deposits are disabled",
+    "pos_disabled": "Point of sale is disabled",
+    "not_started": "The tour has not started",
+    "no_coords": "No coordinates",
+    "token_required": "Token required",
+    "invalid_qr": "Invalid QR code",
+    "qr_failed": "Could not read the QR code",
+    "qr_not_found": "QR code not found",
+    "invalid_key": "Invalid key",
+    "trial_blocked": "Trial period ended",
+    "user_inactive": "Account is deactivated",
+    "locked": "Account temporarily locked",
+    "too_large": "File too large",
+    "offline": "You are offline",
+    "tour_not_started": "Start your tour first to sell and order",
+    "tour_not_ended": "End your tour first to request goods",
+    "vendeur_no_stock": "No transfers to/from a salesperson's van — salespeople don't hold stock",
+    "reset_failed": "Reset failed",
+    "bad_scope": "Invalid section",
+    "bad_activation_key": "Wrong activation key",
+    "no_activation_key": "This install was not activated with a key",
+    "username_required": "Enter the administrator's username",
+    "passwords_mismatch": "Passwords do not match"
+  },
+  "resetData": {
+    "title": "Reset data",
+    "intro": "Delete one section's data or everything. This cannot be undone. Always kept: the company, settings, admin accounts, the main depot and the lists (units, price tiers, sectors).",
+    "records": "{n} records",
+    "reset": "Reset",
+    "empty": "Nothing to delete",
+    "step1T": "Delete this data?",
+    "step1Q": "{n} records from “{name}” will be deleted. Continue?",
+    "step2T": "Final warning",
+    "step2M": "Everything listed will be permanently deleted and cannot be recovered. Enter your password to confirm.",
+    "password": "Password",
+    "confirm": "Delete permanently",
+    "next": "Yes, continue",
+    "back": "Back",
+    "done": "Reset complete",
+    "backup": "Backup copy saved at: {path}",
+    "wrongPassword": "Wrong password",
+    "scopes": {
+      "clients": {
+        "name": "Clients",
+        "desc": "Deletes every client together with their sales, orders, returns and payments."
+      },
+      "suppliers": {
+        "name": "Suppliers",
+        "desc": "Deletes every supplier together with their purchase invoices, returns and payments."
+      },
+      "products": {
+        "name": "Products",
+        "desc": "Deletes every product and category, plus all documents and stock that depend on them (sales, orders, purchases, transfers, counts…)."
+      },
+      "stock": {
+        "name": "Inventory / stock",
+        "desc": "Zeroes all stock and deletes transfers, stock counts and losses. Products stay."
+      },
+      "sales": {
+        "name": "Sales",
+        "desc": "Deletes all invoices, delivery notes, tickets, client returns and payments, and zeroes client debts. Stock is not changed."
+      },
+      "orders": {
+        "name": "Orders (commandes)",
+        "desc": "Deletes every order, whatever its status."
+      },
+      "purchases": {
+        "name": "Purchases",
+        "desc": "Deletes all purchase invoices, supplier returns and payments, and zeroes supplier debts. Stock is not changed."
+      },
+      "transfers": {
+        "name": "Transfers",
+        "desc": "Deletes every stock transfer between depot and vans."
+      },
+      "expenses": {
+        "name": "Expenses",
+        "desc": "Deletes every recorded expense. Expense types stay."
+      },
+      "cash": {
+        "name": "Cash",
+        "desc": "Deletes the daily cash closings and client deposits."
+      },
+      "tournees": {
+        "name": "Tours",
+        "desc": "Deletes every planned and completed tour."
+      },
+      "staff": {
+        "name": "Vans & drivers",
+        "desc": "Deletes every van, driver/salesperson account and device, with their van-bound documents (transfers, counts, tours…). Admin accounts stay."
+      },
+      "all": {
+        "name": "Everything",
+        "desc": "Deletes everything above at once and restarts document numbering."
+      }
+    }
   }
 }

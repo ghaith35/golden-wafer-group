@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BarChart3, Bus, Clock, Package, Trophy, Wallet } from "lucide-react";
 import { KpiCard } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
+import { useDataVersion } from "@/lib/data-sync";
 
 type Van = { id: string; name: string; matricule: string };
 type ProductStat = { name: string; ref: string; qty: number; revenue: number; profit: number };
@@ -24,6 +25,7 @@ export function ReportsClient({ labels }: { labels: Record<string, string> }) {
   const [detail, setDetail] = useState<Detail | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const dataV = useDataVersion();
   useEffect(() => {
     fetch("/api/reports?report=vans", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : []))
@@ -34,7 +36,7 @@ export function ReportsClient({ labels }: { labels: Record<string, string> }) {
         }
       })
       .catch(() => {});
-  }, []);
+  }, [dataV]);
 
   useEffect(() => {
     if (!selected) {
@@ -49,7 +51,7 @@ export function ReportsClient({ labels }: { labels: Record<string, string> }) {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [selected]);
+  }, [selected, dataV]);
 
   const money = (n: number) => `${Math.round(n * 100) / 100}`;
 

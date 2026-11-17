@@ -77,7 +77,7 @@ export default async function CommandesPage({
         qtyPack: ts("qtyPack"), qtyPiece: ts("qtyPiece"), assign: ts("assign"), edit: ts("edit"),
         confirmOrderT: ts("confirmOrderT"), confirmOrderM: ts("confirmOrderM"),
         invoiceT: ts("invoiceT"), invoiceM: ts("invoiceM"),
-        assignT: ts("assignT"), deliverT: ts("deliverT"), van: ts("van"),
+        assignT: ts("assignT"), deleteOrderT: ts("deleteOrderT"), deleteOrderM: ts("deleteOrderM"), deliverT: ts("deliverT"), van: ts("van"),
         confirmLoad: ts("confirmLoad"), confirmLoadT: ts("confirmLoadT"), confirmLoadM: ts("confirmLoadM"),
       }}
     />

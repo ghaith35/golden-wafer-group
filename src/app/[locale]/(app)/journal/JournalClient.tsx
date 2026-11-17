@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { useDataVersion } from "@/lib/data-sync";
 
 type Journal = {
   salesByDay: Record<string, number>;
@@ -18,13 +19,14 @@ export function JournalClient({ labels }: { labels: Record<string, string> }) {
   const [month, setMonth] = useState(() => new Date().toISOString().slice(0, 7));
   const [data, setData] = useState<Journal | null>(null);
 
+  const dataV = useDataVersion();
   useEffect(() => {
     const [y, m] = month.split("-");
     fetch(`/api/journal?year=${y}&month=${Number(m)}`)
       .then((r) => r.json())
       .then(setData)
       .catch(() => {});
-  }, [month]);
+  }, [month, dataV]);
 
   const days = data
     ? [...new Set([

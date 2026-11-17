@@ -30,13 +30,13 @@ export function shouldPromptWebUpdate(known: string | null, server: string): boo
   return !!server && !!known && known !== server;
 }
 
-/// Apply a validated web update: forget every cached shell + data page
-/// (product photos cache `dili-img-*` is kept), record the build, reopen.
+/// Refresh page HTML while keeping the recovery entry and its hashed static
+/// assets usable if the server drops out during the update.
 export async function applyWebUpdate(buildId: string): Promise<void> {
   try {
     if ("caches" in window) {
       const keys = await caches.keys();
-      await Promise.all(keys.filter((k) => !k.includes("dili-img")).map((k) => caches.delete(k)));
+      await Promise.all(keys.filter((k) => /^dili-sw-.*-pages$/.test(k)).map((k) => caches.delete(k)));
     }
     if (buildId) rememberBuild(buildId);
   } finally {

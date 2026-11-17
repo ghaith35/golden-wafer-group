@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Plus, Bus, UserCheck, UserX } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -10,7 +11,9 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { RowActions } from "@/components/ui/RowActions";
 import { KpiCard } from "@/components/ui/Card";
 import { VanForm, type VanData } from "./VanForm";
+import { useSyncedState } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Row = {
   id: string;
   name: string;
@@ -34,7 +37,7 @@ export function VansClient({
   users: Array<{ id: string; fullName: string; username: string }>;
   labels: Record<string, string>;
 }) {
-  const [rows, setRows] = useState(initial);
+  const [rows, setRows] = useSyncedState(initial);
   const [q, setQ] = useState("");
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<VanData | null>(null);
@@ -57,7 +60,7 @@ export function VansClient({
     const res = await fetch("/api/locations");
     if (res.ok) {
       const all = (await res.json()) as Row[];
-      setRows(all.filter((r) => (r as Row & { kind: string }).kind === "VAN"));
+      setRows(all.filter((r) => (r as Row & { kind: string; isActive?: boolean }).kind === "VAN" && (r as Row & { isActive?: boolean }).isActive !== false));
     }
   }
 
@@ -73,11 +76,49 @@ export function VansClient({
     });
   }
 
+  const tu = useTranslations("vans.delUsage");
+  type Usage = { stock: number; transfers: number; counts: number; losses: number; returns: number; tournees: number; closes: number; sales: number; expenses: number };
+  const [usage, setUsage] = useState<{ van: { id: string; name: string }; data: Usage; stage: 1 | 2 } | null>(null);
+  const [wiping, setWiping] = useState(false);
+
+  /// Delete click: look at what the van holds. Clean van → plain confirm;
+  /// otherwise list it (1st dialog), then a final warning (2nd dialog).
+  async function startDelete(v: { id: string; name: string }) {
+    setError(null);
+    try {
+      const res = await fetch(`/api/locations/${v.id}/usage`, { cache: "no-store" });
+      if (res.ok) {
+        const data = (await res.json()) as Usage;
+        if (data.stock + data.transfers + data.counts + data.losses + data.returns + data.tournees + data.closes > 0) {
+          setUsage({ van: v, data, stage: 1 });
+          return;
+        }
+      }
+    } catch {}
+    setDeleting(v as never);
+  }
+
+  async function wipeEverything() {
+    if (!usage) return;
+    setWiping(true);
+    try {
+      const res = await fetch(`/api/locations/${usage.van.id}?force=1`, { method: "DELETE" });
+      if (!res.ok) {
+        setError((await res.json().catch(() => null))?.error ?? "delete_failed");
+      }
+      setUsage(null);
+      await reload();
+    } finally {
+      setWiping(false);
+    }
+  }
+
   async function confirmDelete() {
     if (!deleting) return;
     const res = await fetch(`/api/locations/${deleting.id}`, { method: "DELETE" });
     if (!res.ok) {
-      setError((await res.json()).error ?? "delete_failed");
+      setError((await res.json().catch(() => null))?.error ?? "delete_failed");
+      setDeleting(null);
       return;
     }
     setDeleting(null);
@@ -143,7 +184,7 @@ export function VansClient({
           {labels.stockBoard}
         </Link>
       </div>
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
       <div className="grid gap-3 sm:grid-cols-2">
         {filtered.map((v) => (
@@ -171,7 +212,7 @@ export function VansClient({
             <RowActions
               detailsHref={`/${locale}/vans/${v.id}`}
               onEdit={() => openEdit(v)}
-              onDelete={() => setDeleting(v)}
+              onDelete={() => void startDelete(v)}
               labels={{ details: labels.details, edit: labels.edit, delete: labels.delete }}
               size="md"
             />
@@ -207,6 +248,59 @@ export function VansClient({
             onClose={() => setEditing(null)}
           />
         )}
+      </Modal>
+
+      <Modal
+        open={usage?.stage === 1}
+        onClose={() => setUsage(null)}
+        title={tu("usageTitle")}
+        width="sm"
+        icon="⚠️"
+      >
+        {usage && (
+          <div className="space-y-3 text-sm">
+            <p className="font-bold">{tu("usageIntro", { name: usage.van.name })}</p>
+            <ul className="space-y-1 rounded-lg bg-(--bg-sunken) p-3">
+              {([
+                ["stock", "uStock"], ["transfers", "uTransfers"], ["counts", "uCounts"], ["losses", "uLosses"],
+                ["returns", "uReturns"], ["tournees", "uTournees"], ["closes", "uCloses"],
+              ] as const).filter(([k]) => usage.data[k] > 0).map(([k, label]) => (
+                <li key={k} className="flex justify-between gap-3">
+                  <span>{tu(label)}</span>
+                  <b dir="ltr">{usage.data[k]}</b>
+                </li>
+              ))}
+            </ul>
+            {(usage.data.sales > 0 || usage.data.expenses > 0) && (
+              <p className="text-xs text-(--text-secondary)">
+                {tu("usageKept", { sales: usage.data.sales, expenses: usage.data.expenses })}
+              </p>
+            )}
+            <p className="font-bold">{tu("usageQuestion")}</p>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="ghost" onClick={() => setUsage(null)}>{tu("back")}</Button>
+              <Button type="button" onClick={() => setUsage({ ...usage, stage: 2 })}>{tu("yes")}</Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        open={usage?.stage === 2}
+        onClose={() => setUsage(null)}
+        title={tu("warnTitle")}
+        width="sm"
+        icon="🛑"
+      >
+        <div className="space-y-4 text-sm">
+          <p className="rounded-lg bg-red-500/10 p-3 font-bold text-red-500">{tu("warnBody")}</p>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={() => setUsage(null)}>{tu("back")}</Button>
+            <Button type="button" variant="destructive" disabled={wiping} onClick={() => void wipeEverything()}>
+              {tu("warnConfirm")}
+            </Button>
+          </div>
+        </div>
       </Modal>
 
       <ConfirmDialog

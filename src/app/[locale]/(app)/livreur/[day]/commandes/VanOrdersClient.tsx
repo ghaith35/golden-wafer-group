@@ -16,7 +16,9 @@ import { printTicketNative } from "@/lib/print-ticket";
 
 import { dz, dzMoney, fmtDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useSyncedState } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Row = {
   id: string; number: string; status: string; total: unknown; paid: unknown; date: unknown;
   client: { id: string; name: string; code: string } | null;
@@ -65,8 +67,8 @@ export function VanOrdersClient({
   ticketLang: "ar" | "fr";
 }) {
   const router = useRouter();
-  const [rows, setRows] = useState(initial);
-  const [doneRows, setDoneRows] = useState(initialDone);
+  const [rows, setRows] = useSyncedState(initial);
+  const [doneRows, setDoneRows] = useSyncedState(initialDone);
   const [reopenArmed, setReopenArmed] = useState<string | null>(null);
   const [delivering, setDelivering] = useState<Row | null>(null);
   const [detail, setDetail] = useState<Detail | null>(null);
@@ -586,7 +588,7 @@ export function VanOrdersClient({
         {rows.length + pending.length === 0 && <p className="text-center text-sm opacity-60">{labels.empty}</p>}
       </div>
       {notice && <p className="rounded-xl bg-emerald-500/10 p-2.5 text-xs font-bold text-emerald-600">{notice}</p>}
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       {doneRows.length > 0 && (
         <>
           <h2 className="pt-2 text-sm font-black opacity-60">{labels.delivered} ({doneRows.length})</h2>

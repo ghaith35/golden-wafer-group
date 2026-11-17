@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { AppShell } from "@/components/layout/AppShell";
+import { getSession } from "@/lib/auth/session";
+import { ensureMainDepot } from "@/lib/inventory/depot";
 import { localEntitlement, isLocalMode, isDesktopUserAgent } from "@/lib/license/gate";
 
 /// Authenticated staff surface — everything here gets the sidebar shell.
@@ -23,6 +25,13 @@ export default async function StaffLayout({
       const { locale } = await params;
       redirect(`/${locale}/activate`);
     }
+  }
+  // Self-heal: make sure the company has its main depot (older installs).
+  try {
+    const session = await getSession();
+    if (session) await ensureMainDepot(session.companyId);
+  } catch {
+    /* never block the page on this */
   }
   return <AppShell>{children}</AppShell>;
 }

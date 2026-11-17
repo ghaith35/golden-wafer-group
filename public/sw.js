@@ -22,6 +22,22 @@
 const VERSION = "dili-sw-v12";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
+// One dashboard and login page per locale, outside the rolling page cache.
+const RECOVERY_CACHE = "dili-offline-entry-v1";
+const DASHBOARD = /^\/(ar|fr|en)\/livreur\/(\d{4})-(\d{1,2})-(\d{1,2})\/dashboard$/;
+const LOGIN = /^\/(ar|fr|en)\/login$/;
+
+function recoveryKey(url) {
+  const dash = DASHBOARD.exec(url.pathname);
+  if (dash) return new URL(`/${dash[1]}/livreur/offline-entry`, location.origin).href;
+  if (LOGIN.test(url.pathname)) return new URL(url.pathname, location.origin).href;
+  return null;
+}
+
+function dashboardDate(path) {
+  const m = DASHBOARD.exec(path);
+  return m ? Number(m[2]) * 10000 + Number(m[3]) * 100 + Number(m[4]) : 0;
+}
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
@@ -68,126 +84,103 @@ function trimPages() {
   ).catch(() => {});
 }
 
-function putPage(req, res) {
+async function putPage(req, res) {
   if (!isCacheablePage(res)) return;
-  // Store under the plain URL string: navigation Request objects carry
-  // mode/redirect semantics that make Cache.put silently refuse them.
-  // NOTE: res must already be a detached clone — callers clone synchronously
-  // inside fetch's .then (see docResponse). Cloning later (e.g. inside
-  // caches.open().then) races the navigation's body lock and fails with
-  // "Response body is already used", leaving the cache forever empty.
-  const key = String(req.url).split("#")[0];
-  caches.open(PAGE_CACHE).then((cache) => {
-    cache.put(key, res).catch(() => {});
+  const url = new URL(req.url);
+  url.hash = "";
+  const key = url.href;
+  const entry = url.search ? null : recoveryKey(url);
+  const recoveryCopy = entry ? res.clone() : null;
+  const writes = [caches.open(PAGE_CACHE).then(async (cache) => {
+    await cache.put(key, res);
     trimPages();
-  }).catch(() => {});
+  })];
+  if (recoveryCopy) {
+    writes.push(caches.open(RECOVERY_CACHE).then((cache) => cache.put(entry, recoveryCopy)));
+  }
+  await Promise.allSettled(writes);
 }
 
-/// Offline fallback chain for a document: exact URL → same path without
-/// query (e.g. dashboard?client=X falls back to the dashboard shell, the
-/// driver re-picks the client) → today's dashboard (the journée entry
-/// /livreur is an uncached server redirect, so a cold offline start must
-/// land here, not on the days shell) → days shell → friendly offline page.
-/// Plain string keys only (no Request construction) and fully guarded:
-/// this function never throws, so respondWith always has a Response.
-function offlineFallback(req) {
-  let bareUrl = null;
-  try {
-    bareUrl = String(req.url).split("?")[0];
-  } catch {
-    bareUrl = null;
+async function newestCachedDashboard() {
+  const keys = await (await caches.open(PAGE_CACHE)).keys();
+  const urls = keys.map((key) => new URL(key.url))
+    .filter((url) => url.origin === location.origin && !url.search && dashboardDate(url.pathname))
+    .sort((a, b) => dashboardDate(b.pathname) - dashboardDate(a.pathname));
+  for (const url of urls) {
+    const hit = await caches.match(url.href);
+    if (hit) return hit;
   }
-  const matchDays = () => {
-    try {
-      return caches.match("/ar/livreur").then((days) => days ?? offlinePage());
-    } catch {
-      return Promise.resolve(offlinePage());
+  return null;
+}
+
+function openCachedDashboard(hit, requestedUrl) {
+  const target = new URL(hit.url);
+  if (target.origin !== requestedUrl.origin || !DASHBOARD.test(target.pathname)) return null;
+  // Keep historical HTML on its original date and URL so its route and data agree.
+  return target.pathname === requestedUrl.pathname ? hit : Response.redirect(target.href, 302);
+}
+
+async function offlineFallback(req) {
+  try {
+    const url = new URL(req.url);
+    const exact = await caches.match(req);
+    if (exact) return exact;
+    const bare = url.origin + url.pathname;
+    const withoutQuery = url.search ? await caches.match(bare) : null;
+    if (withoutQuery) return withoutQuery;
+
+    if (LOGIN.test(url.pathname)) {
+      const login = await caches.match(bare, { cacheName: RECOVERY_CACHE });
+      if (login) return login;
     }
-  };
-  // Today's dashboard in any locale: warmed on every journée visit, fully
-  // usable offline (snapshot + outbox + its own start/finish stamps).
-  // Served as a REDIRECT (not content): the app shell derives chrome
-  // visibility from the URL path, so serving dashboard HTML under /livreur
-  // hydrates mismatched (React #418) and hides the sidebar. The follow-up
-  // navigation is an exact cache hit — one invisible local hop.
-  // The original query (?device=…) is preserved across the hop.
-  const matchTodayDash = (reqUrl) => {
-    let search = "";
-    try {
-      search = new URL(String(reqUrl)).search || "";
-    } catch {
-      search = "";
-    }
-    try {
-      const d = new Date();
-      const slug = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
-      const locales = ["ar", "fr", "en"];
-      let chain = Promise.resolve(null);
-      locales.forEach((l) => {
-        chain = chain.then((hit) => {
-          if (hit) return hit;
-          try {
-            return caches.match("/" + l + "/livreur/" + slug + "/dashboard").catch(() => null);
-          } catch {
-            return Promise.resolve(null);
-          }
-        });
-      });
-      return chain.then((hit) => {
+
+    // A warmup fetch must never report a different page as a successful hit.
+    if (req.mode === "navigate" && /^\/(ar|fr|en)\/livreur(?:\/|$)/.test(url.pathname)) {
+      const locale = url.pathname.split("/")[1];
+      const locales = [locale, ...["ar", "fr", "en"].filter((l) => l !== locale)];
+      const now = new Date();
+      const day = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+      for (const l of locales) {
+        const hit = await caches.match(`/${l}/livreur/${day}/dashboard`);
         if (hit) {
-          try {
-            const hitPath = new URL(hit.url).pathname;
-            const reqPath = new URL(String(reqUrl)).pathname;
-            if (hitPath !== reqPath) return Response.redirect(hitPath + search, 302);
-          } catch {
-            /* fall through and serve */
-          }
-          return hit;
+          const response = openCachedDashboard(hit, url);
+          if (response) return response;
         }
-        return matchDays();
-      }).catch(() => {
-        try {
-          return matchDays();
-        } catch {
-          return Promise.resolve(offlinePage());
-        }
-      });
-    } catch {
-      try {
-        return matchDays();
-      } catch {
-        return Promise.resolve(offlinePage());
       }
+
+      const entry = await caches.match(`/${locale}/livreur/offline-entry`, { cacheName: RECOVERY_CACHE });
+      if (entry) {
+        const response = openCachedDashboard(entry, url);
+        if (response) return response;
+      }
+      // Existing installs already have dated pages from before the recovery cache.
+      const previous = await newestCachedDashboard();
+      if (previous) {
+        const response = openCachedDashboard(previous, url);
+        if (response) {
+          const key = recoveryKey(new URL(previous.url));
+          await caches.open(RECOVERY_CACHE).then((cache) => cache.put(key, previous.clone())).catch(() => {});
+          return response;
+        }
+      }
+      for (const l of locales.slice(1)) {
+        const hit = await caches.match(`/${l}/livreur/offline-entry`, { cacheName: RECOVERY_CACHE });
+        if (hit) {
+          const response = openCachedDashboard(hit, url);
+          if (response) return response;
+        }
+      }
+      const days = await caches.match(`/${locale}/livreur`);
+      if (days) return days;
     }
-  };
-  try {
-    return caches.match(req).then((hit) => {
-      if (hit) return hit;
-      if (bareUrl) {
-        try {
-          return caches.match(bareUrl).then((bare) => bare ?? matchTodayDash(req.url));
-        } catch {
-          return matchTodayDash(req.url);
-        }
-      }
-      return matchTodayDash(req.url);
-    }).catch(() => {
-      try {
-        return matchTodayDash(req.url);
-      } catch {
-        return Promise.resolve(offlinePage());
-      }
-    });
   } catch {
-    try {
-      return Promise.resolve(offlinePage());
-    } catch {
-      return Promise.resolve(new Response("offline", { status: 503 }));
-    }
+    // Browser storage can be unavailable or cleared.
   }
+  return offlinePage();
 }
 
-function docResponse(req) {
+function docResponse(event) {
+  const req = event.request;
   try {
     return fetch(req).then(
       (res) => {
@@ -216,7 +209,7 @@ function docResponse(req) {
           copy = null;
         }
         try {
-          if (copy) putPage(req, copy);
+          if (copy) event.waitUntil(putPage(req, copy).catch(() => {}));
         } catch {
           /* serve anyway */
         }
@@ -284,7 +277,7 @@ self.addEventListener("fetch", (event) => {
 
   if (req.mode === "navigate") {
     try {
-      event.respondWith(docResponse(req));
+      event.respondWith(docResponse(event));
     } catch {
       try {
         event.respondWith(Promise.resolve(offlinePage()));
@@ -305,7 +298,7 @@ self.addEventListener("fetch", (event) => {
   }
   if (req.method === "GET" && accept.includes("text/html")) {
     try {
-      event.respondWith(docResponse(req));
+      event.respondWith(docResponse(event));
     } catch {
       /* prefetch must never break the page */
     }
@@ -318,7 +311,7 @@ function offlinePage() {
     `<body style="font-family:system-ui;display:flex;min-height:100vh;align-items:center;justify-content:center;background:#0f172a;color:#e2e8f0;margin:0">` +
     `<div style="text-align:center;padding:24px"><div style="font-size:44px">📴</div>` +
     `<h1>لا يوجد اتصال</h1><p>افتح هذه الصفحة مرة واحدة وأنت متصل لتتوفر دون إنترنت.</p>` +
-    `<button onclick="location.reload()" style="padding:12px 28px;border:0;border-radius:10px;background:#65a30d;color:#fff;font-size:16px;font-weight:800">إعادة المحاولة</button>` +
+    `<button onclick="location.reload()" style="padding:12px 28px;border:0;border-radius:10px;background:#0d59a3;color:#fff;font-size:16px;font-weight:800">إعادة المحاولة</button>` +
     `</div></body></html>`,
         { headers: { "Content-Type": "text/html; charset=utf-8" } }
   );

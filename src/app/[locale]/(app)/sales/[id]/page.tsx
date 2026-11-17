@@ -33,7 +33,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ loc
         children: true,
       },
     }),
-    prisma.store.findMany({ where: { companyId: session.companyId, isActive: true }, orderBy: { name: "asc" } }),
+    prisma.store.findMany({ where: { companyId: session.companyId, isActive: true }, include: { user: { select: { role: true } } }, orderBy: { name: "asc" } }),
   ]);
   if (!sale) notFound();
 
@@ -43,7 +43,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ loc
       <SaleActions
         locale={locale}
         sale={JSON.parse(JSON.stringify(sale))}
-        locations={locations}
+        locations={locations.map((l) => ({ id: l.id, name: l.name, kind: l.kind, noStock: l.kind === "VAN" && l.user?.role === "Vendeur" }))}
         labels={{
           client: t("client"), walkin: t("walkin"), total: t("total"), paid: t("paid"), due: t("due"),
           confirm: t("confirm"), deliver: t("deliver"), invoice: t("invoice"), cancel: t("cancel"),
@@ -54,6 +54,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ loc
           invoiceT: t("invoiceT"), invoiceM: t("invoiceM"), cancelT: t("cancelT"), cancelM: t("cancelM"),
           redeliverT: t("redeliverT"), redeliverM: t("redeliverM"),
           assignT: t("assignT"), deliverT: t("deliverT"), van: t("van"),
+          edit: t("edit"), deleteOrderT: t("deleteOrderT"), deleteOrderM: t("deleteOrderM"),
           confirmLoad: t("confirmLoad"), confirmLoadT: t("confirmLoadT"), confirmLoadM: t("confirmLoadM"),
           siteCheck: t("siteCheck"), siteSale: t("siteSale"), siteClient: t("siteClient"), awayFromClient: t("awayFromClient"),
         }}

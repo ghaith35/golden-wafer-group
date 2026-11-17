@@ -8,10 +8,11 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { CameraBox } from "@/components/scan/CameraBox";
 import { normFactor, saleUnits } from "@/components/products/UnitQty";
-import { queueOp, getVanSnapshot, getLastSync, getPendingClients, goPage, saleErrText, queueErrText, type VanSnapshot } from "@/lib/sync/client";
+import { queueOp, getVanSnapshot, getLastSync, getPendingClients, findScannedClient, serverUnreachable, goPage, saleErrText, queueErrText, type VanSnapshot } from "@/lib/sync/client";
 import { beepAdd, beepConfirm } from "@/lib/beep";
 import { cn } from "@/lib/utils";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Client = { id: string; name: string; code: string; phone: string | null; tierId: string | null; balance: unknown };
 type Prod = {
   id: string; name: string; reference: string | null;
@@ -29,6 +30,7 @@ type Line = { productId: string; unitId: string | null; qty: number };
 export function CommandeClient({
   locale,
   day,
+  companyId,
   vanId,
   vanName,
   tourneeId,
@@ -41,6 +43,7 @@ export function CommandeClient({
 }: {
   locale: string;
   day: string;
+  companyId: string;
   vanId: string;
   vanName: string;
   tourneeId: string | null;
@@ -53,6 +56,7 @@ export function CommandeClient({
 }) {
   const router = useRouter();
   const [scanOpen, setScanOpen] = useState(!initialClient);
+  const scanning = useRef(false);
   const [scanError, setScanError] = useState<string | null>(null);
   const [client, setClient] = useState<Client | null>(initialClient);
   const [cat, setCat] = useState("");
@@ -120,73 +124,22 @@ export function CommandeClient({
       (!pq || p.name.includes(pq) || (p.reference ?? "").includes(pq))
   );
 
-  function onScan(text: string) {
-    const code = text.includes("/") ? text.split("/").pop()! : text;
-    // Exact code match only: NEVER fall back to the first row — charging the
-    // wrong client is worse than no match. Unknown codes show an error.
-    const match = (rows: Client[]) => rows.find((c) => c.code === code) ?? null;
-    const noMatch = () => setScanError(labels.qrNotFound ?? "not_found");
-    // Clients created on this phone but not yet synced are matchable too.
-    const withPending = async (rows: Client[]): Promise<Client[]> => {
-      try {
-        const pend = await getPendingClients();
-        const extra: Client[] = pend.map((p) => ({
-          id: `pending:${p.opId}`, name: p.name, code: p.code,
-          phone: p.phone, tierId: p.tierId, balance: 0,
-        }));
-        const seen = new Set(rows.map((r) => r.code));
-        return [...rows, ...extra.filter((e) => !seen.has(e.code))];
-      } catch {
-        return rows;
+  async function onScan(text: string) {
+    if (scanning.current) return;
+    scanning.current = true;
+    try {
+      const hit = await findScannedClient(text, companyId);
+      if (!hit) {
+        setScanError(!snap && serverUnreachable() ? (labels.syncFirst ?? labels.qrNotFound ?? "not_found") : (labels.qrNotFound ?? "not_found"));
+        return;
       }
-    };
-    fetch(`/api/clients?q=${encodeURIComponent(code)}`, { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : []))
-      .then(async (rows: Client[]) => {
-        const hit = match(await withPending(rows));
-        if (hit) {
-          setScanError(null);
-          setClient(hit);
-          setScanOpen(false);
-          beepAdd();
-        } else {
-          noMatch();
-        }
-      })
-      .catch(async () => {
-        // Offline: match the synced client list + this phone's pending ones.
-        // No snapshot yet (never synced): say "sync first" — the code isn't
-        // wrong, the phone just has no client list to match against.
-        const noHit = () => {
-          if (!snap) setScanError(labels.syncFirst ?? labels.qrNotFound ?? "not_found");
-          else noMatch();
-        };
-        const hit = snap ? match(await withPending(snap.clients as unknown as Client[])) : undefined;
-        if (hit) {
-          setScanError(null);
-          setClient(hit);
-          setScanOpen(false);
-          beepAdd();
-        } else {
-          try {
-            const pend = await getPendingClients();
-            const solo = pend.find((p) => p.code === code);
-            if (solo) {
-              setScanError(null);
-              setClient({
-                id: `pending:${solo.opId}`, name: solo.name, code: solo.code,
-                phone: solo.phone, tierId: solo.tierId, balance: 0,
-              });
-              setScanOpen(false);
-              beepAdd();
-            } else {
-              noHit();
-            }
-          } catch {
-            noHit();
-          }
-        }
-      });
+      setScanError(null);
+      setClient(hit);
+      setScanOpen(false);
+      beepAdd();
+    } finally {
+      scanning.current = false;
+    }
   }
 
   // Deep link with an unsynced client (?client=pending:<opId>).
@@ -483,7 +436,7 @@ export function CommandeClient({
             <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.notes}</label>
             <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
-          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
           <Button onClick={() => void sendRequest()} disabled={saving || !lines.length || !client} data-testid="send-order" className="h-12 w-full text-base">
             {saving ? "…" : labels.sendRequest}
           </Button>
@@ -505,7 +458,7 @@ export function CommandeClient({
         <div className="space-y-3">
           <CameraBox
             hint={labels.scanHint}
-            onDetect={(t) => { onScan(t); }}
+            onDetect={(t) => { void onScan(t); }}
             labels={{
               scan: labels.scan ?? labels.scanTitle,
               gallery: labels.gallery ?? "gallery",

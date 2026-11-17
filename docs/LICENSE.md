@@ -43,6 +43,26 @@ Machine endpoints (called by the Electron shell, no staff session):
 (unified poll: `{status: pending|active|revoked, token?, trialEndsAt?}`).
 Rate-limited; blocked IPs get silent-ok/403 on register/trial only.
 
+### Server-side activation request diagnostics
+
+On server-c, license requests pass through nginx so their HTTP results can
+be inspected without access to the customer's PC. Install
+`deploy/nginx-license-log-format.conf` in `/etc/nginx/conf.d/`, and install
+`deploy/nginx-license-location.conf` in `/etc/nginx/snippets/`, included
+inside both nginx server blocks for `distribuili.khiatadz.com`.
+The Cloudflare ingress rule that sends `/updates/.*` to port 80 must also
+send `/api/license/.*` there (path: `/(updates/.*|api/license/.*)`). All other
+app traffic continues to use port 3005.
+
+Validate with `nginx -t` and `cloudflared tunnel ingress validate` before
+reloading nginx and restarting cloudflared. Keep backups of both configs.
+Results are recorded in `/var/log/nginx/distribuili-license.access.log`:
+timestamp, request ID, method, path, HTTP/upstream status, duration, and
+Cloudflare Ray ID. Keys, tokens, client IPs, and query strings are excluded.
+An HTTP 200 on redeem means the server responded successfully; it does not
+prove the desktop accepted or saved the token. No log entry on a retry
+means the request did not reach this proxy.
+
 ## Local-install gate (teeth)
 
 On Electron local installs (`DISTRIBUILI_DB=local`, public key baked):

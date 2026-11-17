@@ -15,7 +15,7 @@ export function applyTheme(choice: ThemeChoice) {
 
 export const THEME_KEY = "distribuili-theme";
 export const THEME_NAME_KEY = "distribuili-theme-name";
-export const DEFAULT_THEME = "lime";
+export const DEFAULT_THEME = "ocean";
 /// Fired on window whenever the light/dark choice changes, so scattered
 /// toggles (sidebar selector, topbar button) stay in sync.
 export const THEME_CHANGED_EVENT = "distribuili:theme-changed";

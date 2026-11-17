@@ -40,7 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script
           id="theme-init"
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=localStorage.getItem('distribuili-theme')||'light';var n=localStorage.getItem('distribuili-theme-name')||'lime';var known=['emerald','ocean','indigo','royal','crimson','sunset','amber','khiata','forest','teal','rose','mono','coffee','midnight','magenta','cyan','coral','plum','lime','burgundy','olive','sand','arctic','chocolate'];if(known.indexOf(n)<0)n='lime';document.documentElement.dataset.theme=n;if(m==='dark'||(m==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`,
+            __html: `(function(){try{var m=localStorage.getItem('distribuili-theme')||'light';var n=localStorage.getItem('distribuili-theme-name')||'ocean';if(!localStorage.getItem('distribuili-blue-v1')){n='ocean';localStorage.setItem('distribuili-theme-name',n);localStorage.setItem('distribuili-blue-v1','1')};var known=['emerald','ocean','indigo','royal','crimson','sunset','amber','khiata','forest','teal','rose','mono','coffee','midnight','magenta','cyan','coral','plum','lime','burgundy','olive','sand','arctic','chocolate'];if(known.indexOf(n)<0)n='ocean';document.documentElement.dataset.theme=n;if(m==='dark'||(m==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`,
           }}
         />
       </head>

@@ -12,10 +12,20 @@ type TransferInput = z.infer<typeof transferSchema>;
 
 async function locationsOrThrow(companyId: string, fromId: string, toId: string) {
   if (fromId === toId) throw Object.assign(new Error("same_location"), { status: 400 });
-  const locs = await prisma.store.findMany({ where: { id: { in: [fromId, toId] }, companyId, isActive: true } });
+  const locs = await prisma.store.findMany({
+    where: { id: { in: [fromId, toId] }, companyId, isActive: true },
+    include: { user: { select: { role: true } } },
+  });
   const from = locs.find((l) => l.id === fromId);
   const to = locs.find((l) => l.id === toId);
   if (!from || !to) throw Object.assign(new Error("bad_location"), { status: 400 });
+  // A van driven by a Vendeur (مندوب) never holds stock: no transfer may
+  // touch it, in either direction.
+  for (const l of [from, to]) {
+    if (l.kind === "VAN" && l.user?.role === "Vendeur") {
+      throw Object.assign(new Error("vendeur_no_stock"), { status: 400 });
+    }
+  }
   return { from, to };
 }
 

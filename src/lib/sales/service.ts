@@ -183,6 +183,59 @@ export async function createOrder(
   });
 }
 
+/// Admin edit of a not-yet-delivered order (DRAFT/CONFIRMED): replaces the
+/// lines and re-prices them. No stock moves for orders, so this is safe;
+/// number, date, van and status are kept.
+export async function updateOrder(companyId: string, saleId: string, input: OrderInput) {
+  const order = await prisma.sale.findFirst({ where: { id: saleId, companyId, kind: "ORDER" } });
+  if (!order) throw Object.assign(new Error("not_found"), { status: 404 });
+  if (order.status !== "DRAFT" && order.status !== "CONFIRMED") throw Object.assign(new Error("bad_status"), { status: 400 });
+  const settings = await getOrCreateSettings(companyId);
+  const client = await prisma.customer.findFirst({ where: { id: input.clientId, companyId } });
+  if (!client) throw Object.assign(new Error("bad_client"), { status: 400 });
+  if ((input.remise ?? 0) > 0 && !settings.remiseEnabled) throw Object.assign(new Error("remise_disabled"), { status: 400 });
+  const { priced, tierId } = await priceLines(companyId, client.tierId, input.tierId ?? null, input.lines, settings.remiseEnabled, settings.pieceSalesEnabled);
+  const total = Math.max(0, priced.reduce((x, l) => x + l.lineTotal, 0) - (input.remise ?? 0));
+  const paid = input.paid ?? Number(order.paid ?? 0);
+  if (isOverpaid(paid, total)) throw Object.assign(new Error("overpaid"), { status: 400 });
+  return prisma.$transaction(async (tx) => {
+    await tx.saleLine.deleteMany({ where: { saleId } });
+    return tx.sale.update({
+      where: { id: saleId },
+      data: {
+        clientId: client.id,
+        tierId,
+        remise: input.remise ?? 0,
+        total,
+        paid,
+        notes: input.notes ?? null,
+        lines: {
+          create: priced.map((l) => ({
+            productId: l.productId, unitId: l.unitId, qty: l.qty, baseQty: l.baseQty,
+            unitPrice: l.unitPrice, remise: l.remise, lineTotal: l.lineTotal,
+          })),
+        },
+      },
+      include: { lines: { include: { product: true } }, client: true },
+    });
+  });
+}
+
+/// Admin delete of an order that never turned into a delivery/invoice.
+export async function deleteOrder(companyId: string, saleId: string) {
+  const order = await prisma.sale.findFirst({
+    where: { id: saleId, companyId, kind: "ORDER" },
+    include: { children: { select: { id: true } } },
+  });
+  if (!order) throw Object.assign(new Error("not_found"), { status: 404 });
+  if (order.status === "DELIVERED" || order.status === "INVOICED" || order.children.length > 0) {
+    throw Object.assign(new Error("bad_status"), { status: 400 });
+  }
+  if (Number(order.paid ?? 0) > 0) throw Object.assign(new Error("has_payment"), { status: 400 });
+  await prisma.sale.delete({ where: { id: saleId } });
+  return { ok: true };
+}
+
 export async function confirmOrder(companyId: string, saleId: string) {
   const order = await prisma.sale.findFirst({
     where: { id: saleId, companyId, kind: "ORDER" },
@@ -893,6 +946,27 @@ export async function confirmAndLoadOrder(
     where: { companyId, kind: "DEPOT" },
     orderBy: { createdAt: "asc" },
   });
+
+  // Pre-check depot stock BEFORE touching the order (assign/confirm must not
+  // be left half-applied). The depot row only exists after the first
+  // purchase, so "no depot" simply means "nothing in stock".
+  const need = new Map<string, number>();
+  for (const l of order.lines) need.set(l.productId, (need.get(l.productId) ?? 0) + Number(l.baseQty));
+  const have = new Map<string, number>();
+  if (depot) {
+    const grouped = await prisma.stockBatch.groupBy({
+      by: ["productId"],
+      where: { companyId, storeId: depot.id, transferId: null, qty: { gt: 0 }, productId: { in: [...need.keys()] } },
+      _sum: { qty: true },
+    });
+    for (const g of grouped) have.set(g.productId, Number(g._sum.qty ?? 0));
+  }
+  const shortIds = [...need].filter(([pid, n]) => (have.get(pid) ?? 0) + 1e-9 < n).map(([pid]) => pid);
+  if (shortIds.length) {
+    const names = await prisma.product.findMany({ where: { id: { in: shortIds }, companyId }, select: { id: true, name: true } });
+    const label = names.map((p) => `${p.name} (${have.get(p.id) ?? 0}/${need.get(p.id)})`).join(", ");
+    throw Object.assign(new Error(`insufficient_stock: ${label}`), { status: 400 });
+  }
   if (!depot) throw Object.assign(new Error("no_depot"), { status: 400 });
 
   // 1. Assign + confirm (confirmOrder verifies global availability).

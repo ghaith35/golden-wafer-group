@@ -14,6 +14,7 @@ import { dzMoney, fmtDT } from "@/lib/format";
 import { compareNatural } from "@/lib/sort";
 import { getUnsyncedDocKeys } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
+import { useSyncedState } from "@/lib/data-sync";
 
 type Row = {
   id: string;
@@ -54,7 +55,7 @@ export function CommandesClient({
   detailLabels: Record<string, string>;
 }) {
   const router = useRouter();
-  const [rows, setRows] = useState(initial);
+  const [rows, setRows] = useSyncedState(initial);
   const [unsynced, setUnsynced] = useState<Set<string>>(new Set());
   useEffect(() => {
     let on = true;
@@ -316,9 +317,17 @@ export function CommandesClient({
             <SaleActions
               locale={locale}
               sale={detail}
-              locations={formData.locations.map((l: { id: string; name: string; kind?: string }) => ({ id: l.id, name: l.name, kind: l.kind }))}
+              locations={formData.locations.map((l: { id: string; name: string; kind?: string; noStock?: boolean }) => ({ id: l.id, name: l.name, kind: l.kind, noStock: l.noStock }))}
               labels={detailLabels}
-              onDone={(id) => void detailChanged(id)}
+              onDone={(id) => {
+                if (id === "__deleted__") {
+                  setRows((prev) => prev.filter((r) => r.id !== selectedId));
+                  setSelectedId(null);
+                  setDetail(null);
+                  return;
+                }
+                void detailChanged(id);
+              }}
               formData={formData}
               formLabels={formLabels}
               canEdit

@@ -67,6 +67,8 @@ export const tourneeSchema = z.object({
   secteurId: z.string().nullish(),
   notes: z.string().max(500).nullish(),
   clientIds: z.array(z.string()).max(500).optional(),
+  /// Extra weekly copies after `date` (admin planning: "repeat weekly").
+  repeatWeeks: z.number().int().min(0).max(26).optional(),
 });
 
 export const tourneeStopsSchema = z.object({

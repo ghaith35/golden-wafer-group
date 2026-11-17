@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { isLegacyClientQr } from "./qr";
+
+export const legacyQrSchema = z.string().trim().refine(isLegacyClientQr, "bad_legacy_qr").nullable();
 
 const phone = z
   .string()

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { tourneeSchema, tourneeStopsSchema } from "@/lib/sales/validation";
-import { createTournee, setStops, closeTournee } from "@/lib/tournees/service";
+import { createTournee } from "@/lib/tournees/service";
+import { addDaysKey, algiersDayRange } from "@/lib/tournees/days";
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -15,13 +16,7 @@ export async function GET(req: Request) {
   let dayRange: { gte: Date; lt: Date } | undefined;
   if (date) {
     const d = new Date(date);
-    if (!Number.isNaN(d.getTime())) {
-      const start = new Date(d);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(start);
-      end.setDate(end.getDate() + 1);
-      dayRange = { gte: start, lt: end };
-    }
+    if (!Number.isNaN(d.getTime())) dayRange = algiersDayRange(d);
   }
   const rows = await prisma.tournee.findMany({
     where: {
@@ -64,20 +59,28 @@ export async function POST(req: Request) {
     data = { ...data, locationId: ownVan.id, clientIds: [] };
   }
   try {
-    const row = await createTournee(session.companyId, data);
+    const { repeatWeeks, ...one } = data;
+    const row = await createTournee(session.companyId, one);
+    // Weekly repeat (admin only, date-only input): same van + secteur on the
+    // same weekday for the following weeks; weeks that already have an open
+    // tour for this van are skipped.
+    if (session.role === "Admin" && repeatWeeks && /^\d{4}-\d{2}-\d{2}$/.test(one.date)) {
+      for (let k = 1; k <= repeatWeeks; k++) {
+        try {
+          await createTournee(session.companyId, { ...one, date: addDaysKey(one.date, 7 * k) });
+        } catch (e) {
+          if ((e as Error).message !== "duplicate_day") throw e;
+        }
+      }
+    }
     return NextResponse.json(row, { status: 201 });
   } catch (e) {
     const err = e as Error & { status?: number };
     // Start-day race: a tour appeared between page load and tap — hand back
     // the winner so départ stamps instead of erroring.
     if (err.message === "duplicate_day" && findOrCreate) {
-      const day = new Date(data.date as string);
-      const s = new Date(day);
-      s.setHours(0, 0, 0, 0);
-      const end = new Date(s);
-      end.setDate(end.getDate() + 1);
       const winner = await prisma.tournee.findFirst({
-        where: { companyId: session.companyId, locationId: data.locationId, status: "OPEN", date: { gte: s, lt: end } },
+        where: { companyId: session.companyId, locationId: data.locationId, status: "OPEN", date: algiersDayRange(new Date(data.date as string)) },
         orderBy: { createdAt: "desc" },
       });
       if (winner) return NextResponse.json(winner);

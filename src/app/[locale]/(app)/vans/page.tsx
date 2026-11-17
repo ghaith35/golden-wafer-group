@@ -14,7 +14,7 @@ export default async function VansPage({ params }: { params: Promise<{ locale: s
   const tc = await getTranslations("common");
   const [vans, users] = await Promise.all([
     prisma.store.findMany({
-      where: { companyId: session.companyId, kind: "VAN" },
+      where: { companyId: session.companyId, kind: "VAN", isActive: true },
       include: { user: { select: { id: true, fullName: true, username: true } } },
       orderBy: { name: "asc" },
       take: 100,

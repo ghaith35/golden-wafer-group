@@ -12,6 +12,7 @@ import type { OutboxRow } from "@/lib/sync/offline-db";
 import { beepAdd, beepConfirm } from "@/lib/beep";
 import { cn } from "@/lib/utils";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Prod = {
   id: string; name: string; reference: string | null;
   baseUnitId: string | null;
@@ -455,7 +456,7 @@ export function DemandeClient({
             <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.notes}</label>
             <Input value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} />
           </div>
-          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
           {notice && <p className="rounded-xl bg-emerald-500/10 p-2.5 text-xs font-bold text-emerald-600">{notice}</p>}
           <Button onClick={() => void sendRequest()} disabled={saving || !lines.length || !depotId} data-testid="send-restock" className="h-12 w-full text-base">
             {saving ? "…" : labels.confirm}
@@ -594,7 +595,7 @@ export function DemandeClient({
         </div>
       </Modal>
       {notice && <p className="rounded-xl bg-emerald-500/10 p-2.5 text-xs font-bold text-emerald-600">{notice}</p>}
-      {error && !showRecap && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && !showRecap && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
     </div>
   );
 }

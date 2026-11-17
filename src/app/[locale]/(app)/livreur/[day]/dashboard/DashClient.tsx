@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Banknote, ClipboardList, Package, PackageCheck, Plus, ReceiptText, RefreshCw, Truck, UserRound, Wallet } from "lucide-react";
+import { ArrowLeft, Banknote, ClipboardList, Lock, Package, PackageCheck, Plus, ReceiptText, RefreshCw, Truck, UserRound, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { ErrText } from "@/components/ui/ErrText";
+import { useJourneeState } from "@/lib/journee";
 import { queueOp, getLastSync, pendingCount, getPendingClients, goPage, warmJourneePages } from "@/lib/sync/client";
 import { OnlineBadge } from "@/components/sync/OnlineBadge";
 import { SyncModal } from "@/components/sync/SyncModal";
@@ -177,7 +179,7 @@ export function DashClient({
     // Warm the journée pages while online so everything works fully offline.
     // The exact current URL first (query included: dashboard?client=X is a
     // different cache entry than the bare dashboard).
-    warmJourneePages(locale, day);
+    warmJourneePages(locale, day, role);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -229,6 +231,17 @@ export function DashClient({
     }
   }
 
+  /// Tour workflow: sales/orders only while the tour runs; goods requests
+  /// only after it ended (admins are never locked).
+  const jstate = useJourneeState(stamp);
+  const lockedKeys: string[] =
+    role === "Admin"
+      ? []
+      : [
+          ...(jstate === "active" ? [] : ["sale", "order"]),
+          ...(jstate === "ended" ? [] : ["demande"]),
+        ];
+
   const tiles: Array<{ key: string; label: string; badge?: number; Icon: typeof Plus; cls: string; go: () => void }> = [
     { key: "sale", label: labels.newSale, Icon: Plus, cls: "bg-(--brand-500) text-(--brand-contrast)", go: () => goPage(router, `/${locale}/livreur/${day}/vente${qs}`) },
     { key: "factures", label: labels.factures, Icon: ReceiptText, cls: "bg-sky-500/15 text-sky-600", go: () => goPage(router, `/${locale}/livreur/${day}/factures`) },
@@ -262,7 +275,7 @@ export function DashClient({
         </button>
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-black">{labels.title}</h1>
-          <p className="truncate text-xs opacity-60">{vanName}</p>
+          <p className="truncate text-xs opacity-60">{vanName} · <time dateTime={day.split("-").map((part) => part.padStart(2, "0")).join("-")} dir="ltr">{day}</time></p>
         </div>
         <OnlineBadge onlineLabel={labels.online ?? "online"} offlineLabel={labels.offline ?? "offline"} />
       </div>
@@ -345,7 +358,7 @@ export function DashClient({
             <p className="mt-2 rounded-xl bg-red-500/10 p-2 text-xs font-bold text-red-500">⚠ {labels.autoClosedDay ?? ""}</p>
           )}
           {dayError && (
-            <p className="mt-2 rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{dayError}</p>
+            <p className="mt-2 rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500"><ErrText code={dayError} /></p>
           )}
         </div>
       ) : (
@@ -359,11 +372,14 @@ export function DashClient({
           Tiles stay ≥76px tall (comfortable touch target) with truncated
           labels — nothing overflows or cuts off on narrow screens. */}
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-5">
-        {visibleTiles.map(({ key, label, badge, Icon, cls, go }) => (
+        {visibleTiles.map(({ key, label, badge, Icon, cls, go }) => {
+          const locked = lockedKeys.includes(key);
+          return (
           <button
             key={key}
-            onClick={go}
-            className="relative flex min-h-[84px] flex-col items-center justify-center gap-1 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2 shadow-sm transition-all active:scale-[0.98] sm:min-h-20 sm:gap-1.5 sm:p-3"
+            onClick={locked ? () => setDayError(jstate === "active" || key !== "demande" ? "tour_not_started" : "tour_not_ended") : go}
+            aria-disabled={locked}
+            className={cn("relative flex min-h-[84px] flex-col items-center justify-center gap-1 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2 shadow-sm transition-all active:scale-[0.98] sm:min-h-20 sm:gap-1.5 sm:p-3", locked && "opacity-45")}
           >
             {(badge ?? 0) > 0 && (
               <span className="absolute end-1.5 top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-(--brand-500) px-1 text-[10px] font-black text-(--brand-contrast) tabular-nums sm:end-2 sm:top-2 sm:h-6 sm:min-w-6 sm:text-[11px]">
@@ -375,8 +391,10 @@ export function DashClient({
               <Icon size={20} className="hidden sm:block" />
             </span>
             <span className="w-full truncate px-0.5 text-center text-[11px] font-black sm:text-[13px]">{label}</span>
+            {locked && <Lock size={12} className="absolute start-1.5 top-1.5 opacity-70" />}
           </button>
-        ))}
+          );
+        })}
         <button
           onClick={() => setSyncOpen(true)}
           className="flex min-h-[84px] flex-col items-center justify-center gap-1 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2 shadow-sm transition-all active:scale-[0.98] sm:min-h-20 sm:gap-1.5 sm:p-3"
@@ -394,6 +412,7 @@ export function DashClient({
 
       <SyncModal
         open={syncOpen}
+        offlinePages={{ locale, day, role }}
         onClose={() => setSyncOpen(false)}
         onDone={() => void refreshSync()}
         labels={{
@@ -417,7 +436,7 @@ export function DashClient({
           updateTitle: labels.syncUpdateTitle, checkUpdate: labels.syncCheckUpdate,
           webOk: labels.syncWebOk, webNew: labels.syncWebNew, updateNow: labels.syncUpdateNow,
           downloadApk: labels.syncDownloadApk, apkHint: labels.syncApkHint,
-          clockSkew: labels.syncClockSkew,
+          clockSkew: labels.syncClockSkew, pages: labels.warmPages,
         }}
       />
 
@@ -427,6 +446,7 @@ export function DashClient({
       <FirstRunWarmup
         locale={locale}
         day={day}
+        role={role}
         onOpenSync={() => setSyncOpen(true)}
         labels={{
           title: labels.warmTitle, hint: labels.warmHint,
@@ -461,7 +481,7 @@ export function DashClient({
               {labels.recapPending ?? ""} ({pending})
             </p>
           )}
-          {dayError && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{dayError}</p>}
+          {dayError && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={dayError} /></p>}
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => setFinishOpen(false)} className="flex-1" disabled={stamping}>
               {labels.cancel}

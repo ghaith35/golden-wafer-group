@@ -25,7 +25,7 @@ export default async function LivreurDayPage({
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
 
-  const sel = { id: true, name: true, code: true, phone: true, tierId: true, balance: true, gpsLat: true, gpsLng: true };
+  const sel = { id: true, name: true, code: true, legacyQr: true, phone: true, tierId: true, balance: true, gpsLat: true, gpsLng: true };
   const tournees = await prisma.tournee.findMany({
     where: { companyId: session.companyId, locationId: van.id, status: "OPEN" },
     include: {

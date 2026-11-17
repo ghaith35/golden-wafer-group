@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { UiZoomBoot } from "@/components/layout/UiZoomBoot";
+import { DataSyncBoot } from "@/components/layout/DataSyncBoot";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -18,5 +20,11 @@ export default async function LocaleLayout({
   if (!(routing.locales as readonly string[]).includes(locale)) notFound();
   setRequestLocale(locale);
   const messages = await getMessages();
-  return <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>;
+  return (
+    <NextIntlClientProvider messages={messages}>
+      <UiZoomBoot />
+      <DataSyncBoot />
+      {children}
+    </NextIntlClientProvider>
+  );
 }

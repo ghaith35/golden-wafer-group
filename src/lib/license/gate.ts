@@ -96,6 +96,23 @@ export function localEntitlement(): LocalEntitlement {
   return { entitled: false, reason: "no-key" };
 }
 
+/// The activation key this install was activated with (from the signed
+/// activation.lic). null when not activated with a key, trial-only, or not a
+/// desktop install. Used to prove ownership for the password reset.
+export function readLocalActivationKey(): string | null {
+  if (!isLocalMode()) return null;
+  const dir = process.env.DISTRIBUILI_USERDATA;
+  const machineId = process.env.DISTRIBUILI_MACHINE_ID;
+  const pubkey = publicKey();
+  if (!dir || !machineId || !pubkey) return null;
+  const act = readTrim(path.join(dir, "activation.lic"));
+  if (!act) return null;
+  const p = verifySig(act, pubkey);
+  if (!p || p.v !== 1 || p.machineId !== machineId || (p as { kind?: string }).kind === "trial") return null;
+  const key = (p as { key?: unknown }).key;
+  return typeof key === "string" && key.trim() ? key : null;
+}
+
 /// Throw a 402 for locked local installs. Call at the top of mutating routes
 /// (reads are left open — the UI gate steers humans to /activate).
 export function assertLocalEntitled(): void {

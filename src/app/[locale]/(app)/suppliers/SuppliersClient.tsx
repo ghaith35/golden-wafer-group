@@ -11,7 +11,9 @@ import { KpiCard } from "@/components/ui/Card";
 import { SupplierForm, EMPTY_SUPPLIER, type SupplierData } from "./SupplierForm";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useSyncedState } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Row = {
   id: string;
   code: string | null;
@@ -36,7 +38,7 @@ export function SuppliersClient({
   secteurs: Array<{ id: string; name: string; wilayaCode: number }>;
   labels: Record<string, string>;
 }) {
-  const [rows, setRows] = useState(initial);
+  const [rows, setRows] = useSyncedState(initial);
   const [q, setQ] = useState("");
   const [sec, setSec] = useState("");
   const [view, setView] = useState<"grid" | "list">("grid");
@@ -121,7 +123,7 @@ export function SuppliersClient({
           compact
         />
       </div>
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <div className="flex gap-2">
         <Button onClick={() => setCreating(true)} className="shrink-0">
           <Plus size={16} className="me-1" />

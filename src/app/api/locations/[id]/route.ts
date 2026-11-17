@@ -54,13 +54,47 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const existing = await prisma.store.findFirst({ where: { id, companyId: session.companyId } });
   if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
+  // Forced delete (after the UI's double confirmation): wipe the location's
+  // operational history — stock, transfers, counts, losses, client returns,
+  // tours, daily closes. Sales and expenses are accounting records: they are
+  // kept and simply unlinked from the location (FK SetNull).
+  if (new URL(_req.url).searchParams.get("force") === "1") {
+    if (session.role !== "Admin") return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    const companyId = session.companyId;
+    try {
+      await prisma.$transaction(async (tx) => {
+      const transferIds = (
+        await tx.transfer.findMany({ where: { companyId, OR: [{ fromLocationId: id }, { toLocationId: id }] }, select: { id: true } })
+      ).map((t) => t.id);
+      await tx.stockBatch.deleteMany({ where: { OR: [{ storeId: id }, ...(transferIds.length ? [{ transferId: { in: transferIds } }] : [])] } });
+      await tx.transfer.deleteMany({ where: { id: { in: transferIds } } });
+      await tx.stockCount.deleteMany({ where: { companyId, locationId: id } });
+      await tx.stockLoss.deleteMany({ where: { companyId, locationId: id } });
+      await tx.clientReturn.deleteMany({ where: { companyId, locationId: id } });
+      await tx.tournee.deleteMany({ where: { companyId, locationId: id } });
+      await tx.store.delete({ where: { id } });
+      });
+    } catch {
+      return NextResponse.json({ error: "delete_failed" }, { status: 500 });
+    }
+    return NextResponse.json({ ok: true });
+  }
+
+  // Plain delete: only when nothing references it, else tell the UI.
+  const archive = async () => {
+    await prisma.store.update({ where: { id }, data: { isActive: false, userId: null } });
+    return NextResponse.json({ ok: true, deactivated: true });
+  };
   const used =
     (await prisma.stockBatch.count({ where: { storeId: id, qty: { gt: 0 } } })) +
-    (await prisma.transfer.count({ where: { companyId: session.companyId, OR: [{ fromLocationId: id }, { toLocationId: id }] } }));
-  if (used > 0) {
-    await prisma.store.update({ where: { id }, data: { isActive: false } });
-    return NextResponse.json({ ok: true, deactivated: true });
+    (await prisma.transfer.count({ where: { companyId: session.companyId, OR: [{ fromLocationId: id }, { toLocationId: id }] } })) +
+    (await prisma.tournee.count({ where: { companyId: session.companyId, locationId: id } }));
+  if (used > 0) return archive();
+  try {
+    await prisma.store.delete({ where: { id } });
+  } catch {
+    // Remaining Restrict relations (counts, returns, movements) → archive.
+    return archive();
   }
-  await prisma.store.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

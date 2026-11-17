@@ -23,6 +23,11 @@ cpSync(resolve(ROOT, ".next/static"), resolve(STANDALONE, ".next/static"), {
 if (existsSync(resolve(ROOT, "public"))) {
   cpSync(resolve(ROOT, "public"), resolve(STANDALONE, "public"), { recursive: true });
 }
+// The desktop pipeline builds the seed after Next has already traced files.
+const seed = resolve(ROOT, "prisma/sqlite-seed.db");
+if (existsSync(seed)) {
+  cpSync(seed, resolve(STANDALONE, "prisma/sqlite-seed.db"));
+}
 
 // Sanity-check the offline-DB resources that Electron's first run depends on.
 const required = [

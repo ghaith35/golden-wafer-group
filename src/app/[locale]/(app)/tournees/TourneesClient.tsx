@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, ChevronRight, ChevronLeft, CalendarCheck, CalendarDays, Pencil, Trash2, Crosshair, Route } from "lucide-react";
+import { Plus, CalendarCheck, CalendarDays, Pencil, Trash2, Crosshair, Route } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -13,7 +13,10 @@ import { TourneeDay } from "./[id]/TourneeDay";
 import { TourneeForm } from "./TourneeForm";
 import { OrderedStops } from "./OrderedStops";
 import { useSavedDistances, useTourLegs } from "@/lib/geo";
+import { addDaysKey, algiersDayKey, weekStartKey } from "@/lib/tournees/days";
+import { useSyncedState } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 type BoardStop = {
   id: string;
   visited: boolean;
@@ -46,17 +49,8 @@ type DayDetail = {
   sales: Array<{ id: string; number: string; total: unknown; client: { name: string } | null }>;
 };
 
-function sameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
-
-/// Saturday-start week (DZ weekend): the 7 fixed days always shown.
-function weekStart(d: Date): Date {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  x.setDate(x.getDate() - ((x.getDay() + 1) % 7));
-  return x;
-}
+/// Calendar day key → a Date at noon UTC (safe to format with timeZone "UTC").
+const keyDate = (key: string) => new Date(`${key}T12:00:00Z`);
 
 export function TourneesClient({
   locale,
@@ -71,13 +65,14 @@ export function TourneesClient({
   isAdmin: boolean;
   labels: Record<string, string>;
 }) {
-  const [weekOffset, setWeekOffset] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const fail = (code?: string) => setError(`${labels.actionFailed}${code ? ` (${code})` : ""}`);
   const [q, setQ] = useState("");
-  const [vans, setVans] = useState(initialVans);
-  const [rows, setRows] = useState(initial);
+  const [vans, setVans] = useSyncedState(initialVans);
+  const [rows, setRows] = useSyncedState(initial);
   const [day, setDay] = useState<DayDetail | null>(null);
   // Preset creation from a matrix "+" cell (van + weekday locked in the form).
-  const [preset, setPreset] = useState<{ vanId: string; weekday: number } | null>(null);
+  const [preset, setPreset] = useState<{ vanId: string; weekday: number; date: string } | null>(null);
   // Live position (refresh button) → per-client distances.
   const [creating, setCreating] = useState(false);
   const [formData, setFormData] = useState<{
@@ -92,21 +87,21 @@ export function TourneesClient({
     if (res.ok) setRows(await res.json());
   }
 
-  async function openCreate() {
-    setPreset(null);
+  async function openCreate(keepPreset = false) {
+    if (!keepPreset) setPreset(null);
     setCreating(true);
-    if (!formData) {
-      const [sec, cli] = await Promise.all([
-        fetch("/api/settings/secteurs").then((r) => (r.ok ? r.json() : [])),
-        fetch("/api/clients").then((r) => (r.ok ? r.json() : [])),
-      ]);
-      setFormData({ secteurs: sec, clients: cli });
-    }
+    // Always refetch: a secteur/client added since last time must show up.
+    const [sec, cli] = await Promise.all([
+      fetch("/api/settings/secteurs").then((r) => (r.ok ? r.json() : formData?.secteurs ?? [])),
+      fetch("/api/clients").then((r) => (r.ok ? r.json() : formData?.clients ?? [])),
+    ]);
+    setFormData({ secteurs: sec, clients: cli });
   }
 
   async function openDay(id: string) {
     const res = await fetch(`/api/tournees/${id}`);
-    if (!res.ok) return;
+    if (!res.ok) return fail(String(res.status));
+    setError(null);
     setDay(await res.json());
   }
 
@@ -135,34 +130,49 @@ export function TourneesClient({
 
   async function confirmTourDelete() {
     if (!deletingTour) return;
-    const res = await fetch(`/api/tournees/${deletingTour.id}`, { method: "DELETE" });
-    if (!res.ok) return;
+    const res = await fetch(`/api/tournees/${deletingTour.id}?series=1`, { method: "DELETE" });
+    if (!res.ok) {
+      setDeletingTour(null);
+      return fail(String(res.status));
+    }
     setDeletingTour(null);
     if (day?.id === deletingTour.id) setDay(null);
     await reload();
   }
-  const today = useMemo(() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }, []);
+  // All day maths is on the Algiers calendar (YYYY-MM-DD keys) — the same
+  // calendar the server uses — so a tour never lands in the wrong column
+  // because of the device timezone.
+  const todayKey = algiersDayKey(new Date());
+  const currentWeekKey = weekStartKey(todayKey);
+  // One fixed weekly plan: the board always shows the current week (no navigation).
+  const startKey = currentWeekKey;
+  const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDaysKey(startKey, i)), [startKey]);
 
-  const start = useMemo(() => {
-    const s = weekStart(new Date());
-    s.setDate(s.getDate() + weekOffset * 7);
-    return s;
-  }, [weekOffset]);
-
-  const days = useMemo(() => Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(start);
-    d.setDate(d.getDate() + i);
-    return d;
-  }), [start]);
-
-  const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  // Weekly recurrence: every week shows the same tours — the server fills any
+  // empty van/weekday cell of this (current or future) week from the van's
+  // latest earlier tour, then we reload the board once.
+  useEffect(() => {
+    if (startKey < currentWeekKey) return;
+    let cancelled = false;
+    fetch("/api/tournees/ensure-week", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ weekStart: startKey }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!cancelled && j?.created > 0) void reload();
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startKey]);
+  const rowKey = (r: Row) => algiersDayKey(new Date(r.date as string));
   // Matrix lookup: van × day → tour (OPEN first, else first).
   const tourFor = (van: string, key: string): Row | undefined => {
-    const list = rows.filter((r) => r.location.id === van && dayKey(new Date(r.date as string)) === key);
+    const list = rows.filter((r) => r.location.id === van && rowKey(r) === key);
     return list.find((r) => r.status === "OPEN") ?? list[0];
   };
 
@@ -173,25 +183,28 @@ export function TourneesClient({
   };
 
   const weekRows = useMemo(
-    () => rows.filter((r) => days.some((d) => dayKey(d) === dayKey(new Date(r.date as string)))),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rows, weekOffset]
+    () => rows.filter((r) => days.includes(algiersDayKey(new Date(r.date as string)))),
+    [rows, days]
   );
   const totalStops = weekRows.reduce((s, r) => s + r.stops.length, 0);
   const shownVans = useMemo(
-    () => vans.filter((v) => !q || v.name.includes(q) || (v.matricule ?? "").includes(q))
+    () => vans.filter((v) => {
+      const n = q.trim().toLowerCase();
+      return !n || v.name.toLowerCase().includes(n) || (v.matricule ?? "").toLowerCase().includes(n)
+        || (v.user?.fullName ?? "").toLowerCase().includes(n);
+    })
       .sort((a, b) => compareNatural(a.name, b.name, locale)),
     [vans, q, locale]
   );
 
-  const fmtDay = new Intl.DateTimeFormat(locale, { weekday: "long" });
+  const fmtDay = new Intl.DateTimeFormat(locale, { weekday: "long", timeZone: "UTC" });
 
   return (
     <div className="space-y-4 p-5 md:p-6 lg:flex lg:h-[calc(100dvh-57px)] lg:flex-col lg:space-y-3 lg:overflow-hidden">
       <div className="grid shrink-0 grid-cols-3 gap-2">
         <KpiCard
           label={labels.today}
-          value={String(weekRows.filter((r) => sameDay(new Date(r.date as string), today)).length)}
+          value={String(weekRows.filter((r) => rowKey(r) === todayKey).length)}
           icon={<CalendarCheck size={18} />}
           accent="bg-emerald-500/15 text-emerald-600"
           compact
@@ -213,7 +226,7 @@ export function TourneesClient({
       </div>
       <div className="flex gap-2">
         {isAdmin && (
-          <Button onClick={() => void openCreate()} className="shrink-0">
+          <Button onClick={() => void openCreate(false)} className="shrink-0">
             <Plus size={16} className="me-1" />
             {labels.neW}
           </Button>
@@ -234,6 +247,10 @@ export function TourneesClient({
           <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
       </div>
+
+      {error && (
+        <p role="alert" className="shrink-0 rounded-xl bg-red-500/10 px-3 py-2 text-xs font-bold text-red-500"><ErrText code={error} /></p>
+      )}
 
       {/* GPS refresh */}
       {geoOn && geoError && (
@@ -273,16 +290,16 @@ export function TourneesClient({
                 {labels.van}
               </th>
               {days.map((d) => {
-                const isToday = sameDay(d, today);
+                const isToday = d === todayKey;
                 return (
                   <th
-                    key={dayKey(d)}
+                    key={d}
                     className={cn(
                       "min-w-32 border-b border-(--border-default) bg-(--bg-overlay) p-2.5 text-center text-xs font-black",
                       isToday ? "text-(--brand-600)" : "opacity-70"
                     )}
                   >
-                    {fmtDay.format(d)}
+                    {fmtDay.format(keyDate(d))}
                   </th>
                 );
               })}
@@ -313,10 +330,27 @@ export function TourneesClient({
                   </div>
                 </th>
                 {days.map((d) => {
-                  const t = tourFor(v.id, dayKey(d));
+                  const t = tourFor(v.id, d);
+                  const addCell = (compact: boolean) => (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPreset({ vanId: v.id, weekday: (keyDate(d).getUTCDay() + 1) % 7, date: d });
+                        void openCreate(true);
+                      }}
+                      aria-label={labels.neW}
+                      className={cn(
+                        "flex w-full items-center justify-center rounded-xl border border-dashed border-(--border-default) font-black opacity-40 transition-colors hover:border-(--brand-500) hover:text-(--brand-600) hover:opacity-100",
+                        compact ? "mt-1 h-7 text-sm" : "h-[52px] text-xl"
+                      )}
+                    >
+                      +
+                    </button>
+                  );
                   return (
-                    <td key={dayKey(d)} className="border-b border-(--border-subtle) p-1.5">
+                    <td key={d} className="border-b border-(--border-subtle) p-1.5">
                       {t ? (
+                        <>
                         <div className="flex items-stretch gap-1">
                           <button
                             type="button"
@@ -351,7 +385,7 @@ export function TourneesClient({
                                 type="button"
                                 title={labels.delete}
                                 aria-label={labels.delete}
-                                onClick={() => setDeletingTour({ id: t.id, label: `${v.name} · ${fmtDay.format(d)}` })}
+                                onClick={() => setDeletingTour({ id: t.id, label: `${v.name} · ${fmtDay.format(keyDate(d))}` })}
                                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/15 text-red-500 hover:bg-red-500/25"
                               >
                                 <Trash2 size={13} />
@@ -359,18 +393,10 @@ export function TourneesClient({
                             </span>
                           )}
                         </div>
+                        {isAdmin && t.status !== "OPEN" && addCell(true)}
+                        </>
                       ) : isAdmin ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPreset({ vanId: v.id, weekday: (d.getDay() + 1) % 7 });
-                            setCreating(true);
-                          }}
-                          aria-label={labels.neW}
-                          className="flex h-[52px] w-full items-center justify-center rounded-xl border border-dashed border-(--border-default) text-xl font-black opacity-40 transition-colors hover:border-(--brand-500) hover:text-(--brand-600) hover:opacity-100"
-                        >
-                          +
-                        </button>
+                        addCell(false)
                       ) : (
                         <p className="py-3 text-center text-[11px] opacity-40">—</p>
                       )}
@@ -401,7 +427,7 @@ export function TourneesClient({
       >
         {formData && (
           <TourneeForm
-            key={preset ? `${preset.vanId}-${preset.weekday}` : "new"}
+            key={preset ? `${preset.vanId}-${preset.date}` : `new-${startKey}`}
             locale={locale}
             vans={vans.map((v) => ({ id: v.id, name: v.name, matricule: v.matricule ?? null }))}
             secteurs={formData.secteurs}
@@ -415,20 +441,15 @@ export function TourneesClient({
               notes: labels.notes, stops: labels.stops, save: labels.save, cancel: labels.cancel,
               secteurRequired: labels.secteurRequired, allClients: labels.allClients,
               missingFields: labels.missingFields, duplicateDay: labels.duplicateDay,
+              repeatWeekly: labels.repeatWeekly,
             }}
             presetVanId={preset?.vanId}
             presetWeekday={preset?.weekday}
-            onSuccess={(created) => {
+            presetDate={preset?.date}
+            weekStartKey={startKey}
+            onSuccess={() => {
               setCreating(false);
               setPreset(null);
-              // Jump the board to the created tour's week so it shows immediately.
-              if (created?.date) {
-                const nd = new Date(created.date as string);
-                if (!Number.isNaN(nd.getTime())) {
-                  const diff = weekStart(nd).getTime() - weekStart(new Date()).getTime();
-                  setWeekOffset(Math.round(diff / (7 * 86400000)));
-                }
-              }
               void reload();
             }}
             onClose={() => { setCreating(false); setPreset(null); }}
@@ -440,7 +461,7 @@ export function TourneesClient({
       <Modal
         open={day !== null}
         onClose={() => setDay(null)}
-        title={day ? `${new Date(day.date as string).toLocaleDateString(locale)} · ${day.location.name}${day.secteur ? ` · ${day.secteur.name}` : ""}` : ""}
+        title={day ? `${keyDate(algiersDayKey(new Date(day.date as string))).toLocaleDateString(locale, { timeZone: "UTC" })} · ${day.location.name}${day.secteur ? ` · ${day.secteur.name}` : ""}` : ""}
         subtitle={labels.title}
         width="xl"
       >
@@ -485,6 +506,8 @@ export function TourneesClient({
                 setEditingStops(null);
                 await reload();
                 if (day?.id === editingStops.id) void refreshDay(day.id);
+              } else {
+                fail(String(res.status));
               }
             }}
           />

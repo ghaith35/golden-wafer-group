@@ -5,6 +5,7 @@ import { App } from "@capacitor/app";
 import { Browser } from "@capacitor/browser";
 import { Button } from "@/components/ui/Button";
 import { applyWebUpdate, rememberBuild, storedBuild, WEB_BUILD_KEY } from "@/lib/sync/web-update";
+import { ErrText } from "@/components/ui/ErrText";
 export { WEB_BUILD_KEY };
 
 type Feed = {
@@ -87,7 +88,7 @@ export function UpdateChecker({ labels }: { labels: Record<string, string> }) {
           {labels.checkUpdate ?? "check"}
         </Button>
       </div>
-      {error && <p className="mb-2 rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{error}</p>}
+      {error && <p className="mb-2 rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500"><ErrText code={error} /></p>}
       {webState === "fresh" && feed && (
         <p className="mb-1 text-[11px] font-bold text-emerald-600">✓ {labels.webOk ?? ""}</p>
       )}

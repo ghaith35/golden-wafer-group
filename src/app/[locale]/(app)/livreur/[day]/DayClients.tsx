@@ -7,6 +7,8 @@ import QRCode from "qrcode";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { LegacyClientQrField } from "@/components/scan/LegacyClientQrField";
+import { ErrText } from "@/components/ui/ErrText";
 import { UnsyncedBadge } from "@/components/sync/UnsyncedBadge";
 import { useSavedDistances } from "@/lib/geo";
 import { getPendingClients, goPage, queueOp, syncNow, warmJourneePages, getVanSnapshot, getOutbox, updateOutboxPayload, saleErrText, queueErrText } from "@/lib/sync/client";
@@ -20,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 type Client = {
   id: string; name: string; code: string; phone: string | null;
-  tierId: string | null; balance: unknown;
+  tierId: string | null; balance: unknown; legacyQr?: string | null;
   gpsLat: number | null; gpsLng: number | null;
   days: string[];
 };
@@ -145,6 +147,8 @@ export function DayClients({
   }
   /// Edit-client form state (inside the detail card, both roles).
   const [editOpen, setEditOpen] = useState(false);
+  const [legacyQr, setLegacyQr] = useState<string | null>();
+  const [legacyQrEdit, setLegacyQrEdit] = useState<string | null>();
   const [fName, setFName] = useState("");
   const [fPhone, setFPhone] = useState("");
   const [fAddress, setFAddress] = useState("");
@@ -168,6 +172,8 @@ export function DayClients({
   async function openEdit() {
     if (!detailFor) return;
     const c = detailFor;
+    setLegacyQr(c.legacyQr);
+    setLegacyQrEdit(undefined);
     setFName(c.name ?? "");
     setFPhone(c.phone ?? "");
     setFAddress("");
@@ -193,6 +199,7 @@ export function DayClients({
         const last = [...ops].reverse().find((o) => o.kind === "client-update" && (o.payload as Record<string, unknown>)?.clientId === c.id);
         const patch = (last?.payload as Record<string, unknown> | undefined)?.patch as Record<string, unknown> | undefined;
         if (patch) {
+          if (typeof patch.legacyQr === "string" || patch.legacyQr === null) setLegacyQr(patch.legacyQr);
           if (typeof patch.name === "string") setFName(patch.name);
           if (typeof patch.phone === "string") setFPhone(patch.phone);
           if (typeof patch.address === "string") setFAddress(patch.address);
@@ -207,9 +214,10 @@ export function DayClients({
       }
       const snap = await getVanSnapshot().catch(() => null);
       const sc = (snap?.clients ?? []).find((x) => x.id === c.id) as
-        | { address?: string | null; wilayaCode?: number | null }
+        | { address?: string | null; wilayaCode?: number | null; legacyQr?: string | null }
         | undefined;
       if (sc) {
+        if (c.legacyQr === undefined) setLegacyQr(sc.legacyQr);
         if (sc.address) setFAddress(sc.address);
         if (sc.wilayaCode != null) setFWilaya(String(sc.wilayaCode));
       }
@@ -218,6 +226,7 @@ export function DayClients({
       if (res.ok) {
         const d = await res.json().catch(() => null);
         if (d) {
+          if (typeof d.legacyQr === "string" || d.legacyQr === null) setLegacyQr(d.legacyQr);
           if (typeof d.address === "string") setFAddress(d.address);
           if (typeof d.activityType === "string") setFActivity(d.activityType);
           if (d.wilayaCode != null) setFWilaya(String(d.wilayaCode));
@@ -260,6 +269,7 @@ export function DayClients({
     // Send-only-what-changed, and never wipe a field we never loaded:
     // address/activity/wilaya/secteur go out only when the driver set them.
     const patch: Record<string, unknown> = {};
+    if (legacyQrEdit !== undefined && legacyQrEdit !== legacyQr) patch.legacyQr = legacyQrEdit;
     if (fName.trim() && fName.trim() !== c.name) patch.name = fName.trim();
     if (fPhone.trim() !== (c.phone ?? "")) patch.phone = fPhone.trim() || null;
     if (fAddress.trim()) patch.address = fAddress.trim();
@@ -287,6 +297,10 @@ export function DayClients({
         getVanSnapshot().catch(() => null),
         getOutbox().catch(() => []),
       ]);
+      if (!online && patch.legacyQr && s?.clients.some((client) => client.id !== c.id && client.legacyQr === patch.legacyQr)) {
+        setEditErr("duplicate_legacy_qr");
+        return;
+      }
       const check = checkOfflineClientUpdate(s, o, c.id, {
         phone: typeof patch.phone === "string" ? patch.phone : (c.phone ?? ""),
       });
@@ -306,14 +320,19 @@ export function DayClients({
         const ops = await getOutbox();
         const row = ops.find((o) => o.opId === opId && o.kind === "client");
         if (!row) throw new Error("gone");
-        await updateOutboxPayload(opId, { ...(row.payload as Record<string, unknown>), ...patch });
+        const { legacyQr, ...details } = patch;
+        if (Object.keys(details).length) {
+          await updateOutboxPayload(opId, { ...(row.payload as Record<string, unknown>), ...details });
+        }
+        if (legacyQr !== undefined) await queueOp("client-update", { clientId: c.id, patch: { legacyQr } });
         setEditOpen(false);
-        setEditMsg(labels.clientUpdated ?? "updated ✓");
+        setEditMsg(legacyQr !== undefined ? (labels.queuedOk ?? "saved for sync") : (labels.clientUpdated ?? "updated ✓"));
         await reloadPending();
         await reloadUpd();
         setDetailFor((prev) => (prev ? { ...prev, ...(patch as Partial<Client>) } : prev));
         return;
       }
+      let queued = false;
       try {
         const res = await fetch(`/api/clients/${c.id}`, {
           method: "PATCH",
@@ -321,6 +340,7 @@ export function DayClients({
           credentials: "same-origin",
           body: JSON.stringify(patch),
         });
+        if (res.status >= 500) throw new Error("server_unreachable");
         if (!res.ok) {
           const d = await res.json().catch(() => null);
           setEditErr(saleErrText(labels, String(d?.error ?? "failed")) ?? "failed");
@@ -329,10 +349,11 @@ export function DayClients({
       } catch {
         // Offline (or dropped): queue the update, it applies at sync.
         await queueOp("client-update", { clientId: c.id, patch });
+        queued = true;
         await reloadUpd();
       }
       setEditOpen(false);
-      setEditMsg(labels.clientUpdated ?? "updated ✓");
+      setEditMsg(queued && patch.legacyQr !== undefined ? (labels.queuedOk ?? "saved for sync") : (labels.clientUpdated ?? "updated ✓"));
       setUpd((prev) => ({ ...prev, [c.id]: { ...(prev[c.id] ?? {}), ...patch } }));
       setDetailFor((prev) => (prev ? { ...prev, ...(patch as Partial<Client>) } : prev));
       try {
@@ -731,7 +752,14 @@ export function DayClients({
                     <Crosshair size={15} className={cn("shrink-0 opacity-60", capturing && "animate-spin")} />
                   </button>
                 </div>
-                {editErr && <p className="rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{editErr}</p>}
+                <LegacyClientQrField
+                  key={detailFor.id}
+                  value={legacyQrEdit === undefined ? legacyQr : legacyQrEdit}
+                  changed={legacyQrEdit !== undefined}
+                  onChange={setLegacyQrEdit}
+                  disabled={editBusy}
+                />
+                {editErr && <p className="rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500"><ErrText code={editErr} /></p>}
                 <div className="flex gap-2">
                   <Button variant="secondary" onClick={() => setEditOpen(false)} className="flex-1" disabled={editBusy}>{labels.cancel}</Button>
                   <Button onClick={() => void doEdit()} disabled={editBusy} data-testid="save-client-edit" className="flex-[2]">

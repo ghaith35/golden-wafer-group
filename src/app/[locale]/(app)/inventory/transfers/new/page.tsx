@@ -22,8 +22,8 @@ export default async function NewTransferPage({
   const tp = await getTranslations("purchases");
   const [locations, products] = await Promise.all([
     prisma.store.findMany({
-      where: { companyId: session.companyId, isActive: true },
-      include: { user: { select: { fullName: true } } },
+      where: { companyId: session.companyId, isActive: true, NOT: { kind: "VAN", user: { role: "Vendeur" } }, },
+      include: { user: { select: { fullName: true, role: true } } },
       orderBy: { name: "asc" },
     }),
     prisma.product.findMany({

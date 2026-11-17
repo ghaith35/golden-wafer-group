@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Wand2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -15,8 +17,10 @@ import {
 } from "@/lib/products/colisage";
 import { compareNatural } from "@/lib/sort";
 import { priceForUnit } from "@/components/products/UnitQty";
+import { useSyncedState } from "@/lib/data-sync";
 
 
+import { ErrText } from "@/components/ui/ErrText";
 export type Ref = { id: string; name: string; symbol?: string | null };
 export type ProductData = {
   id?: string;
@@ -68,14 +72,33 @@ export function ProductForm({
   const handleSuccess = onSuccess ?? goList;
   const handleClose = onClose ?? goList;
   const [form, setForm] = useState<ProductData>(initial);
+  const tp = useTranslations("products");
+  const [genBusy, setGenBusy] = useState(false);
+  async function genReference() {
+    setGenBusy(true);
+    try {
+      const res = await fetch("/api/products/next-reference", { cache: "no-store" });
+      if (res.ok) {
+        const j = await res.json();
+        if (j?.reference) setForm((f) => ({ ...f, reference: j.reference }));
+      }
+    } finally {
+      setGenBusy(false);
+    }
+  }
+  // New product: prefill the reference automatically.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+    if (!initial.id && !(initial.reference ?? "").trim()) void genReference();
+  }, []);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   /// Categories & suppliers grow inline via their + buttons (no reload needed).
-  const [cats, setCats] = useState<Ref[]>(categories);
+  const [cats, setCats] = useSyncedState<Ref[]>(categories);
   const [showCat, setShowCat] = useState(false);
   const [catName, setCatName] = useState("");
   const [catBusy, setCatBusy] = useState(false);
-  const [sups, setSups] = useState<Ref[]>(suppliers);
+  const [sups, setSups] = useSyncedState<Ref[]>(suppliers);
   const [showSup, setShowSup] = useState(false);
   const [supName, setSupName] = useState("");
   const [supBusy, setSupBusy] = useState(false);
@@ -343,7 +366,7 @@ export function ProductForm({
 
   return (
     <div className="space-y-4">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
 
       <Card>
         <div className="grid gap-3">
@@ -354,7 +377,19 @@ export function ProductForm({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.reference}</label>
-              <Input value={form.reference ?? ""} onChange={(e) => set("reference", e.target.value)} />
+              <div className="flex gap-2">
+                <Input value={form.reference ?? ""} onChange={(e) => set("reference", e.target.value)} dir="ltr" className="min-w-0 flex-1 font-mono" />
+                <Button
+                  type="button"
+                  onClick={() => void genReference()}
+                  disabled={genBusy}
+                  className="shrink-0 px-3"
+                  title={tp("autoGenerate")}
+                  aria-label={tp("autoGenerate")}
+                >
+                  <Wand2 size={16} />
+                </Button>
+              </div>
             </div>
             <div>
               <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.barcode}</label>

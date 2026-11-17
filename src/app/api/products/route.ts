@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { productSchema } from "@/lib/products/validation";
+import { nextReference } from "@/lib/products/reference";
 
 function empty(v: string | null | undefined): string | undefined {
   const t = (v ?? "").trim();
@@ -80,11 +81,21 @@ export async function POST(req: Request) {
     : [];
   if (tiers.length !== tierIds.length) return NextResponse.json({ error: "bad_tier" }, { status: 400 });
 
+  // Empty reference → auto-generate the next free sequential one.
+  let reference: string | null = empty(d.reference ?? null) ? d.reference!.trim() : null;
+  if (!reference) {
+    const refs = await prisma.product.findMany({
+      where: { companyId: session.companyId, reference: { startsWith: "REF-" } },
+      select: { reference: true },
+    });
+    reference = nextReference(refs.map((r) => r.reference));
+  }
+
   const row = await prisma.product.create({
     data: {
       companyId: session.companyId,
       name: d.name.trim(),
-      reference: empty(d.reference ?? null) ? d.reference!.trim() : null,
+      reference,
       barcode: empty(d.barcode ?? null) ? d.barcode!.trim() : null,
       colisage: empty(d.colisage ?? null) ? d.colisage!.trim() : null,
       categoryId: d.categoryId ?? null,

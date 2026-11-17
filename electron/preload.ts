@@ -30,6 +30,7 @@ contextBridge.exposeInMainWorld("distribuili", {
   },
   serverGetUrl: invoke("server-get-url"),
   serverSaveUrl: invoke("server-save-url"),
+  setZoom: invoke("ui-zoom-set"),
   pdfOpen: invoke("pdf-open"),
   pdfSave: invoke("pdf-save"),
   onUpdateProgress: (cb: (pct: number) => void) => {

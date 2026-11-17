@@ -13,7 +13,9 @@ import { PdfViewer } from "@/components/sales/PdfViewer";
 import { printTicketNative } from "@/lib/print-ticket";
 
 import { dzMoney, fmtDT } from "@/lib/format";
+import { useSyncedState } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Row = { id: string; number: string; total: unknown; date: unknown; client: { name: string } | null };
 
 type Detail = {
@@ -48,7 +50,7 @@ export function FacturesClient({
   ticketLang: "ar" | "fr";
 }) {
   const router = useRouter();
-  const [rows, setRows] = useState(initial);
+  const [rows, setRows] = useSyncedState(initial);
   const [unsynced, setUnsynced] = useState<Set<string>>(new Set());
   /// Tickets created offline (still in the outbox): shown first, openable,
   /// printable and shareable — the driver sees his sale the moment he saves
@@ -329,7 +331,7 @@ export function FacturesClient({
         <h1 className="text-lg font-black">{labels.factures} ({rows.length + pending.length})</h1>
       </div>
       {notice && <p className="rounded-xl bg-emerald-500/10 p-2.5 text-xs font-bold text-emerald-600">{notice}</p>}
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <div className="space-y-1.5">
         {pending.map((doc) => {
           const pr: Row = { id: `pending:${doc.opId}`, number: "…", total: doc.total ?? 0, date: new Date(doc.ts).toISOString(), client: doc.clientName ? { name: doc.clientName } : null };

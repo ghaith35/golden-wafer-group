@@ -6,9 +6,9 @@ import { purchaseSchema, supplierReturnSchema } from "@/lib/products/validation"
 
 type PurchaseInput = z.infer<typeof purchaseSchema>;
 
-/// Name for the auto-created main depot (programmed fallback — never seed data).
+import { mainDepotName as depotName } from "@/lib/inventory/depot";
 function mainDepotName(settings: { defaultLocale?: string | null }): string {
-  return settings.defaultLocale === "ar" ? "المستودع الرئيسي" : "Dépôt principal";
+  return depotName(settings.defaultLocale);
 }
 
 /// Direct supplier invoice entry → batches + stock + supplier debt.

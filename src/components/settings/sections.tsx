@@ -1,8 +1,8 @@
 "use client";
 
-import { ShoppingCart, Boxes, MapPin, RefreshCw, Smartphone, Building2, ShieldCheck } from "lucide-react";
+import { ShoppingCart, Boxes, MapPin, RefreshCw, Smartphone, Building2, ShieldCheck, DatabaseZap } from "lucide-react";
 
-export type SettingsSectionKey = "general" | "sales" | "catalog" | "sectors" | "journal" | "company" | "updates" | "devices" | "license" | "admins";
+export type SettingsSectionKey = "general" | "sales" | "catalog" | "sectors" | "journal" | "company" | "updates" | "devices" | "license" | "admins" | "data";
 
 export interface SettingsSection {
   key: SettingsSectionKey;
@@ -28,5 +28,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   { key: "company", href: "company", Icon: Building2, labelKey: "company", descriptionKey: "companyDesc", adminOnly: true },
   { key: "admins", href: "admins", Icon: ShieldCheck, labelKey: "admins", descriptionKey: "adminsDesc", adminOnly: true },
   { key: "updates", href: "updates", Icon: RefreshCw, labelKey: "updates", descriptionKey: "updatesDesc" },
+  { key: "data", href: "data", Icon: DatabaseZap, labelKey: "data", descriptionKey: "dataDesc", adminOnly: true },
   { key: "devices", href: "devices", Icon: Smartphone, labelKey: "devices", descriptionKey: "devicesDesc", adminOnly: true },
 ];

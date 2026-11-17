@@ -62,9 +62,19 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   if (new URL(req.url).searchParams.get("scope") === "staff" && existing.role === "Admin") {
     return NextResponse.json({ error: "forbidden_role" }, { status: 403 });
   }
-  await prisma.$transaction(async (tx) => {
-    await tx.store.updateMany({ where: { userId: id }, data: { userId: null } });
-    await tx.user.update({ where: { id }, data: { isActive: false } });
-  });
-  return NextResponse.json({ ok: true, deactivated: true });
+  // Hard delete (sales he created stay, just unlinked; van is unassigned).
+  // If anything still references him, fall back to deactivating the account.
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.store.updateMany({ where: { userId: id }, data: { userId: null } });
+      await tx.user.delete({ where: { id } });
+    });
+    return NextResponse.json({ ok: true });
+  } catch {
+    await prisma.$transaction(async (tx) => {
+      await tx.store.updateMany({ where: { userId: id }, data: { userId: null } });
+      await tx.user.update({ where: { id }, data: { isActive: false } });
+    });
+    return NextResponse.json({ ok: true, deactivated: true });
+  }
 }

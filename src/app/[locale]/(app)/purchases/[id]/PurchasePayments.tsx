@@ -9,7 +9,9 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { dzMoney } from "@/lib/format";
+import { useSyncedState } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Payment = { id: string; amount: unknown; date: string; notes: string | null };
 
 const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-3 text-sm outline-none focus:border-(--brand-500)";
@@ -30,8 +32,8 @@ export function PurchasePayments({
 
   const locale = useLocale();
   const router = useRouter();
-  const [rows, setRows] = useState(initial);
-  const [paid, setPaid] = useState(initialPaid);
+  const [rows, setRows] = useSyncedState(initial);
+  const [paid, setPaid] = useSyncedState(initialPaid);
   const [creating, setCreating] = useState(false);
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -103,7 +105,7 @@ export function PurchasePayments({
           </Button>
         )}
       </div>
-      {error && !creating && <p className="mb-2 rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && !creating && <p className="mb-2 rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <div className="mb-2 grid grid-cols-3 gap-2 text-center">
         <div className="rounded-xl bg-(--bg-sunken) px-2 py-2">
           <div className="text-[11px] font-bold opacity-60">{labels.total}</div>
@@ -137,7 +139,7 @@ export function PurchasePayments({
 
       <Modal open={creating} onClose={() => setCreating(false)} title={labels.addPayment} icon="+">
         <div className="grid gap-2">
-          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
           <Input
             type="number" min={0} step="any" placeholder={labels.amount}
             value={amount} onChange={(e) => setAmount(e.target.value)}

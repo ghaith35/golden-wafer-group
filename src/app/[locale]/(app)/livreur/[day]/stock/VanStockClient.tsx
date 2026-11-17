@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { getLastSync, getVanSnapshot, getOutbox, goPage } from "@/lib/sync/client";
 import { canSell } from "@/lib/staff-permissions";
 import { pendingEffects } from "@/lib/sync/offline-rules";
+import { useDataVersion } from "@/lib/data-sync";
 
 type Hold = {
   productId: string;
@@ -92,6 +93,7 @@ export function VanStockClient({
     }
   }
 
+  const dataV = useDataVersion();
   useEffect(() => {
     let dead = false;
     fetch(`/api/vans/${vanId}/holds`, { cache: "no-store" })
@@ -145,7 +147,7 @@ export function VanStockClient({
         }).catch(() => {});
       });
     return () => { dead = true; };
-  }, [vanId]);
+  }, [vanId, dataV]);
 
   function applyData(
     holds: Hold[],

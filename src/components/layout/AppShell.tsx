@@ -242,7 +242,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       }
     } catch { /* ignore */ }
     fetch("/api/auth/me")
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r) => {
+        if (r.status >= 500) throw new Error("server_unreachable");
+        return r.ok ? r.json() : null;
+      })
       .then((d) => {
         setRole((d?.user?.role as string | undefined) ?? null);
         setUsername((d?.user?.username as string | undefined) ?? null);
@@ -260,7 +263,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             // Unknown role still defaults to the most restricted view.
             const cached = m.getOfflineCred();
             if (cached?.role) setRole(cached.role);
-            if (!m.hasOfflineUnlock()) router.push(`/${locale}/login`);
+            if (!m.hasOfflineUnlock()) window.location.replace(`/${locale}/login`);
           })
           .catch(() => {});
       });
@@ -460,7 +463,7 @@ function SidebarBody({
           aria-label={collapsed ? t("expand") : t("collapse")}
           title={collapsed ? t("expand") : t("collapse")}
           className={cn(
-            "side-item mb-2 flex h-8 w-8 items-center justify-center rounded-lg border border-(--border-default) text-(--text-secondary) hover:border-(--brand-500) hover:text-white",
+            "side-item mb-2 flex h-8 w-8 items-center justify-center rounded-lg border border-(--border-default) text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-600)",
             collapsed ? "mx-auto hidden lg:flex" : "ms-auto"
           )}
         >
@@ -504,7 +507,7 @@ function SidebarBody({
                           ? "justify-center px-0 py-0.5"
                           : "gap-1.5 px-1.5 py-1",
                         active
-                          ? "bg-(--sa-sidebar-active-bg) text-(--sa-sidebar-active-fg)"
+                          ? "bg-[color-mix(in_srgb,var(--brand-500)_12%,transparent)] text-(--brand-600)"
                           : "text-(--text-secondary) hover:bg-(--bg-sunken) hover:text-(--text-primary) active:scale-[0.99]"
                       )}
                     >
@@ -512,15 +515,15 @@ function SidebarBody({
                         className={cn(
                           "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors duration-180",
                           active
-                            ? "bg-[rgba(163,230,53,0.22)] text-(--sa-sidebar-active-fg)"
-                            : "bg-(--bg-sunken) text-(--text-secondary) group-hover:bg-(--bg-overlay) group-hover:text-white"
+                            ? "bg-(--brand-500) text-white shadow-sm"
+                            : "bg-(--bg-sunken) text-(--text-secondary) group-hover:bg-(--bg-overlay) group-hover:text-(--brand-600)"
                         )}
                       >
                         <Icon size={15} strokeWidth={active ? 2.4 : 2} />
                       </span>
                       {!collapsed && <span className="min-w-0 flex-1 truncate">{label}</span>}
                       {!collapsed && active && (
-                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#a3e635]" aria-hidden />
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-(--brand-500)" aria-hidden />
                       )}
                       {collapsed && (
                         <span className="pointer-events-none absolute start-full top-1/2 z-50 ms-3 hidden -translate-y-1/2 whitespace-nowrap rounded-lg border border-(--border-default) bg-(--bg-overlay) px-3 py-1.5 text-xs font-bold text-(--text-primary) shadow-lg group-hover:block">

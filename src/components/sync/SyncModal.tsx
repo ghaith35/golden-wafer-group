@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowDownUp } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { syncNow, getDeviceToken, failedOps, retryOutboxOp, discardOutboxOp, getVanSnapshot, getOfflineCred, getClockSkew, setDeviceToken, setVanId, type SyncPhase, type WebUpdateInfo } from "@/lib/sync/client";
+import { syncNow, prepareOfflinePages, getDeviceToken, failedOps, retryOutboxOp, discardOutboxOp, getVanSnapshot, getOfflineCred, getClockSkew, setDeviceToken, setVanId, type SyncPhase, type WebUpdateInfo } from "@/lib/sync/client";
 import { applyWebUpdate } from "@/lib/sync/web-update";
 import type { OutboxRow } from "@/lib/sync/offline-db";
 import { DeviceSetup } from "@/components/sync/DeviceSetup";
@@ -12,6 +12,7 @@ import { UpdateChecker } from "@/components/sync/UpdateChecker";
 import { loadHistory, clearHistory, type SyncHistoryEntry } from "@/lib/sync/history";
 import { cn } from "@/lib/utils";
 
+import { ErrText } from "@/components/ui/ErrText";
 type StepState = { label: string; state: "idle" | "active" | "done" | "error"; detail: string };
 
 /// Display locale with Latin digits: Arabic month names (أكتوبر…) but
@@ -29,11 +30,13 @@ function displayLocale(): string {
 /// 📤 phone → logiciel (outbox ops) then 📥 logiciel → phone (snapshot + images).
 export function SyncModal({
   open,
+  offlinePages,
   onClose,
   onDone,
   labels,
 }: {
   open: boolean;
+  offlinePages: { locale: string; day: string; role: string };
   onClose: () => void;
   onDone?: () => void;
   labels: Record<string, string>;
@@ -161,6 +164,7 @@ export function SyncModal({
     setPct(2);
     const alive = () => runId.current === id;
     try {
+      let summary: typeof result = null;
       const res = await syncNow((p: SyncPhase) => {
         if (!alive()) return;
         if (p.phase === "prepare") {
@@ -178,15 +182,26 @@ export function SyncModal({
           setPct(70);
         } else if (p.phase === "images") {
           setStep(labels.images ?? "images", p.done >= p.total ? "done" : "active", p.total ? `${p.done}/${p.total}` : "");
-          setPct(70 + Math.round(28 * (p.total ? p.done / Math.max(1, p.total) : 1)));
+          setPct(70 + Math.round(20 * (p.total ? p.done / Math.max(1, p.total) : 1)));
         } else if (p.phase === "done") {
           setSteps((ss) => ss.map((s) => ({ ...s, state: "done" as const })));
-          setPct(100);
-          setResult({ applied: p.applied, failed: p.failed, remaining: p.remaining });
-          onDone?.();
+          summary = { applied: p.applied, failed: p.failed, remaining: p.remaining };
         }
       });
-      if (alive() && res.webUpdate?.available) setWebUpdate(res.webUpdate);
+      if (!alive()) return;
+      const pageLabel = labels.pages ?? "Pages";
+      setStep(pageLabel, "active");
+      setPct(92);
+      const { locale, day, role } = offlinePages;
+      const pages = await prepareOfflinePages(locale, day, role);
+      if (!alive()) return;
+      const saved = pages.filter((page) => page.ok).length;
+      const ready = saved === pages.length;
+      setStep(pageLabel, ready ? "done" : "error", `${saved}/${pages.length}`);
+      if (ready) setPct(100);
+      setResult(summary);
+      onDone?.();
+      if (res.webUpdate?.available) setWebUpdate(res.webUpdate);
     } catch (e) {
       if (!alive()) return;
       setError(e instanceof Error ? e.message : "sync_failed");
@@ -298,7 +313,7 @@ export function SyncModal({
             </span>
           </div>
         )}
-        {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+        {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
         {skew != null && (
           <p className="rounded-xl bg-amber-500/10 p-2.5 text-xs font-bold text-amber-600" dir="auto">
             ⏰ {labels.clockSkew ?? "Phone clock is off — fix the time, then sync again."} ({skew > 0 ? "+" : ""}{skew} min)

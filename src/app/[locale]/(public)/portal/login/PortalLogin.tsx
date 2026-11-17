@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 
+import { ErrText } from "@/components/ui/ErrText";
 export function PortalLogin({ locale, labels }: { locale: string; labels: Record<string, string> }) {
   const router = useRouter();
   const [phone, setPhone] = useState("");
@@ -52,7 +53,7 @@ export function PortalLogin({ locale, labels }: { locale: string; labels: Record
             <label className="mb-1 block text-xs font-semibold uppercase opacity-70">{labels.secret}</label>
             <Input value={secret} onChange={(e) => setSecret(e.target.value)} required />
           </div>
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p className="text-sm text-red-500"><ErrText code={error} /></p>}
           <Button type="submit" className="w-full" disabled={busy}>
             {labels.submit}
           </Button>

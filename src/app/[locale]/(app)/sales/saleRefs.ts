@@ -14,7 +14,7 @@ export async function getSaleFormData(companyId: string) {
     }),
     prisma.unit.findMany({ where: { companyId, isActive: true }, orderBy: { sortOrder: "asc" } }),
     prisma.priceTier.findMany({ where: { companyId, isActive: true }, orderBy: { sortOrder: "asc" } }),
-    prisma.store.findMany({ where: { companyId, isActive: true }, orderBy: { name: "asc" } }),
+    prisma.store.findMany({ where: { companyId, isActive: true }, include: { user: { select: { role: true } } }, orderBy: { name: "asc" } }),
     getOrCreateSettings(companyId),
   ]);
   return {
@@ -26,7 +26,7 @@ export async function getSaleFormData(companyId: string) {
     })),
     units: JSON.parse(JSON.stringify(units)),
     tiers: JSON.parse(JSON.stringify(tiers)),
-    locations: JSON.parse(JSON.stringify(locations)),
+    locations: JSON.parse(JSON.stringify(locations)).map((l: { kind: string; user?: { role?: string } | null } & Record<string, unknown>) => ({ ...l, noStock: l.kind === "VAN" && l.user?.role === "Vendeur" })),
     settings: JSON.parse(JSON.stringify(settings)),
   };
 }

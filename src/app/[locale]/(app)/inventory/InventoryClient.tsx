@@ -84,7 +84,11 @@ export function InventoryClient({
         userId: form.userId || null,
       }),
     });
-    if (res.ok) window.location.reload();
+    if (res.ok) {
+      // The global data-sync hook refreshes the server props; just close the form.
+      setShowNew(null);
+      setForm({ name: "", address: "", marque: "", matricule: "", userId: "" });
+    }
   }
 
   return (

@@ -12,6 +12,7 @@ import { queueOp } from "@/lib/sync/client";
 import { checkOfflineSale } from "@/lib/sync/offline-rules";
 import type { OutboxRow } from "@/lib/sync/offline-db";
 
+import { ErrText } from "@/components/ui/ErrText";
 export type DocClient = { id: string; name: string; code: string; tierId: string | null; balance: unknown };
 export type DocProduct = {
   id: string;
@@ -112,6 +113,17 @@ export function SaleDocForm({
   const [queued, setQueued] = useState(false);
   const [online, setOnline] = useState(() => typeof navigator === "undefined" || navigator.onLine);
   const [snap, setSnap] = useState<VanSnapshot | null>(null);
+  /// Live "QR strict" from the server — beats the stale synced snapshot copy.
+  const [liveQr, setLiveQr] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (mode !== "ticket") return;
+    let live = true;
+    fetch("/api/settings/public", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (live && d && typeof d.qrStrictMode === "boolean") setLiveQr(d.qrStrictMode); })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [mode]);
   const [ops, setOps] = useState<OutboxRow[]>([]);
   /// Synchronous double-tap guard.
   const busyRef = useRef(false);
@@ -237,7 +249,7 @@ export function SaleDocForm({
     // offline sale the PC would reject is caught before it's queued.
     if (mode === "ticket") {
       const check = checkOfflineSale({
-        snap,
+        snap: snap && liveQr !== null ? { ...snap, settings: { ...snap.settings, qrStrictMode: liveQr } } : snap,
         ops,
         channel: channel ?? "VAN",
         clientId: clientId || null,
@@ -265,7 +277,7 @@ export function SaleDocForm({
       // the server reverses + re-applies stock/debt, no offline queue).
       if (editingId) {
         const editBody = {
-          action: "edit",
+          action: mode === "order" ? "update-order" : "edit",
           clientId: clientId || null,
           locationId,
           tierId: effTier || null,
@@ -368,7 +380,7 @@ export function SaleDocForm({
 
   return (
     <div className="space-y-4">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       {snapshotActive && <p className="rounded-lg bg-amber-500/10 p-2 text-sm font-bold text-amber-600">{labels.offlineMode}</p>}
       {queued && <p className="rounded-lg bg-amber-500/10 p-2 text-sm font-bold text-amber-600">⏳ queued offline — will sync</p>}
       <Card>

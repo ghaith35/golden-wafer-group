@@ -108,7 +108,7 @@ export function OnboardClient({
     }
   }
 
-  const inputClass = "h-12 w-full rounded-md border border-[#d8ded7] bg-white px-3.5 text-[15px] text-[#17271e] outline-none transition placeholder:text-[#68746d] focus:border-[#487b52] focus:ring-2 focus:ring-[#487b52]/15 disabled:opacity-60";
+  const inputClass = "h-12 w-full rounded-md border border-[#d8ded7] bg-white px-3.5 text-[15px] text-[#171927] outline-none transition placeholder:text-[#686a74] focus:border-[#48547b] focus:ring-2 focus:ring-[#48547b]/15 disabled:opacity-60";
   const features = [
     { icon: Package, title: labels.inventoryTitle, detail: labels.inventoryDetail },
     { icon: UsersRound, title: labels.partnersTitle, detail: labels.partnersDetail },
@@ -119,11 +119,11 @@ export function OnboardClient({
   return (
     <main
       dir={isArabic ? "rtl" : "ltr"}
-      className="min-h-dvh bg-[#f3f5ef] text-[#17271e] selection:bg-[#b5dc63] selection:text-[#17271e]"
+      className="min-h-dvh bg-[#f3f5ef] text-[#171927] selection:bg-[#63a4dc] selection:text-[#171927]"
     >
       <div className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] 2xl:mx-auto 2xl:max-w-[1600px]">
         {/* ── Brand panel ── */}
-        <section className="relative flex flex-col justify-between gap-8 overflow-hidden bg-[#173d2b] px-6 py-6 text-white sm:px-10 sm:py-8 lg:min-h-dvh lg:gap-10 lg:px-10 lg:py-10 xl:px-14 2xl:px-16 2xl:py-12">
+        <section className="relative flex flex-col justify-between gap-8 overflow-hidden bg-[#171b3d] px-6 py-6 text-white sm:px-10 sm:py-8 lg:min-h-dvh lg:gap-10 lg:px-10 lg:py-10 xl:px-14 2xl:px-16 2xl:py-12">
           <div className="pointer-events-none absolute inset-0 opacity-[0.11]" aria-hidden="true" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.14) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.14) 1px, transparent 1px)", backgroundSize: "42px 42px", maskImage: "linear-gradient(to bottom, black, transparent 78%)" }} />
           <div className="relative z-10 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -140,7 +140,7 @@ export function OnboardClient({
             <h1 className="max-w-[13ch] text-4xl font-black leading-[1.18] text-white text-balance sm:text-5xl lg:text-[2.6rem] lg:leading-[1.2] 2xl:text-6xl 2xl:leading-[1.14]">
               {labels.heroTitle}
             </h1>
-            <p className="mt-4 max-w-prose text-[15px] leading-7 text-[#d0dfd2] sm:mt-5 sm:text-base sm:leading-8">
+            <p className="mt-4 max-w-prose text-[15px] leading-7 text-[#d0d4df] sm:mt-5 sm:text-base sm:leading-8">
               {labels.heroCopy}
             </p>
 
@@ -148,19 +148,19 @@ export function OnboardClient({
             <div className="mt-8 hidden border-t border-white/15 lg:mt-10 lg:block">
               {features.map(({ icon: Icon, title, detail }) => (
                 <div key={title} className="flex items-center gap-4 border-b border-white/15 py-4 2xl:py-5">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#b5dc63] text-[#173d2b] 2xl:h-11 2xl:w-11">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#63a4dc] text-[#171b3d] 2xl:h-11 2xl:w-11">
                     <Icon size={20} strokeWidth={1.8} aria-hidden="true" />
                   </span>
                   <div>
                     <h2 className="text-[15px] font-bold text-white 2xl:text-base">{title}</h2>
-                    <p className="mt-0.5 text-[13px] leading-5 text-[#c3d4c6] 2xl:text-sm">{detail}</p>
+                    <p className="mt-0.5 text-[13px] leading-5 text-[#c3c7d4] 2xl:text-sm">{detail}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="relative z-10 hidden items-center justify-between gap-4 border-t border-white/15 pt-5 text-xs text-[#c3d4c6] lg:flex">
+          <div className="relative z-10 hidden items-center justify-between gap-4 border-t border-white/15 pt-5 text-xs text-[#c3c7d4] lg:flex">
             <span className="flex items-center gap-2">
               {offlineInstall ? <WifiOff size={15} aria-hidden="true" /> : <Boxes size={15} aria-hidden="true" />}
               {offlineInstall ? labels.offlineNote : labels.startNote}
@@ -176,16 +176,16 @@ export function OnboardClient({
               <div className="flex items-center gap-3" aria-label={labels.progressLabel}>
                 {offlineInstall ? (
                   <>
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#dcebc4] text-[#315a39]" aria-label={labels.complete}>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#c4d8eb] text-[#313a5a]" aria-label={labels.complete}>
                       <Check size={17} strokeWidth={2.5} />
                     </span>
-                    <span className="h-px w-8 bg-[#b7c5b6]" />
+                    <span className="h-px w-8 bg-[#b6bbc5]" />
                   </>
                 ) : null}
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#315a39] text-sm font-bold text-white">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#313a5a] text-sm font-bold text-white">
                   {offlineInstall ? "2" : "1"}
                 </span>
-                <span className="text-sm font-bold text-[#315a39]">
+                <span className="text-sm font-bold text-[#313a5a]">
                   {offlineInstall ? labels.stepAccount : labels.stepSetup}
                 </span>
               </div>
@@ -194,7 +194,7 @@ export function OnboardClient({
 
             <header className="mb-6 2xl:mb-8">
               <h2 className="text-[1.7rem] font-black leading-tight sm:text-4xl">{labels.title}</h2>
-              <p className="mt-2 max-w-md text-sm leading-6 text-[#4b5b53] sm:text-[15px]">{labels.subtitle}</p>
+              <p className="mt-2 max-w-md text-sm leading-6 text-[#4b4d5b] sm:text-[15px]">{labels.subtitle}</p>
             </header>
 
             <form onSubmit={(event) => void submit(event)} className="space-y-4 2xl:space-y-5">
@@ -209,8 +209,8 @@ export function OnboardClient({
                     ] as const
                   ).map(([k, v]) => (
                     <div key={k} className="flex items-baseline justify-between gap-3 border-b border-[#edf1e9] py-2.5 last:border-0">
-                      <span className="shrink-0 text-xs font-bold text-[#617066]">{k}</span>
-                      <span className="truncate text-sm font-bold text-[#17271e]" dir="auto">{v}</span>
+                      <span className="shrink-0 text-xs font-bold text-[#616470]">{k}</span>
+                      <span className="truncate text-sm font-bold text-[#171927]" dir="auto">{v}</span>
                     </div>
                   ))}
                 </div>
@@ -252,7 +252,7 @@ export function OnboardClient({
                 <div>
                   <label htmlFor="onboard-email" className="mb-1.5 block text-sm font-bold">{labels.email}</label>
                   <div className="relative">
-                    <Mail className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 text-[#7e8b80] ltr:left-3 rtl:right-3" aria-hidden="true" />
+                    <Mail className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 text-[#7e818b] ltr:left-3 rtl:right-3" aria-hidden="true" />
                     <input
                       id="onboard-email"
                       type="email"
@@ -271,7 +271,7 @@ export function OnboardClient({
                 <div>
                   <label htmlFor="onboard-phone" className="mb-1.5 block text-sm font-bold">{labels.phone}</label>
                   <div className="relative">
-                    <Phone className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 text-[#7e8b80] ltr:left-3 rtl:right-3" aria-hidden="true" />
+                    <Phone className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 text-[#7e818b] ltr:left-3 rtl:right-3" aria-hidden="true" />
                     <input
                       id="onboard-phone"
                       type="tel"
@@ -288,7 +288,7 @@ export function OnboardClient({
                 </div>
               </div>
               {prefillEmail && (
-                <p className="-mt-1 text-xs text-[#5f6d64]" dir="ltr">{labels.email}: {prefillEmail}</p>
+                <p className="-mt-1 text-xs text-[#5f616d]" dir="ltr">{labels.email}: {prefillEmail}</p>
               )}
               </>
               )}
@@ -311,7 +311,7 @@ export function OnboardClient({
                   <button
                     type="button"
                     onClick={() => setShowPassword((visible) => !visible)}
-                    className="absolute top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded text-[#4b5b53] hover:bg-[#edf1e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#315a39] ltr:right-1 rtl:left-1"
+                    className="absolute top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded text-[#4b4d5b] hover:bg-[#edf1e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#313a5a] ltr:right-1 rtl:left-1"
                     aria-label={showPassword ? labels.hidePassword : labels.showPassword}
                     title={showPassword ? labels.hidePassword : labels.showPassword}
                   >
@@ -329,13 +329,13 @@ export function OnboardClient({
               <button
                 type="submit"
                 disabled={busy}
-                className="group mt-2 flex h-13 w-full items-center justify-center gap-2 rounded-md bg-[#315a39] px-5 text-base font-bold text-white transition hover:bg-[#254a30] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#315a39] disabled:cursor-wait disabled:opacity-70"
+                className="group mt-2 flex h-13 w-full items-center justify-center gap-2 rounded-md bg-[#313a5a] px-5 text-base font-bold text-white transition hover:bg-[#252c4a] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#313a5a] disabled:cursor-wait disabled:opacity-70"
               >
                 {busy ? <LoaderCircle size={19} className="animate-spin" aria-hidden="true" /> : null}
                 <span>{busy ? labels.creating : labels.submit}</span>
                 {!busy ? <ForwardArrow size={18} className={isArabic ? "transition-transform group-hover:-translate-x-1" : "transition-transform group-hover:translate-x-1"} aria-hidden="true" /> : null}
               </button>
-              <p className="pt-1 text-center text-xs leading-5 text-[#5f6d64]">{labels.loginHint}</p>
+              <p className="pt-1 text-center text-xs leading-5 text-[#5f616d]">{labels.loginHint}</p>
             </form>
           </div>
         </section>

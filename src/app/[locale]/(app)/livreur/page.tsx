@@ -30,6 +30,24 @@ export default async function LivreurDaysPage({ params }: { params: Promise<{ lo
       select: { date: true },
     });
     if (open) redirect(`/${locale}/livreur/${daySlug(new Date(open.date))}/dashboard`);
+    // Tour workflow: the START screen is the first thing the driver sees.
+    // (Admins keep the plain day list.)
+    if (session.role !== "Admin") {
+      const now = new Date();
+      const today = daySlug(now);
+      const dayStart = new Date(now);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(now);
+      dayEnd.setHours(23, 59, 59, 999);
+      const todays = await prisma.tournee.findFirst({
+        where: { companyId: session.companyId, locationId: van.id, date: { gte: dayStart, lte: dayEnd } },
+        select: { startedAt: true, finishedAt: true },
+        orderBy: { createdAt: "desc" },
+      });
+      // Ended today → show the (ended) dashboard: goods request is open now.
+      if (todays?.startedAt && todays.finishedAt) redirect(`/${locale}/livreur/${today}/dashboard`);
+      redirect(`/${locale}/livreur/${today}/start`);
+    }
   }
   return (
     <DaysClient

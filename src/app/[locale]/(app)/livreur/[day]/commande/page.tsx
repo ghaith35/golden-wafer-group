@@ -2,7 +2,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { getLivreurVan } from "../../_data";
+import { getLivreurVan, getDayStamp } from "../../_data";
+import { JourneeGate } from "@/components/livreur/JourneeGate";
 import { parseDay, sameDay } from "../../_days";
 import { CommandeClient } from "./CommandeClient";
 
@@ -76,9 +77,19 @@ export default async function LivreurCommandePage({
     stockMap[b.productId] = (stockMap[b.productId] ?? 0) + Number(b._sum.qty ?? 0);
   }
 
+  const dayStamp = await getDayStamp(session.companyId, van.id, date);
   return (
+    <JourneeGate
+      locale={locale}
+      day={day}
+      role={session.role}
+      require="active"
+      stamp={dayStamp}
+      labels={{ gateStartT: t("gateStartT"), gateStartM: t("gateStartM"), gateStartBtn: t("gateStartBtn"), gateEndT: t("gateEndT"), gateEndM: t("gateEndM"), gateEndBtn: t("gateEndBtn") }}
+    >
     <CommandeClient
       locale={locale}
+      companyId={session.companyId}
       day={day}
       vanId={van.id}
       vanName={van.name}
@@ -89,6 +100,7 @@ export default async function LivreurCommandePage({
       depotStock={stockMap}
       allowPieces={settings?.pieceSalesEnabled ?? false}
       labels={{
+        remove: t("remove"),
         scanTitle: t("scanTitle"), scanHint: t("scanHint"), scan: t("scan"),
         gallery: t("gallery"), qrNotFound: t("qrNotFound"), backToDash: t("backToDash"),
         products: t("products"), searchProduct: t("searchProduct"), allCats: t("allCats"),
@@ -106,5 +118,6 @@ export default async function LivreurCommandePage({
         camNeedHttps: t("camNeedHttps"), camDenied: t("camDenied"), camUnsupported: t("camUnsupported"),
       }}
     />
+    </JourneeGate>
   );
 }

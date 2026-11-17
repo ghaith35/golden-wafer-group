@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Key = { id: string; label: string | null; machineId: string | null; humanKey: string; revoked: boolean; createdAt: string };
 type Machine = { machineId: string; label: string | null; phone: string | null; lastSeen: string };
 
@@ -89,7 +90,7 @@ export function LicenseConsole({ labels }: { labels: Record<string, string> }) {
   return (
     <div className="space-y-4">
       {!configured && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{labels.notConfigured}</p>}
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
 
       <div className="flex gap-2">
         <Button onClick={() => { setLabel(""); setMachineId(""); setCreating(true); }} className="shrink-0">

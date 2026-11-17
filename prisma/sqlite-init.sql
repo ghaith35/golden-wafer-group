@@ -263,6 +263,7 @@ CREATE TABLE "customers" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "companyId" TEXT NOT NULL,
     "code" TEXT NOT NULL,
+    "legacyQr" TEXT,
     "name" TEXT NOT NULL,
     "phone" TEXT,
     "address" TEXT,
@@ -899,6 +900,8 @@ CREATE INDEX "customers_companyId_secteurId_idx" ON "customers"("companyId", "se
 
 -- CreateIndex
 CREATE UNIQUE INDEX "customers_companyId_code_key" ON "customers"("companyId", "code");
+
+CREATE UNIQUE INDEX "customers_companyId_legacyQr_key" ON "customers"("companyId", "legacyQr");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "customers_companyId_phone_key" ON "customers"("companyId", "phone");

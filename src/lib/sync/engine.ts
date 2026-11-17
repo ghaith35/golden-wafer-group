@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { getOrCreateSettings } from "@/lib/settings/helpers";
 import { createOrder, createTicket } from "@/lib/sales/service";
-import { clientSchema, generatePortalSecret } from "@/lib/clients/validation";
+import { clientSchema, generatePortalSecret, legacyQrSchema } from "@/lib/clients/validation";
 import { vanHolds } from "@/lib/holds";
 import { nextDocNumber } from "@/lib/docs/sequences";
 import { declareTransfer } from "@/lib/inventory/service";
@@ -322,7 +322,7 @@ async function applyOp(
       id = row.id;
     } else if (op.kind === "client-update") {
       // Offline client edit: driver-safe fields ONLY (name/phone/address/
-      // area/GPS). Financial fields (tier/credit/balance/code) are NEVER
+      // area/GPS/legacy QR). Financial fields (tier/credit/balance/code) are NEVER
       // taken from the payload — the phone cannot grant credit, change tiers
       // or rename codes. Pending-created clients resolve via the created map.
       const clientId = await resolveClientId(companyId, p.clientId, created);
@@ -360,12 +360,23 @@ async function applyOp(
         data.gpsLat = Number.isFinite(la) ? la : null;
         data.gpsLng = Number.isFinite(ln) ? ln : null;
       }
+      if (patch.legacyQr !== undefined) {
+        const qr = legacyQrSchema.safeParse(patch.legacyQr);
+        if (!qr.success) throw Object.assign(new Error("bad_legacy_qr"), { status: 400 });
+        data.legacyQr = qr.data;
+      }
       try {
         await prisma.customer.update({ where: { id: clientId }, data });
       } catch (e) {
         // Phone taken by another client meanwhile → FAILED (permanent,
         // visible in SyncModal with repair/discard), never silent.
-        if (isUniqueViolation(e)) throw Object.assign(new Error("duplicate_phone"), { status: 409 });
+        if (isUniqueViolation(e)) {
+          const duplicateQr = typeof data.legacyQr === "string" && await prisma.customer.findFirst({
+            where: { companyId, legacyQr: data.legacyQr, id: { not: clientId } },
+            select: { id: true },
+          });
+          throw Object.assign(new Error(duplicateQr ? "duplicate_legacy_qr" : "duplicate_phone"), { status: 409 });
+        }
         throw e;
       }
       id = clientId;
@@ -708,7 +719,7 @@ export async function handleSync(input: SyncInput) {
     prisma.customer.findMany({
       where: { companyId, isActive: true },
       select: {
-        id: true, code: true, name: true, phone: true, address: true,
+        id: true, code: true, legacyQr: true, name: true, phone: true, address: true,
         wilayaCode: true, tierId: true, balance: true, creditLimit: true,
         secteurId: true, gpsLat: true, gpsLng: true,
       },
@@ -789,6 +800,7 @@ export async function handleSync(input: SyncInput) {
       },
       company: company
         ? {
+            id: companyId,
             name: company.name,
             phone: company.phone,
             address: company.address,

@@ -27,7 +27,12 @@ export default async function SalePrintPage({ params }: { params: Promise<{ loca
     .filter(Boolean)
     .join(" · ");
 
-  const title = sale.kind === "INVOICE" ? (settings.facturePro ? "Facture Pro" : "Facture") : sale.kind === "DELIVERY" ? "Bon de livraison" : sale.kind === "ORDER" ? "Bon de commande" : "Ticket";
+  const PT = ({
+    ar: { facturePro: "فاتورة احترافية", facture: "فاتورة", delivery: "سند تسليم", order: "سند طلب", ticket: "تذكرة", client: "الزبون", product: "المنتج", qty: "الكمية", unitPrice: "السعر", remise: "تخفيض", total: "المجموع", paid: "المدفوع", rest: "المتبقي", signature: "التوقيع" },
+    fr: { facturePro: "Facture Pro", facture: "Facture", delivery: "Bon de livraison", order: "Bon de commande", ticket: "Ticket", client: "Client", product: "Produit", qty: "Qté", unitPrice: "P.U", remise: "Rem.", total: "Total", paid: "Payé", rest: "Reste", signature: "Signature" },
+    en: { facturePro: "Pro Invoice", facture: "Invoice", delivery: "Delivery note", order: "Purchase order", ticket: "Receipt", client: "Client", product: "Product", qty: "Qty", unitPrice: "Unit price", remise: "Disc.", total: "Total", paid: "Paid", rest: "Balance", signature: "Signature" },
+  } as const)[locale === "fr" || locale === "en" ? locale : "ar"];
+  const title = sale.kind === "INVOICE" ? (settings.facturePro ? PT.facturePro : PT.facture) : sale.kind === "DELIVERY" ? PT.delivery : sale.kind === "ORDER" ? PT.order : PT.ticket;
   const qr = sale.client ? `DCLT://${session.companyId}/${sale.client.code}` : null;
 
   return (
@@ -57,7 +62,7 @@ export default async function SalePrintPage({ params }: { params: Promise<{ loca
 
       {sale.client && (
         <div className="mb-4 text-sm">
-          <b>Client:</b> {sale.client.name} <span className="font-mono">({sale.client.code})</span>
+          <b>{PT.client}:</b> {sale.client.name} <span className="font-mono">({sale.client.code})</span>
           {sale.client.phone ? ` · ${sale.client.phone}` : ""}
           {sale.client.address ? ` · ${sale.client.address}` : ""}
         </div>
@@ -66,11 +71,11 @@ export default async function SalePrintPage({ params }: { params: Promise<{ loca
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b-2 border-black">
-            <th className="py-2 text-start">Produit</th>
-            <th className="py-2 text-end">Qté</th>
-            <th className="py-2 text-end">P.U</th>
-            {Number(sale.remise) > 0 || sale.lines.some((l) => Number(l.remise) > 0) ? <th className="py-2 text-end">Rem.</th> : null}
-            <th className="py-2 text-end">Total</th>
+            <th className="py-2 text-start">{PT.product}</th>
+            <th className="py-2 text-end">{PT.qty}</th>
+            <th className="py-2 text-end">{PT.unitPrice}</th>
+            {Number(sale.remise) > 0 || sale.lines.some((l) => Number(l.remise) > 0) ? <th className="py-2 text-end">{PT.remise}</th> : null}
+            <th className="py-2 text-end">{PT.total}</th>
           </tr>
         </thead>
         <tbody>
@@ -94,10 +99,10 @@ export default async function SalePrintPage({ params }: { params: Promise<{ loca
             <div className="flex justify-between"><span>Remise:</span><span>− {String(sale.remise)}</span></div>
           )}
           <div className="flex justify-between border-t-2 border-black pt-1 text-lg font-black">
-            <span>Total:</span><span>{String(sale.total)} DZD</span>
+            <span>{PT.total}:</span><span>{String(sale.total)} DZD</span>
           </div>
-          <div className="flex justify-between"><span>Payé:</span><span>{String(sale.paid)}</span></div>
-          <div className="flex justify-between font-bold"><span>Reste:</span><span>{(Number(sale.total) - Number(sale.paid)).toFixed(2)}</span></div>
+          <div className="flex justify-between"><span>{PT.paid}:</span><span>{String(sale.paid)}</span></div>
+          <div className="flex justify-between font-bold"><span>{PT.rest}:</span><span>{(Number(sale.total) - Number(sale.paid)).toFixed(2)}</span></div>
         </div>
       </div>
 
@@ -114,7 +119,7 @@ export default async function SalePrintPage({ params }: { params: Promise<{ loca
               // eslint-disable-next-line @next/next/no-img-element
               <img src={company.signatureUrl} alt="signature" className="mx-auto h-14 object-contain" />
             )}
-            <div className="mt-1 border-t border-black/60 px-8 pt-1 font-bold">Signature</div>
+            <div className="mt-1 border-t border-black/60 px-8 pt-1 font-bold">{PT.signature}</div>
           </div>
         </div>
       )}

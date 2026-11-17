@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowDownUp, ArrowLeft, Check, Minus, Plus, Printer, QrCode, Share2, Trash2, X } from "lucide-react";
+import { ArrowDownUp, ArrowLeft, Check, ChevronDown, Minus, Plus, Printer, QrCode, Search, Share2, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -16,13 +16,14 @@ import { mergeTiers, resolveTierPrice } from "@/lib/pricing";
 import { beepAdd, beepConfirm } from "@/lib/beep";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { getVanSnapshot, getOutbox, getPendingClients, queueOp, goPage, saleErrText, queueErrText, type VanSnapshot } from "@/lib/sync/client";
+import { getVanSnapshot, getOutbox, getPendingClients, findScannedClient, serverUnreachable, queueOp, goPage, saleErrText, queueErrText, type VanSnapshot } from "@/lib/sync/client";
 import { PdfViewer } from "@/components/sales/PdfViewer";
 import { printTicketNative } from "@/lib/print-ticket";
 
 import { checkOfflineSale, pendingEffects } from "@/lib/sync/offline-rules";
 import type { OutboxRow } from "@/lib/sync/offline-db";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Client = { id: string; name: string; code: string; phone: string | null; tierId: string | null; balance: unknown };
 type Prod = {
   id: string; name: string; reference: string | null;
@@ -43,6 +44,7 @@ function priceFor(p: Prod, tierId: string | null): number {
 export function VenteClient({
   locale,
   day,
+  companyId,
   vanId,
   vanName,
   tourneeId,
@@ -59,6 +61,7 @@ export function VenteClient({
 }: {
   locale: string;
   day: string;
+  companyId: string;
   vanId: string;
   vanName: string;
   tourneeId: string | null;
@@ -81,12 +84,21 @@ export function VenteClient({
   } | null;
 }) {
   const router = useRouter();
-  const [scanOpen, setScanOpen] = useState(!initialClient);
+  /// The scan popup is only FORCED when "QR strict" is on (opened by the
+  /// settings check below, or by a qr_required rejection). With strict OFF the
+  /// driver may scan, pick a client by name/code, or sell without one.
+  const [scanOpen, setScanOpen] = useState(false);
+  const [clientQ, setClientQ] = useState("");
+  const [clientHits, setClientHits] = useState<Client[]>([]);
+  const scanning = useRef(false);
   const [scanError, setScanError] = useState<string | null>(null);
   /// Strict QR (settings toggle ON): only a real scan counts, and the server
   /// rejects the ticket otherwise.
   const [qrStrict, setQrStrict] = useState(false);
   const [scanned, setScanned] = useState(false);
+  /// Live server value of "QR strict" (null = unknown/offline). When known it
+  /// wins over the possibly stale synced snapshot copy in every check.
+  const [liveQr, setLiveQr] = useState<boolean | null>(null);
   const [client, setClient] = useState<Client | null>(initialClient);
   /// Price-tier toggle: which category NEW lines take. Defaults to the
   /// client's own category (each client opens on his prices); switching
@@ -97,6 +109,8 @@ export function VenteClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client?.id]);
   const [cat, setCat] = useState("");
+  const [menu, setMenu] = useState<null | "tier" | "cat">(null);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
   const [pq, setPq] = useState("");
   const [lines, setLines] = useState<Line[]>(
@@ -184,6 +198,7 @@ export function VenteClient({
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (dead) return;
+        if (d && typeof d.qrStrictMode === "boolean") setLiveQr(d.qrStrictMode);
         if (d?.qrStrictMode && !editingTicket) {
           setQrStrict(true);
           setScanned(false);
@@ -220,6 +235,32 @@ export function VenteClient({
       });
     return () => { dead = true; };
   }, [vanId]);
+
+  /// Manual client pick (strict OFF): the full client list shows as soon as
+  /// the popup opens; typing filters it. Snapshot + pending clients offline.
+  useEffect(() => {
+    if (!scanOpen || qrStrict) return;
+    const q = clientQ.trim().toLowerCase();
+    let dead = false;
+    const id = window.setTimeout(() => {
+      fetch(q ? `/api/clients?q=${encodeURIComponent(clientQ.trim())}` : "/api/clients", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((rows: Array<Client & { isActive?: boolean }>) => {
+          if (!dead) setClientHits(rows.filter((c) => c.isActive !== false).slice(0, 100));
+        })
+        .catch(async () => {
+          const pool = ((snap?.clients ?? []) as unknown as Client[]);
+          let pend: Client[] = [];
+          try {
+            pend = (await getPendingClients()).map((p) => ({ id: `pending:${p.opId}`, name: p.name, code: p.code, phone: p.phone, tierId: p.tierId, balance: 0 }));
+          } catch { /* ignore */ }
+          const all = [...pend, ...pool];
+          const hit = q ? all.filter((c) => c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)) : all;
+          if (!dead) setClientHits(hit.slice(0, 100));
+        });
+    }, q ? 250 : 0);
+    return () => { dead = true; window.clearTimeout(id); };
+  }, [clientQ, scanOpen, qrStrict, snap]);
 
   function applyHolds(list: Array<{ productId: string; free: number; held: number }>) {
     const free: Record<string, number> = {};
@@ -272,77 +313,23 @@ export function VenteClient({
       (!pq || p.name.includes(pq) || (p.reference ?? "").includes(pq))
   );
 
-  function onScan(text: string) {
-    const code = text.includes("/") ? text.split("/").pop()! : text;
-    // Exact code match only: NEVER fall back to the first row — charging the
-    // wrong client is worse than no match. Unknown codes show an error.
-    const match = (rows: Client[]) => rows.find((c) => c.code === code) ?? null;
-    const noMatch = () => setScanError(labels.qrNotFound ?? "not_found");
-    // Clients created on this phone but not yet synced are matchable too —
-    // their id flows as pending:<opId> and resolves server-side at sync.
-    const withPending = async (rows: Client[]): Promise<Client[]> => {
-      try {
-        const pend = await getPendingClients();
-        const extra: Client[] = pend.map((p) => ({
-          id: `pending:${p.opId}`, name: p.name, code: p.code,
-          phone: p.phone, tierId: p.tierId, balance: 0,
-        }));
-        const seen = new Set(rows.map((r) => r.code));
-        return [...rows, ...extra.filter((e) => !seen.has(e.code))];
-      } catch {
-        return rows;
+  async function onScan(text: string) {
+    if (scanning.current) return;
+    scanning.current = true;
+    try {
+      const hit = await findScannedClient(text, companyId);
+      if (!hit) {
+        setScanError(!snap && serverUnreachable() ? (labels.syncFirst ?? labels.qrNotFound ?? "not_found") : (labels.qrNotFound ?? "not_found"));
+        return;
       }
-    };
-    fetch(`/api/clients?q=${encodeURIComponent(code)}`, { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : []))
-      .then(async (rows: Client[]) => {
-        const hit = match(await withPending(rows));
-        if (hit) {
-          setScanError(null);
-          setClient(hit);
-          setScanned(true);
-          setScanOpen(false);
-          beepAdd();
-        } else {
-          noMatch();
-        }
-      })
-      .catch(async () => {
-        // Offline: match the synced client list + this phone's pending ones.
-        // No snapshot yet (never synced): say "sync first" — the code isn't
-        // wrong, the phone just has no client list to match against.
-        const noHit = () => {
-          if (!snap) setScanError(labels.syncFirst ?? labels.qrNotFound ?? "not_found");
-          else noMatch();
-        };
-        const hit = snap ? match(await withPending(snap.clients as unknown as Client[])) : undefined;
-        if (hit) {
-          setScanError(null);
-          setClient(hit);
-          setScanned(true);
-          setScanOpen(false);
-          beepAdd();
-        } else {
-          try {
-            const pend = await getPendingClients();
-            const solo = pend.find((p) => p.code === code);
-            if (solo) {
-              setScanError(null);
-              setClient({
-                id: `pending:${solo.opId}`, name: solo.name, code: solo.code,
-                phone: solo.phone, tierId: solo.tierId, balance: 0,
-              });
-              setScanned(true);
-              setScanOpen(false);
-              beepAdd();
-            } else {
-              noHit();
-            }
-          } catch {
-            noHit();
-          }
-        }
-      });
+      setScanError(null);
+      setClient(hit);
+      setScanned(true);
+      setScanOpen(false);
+      beepAdd();
+    } finally {
+      scanning.current = false;
+    }
   }
 
   // Deep link with an unsynced client (?client=pending:<opId>): resolve it
@@ -484,7 +471,7 @@ export function VenteClient({
       // Mirror the server's rules locally so an offline sale the PC would
       // reject is caught BEFORE goods change hands.
       const check = checkOfflineSale({
-        snap,
+        snap: snap && liveQr !== null ? { ...snap, settings: { ...snap.settings, qrStrictMode: liveQr } } : snap,
         ops,
         channel: "VAN",
         clientId: client?.id ?? null,
@@ -575,6 +562,12 @@ export function VenteClient({
         });
         const d = await res.json().catch(() => null);
         if (!res.ok) {
+          if (d?.error === "qr_required") {
+            // The server says strict is ON (our copy was stale): enforce now.
+            setQrStrict(true);
+            setScanned(false);
+            setScanOpen(true);
+          }
           setError(saleErrText(labels, d?.error) ?? "failed");
           return;
         }
@@ -734,50 +727,121 @@ export function VenteClient({
         </button>
       </div>
 
-      {/* Price-tier toggle: which category NEW lines take (default: the
-          client's own). Already-added lines keep their price — a sale can
-          mix tiers. Products without the toggled price keep base sell. */}
-      {effTiers.length > 0 && (
-        <div className="flex gap-1.5 overflow-x-auto pb-0.5" dir="ltr">
-          <button
-            type="button"
-            data-testid="tier-base"
-            onClick={() => setSelTier(null)}
-            className={cn("min-h-11 shrink-0 rounded-full px-3 py-2 text-xs font-black", selTier == null ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken) opacity-70")}
-          >
-            {labels.tierBase ?? ""}
-          </button>
-          {effTiers.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              data-testid={`tier-${t.id}`}
-              onClick={() => setSelTier(selTier === t.id ? null : t.id)}
-              className={cn("min-h-11 max-w-28 shrink-0 truncate rounded-full px-3 py-2 text-xs font-black", selTier === t.id ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken) opacity-70")}
-            >
-              {t.name}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* One compact toolbar: price tier ▾ · category ▾ · search 🔍.
+          Tier = which price NEW lines take (default: the client's own);
+          already-added lines keep their price — a sale can mix tiers. */}
+      {(() => {
+        const tierLabel = selTier == null ? (labels.tierBase ?? "") : tierName(selTier);
+        const catLabel = cat === "" ? labels.allCats : (effCategories.find((c) => c.id === cat)?.name ?? labels.allCats);
+        const chip = (active: boolean) =>
+          cn(
+            "flex min-h-11 w-full min-w-0 items-center justify-between gap-1.5 rounded-2xl border px-3 text-start text-[13px] font-black shadow-sm transition-colors",
+            active
+              ? "border-(--brand-500) bg-(--brand-500) text-(--brand-contrast)"
+              : "border-(--border-default) bg-(--bg-overlay) hover:border-(--brand-500)"
+          );
+        const optCls = (on: boolean) =>
+          cn(
+            "flex min-h-11 w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-start text-sm font-bold transition-colors",
+            on ? "bg-(--brand-500)/12 text-(--brand-600)" : "hover:bg-(--bg-sunken)"
+          );
+        const popover = (children: React.ReactNode) => (
+          <>
+            <button type="button" aria-hidden tabIndex={-1} className="fixed inset-0 z-30 cursor-default" onClick={() => setMenu(null)} />
+            <div className="absolute inset-x-0 top-full z-40 mt-1.5 max-h-72 overflow-y-auto rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-1.5 shadow-[0_18px_40px_-12px_rgba(15,40,100,0.35)]">
+              {children}
+            </div>
+          </>
+        );
+        if (searchOpen && !showFacture) {
+          return (
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search size={16} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-(--brand-600)" />
+                <Input
+                  autoFocus
+                  className="ps-9 bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white"
+                  placeholder={labels.searchProduct}
+                  value={pq}
+                  onChange={(e) => setPq(e.target.value)}
+                />
+              </div>
+              <button
+                type="button"
+                aria-label="close search"
+                onClick={() => { setSearchOpen(false); setPq(""); }}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-(--border-default) bg-(--bg-overlay)"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          );
+        }
+        return (
+          <div className="flex items-center gap-2">
+            {effTiers.length > 0 && (
+              <div className="relative min-w-0 flex-1">
+                <button type="button" data-testid="tier-trigger" onClick={() => setMenu(menu === "tier" ? null : "tier")} className={chip(menu === "tier")}>
+                  <span className="min-w-0 truncate">{tierLabel}</span>
+                  <ChevronDown size={16} className={cn("shrink-0 transition-transform", menu === "tier" && "rotate-180")} />
+                </button>
+                {menu === "tier" && (
+                  popover(<>
+                    <button type="button" data-testid="tier-base" onClick={() => { setSelTier(null); setMenu(null); }} className={optCls(selTier == null)}>
+                      <span className="truncate">{labels.tierBase ?? ""}</span>
+                      {selTier == null && <Check size={16} />}
+                    </button>
+                    {effTiers.map((t) => (
+                      <button key={t.id} type="button" data-testid={`tier-${t.id}`} onClick={() => { setSelTier(t.id); setMenu(null); }} className={optCls(selTier === t.id)}>
+                        <span className="truncate">{t.name}</span>
+                        {selTier === t.id && <Check size={16} />}
+                      </button>
+                    ))}
+                  </>)
+                )}
+              </div>
+            )}
+            {!showFacture && (
+              <div className="relative min-w-0 flex-1">
+                <button type="button" data-testid="cat-trigger" onClick={() => setMenu(menu === "cat" ? null : "cat")} className={chip(menu === "cat" || cat !== "")}>
+                  <span className="min-w-0 truncate">{catLabel}</span>
+                  <ChevronDown size={16} className={cn("shrink-0 transition-transform", menu === "cat" && "rotate-180")} />
+                </button>
+                {menu === "cat" && (
+                  popover(<>
+                    <button type="button" onClick={() => { setCat(""); setMenu(null); }} className={optCls(cat === "")}>
+                      <span className="truncate">{labels.allCats}</span>
+                      {cat === "" && <Check size={16} />}
+                    </button>
+                    {effCategories.map((c) => (
+                      <button key={c.id} type="button" onClick={() => { setCat(c.id); setMenu(null); }} className={optCls(cat === c.id)}>
+                        <span className="truncate">{c.name}</span>
+                        {cat === c.id && <Check size={16} />}
+                      </button>
+                    ))}
+                  </>)
+                )}
+              </div>
+            )}
+            {!showFacture && (
+              <button
+                type="button"
+                aria-label={labels.searchProduct}
+                onClick={() => { setMenu(null); setSearchOpen(true); }}
+                className={cn(
+                  "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border shadow-sm",
+                  pq ? "border-(--brand-500) bg-(--brand-500) text-(--brand-contrast)" : "border-(--border-default) bg-(--bg-overlay) text-(--brand-600)"
+                )}
+              >
+                <Search size={18} />
+              </button>
+            )}
+          </div>
+        );
+      })()}
 
       {!showFacture ? (
         <>
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.searchProduct} value={pq} onChange={(e) => setPq(e.target.value)} />
-            </div>
-          </div>
-          <div className="flex gap-1.5 overflow-x-auto pb-0.5">
-            <button onClick={() => setCat("")} className={cn("min-h-11 shrink-0 rounded-full px-3 py-2 text-xs font-black", cat === "" ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken) opacity-70")}>
-              {labels.allCats}
-            </button>
-            {effCategories.map((c) => (
-              <button key={c.id} onClick={() => setCat(cat === c.id ? "" : c.id)} className={cn("min-h-11 max-w-28 shrink-0 truncate rounded-full px-3 py-2 text-xs font-black", cat === c.id ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken) opacity-70")}>
-                {c.name}
-              </button>
-            ))}
-          </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {filteredProducts.map((p) => {
               const img = p.images[0]?.url;
@@ -931,7 +995,7 @@ export function VenteClient({
             <span className="shrink-0 text-sm font-bold opacity-70">{labels.paid}</span>
             <Input value={paid} onChange={(e) => setPaid(e.target.value)} inputMode="decimal" placeholder={dzMoney(total)} dir="ltr" />
           </div>
-          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
           <Button onClick={() => void confirmSale()} disabled={saving || !lines.length} data-testid="confirm-sale" className="h-12 w-full text-base">
             {saving ? "…" : `${labels.confirm} · ${dzMoney(total)}`}
           </Button>
@@ -949,11 +1013,11 @@ export function VenteClient({
 
       {/* Scan popup — locked: no ✕, no skip, no manual pick. The sale
           cannot start until the client QR is scanned (camera or gallery). */}
-      <Modal open={scanOpen} onClose={() => setScanOpen(false)} title={labels.scanTitle} subtitle={vanName} icon={<QrCode size={18} />} locked>
+      <Modal open={scanOpen} onClose={() => setScanOpen(false)} title={labels.scanTitle} subtitle={vanName} icon={<QrCode size={18} />} locked={qrStrict}>
         <div className="space-y-3">
           <CameraBox
             hint={labels.scanHint}
-            onDetect={(t) => { onScan(t); }}
+            onDetect={(t) => { void onScan(t); }}
             labels={{
               scan: labels.scan ?? labels.scanTitle,
               gallery: labels.gallery ?? "gallery",
@@ -964,6 +1028,31 @@ export function VenteClient({
             }}
           />
           {scanError && <p className="rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{scanError}</p>}
+          {!qrStrict && (
+            <div className="space-y-2 rounded-2xl border border-(--border-default) p-2.5">
+              <div className="text-xs font-black opacity-70">{labels.chooseClient}</div>
+              <Input value={clientQ} onChange={(e) => setClientQ(e.target.value)} placeholder={labels.searchClient} />
+              {clientHits.length > 0 && (
+                <ul className="max-h-64 space-y-1 overflow-y-auto">
+                  {clientHits.map((c) => (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => { setClient(c); setScanned(false); setScanError(null); setScanOpen(false); setClientQ(""); }}
+                        className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl bg-(--bg-sunken) px-3 py-2 text-start text-sm font-bold hover:bg-(--brand-500)/10"
+                      >
+                        <span className="min-w-0 truncate">{c.name}</span>
+                        <span className="shrink-0 font-mono text-[11px] opacity-60" dir="ltr">{c.code}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Button variant="secondary" onClick={() => setScanOpen(false)} className="w-full">
+                {labels.skip}
+              </Button>
+            </div>
+          )}
           <Button variant="secondary" onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard`)} className="w-full">
             <ArrowLeft size={15} className="me-1 rtl:rotate-180" />
             {labels.backToDash ?? labels.backToProducts}

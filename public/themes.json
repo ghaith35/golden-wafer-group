@@ -2,7 +2,7 @@
   "tokens": ["surface", "sunken", "overlay", "ink", "muted", "border", "brand", "brand600", "grad", "success", "danger"],
   "themes": [
     { "id": "emerald", "name": "Emerald", "ar": "زمردي", "tokens": ["#fafbf9", "#f1f5f4", "#ffffff", "#0b1f17", "#4b5b53", "#e2e8e6", "#10b981", "#059669", "#047857", "#10b981", "#ef4444"] },
-    { "id": "ocean", "name": "Ocean", "ar": "محيطي", "tokens": ["#f3f7fc", "#e5edf7", "#ffffff", "#0b1e33", "#47617d", "#d3e0ef", "#2563eb", "#1d4ed8", "#1e40af", "#16a34a", "#dc2626"] },
+    { "id": "ocean", "name": "Ocean", "ar": "محيطي", "tokens": ["#f9fafb", "#f1f5f9", "#ffffff", "#0f1729", "#65758b", "#e1e7ef", "#3b82f6", "#2563eb", "#1d4ed8", "#16a34a", "#dc2626"] },
     { "id": "indigo", "name": "Indigo", "ar": "نيلي", "tokens": ["#f4f5fd", "#e7e9fb", "#ffffff", "#1e1b4b", "#54538a", "#d8dbf7", "#6366f1", "#4f46e5", "#4338ca", "#10b981", "#ef4444"] },
     { "id": "royal", "name": "Royal", "ar": "ملكي", "tokens": ["#f6f3fd", "#e9e2fa", "#ffffff", "#241245", "#5f5485", "#d9cff3", "#7c3aed", "#6d28d9", "#5b21b6", "#10b981", "#e11d48"] },
     { "id": "crimson", "name": "Crimson", "ar": "قرمزي", "tokens": ["#fdf2f4", "#f9dfe4", "#ffffff", "#40060f", "#844652", "#eec3cc", "#d61f3f", "#b31230", "#8f0e27", "#16a34a", "#dc2626"] },

@@ -4,6 +4,7 @@
     "tagline": "Système de gestion de distribution"
   },
   "nav": {
+    "refresh": "Actualiser",
     "dashboard": "Tableau de bord",
     "clients": "Clients",
     "suppliers": "Fournisseurs",
@@ -30,7 +31,7 @@
     "expand": "Étendre",
     "collapse": "Réduire",
     "vans": "Camions",
-    "vanStock": "Stocks camions",
+    "vanStock": "Stock camion",
     "livreursVendeurs": "Livreur / Pré-vendeur",
     "carte": "Carte",
     "tournees": "Tournées",
@@ -44,17 +45,15 @@
     "vanSale": "Nouvelle vente",
     "vanFactures": "Factures",
     "vanOrder": "Nouvelle commande",
-    "vanOrders": "Commandes",
+    "vanOrders": "Demandes camions",
     "vanDemande": "Demande stock",
     "vanDepot": "Stock dépôt",
-    "vanStock": "Stock camion",
     "vanExpense": "Dépenses",
     "vanClients": "Clients du jour",
     "presence": "Pointage",
     "debtsClients": "Dettes clients",
     "debtsSuppliers": "Dettes fournisseurs",
-    "dailyCash": "Caisse du jour",
-    "vanOrders": "Demandes camions"
+    "dailyCash": "Caisse du jour"
   },
   "login": {
     "title": "Connexion",
@@ -76,7 +75,16 @@
     "offlineMode": "Mode hors connexion — accès depuis l’appareil",
     "connectOnce": "Pas de connexion et jamais activé — connectez-vous une fois en ligne",
     "lockedOut": "Verrouillé après échecs — réessayez dans un moment",
-    "scanRetryHint": "Caméra indisponible sur ce téléphone — collez le code ci-dessous ou réessayez."
+    "scanRetryHint": "Caméra indisponible sur ce téléphone — collez le code ci-dessous ou réessayez.",
+    "forgot": "Mot de passe oublié ?",
+    "resetTitle": "Réinitialiser le mot de passe",
+    "resetHint": "Saisissez la clé d'activation avec laquelle ce logiciel a été activé pour définir un nouveau mot de passe administrateur.",
+    "activationKey": "Clé d'activation",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "resetSubmit": "Définir le mot de passe",
+    "resetDone": "Mot de passe modifié. Connectez-vous maintenant.",
+    "resetClose": "OK"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -274,7 +282,9 @@
     "pdfSaved": "Facture PDF enregistrée ✓",
     "pdfShared": "Facture partagée ✓",
     "printFail": "Impression impossible — mettez à jour puis vérifiez l’imprimante",
-    "pdfPreview": "Aperçu facture"
+    "pdfPreview": "Aperçu facture",
+    "deleteOrderT": "Supprimer cette commande",
+    "deleteOrderM": "La commande et ses produits seront définitivement supprimés."
   },
   "tournees": {
     "title": "Tournées",
@@ -318,7 +328,11 @@
     "duplicateDay": "Ce camion a déjà une tournée ouverte ce jour",
     "secteurRequired": "Choisissez un secteur — tous ses clients seront ajoutés",
     "allClients": "tous les clients du secteur",
-    "unclosed": "Clôturée auto — journée non terminée"
+    "unclosed": "Clôturée auto — journée non terminée",
+    "repeatWeekly": "Répéter chaque semaine (12 semaines)",
+    "actionFailed": "Action impossible",
+    "prevWeek": "Semaine précédente",
+    "nextWeek": "Semaine suivante"
   },
   "inventory": {
     "title": "Stock",
@@ -405,6 +419,7 @@
     "new": "Nouveau produit",
     "name": "Nom du produit",
     "reference": "Référence",
+    "autoGenerate": "Générer automatiquement",
     "barcode": "Code-barres",
     "colisage": "Colisage",
     "category": "Catégorie",
@@ -559,7 +574,9 @@
       "devices": "Appareils",
       "devicesDesc": "Appareils de vente et synchronisation",
       "license": "Licences",
-      "licenseDesc": "Clés d’activation et machines"
+      "licenseDesc": "Clés d’activation et machines",
+      "data": "Données",
+      "dataDesc": "Réinitialiser les données par section"
     },
     "gpsEnabled": "Localisation GPS",
     "gpsHint": "Bouton de position et distances (barre latérale, tournées)",
@@ -975,7 +992,25 @@
     "role": "Rôle",
     "roleLivreur": "Livreur",
     "roleVendeur": "Vendeur",
-    "phone": "Téléphone"
+    "phone": "Téléphone",
+    "delUsage": {
+      "usageTitle": "Ce véhicule a un historique",
+      "usageIntro": "« {name} » contient encore :",
+      "usageQuestion": "Voulez-vous le supprimer quand même ?",
+      "uStock": "Produits en stock",
+      "uTransfers": "Transferts",
+      "uCounts": "Inventaires",
+      "uLosses": "Pertes de stock",
+      "uReturns": "Retours clients",
+      "uTournees": "Tournées",
+      "uCloses": "Clôtures journalières",
+      "usageKept": "Conservés (détachés du véhicule) : {sales} ventes et {expenses} dépenses.",
+      "warnTitle": "Dernier avertissement",
+      "warnBody": "Tout ce qui est listé ci-dessus sera définitivement supprimé avec le véhicule. Action irréversible.",
+      "warnConfirm": "Tout supprimer",
+      "back": "Retour",
+      "yes": "Oui, continuer"
+    }
   },
   "carte": {
     "title": "Carte",
@@ -1182,7 +1217,14 @@
     "myRequests": "Mes demandes",
     "modify": "Modifier",
     "depot": "Dépôt",
-    "remove": "Retirer"
+    "remove": "Retirer",
+    "gateStartT": "Démarrez d'abord votre tournée",
+    "gateStartM": "Les ventes et commandes ne sont possibles que pendant la tournée.",
+    "gateStartBtn": "Démarrer la tournée",
+    "gateEndT": "Terminez d'abord votre tournée",
+    "gateEndM": "Les demandes de marchandise ne sont possibles qu'après la fin de la tournée.",
+    "gateEndBtn": "Retour à ma tournée",
+    "lockedHint": "Verrouillé"
   },
   "presence": {
     "title": "Pointage",
@@ -1428,5 +1470,185 @@
     "depHow4": "Mises à jour suivantes via bundles — sans réinstallation",
     "tunnelSubdomain": "Nom client (sous-domaine, optionnel)",
     "tunnelHint": "Vide = génération auto. Domaine + token vont dans son installeur."
+  },
+  "legacyClientQr": {
+    "link": "Associer un ancien code QR",
+    "replace": "Remplacer l’ancien code QR",
+    "unlink": "Retirer l’ancien code QR",
+    "selected": "Code QR sélectionné. Enregistrez le client pour l’associer.",
+    "linked": "Ancien code QR associé",
+    "hint": "Scannez le code QR du client dans l’ancienne application ou choisissez une photo. Enregistrez le client pour appliquer la modification.",
+    "invalid": "Scannez un code QR valide de l’ancienne application."
+  },
+  "errors": {
+    "bad_legacy_qr": "Ce code QR ne peut pas être associé.",
+    "duplicate_legacy_qr": "Cet ancien code QR est déjà associé à un autre client.",
+    "unauthorized": "Session expirée, reconnectez-vous",
+    "unauthenticated": "Session expirée, reconnectez-vous",
+    "forbidden": "Action non autorisée",
+    "forbidden_role": "Rôle non autorisé",
+    "not_found": "Élément introuvable",
+    "validation_error": "Données invalides, vérifiez les champs",
+    "bad_status": "Action impossible dans l'état actuel",
+    "bad_location": "Emplacement invalide",
+    "bad_client": "Client invalide",
+    "bad_date": "Date invalide",
+    "bad_action": "Action inconnue",
+    "bad_unit": "Unité invalide",
+    "bad_tier": "Catégorie de prix invalide",
+    "bad_supplier": "Fournisseur invalide",
+    "bad_product": "Produit invalide",
+    "bad_category": "Catégorie invalide",
+    "bad_secteur": "Secteur invalide",
+    "bad_van": "Camionnette invalide",
+    "bad_phone": "Numéro de téléphone invalide",
+    "bad_amount": "Montant invalide",
+    "bad_user": "Utilisateur invalide",
+    "bad_sale": "Vente invalide",
+    "bad_tournee": "Tournée invalide",
+    "remise_disabled": "La remise est désactivée",
+    "invalid_credentials": "Identifiants incorrects",
+    "rate_limited": "Trop de tentatives, réessayez plus tard",
+    "overpaid": "Le montant payé dépasse le total",
+    "overpayment": "Le paiement dépasse le dû",
+    "no_van": "Aucune camionnette associée",
+    "insufficient_stock": "Stock insuffisant",
+    "no_depot": "Aucun dépôt principal",
+    "qr_required": "Scannez d'abord le QR du client",
+    "duplicate_phone": "Numéro de téléphone déjà utilisé",
+    "duplicate_code": "Code déjà utilisé",
+    "duplicate_name": "Nom déjà utilisé",
+    "duplicate_username": "Nom d'utilisateur déjà utilisé",
+    "duplicate_day": "Une tournée existe déjà ce jour pour cette camionnette",
+    "driver_busy": "Chauffeur déjà affecté à une autre camionnette",
+    "weak_password": "Mot de passe trop court (6 caractères minimum)",
+    "save_failed": "Échec de l'enregistrement",
+    "delete_failed": "Échec de la suppression",
+    "update_failed": "Échec de la mise à jour",
+    "load_failed": "Échec du chargement",
+    "upload_failed": "Échec de l'envoi du fichier",
+    "sync_failed": "Échec de la synchronisation",
+    "failed": "L'opération a échoué",
+    "has_returns": "Suppression impossible : retours liés",
+    "has_payment": "Suppression impossible : un paiement existe",
+    "has_children": "Suppression impossible : documents liés",
+    "cannot_edit_self": "Vous ne pouvez pas modifier votre propre compte ici",
+    "debt_disabled": "La vente à crédit est désactivée",
+    "credit_limit_exceeded": "Plafond de crédit dépassé",
+    "client_required": "Choisissez un client",
+    "cash_only": "Ce client paie uniquement comptant",
+    "lines_required": "Ajoutez au moins un produit",
+    "location_required": "Choisissez un emplacement",
+    "supplier_required": "Choisissez un fournisseur",
+    "name_required": "Nom requis",
+    "secteur_required": "Choisissez un secteur",
+    "fields_required": "Remplissez les champs obligatoires",
+    "missing_fields": "Remplissez les champs obligatoires",
+    "phone_required": "Téléphone requis",
+    "empty_order": "Commande vide",
+    "van_unassigned": "Aucune camionnette ne vous est affectée",
+    "van_not_assigned": "Cette camionnette ne vous est pas affectée",
+    "same_location": "Source et destination identiques",
+    "already_closed": "Déjà clôturé",
+    "already_invoiced": "Déjà facturé",
+    "already_exists": "Existe déjà",
+    "pack_only_qty": "Quantité en colis entiers uniquement",
+    "piece_sale_forbidden": "Vente à la pièce interdite",
+    "multidepot_disabled": "Multi-dépôt désactivé",
+    "deposits_disabled": "Les dépôts sont désactivés",
+    "pos_disabled": "Le point de vente est désactivé",
+    "not_started": "La tournée n'a pas commencé",
+    "no_coords": "Pas de coordonnées",
+    "token_required": "Jeton requis",
+    "invalid_qr": "QR invalide",
+    "qr_failed": "Lecture du QR impossible",
+    "qr_not_found": "QR inconnu",
+    "invalid_key": "Clé invalide",
+    "trial_blocked": "Période d'essai terminée",
+    "user_inactive": "Compte désactivé",
+    "locked": "Compte temporairement verrouillé",
+    "too_large": "Fichier trop volumineux",
+    "offline": "Hors connexion",
+    "tour_not_started": "Démarrez d'abord la tournée pour vendre et commander",
+    "tour_not_ended": "Terminez d'abord la tournée pour demander de la marchandise",
+    "vendeur_no_stock": "Aucun transfert vers/depuis la camionnette d'un vendeur — il ne détient pas de stock",
+    "reset_failed": "Échec de la réinitialisation",
+    "bad_scope": "Section invalide",
+    "bad_activation_key": "Clé d'activation incorrecte",
+    "no_activation_key": "Cette installation n'a pas été activée avec une clé",
+    "username_required": "Saisissez le nom d'utilisateur de l'administrateur",
+    "passwords_mismatch": "Les mots de passe ne correspondent pas"
+  },
+  "resetData": {
+    "title": "Réinitialiser les données",
+    "intro": "Supprimez les données d'une section ou toutes les données. Irréversible. Restent toujours : l'entreprise, les paramètres, les comptes admin, le dépôt principal et les listes (unités, tarifs, secteurs).",
+    "records": "{n} éléments",
+    "reset": "Réinitialiser",
+    "empty": "Rien à supprimer",
+    "step1T": "Supprimer ces données ?",
+    "step1Q": "{n} éléments de « {name} » seront supprimés. Continuer ?",
+    "step2T": "Dernier avertissement",
+    "step2M": "Tout ce qui est listé sera supprimé définitivement et ne pourra pas être récupéré. Saisissez votre mot de passe pour confirmer.",
+    "password": "Mot de passe",
+    "confirm": "Supprimer définitivement",
+    "next": "Oui, continuer",
+    "back": "Retour",
+    "done": "Réinitialisation terminée",
+    "backup": "Copie de sauvegarde enregistrée : {path}",
+    "wrongPassword": "Mot de passe incorrect",
+    "scopes": {
+      "clients": {
+        "name": "Clients",
+        "desc": "Supprime tous les clients avec leurs ventes, commandes, retours et paiements."
+      },
+      "suppliers": {
+        "name": "Fournisseurs",
+        "desc": "Supprime tous les fournisseurs avec leurs achats, retours et paiements."
+      },
+      "products": {
+        "name": "Produits",
+        "desc": "Supprime tous les produits et catégories, ainsi que tous les documents et le stock qui en dépendent (ventes, commandes, achats, transferts, inventaires…)."
+      },
+      "stock": {
+        "name": "Stock",
+        "desc": "Remet tout le stock à zéro et supprime transferts, inventaires et pertes. Les produits restent."
+      },
+      "sales": {
+        "name": "Ventes",
+        "desc": "Supprime factures, bons de livraison, tickets, retours et paiements clients, et remet les dettes clients à zéro. Le stock ne change pas."
+      },
+      "orders": {
+        "name": "Bons de commande",
+        "desc": "Supprime tous les bons de commande, quel que soit leur statut."
+      },
+      "purchases": {
+        "name": "Achats",
+        "desc": "Supprime factures d'achat, retours fournisseurs et paiements, et remet les dettes fournisseurs à zéro. Le stock ne change pas."
+      },
+      "transfers": {
+        "name": "Transferts",
+        "desc": "Supprime tous les transferts de stock entre dépôt et camionnettes."
+      },
+      "expenses": {
+        "name": "Dépenses",
+        "desc": "Supprime toutes les dépenses enregistrées. Les types de dépenses restent."
+      },
+      "cash": {
+        "name": "Caisse",
+        "desc": "Supprime les clôtures de caisse journalières et les acomptes clients."
+      },
+      "tournees": {
+        "name": "Tournées",
+        "desc": "Supprime toutes les tournées planifiées et réalisées."
+      },
+      "staff": {
+        "name": "Camionnettes et chauffeurs",
+        "desc": "Supprime toutes les camionnettes, comptes livreurs/vendeurs et appareils, avec leurs documents liés (transferts, inventaires, tournées…). Les comptes admin restent."
+      },
+      "all": {
+        "name": "Toutes les données",
+        "desc": "Supprime tout ce qui précède d'un coup et remet la numérotation à zéro."
+      }
+    }
   }
 }

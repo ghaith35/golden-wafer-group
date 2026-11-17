@@ -24,7 +24,7 @@ export default async function UsersPage({ params }: { params: Promise<{ locale: 
       locale={locale}
       vans={vans}
       allowedRoles={["Vendeur", "Livreur"]}
-      allowDelete={false}
+      allowDelete
       scope="staff"
       labels={{
         title: t("title"), username: t("username"), password: t("password"),

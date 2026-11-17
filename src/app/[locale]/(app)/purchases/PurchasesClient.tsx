@@ -15,7 +15,9 @@ import type { PurchaseFormData } from "./purchaseRefs";
 import { PackInfo, factorOf, normFactor, LinePriceSummary } from "@/components/products/UnitQty";
 import { dzMoney, fmtDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useSyncedState } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 const num = (v: number) => dzMoney(v);
 
 type Row = {
@@ -94,7 +96,7 @@ export function PurchasesClient({
   labels: Record<string, string>;
   payLabels: Record<string, string>;
 }) {
-  const [rows, setRows] = useState(initial);
+  const [rows, setRows] = useSyncedState(initial);
   const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
   const [q, setQ] = useState("");
   const [fStatus, setFStatus] = useState<"" | PayStatus>("");
@@ -254,7 +256,7 @@ export function PurchasesClient({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col space-y-4 lg:overflow-hidden">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
 
       <div className="flex shrink-0 flex-col gap-2 lg:flex-row">
         <div className="flex min-w-0 flex-1 flex-wrap gap-2 sm:flex-nowrap">

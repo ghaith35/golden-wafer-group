@@ -40,15 +40,15 @@ describe("offline QR credential", () => {
     expect(m.tryOfflineQrUnlock("t")).toMatchObject({ ok: false, error: "no_cache" });
   });
 
-  it("expires with the 30-day credential TTL", async () => {
+  it("accepts a saved badge after a year offline", async () => {
     const f = installFakeStorage();
     const m = await import("@/lib/sync/client");
     expect(m.saveOfflineQr("tok-abc", "ghaith", "Livreur")).toBe(true);
     const raw = JSON.parse(f.getItem("dili_offline_qr_v1") as string);
-    raw.cachedAt = Date.now() - 31 * 24 * 60 * 60 * 1000;
+    raw.cachedAt = Date.now() - 365 * 24 * 60 * 60 * 1000;
     f.setItem("dili_offline_qr_v1", JSON.stringify(raw));
-    expect(m.getOfflineQr()).toBeNull();
-    expect(m.tryOfflineQrUnlock("tok-abc")).toMatchObject({ ok: false, error: "no_cache" });
+    expect(m.getOfflineQr()?.username).toBe("ghaith");
+    expect(m.tryOfflineQrUnlock("tok-abc")).toMatchObject({ ok: true });
   });
 
   it("logout wipes the QR mapping too", async () => {

@@ -16,7 +16,9 @@ import { ProductForm, type ProductData, type Ref } from "./ProductForm";
 import { ProductImportModal } from "./ProductImportModal";
 import { cn } from "@/lib/utils";
 import { dz, dzMoney } from "@/lib/format";
+import { useSyncedState } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Row = {
   id: string;
   name: string;
@@ -85,7 +87,7 @@ export function ProductsClient({
   tiers: Ref[];
   labels: Record<string, string>;
 }) {
-  const [rows, setRows] = useState(initial);
+  const [rows, setRows] = useSyncedState(initial);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
   // Catalog-only: stock lives in the inventory section, not on product cards.
@@ -246,7 +248,7 @@ export function ProductsClient({
           compact
         />
       </div>
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <div className="flex shrink-0 flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex gap-2 lg:flex-1">
           <Button onClick={() => setCreating(true)} className="shrink-0">

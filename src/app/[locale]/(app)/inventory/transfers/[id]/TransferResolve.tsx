@@ -10,6 +10,7 @@ import { queueOp } from "@/lib/sync/client";
 import { packBreakdown } from "@/components/products/UnitQty";
 import { cn } from "@/lib/utils";
 
+import { ErrText } from "@/components/ui/ErrText";
 export type TLine = {
   id: string;
   declaredQty: number;
@@ -112,7 +113,7 @@ export function TransferResolve({
 
   return (
     <Card>
-      {error && <p className="mb-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="mb-2 text-sm text-red-500"><ErrText code={error} /></p>}
       {queued && <p className="mb-2 rounded-lg bg-amber-500/10 p-2 text-sm font-bold text-amber-600">{labels.queued}</p>}
       <div className="space-y-1.5">
         {lines.map((l) => (

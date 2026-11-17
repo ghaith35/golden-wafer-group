@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
+import { isDesktopUserAgent, isLocalMode } from "@/lib/license/gate";
 import { LoginForm } from "./LoginForm";
 import { LanguageSwitcher } from "@/components/layout/TopBar";
 import pkg from "../../../../../package.json";
@@ -11,12 +13,14 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
   // Fresh install (no company yet) → owner creates credentials first.
   if ((await prisma.company.count()) === 0) redirect(`/${locale}/onboard`);
   const t = await getTranslations("app");
+  // Password reset via activation key: desktop (EXE/DMG) installs only.
+  const canReset = isLocalMode() && isDesktopUserAgent((await headers()).get("user-agent"));
   return (
     <main className="relative flex min-h-dvh items-center justify-center overflow-hidden">
       {/* Drenched olive night — lighter core, near-black edges */}
       <div
         className="absolute inset-0"
-        style={{ background: "radial-gradient(120% 90% at 50% 18%, #36451d 0%, #232c12 48%, #11160a 100%)" }}
+        style={{ background: "radial-gradient(120% 90% at 50% 18%, #1d3245 0%, #12202c 48%, #0a1016 100%)" }}
       />
 
       {/* Subtle plus-pattern texture */}
@@ -40,7 +44,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
           />
           <h1 className="text-[2rem] font-extrabold leading-none tracking-tight text-white 2xl:text-4xl" dir="ltr">
             <span>DISTRIB</span>
-            <span className="text-[#b5dc63]">UILI</span>
+            <span className="text-[#63a4dc]">UILI</span>
           </h1>
           <p className="mt-2.5 text-sm text-white/55">
             {t("tagline")}
@@ -62,7 +66,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
             boxShadow: "0 0 0 1px rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.45)",
           }}
         >
-          <LoginForm dark />
+          <LoginForm dark canReset={canReset} />
         </div>
 
         {/* Footer */}

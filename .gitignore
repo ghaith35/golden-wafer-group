@@ -8,6 +8,7 @@ build/*
 *.db-shm
 .env
 .env.local
+.env.license
 backups/
 logs/
 
@@ -42,5 +43,6 @@ trial-feed/
 !out-van/
 !out-van/**
 !build/installer.nsh
+!build/stop-distribuili-server.ps1
 !build/icon.icns
 !build/icon.ico

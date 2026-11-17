@@ -16,6 +16,7 @@ import {
 } from "@/lib/sync/client";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useSyncedState } from "@/lib/data-sync";
 
 type ServerRow = {
   id: string;
@@ -76,7 +77,7 @@ export function VanExpensesClient({
   labels: Record<string, string>;
 }) {
   const router = useRouter();
-  const [items, setItems] = useState<ServerRow[]>(rows);
+  const [items, setItems] = useSyncedState<ServerRow[]>(rows);
   const [pending, setPending] = useState<PendingOp[]>([]);
   const [online, setOnline] = useState(true);
 

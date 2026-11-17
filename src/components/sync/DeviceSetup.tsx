@@ -9,6 +9,7 @@ import { setDeviceToken, setSyncUrl, setVanId } from "@/lib/sync/client";
 import { serverBaseOf, syncEndpointOf } from "@/lib/sync/urls";
 import { cn } from "@/lib/utils";
 
+import { ErrText } from "@/components/ui/ErrText";
 export type SetupPayload = {
   app: string;
   type: string;
@@ -181,7 +182,7 @@ export function DeviceSetup({
           </Button>
         </div>
       ))}
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-xs font-bold text-red-500"><ErrText code={error} /></p>}
     </div>
   );
 }

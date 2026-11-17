@@ -1,5 +1,7 @@
 "use client";
 
+import { parseClientScan } from "@/lib/clients/qr";
+
 /// Sync runner + on-device database access for the van phone.
 /// All persistent state lives in OfflineDB: a real SQLite file
 /// (`distribuili-van.db`) inside the APK, localStorage on web/PWA.
@@ -92,6 +94,7 @@ export type SnapshotProduct = {
 export type SnapshotClient = {
   id: string;
   code: string;
+  legacyQr?: string | null;
   name: string;
   phone: string | null;
   address: string | null;
@@ -206,15 +209,8 @@ export function clearDeviceConfig() {
 }
 
 // ─── Offline login credential cache (phone only) ──────────────────────────
-// After the driver's FIRST online login, {username, password, role} stays on
-// the device so he keeps logging in with zero connection for up to
-// OFFLINE_TTL_MS (30 days). Verification offline is a plain string compare —
-// the secret never leaves the phone and is wiped on logout, device reset,
-// expiry, or server-side revoke. Storage is localStorage (per explicit
-// product decision — no native secure enclave); the WebView sandbox isolates
-// it per app. Only staff roles are cached, never Admin.
-
-export const OFFLINE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+// A driver's saved credential stays usable during an outage of any length.
+// Logout, device reset, or a revocation received during sync clears it.
 const CRED_KEY = "dili_offline_cred_v1";
 const UNLOCK_KEY = "dili_offline_unlocked_v1";
 const FAIL_KEY = "dili_offline_fails_v1";
@@ -230,13 +226,6 @@ export type OfflineQr = {
   cachedAt: number;
 };
 
-/// Offline unlock session lifetime after one successful unlock. Deliberately
-/// == the credential TTL: the phone stays usable offline for the whole trusted
-/// month — no daily password re-ask, no bounce to login on page remounts. The
-/// 30-day cap still forces a fresh online login monthly, and logout / expiry /
-/// server revoke (bad_device, user_inactive at the next sync) wipe it at once.
-/// Theft exposure is unchanged in kind: unlocking still needs the password.
-export const UNLOCK_TTL_MS = OFFLINE_TTL_MS;
 const MAX_FAILS = 5;
 const LOCK_MS = 30 * 1000;
 
@@ -297,11 +286,11 @@ export function saveOfflineCred(
 export function getOfflineCred(store: StorageLike | null = credStore()): OfflineCred | null {
   const c = credRead<OfflineCred>(store, CRED_KEY);
   if (!c || !c.username || !c.password) return null;
-  if (!Number.isFinite(c.cachedAt) || Date.now() - c.cachedAt > OFFLINE_TTL_MS) return null;
+  if (!Number.isFinite(c.cachedAt)) return null;
   return c;
 }
 
-/// Wipe on logout, device reset, expiry, or server revoke.
+/// Wipe on logout, device reset, or server revoke.
 export function clearOfflineCred(store: StorageLike | null = credStore()): void {
   try {
     store?.removeItem(CRED_KEY);
@@ -315,14 +304,10 @@ export function clearOfflineCred(store: StorageLike | null = credStore()): void 
 
 export function hasOfflineUnlock(store: StorageLike | null = credStore()): boolean {
   const t = credRead<number>(store, UNLOCK_KEY);
-  return typeof t === "number" && Date.now() - t < UNLOCK_TTL_MS;
+  return typeof t === "number" && Number.isFinite(t) && !!(getOfflineCred(store) || getOfflineQr(store));
 }
 
-/// Mark a fresh unlock session: called after every successful ONLINE login
-/// AND every successful sync — an active driver proves who he is continuously,
-/// so the unlock never goes stale under him. Reopening the app offline (within
-/// the credential lifetime) goes straight in — the password is only retyped
-/// after a month offline, a logout, or a server-side revoke.
+/// Keep the saved staff account unlocked across offline restarts.
 export function markOfflineUnlocked(store: StorageLike | null = credStore()): void {
   try {
     store?.setItem(UNLOCK_KEY, JSON.stringify(Date.now()));
@@ -371,7 +356,7 @@ export function tryOfflineUnlock(
 }
 
 /// Save after a successful ONLINE QR login: the badge token stands in for
-/// the password the driver never types. Same 30-day TTL, staff-only.
+/// the password the driver never types. The saved badge is staff-only.
 export function saveOfflineQr(
   token: string,
   username: string,
@@ -393,7 +378,7 @@ export function saveOfflineQr(
 export function getOfflineQr(store: StorageLike | null = credStore()): OfflineQr | null {
   const q = credRead<OfflineQr>(store, QR_KEY);
   if (!q || !q.token || !q.username) return null;
-  if (!Number.isFinite(q.cachedAt) || Date.now() - q.cachedAt > OFFLINE_TTL_MS) return null;
+  if (!Number.isFinite(q.cachedAt)) return null;
   return q;
 }
 
@@ -417,6 +402,34 @@ export function tryOfflineQrUnlock(
     return { ok: true, username: q.username, role: q.role };
   }
   return { ok: false, error: "bad" };
+}
+
+/// Resolve a scan against the server, or against the last confirmed snapshot
+/// during an outage. A queued alias starts resolving after the server accepts it.
+export async function findScannedClient(text: string, companyId: string) {
+  const match = parseClientScan(text, companyId);
+  if (!match) return null;
+  try {
+    const res = await fetch("/api/clients/qr-lookup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ qr: text }),
+    });
+    if (res.status >= 500) throw new Error("server_unreachable");
+    if (!res.ok) return null;
+    const row = await res.json() as Pick<SnapshotClient, "id" | "name" | "code" | "phone" | "tierId" | "balance"> | null;
+    if (row) return row;
+  } catch {
+    const snapshot = await getVanSnapshot().catch(() => null);
+    // Snapshots made by older builds lack the company id and have no aliases.
+    if (snapshot && (snapshot.company?.id === companyId || (match.code && !snapshot.company?.id))) {
+      const cached = snapshot.clients.find((c) => match.code ? c.code === match.code : c.legacyQr === match.legacyQr);
+      if (cached) return cached;
+    }
+  }
+  if (!match.code) return null;
+  const pending = (await getPendingClients()).find((c) => c.code === match.code);
+  return pending ? { ...pending, id: `pending:${pending.opId}`, balance: 0 } : null;
 }
 
 /// Sync endpoint override for WiFi-local servers (persisted; set once via
@@ -1067,32 +1080,30 @@ export function prefetchPages(urls: string[]): void {
   } catch { /* never break the page */ }
 }
 
-/// Full journée warm set for one day: every page the driver can reach
-/// offline (days shell, login fallback, all day sub-pages + query variants
-/// that are distinct SW cache entries). Call on every journée entry while
-/// online — never navigating to a cold URL is what keeps the WebView off
-/// the browser error page when the network drops mid-tour.
-export function warmManifest(locale: string, day: string): string[] {
-  return [
-    `/${locale}/livreur`,
+/// Only cache real documents the signed-in role can open. /livreur is a
+/// server redirect, and the delivery queue has its own server-rendered query.
+export function warmManifest(locale: string, day: string, role?: string): string[] {
+  const base = `/${locale}/livreur/${day}`;
+  const pages = [
     `/${locale}/login`,
-    `/${locale}/livreur/${day}`,
-    `/${locale}/livreur/${day}/start`,
-    `/${locale}/livreur/${day}/dashboard`,
-    `/${locale}/livreur/${day}/vente`,
-    `/${locale}/livreur/${day}/commande`,
-    `/${locale}/livreur/${day}/commandes`,
-    `/${locale}/livreur/${day}/factures`,
-    `/${locale}/livreur/${day}/demande`,
-    `/${locale}/livreur/${day}/expenses`,
-    `/${locale}/livreur/${day}/stock`,
-    `/${locale}/livreur/${day}/clients/new`,
+    base,
+    `${base}/start`,
+    `${base}/dashboard`,
+    `${base}/commande`,
+    `${base}/commandes`,
+    `${base}/expenses`,
+    `${base}/stock`,
+    `${base}/clients/new`,
   ];
+  if (role !== "Vendeur") {
+    pages.push(`${base}/vente`, `${base}/factures`, `${base}/demande`, `${base}/commandes?ready=1`);
+  }
+  return pages;
 }
-export function warmJourneePages(locale: string, day: string): void {
+export function warmJourneePages(locale: string, day: string, role?: string): void {
   try {
-    const pages = warmManifest(locale, day);
-    prefetchPages(pages);
+    if (role) void prepareOfflinePages(locale, day, role);
+    else prefetchPages(warmManifest(locale, day));
     try {
       prefetchPages([window.location.href]);
     } catch { /* never break the page */ }
@@ -1102,40 +1113,85 @@ export function warmJourneePages(locale: string, day: string): void {
   } catch { /* never break the page */ }
 }
 
-/// Fetch-then-verify variant for the first-run warmup: every URL is fetched
-/// as a page document (so the SW stores it) and then checked with
-/// caches.match, giving an honest cached/missing verdict per screen instead
-/// of fire-and-forget hope. Never throws — failures report per URL.
+/// Fetching a document as HTML does not fetch its route-specific JS or CSS.
+/// Store those dependencies explicitly before counting the document as ready.
 export async function warmAndVerify(urls: string[]): Promise<Array<{ url: string; ok: boolean }>> {
-  const out: Array<{ url: string; ok: boolean }> = [];
+  const failed = () => urls.map((url) => ({ url, ok: false }));
   try {
-    if (typeof window === "undefined" || window.navigator?.onLine === false) {
-      return urls.map((url) => ({ url, ok: false }));
+    if (typeof window === "undefined" || navigator.onLine === false) return failed();
+    const worker = navigator.serviceWorker;
+    if (!worker) return failed();
+    const [pages, assets] = await Promise.all([
+      caches.open(`${WARM_SW_VERSION}-pages`),
+      caches.open(`${WARM_SW_VERSION}-static`),
+    ]);
+    const origin = window.location.origin;
+    const dependencies = new Map<string, Promise<void>>();
+
+    async function cacheAsset(url: URL) {
+      if (await assets.match(url.href)) return;
+      const res = await fetch(url.href);
+      const contentType = res.headers.get("content-type") ?? "";
+      const expected = url.pathname.endsWith(".css") ? "css" : "javascript";
+      if (!res.ok || res.redirected || !contentType.includes(expected)) {
+        throw new Error("offline_asset_unavailable");
+      }
+      await assets.put(url.href, res);
     }
+
+    const results: Array<{ url: string; ok: boolean }> = [];
     for (const url of urls) {
       try {
-        const res = await fetch(url, { credentials: "same-origin", headers: { Accept: "text/html" } });
-        // Read the body so the SW can finish storing before we verify.
-        try {
-          await res.clone().arrayBuffer().catch(() => null);
-        } catch { /* ignore */ }
-        let hit = null;
-        try {
-          hit = await caches.match(url);
-        } catch {
-          hit = null;
+        const target = new URL(url, origin);
+        const res = await fetch(target.href, {
+          credentials: "same-origin",
+          headers: { Accept: "text/html" },
+          redirect: "error",
+        });
+        if (!res.ok || res.url !== target.href || !res.headers.get("content-type")?.includes("text/html")) {
+          results.push({ url, ok: false });
+          continue;
         }
-        out.push({ url, ok: res.ok && !!hit });
+        const document = new DOMParser().parseFromString(await res.clone().text(), "text/html");
+        const refs = document.querySelectorAll("script[src], link[rel=stylesheet][href], link[rel=modulepreload][href], link[rel=preload][as=script][href], link[rel=preload][as=style][href]");
+        const required: Promise<void>[] = [];
+        for (const ref of refs) {
+          const asset = new URL(ref.getAttribute("src") ?? ref.getAttribute("href")!, target);
+          if (asset.origin !== origin || !asset.pathname.startsWith("/_next/static/")) continue;
+          let saved = dependencies.get(asset.href);
+          if (!saved) {
+            saved = cacheAsset(asset);
+            dependencies.set(asset.href, saved);
+          }
+          required.push(saved);
+        }
+        // A Next page needs its runtime. An HTML error or placeholder is not ready.
+        if (required.length === 0) {
+          results.push({ url, ok: false });
+          continue;
+        }
+        await Promise.all(required);
+        await pages.put(target.href, res);
+        results.push({ url, ok: true });
       } catch {
-        out.push({ url, ok: false });
+        results.push({ url, ok: false });
       }
     }
+    return worker.controller ? results : failed();
   } catch {
-    for (const url of urls) {
-      if (!out.some((o) => o.url === url)) out.push({ url, ok: false });
-    }
+    return failed();
   }
-  return out;
+}
+
+const offlineWarmups = new Map<string, Promise<Array<{ url: string; ok: boolean }>>>();
+
+export function prepareOfflinePages(locale: string, day: string, role: string) {
+  const key = JSON.stringify([locale, day, role]);
+  const pending = offlineWarmups.get(key);
+  if (pending) return pending;
+  const warmup = warmAndVerify(warmManifest(locale, day, role)).finally(() => offlineWarmups.delete(key));
+  offlineWarmups.set(key, warmup);
+  return warmup;
 }
 
 /// Warm the image cache for the van catalog so product photos render

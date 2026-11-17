@@ -13,7 +13,9 @@ import { ProductPicker } from "@/components/products/ProductPicker";
 import { breakdownNested } from "@/lib/products/colisage";
 import { compareNatural } from "@/lib/sort";
 import { dzMoney } from "@/lib/format";
+import { useSyncedState } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 export type SupplierOpt = { id: string; name: string };
 export type ProductOpt = {
   id: string;
@@ -142,7 +144,7 @@ export function PurchaseForm({
   // creates the depot itself (see createPurchase/updatePurchase).
   const mainDepot = locations.find((l) => l.kind === "DEPOT")?.id ?? "";
   const showLocation = multiDepot && locations.length > 1;
-  const [suppliers, setSuppliers] = useState(initialSuppliers);
+  const [suppliers, setSuppliers] = useSyncedState(initialSuppliers);
   const [supplierId, setSupplierId] = useState(initial?.supplierId ?? "");
   const [showSupplier, setShowSupplier] = useState(false);
   const [supName, setSupName] = useState("");
@@ -482,7 +484,7 @@ export function PurchaseForm({
 
   return (
     <div className="space-y-4">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <Card>
         <div className={`grid gap-3 ${showLocation ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
           <div>
@@ -694,7 +696,7 @@ export function PurchaseForm({
 
       <Modal open={showSupplier} onClose={() => setShowSupplier(false)} title={labels.newSupplier} icon="+">
         <div className="grid gap-2">
-          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
           <Input placeholder={labels.supplier} value={supName} onChange={(e) => setSupName(e.target.value)} />
           <Input placeholder={labels.phone} value={supPhone} onChange={(e) => setSupPhone(e.target.value)} inputMode="tel" />
           <div className="mt-1 flex justify-end gap-2">

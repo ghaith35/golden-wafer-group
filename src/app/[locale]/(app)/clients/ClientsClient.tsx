@@ -14,7 +14,9 @@ import { ClientImportModal } from "./ClientImportModal";
 import { QrPrintModal } from "./qr/print/QrThermalPrint";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useSyncedState } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Row = {
   id: string;
   code: string;
@@ -47,7 +49,7 @@ export function ClientsClient({
   tiers: Array<{ id: string; name: string }>;
   labels: Record<string, string>;
 }) {
-  const [rows, setRows] = useState(initial);
+  const [rows, setRows] = useSyncedState(initial);
   const [q, setQ] = useState("");
   const [sec, setSec] = useState("");
   const [view, setView] = useState<"grid" | "list">("grid");
@@ -76,6 +78,7 @@ export function ClientsClient({
     const c = await res.json();
     setEditing({
       id: c.id,
+      legacyQr: c.legacyQr,
       name: c.name ?? "",
       phone: c.phone ?? "",
       address: c.address ?? "",
@@ -212,7 +215,7 @@ export function ClientsClient({
           </div>
         </div>
       </div>
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       {secteurs.length > 0 && (
         <div className="flex shrink-0 gap-1.5 overflow-x-auto pb-0.5">
           <button

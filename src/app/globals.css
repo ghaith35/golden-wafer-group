@@ -5,43 +5,44 @@
 :root {
   --font-cairo: 'Cairo';
   --font-mono: 'IBM Plex Mono';
-  --brand-50: #ecfdf5;
-  --brand-100: #d1fae5;
-  --brand-200: #a7f3d0;
-  --brand-300: #6ee7b7;
-  --brand-400: #34d399;
-  --brand-500: #10b981;
-  --brand-600: #059669;
-  --brand-700: #047857;
-  --brand-800: #065f46;
-  --brand-900: #064e3b;
-  --brand-950: #022c22;
-  --gradient-brand: linear-gradient(135deg, #10b981, #047857);
+  --brand-50: #eff6ff;
+  --brand-100: #dbeafe;
+  --brand-200: #bfdbfe;
+  --brand-300: #93c5fd;
+  --brand-400: #60a5fa;
+  --brand-500: #3b82f6;
+  --brand-600: #2563eb;
+  --brand-700: #1d4ed8;
+  --brand-800: #1e40af;
+  --brand-900: #1e3a8a;
+  --brand-950: #172554;
+  --gradient-brand: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  --brand-contrast: #ffffff;
 
-  --bg-surface: #fafbf9;
-  --bg-sunken: #f1f5f4;
+  --bg-surface: #f9fafb;
+  --bg-sunken: #f1f5f9;
   --bg-overlay: #ffffff;
-  --text-primary: #0b1f17;
-  --text-secondary: #4b5b53;
-  --text-tertiary: #94a3ab;
-  --border-default: #e2e8e6;
-  --border-subtle: #f1f5f4;
-  --border-strong: #cbd5d1;
-  --semantic-success: #10b981;
+  --text-primary: #0f1729;
+  --text-secondary: #65758b;
+  --text-tertiary: #94a3b8;
+  --border-default: #e1e7ef;
+  --border-subtle: #f1f5f9;
+  --border-strong: #cbd5e1;
+  --semantic-success: #16a34a;
   --semantic-warning: #f59e0b;
   --semantic-danger: #ef4444;
 
   /* ── Superadmin console shell (khiata structure, distribuili greens) ──── */
-  --sa-sidebar-start: #101b10;
-  --sa-sidebar-end: #090d08;
-  --sa-sidebar-fg: #f0f7ec;
-  --sa-sidebar-muted: #93a895;
-  --sa-sidebar-accent: #a3e635;
-  --sa-sidebar-active-bg: rgba(163, 230, 53, 0.16);
-  --sa-sidebar-active-fg: #ecfccb;
+  --sa-sidebar-start: #0f172a;
+  --sa-sidebar-end: #0b1222;
+  --sa-sidebar-fg: #f8fafc;
+  --sa-sidebar-muted: #94a3b8;
+  --sa-sidebar-accent: #60a5fa;
+  --sa-sidebar-active-bg: rgba(59, 130, 246, 0.25);
+  --sa-sidebar-active-fg: #dbeafe;
   --sa-sidebar-hover-bg: rgba(255, 255, 255, 0.06);
-  --sa-sidebar-hover-fg: #f0f7ec;
-  --sa-sidebar-section: rgba(240, 247, 236, 0.32);
+  --sa-sidebar-hover-fg: #f8fafc;
+  --sa-sidebar-section: rgba(234, 242, 255, 0.35);
   --sa-sidebar-footer-border: rgba(255, 255, 255, 0.1);
   --sa-sidebar-logout: #f87171;
 }
@@ -61,23 +62,22 @@
   --brand-500: #10b981;
   --brand-600: #059669;
   --gradient-brand: linear-gradient(135deg, #10b981, #047857);
-  --brand-contrast: #ffffff;
   --semantic-success: #10b981;
   --semantic-danger: #ef4444;
 }
 [data-theme="ocean"] {
-  --bg-surface: #f3f7fc;
-  --bg-sunken: #e5edf7;
+  --bg-surface: #f9fafb;
+  --bg-sunken: #f1f5f9;
   --bg-overlay: #ffffff;
-  --text-primary: #0b1e33;
-  --text-secondary: #47617d;
-  --text-tertiary: #47617d;
-  --border-default: #d3e0ef;
-  --border-subtle: #e5edf7;
-  --border-strong: #d3e0ef;
-  --brand-500: #2563eb;
-  --brand-600: #1d4ed8;
-  --gradient-brand: linear-gradient(135deg, #2563eb, #1e40af);
+  --text-primary: #0f1729;
+  --text-secondary: #65758b;
+  --text-tertiary: #65758b;
+  --border-default: #e1e7ef;
+  --border-subtle: #f1f5f9;
+  --border-strong: #e1e7ef;
+  --brand-500: #3b82f6;
+  --brand-600: #2563eb;
+  --gradient-brand: linear-gradient(135deg, #3b82f6, #1d4ed8);
   --semantic-success: #16a34a;
   --semantic-danger: #dc2626;
 }
@@ -338,6 +338,7 @@
   --semantic-danger: #dc2626;
 }
 [data-theme="lime"] {
+  --brand-contrast: #1a2e05;
   --bg-surface: #f7f3ee;
   --bg-sunken: #efe9dd;
   --bg-overlay: #ffffff;
@@ -349,8 +350,7 @@
   --border-strong: #e8e0d4;
   --brand-500: #65a30d;
   --brand-600: #4d7c0f;
-  --gradient-brand: linear-gradient(135deg, #b5dc63, #84cc16);
-  --brand-contrast: #1a2e05;
+  --gradient-brand: linear-gradient(135deg, #65a30d, #3f6212);
   --semantic-success: #65a30d;
   --semantic-danger: #dc2626;
 }
@@ -436,15 +436,15 @@
 }
 
 .dark {
-  --bg-surface: #0b1512;
-  --bg-sunken: #111d18;
-  --bg-overlay: #14211c;
-  --text-primary: #e8f0ec;
-  --text-secondary: #a7b8ae;
-  --text-tertiary: #5f6f66;
-  --border-default: #1f2e27;
-  --border-subtle: #16211c;
-  --border-strong: #2c3f35;
+  --bg-surface: #080c16;
+  --bg-sunken: #141f38;
+  --bg-overlay: #0c1322;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --border-default: #182543;
+  --border-subtle: #111a30;
+  --border-strong: #20325a;
 
   /* ── Superadmin sidebar (dark) ──────────────────────────────────── */
   --sa-sidebar-start: #070b18;
@@ -556,12 +556,12 @@ div[id^="DndLiveRegion"] {
   --border-default: rgba(255, 255, 255, 0.12);
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.22);
-  background: #14120f;
+  background: #0f172a;
   color: #ffffff;
   box-shadow: 12px 0 32px rgba(0, 0, 0, 0.22);
 }
 .app-sidebar .logo-accent {
-  color: #b5dc63;
+  color: #60a5fa;
 }
 
 /* ── Status pills (khiata -ink pattern: tinted wash + darkened text) ─────
@@ -688,7 +688,7 @@ button, input, select, textarea {
 }
 .auth-dark input:focus,
 .auth-dark input:focus-visible {
-  border-color: #a3e635 !important;
+  border-color: #60a5fa !important;
 }
 .auth-dark input:-webkit-autofill,
 .auth-dark input:-webkit-autofill:hover,

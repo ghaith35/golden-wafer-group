@@ -15,6 +15,7 @@ import { PackInfo, factorOf, normFactor, LinePriceSummary } from "@/components/p
 import { dz, dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
+import { ErrText } from "@/components/ui/ErrText";
 export type SaleDetail = {
   id: string;
   kind: string;
@@ -142,7 +143,7 @@ export function SaleActions({
 }: {
   locale: string;
   sale: SaleDetail;
-  locations: Array<{ id: string; name: string; kind?: string }>;
+  locations: Array<{ id: string; name: string; kind?: string; noStock?: boolean }>;
   labels: Record<string, string>;
   /// Master-detail mode: refresh inline instead of navigating.
   onDone?: (newId?: string) => void;
@@ -171,7 +172,7 @@ export function SaleActions({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   /// Popup form replacing the old JS confirm(): which action awaits approval.
-  const [modal, setModal] = useState<null | "load" | "assign" | "deliver" | "invoice" | "cancel" | "uncancel">(null);
+  const [modal, setModal] = useState<null | "load" | "assign" | "deliver" | "invoice" | "cancel" | "uncancel" | "deleteOrder">(null);
   const [editing, setEditing] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
@@ -228,7 +229,7 @@ export function SaleActions({
 
   return (
     <div className="space-y-3">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       {/* ── Khiata-style header: badge + paid dot, client, metric trio ── */}
       <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5">
         <div className="flex items-start justify-between gap-2">
@@ -422,6 +423,16 @@ export function SaleActions({
         {sale.kind === "DELIVERY" && sale.status === "CANCELLED" && (
           <Button onClick={() => setModal("uncancel")} disabled={busy}>{labels.redeliverT ?? labels.deliver}</Button>
         )}
+        {sale.kind === "ORDER" && (sale.status === "DRAFT" || sale.status === "CONFIRMED") && canEdit && isAdmin && formData && formLabels && (
+          <Button variant="secondary" onClick={() => setEditing(true)} disabled={busy}>
+            ✎ {labels.edit ?? "Edit"}
+          </Button>
+        )}
+        {sale.kind === "ORDER" && sale.status !== "DELIVERED" && sale.status !== "INVOICED" && sale.children.length === 0 && canEdit && isAdmin && (
+          <Button variant="secondary" onClick={() => setModal("deleteOrder")} disabled={busy} className="text-red-500">
+            {labels.deleteOrderT ?? "Delete"}
+          </Button>
+        )}
         {sale.kind === "TICKET" && sale.status !== "CANCELLED" && canEdit && isAdmin && formData && formLabels && (
           <Button variant="secondary" onClick={() => setEditing(true)} disabled={busy}>
             ✎ {labels.edit ?? "Edit"}
@@ -454,7 +465,7 @@ export function SaleActions({
               className="h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)"
             >
               <option value="">—</option>
-              {locations.filter((l) => l.kind === "VAN").map((l) => (
+              {locations.filter((l) => l.kind === "VAN" && !l.noStock).map((l) => (
                 <option key={l.id} value={l.id}>{l.name}</option>
               ))}
             </select>
@@ -480,7 +491,7 @@ export function SaleActions({
               );
             })}
           </div>
-          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => setModal(null)} className="flex-1">{labels.cancel}</Button>
             <Button
@@ -560,7 +571,7 @@ export function SaleActions({
               className="h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)"
             >
               <option value="">—</option>
-              {locations.map((l) => (
+              {locations.filter((l) => !l.noStock).map((l) => (
                 <option key={l.id} value={l.id}>{l.name}</option>
               ))}
             </select>
@@ -575,7 +586,7 @@ export function SaleActions({
               {labels.due}: {num(Math.max(0, total - paid - (Number(extraPaid) || 0)))}
             </div>
           </div>
-          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => setModal(null)} className="flex-1">{labels.cancel}</Button>
             <Button
@@ -588,6 +599,30 @@ export function SaleActions({
           </div>
         </div>
       </Modal>
+      <ConfirmDialog
+        open={modal === "deleteOrder"}
+        onClose={() => setModal(null)}
+        onConfirm={async () => {
+          setBusy(true);
+          setError(null);
+          try {
+            const res = await fetch(`/api/sales/${sale.id}`, { method: "DELETE" });
+            if (!res.ok) {
+              setError((await res.json().catch(() => null))?.error ?? "failed");
+              setModal(null);
+              return;
+            }
+            setModal(null);
+            if (onDone) onDone("__deleted__");
+            else router.refresh();
+          } finally {
+            setBusy(false);
+          }
+        }}
+        title={labels.deleteOrderT ?? "Delete"}
+        message={`${labels.deleteOrderM ?? ""}\n${sale.number} · ${num(total)}`}
+        confirmLabel={labels.deleteOrderT ?? "Delete"}
+      />
       {zoom && <ImageLightbox src={zoom.src} alt={zoom.name} caption={zoom.name} onClose={() => setZoom(null)} />}
       <Modal
         open={editing}
@@ -600,7 +635,7 @@ export function SaleActions({
           <SaleDocForm
             key={sale.id}
             locale={locale}
-            mode="ticket"
+            mode={sale.kind === "ORDER" ? "order" : "ticket"}
             channel={(sale.channel as "VAN" | "POS" | "DEPOT") ?? "VAN"}
             clients={formData.clients}
             products={formData.products}

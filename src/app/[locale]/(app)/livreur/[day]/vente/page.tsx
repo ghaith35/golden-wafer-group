@@ -2,7 +2,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { getLivreurVan } from "../../_data";
+import { getLivreurVan, getDayStamp } from "../../_data";
+import { JourneeGate } from "@/components/livreur/JourneeGate";
 import { parseDay, sameDay } from "../../_days";
 import { VenteClient } from "./VenteClient";
 
@@ -92,9 +93,19 @@ export default async function LivreurVentePage({
   const ticketLang = settings?.ticketLang === "ar" ? "ar" : "fr";
   const tt = await getTranslations({ locale: ticketLang, namespace: "sales" });
 
+  const dayStamp = await getDayStamp(session.companyId, van.id, date);
   return (
+    <JourneeGate
+      locale={locale}
+      day={day}
+      role={session.role}
+      require="active"
+      stamp={dayStamp}
+      labels={{ gateStartT: t("gateStartT"), gateStartM: t("gateStartM"), gateStartBtn: t("gateStartBtn"), gateEndT: t("gateEndT"), gateEndM: t("gateEndM"), gateEndBtn: t("gateEndBtn") }}
+    >
     <VenteClient
       locale={locale}
+      companyId={session.companyId}
       day={day}
       vanId={van.id}
       vanName={van.name}
@@ -121,6 +132,7 @@ export default async function LivreurVentePage({
       tiers={JSON.parse(JSON.stringify(tiers))}
       allowPieces={settings?.pieceSalesEnabled ?? false}
       labels={{
+        remove: t("remove"),
         scanTitle: t("scanTitle"), scanHint: t("scanHint"), skip: t("skip"),
         chooseClient: t("chooseClient"), searchClient: t("searchClient"),
         products: t("products"), searchProduct: t("searchProduct"), allCats: t("allCats"),
@@ -150,5 +162,6 @@ export default async function LivreurVentePage({
       }}
       ticketLang={ticketLang}
     />
+    </JourneeGate>
   );
 }

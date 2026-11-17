@@ -8,6 +8,7 @@ import { factorOf, priceForUnit } from "@/components/products/UnitQty";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
+import { ErrText } from "@/components/ui/ErrText";
 type CatProduct = {
   id: string;
   name: string;
@@ -172,7 +173,7 @@ export function TicketEditForm({
 
   return (
     <div className="space-y-3">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <div className="space-y-1.5">
         {lines.map((l, i) => {
           const p = byId.get(l.productId);

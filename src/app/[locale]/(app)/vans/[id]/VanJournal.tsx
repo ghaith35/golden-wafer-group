@@ -7,6 +7,7 @@ import { packBreakdown } from "@/components/products/UnitQty";
 import { mixedColisTotal } from "@/lib/products/colisage";
 import { cn } from "@/lib/utils";
 import { dz, dzMoney } from "@/lib/format";
+import { useDataVersion } from "@/lib/data-sync";
 
 type JProduct = {
   id: string;
@@ -96,6 +97,7 @@ export function VanJournal({
   /// empty journal as if the day had no movements.
   const [unreachable, setUnreachable] = useState(false);
 
+  const dataV = useDataVersion();
   useEffect(() => {
     let live = true;
     setUnreachable(false);
@@ -119,7 +121,7 @@ export function VanJournal({
     return () => {
       live = false;
     };
-  }, [vanId, date]);
+  }, [vanId, date, dataV]);
 
   const entries = useMemo<Entry[]>(() => {
     if (!data) return [];

@@ -10,7 +10,9 @@ import { Modal } from "@/components/ui/Modal";
 import { KpiCard } from "@/components/ui/Card";
 import { dzMoney, fmtDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useDataVersion } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 type Party = "clients" | "suppliers";
 type Status = "unpaid" | "partial" | "settled";
 
@@ -72,10 +74,11 @@ export function DettesClient({ labels }: { labels: Record<string, string> }) {
     }
   }, [party, fStatus, q]);
 
+  const dataV = useDataVersion();
   useEffect(() => {
     const id = window.setTimeout(() => void load(), q ? 300 : 0);
     return () => window.clearTimeout(id);
-  }, [load, q]);
+  }, [load, q, dataV]);
 
   // Sidebar entries link here with ?party=… : follow it when it changes
   // (same page, no remount) so the highlight stays correct.
@@ -259,7 +262,7 @@ export function DettesClient({ labels }: { labels: Record<string, string> }) {
         subtitle={paying?.name ?? ""}
         icon={<HandCoins size={18} />}
       >
-        {error && <p className="mb-2 rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+        {error && <p className="mb-2 rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
         <p className="mb-2 text-xs opacity-60">{labels.appliedTo}</p>
         <div className="grid gap-2">
           <div>

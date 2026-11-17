@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 
+import { ErrText } from "@/components/ui/ErrText";
 const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-3 text-sm outline-none";
 
 export type SupplierData = Record<string, string>;
@@ -73,7 +74,7 @@ export function SupplierForm({
 
   return (
     <div className="space-y-4">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <Card>
         <div className="mb-2 flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-(--brand-500)/10 text-(--brand-600)">

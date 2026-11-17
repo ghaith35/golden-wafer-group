@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
+import { useDataVersion } from "@/lib/data-sync";
 
 type User = {
   id: string;
@@ -302,9 +303,11 @@ export function UsersClient({
     const res = await fetch("/api/users");
     if (res.ok) setRows(await res.json());
   }
+  const dataV = useDataVersion();
   useEffect(() => {
     reload().catch(() => {});
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataV]);
 
   async function regenerate(u: User) {
     const res = await fetch(`/api/users/${u.id}/qr`, { method: "POST" });
@@ -385,7 +388,8 @@ export function UsersClient({
     if (!deleting) return;
     const res = await fetch(`/api/users/${deleting.id}${scope ? `?scope=${scope}` : ""}`, { method: "DELETE" });
     if (!res.ok) {
-      setError((await res.json()).error ?? "delete_failed");
+      setError((await res.json().catch(() => null))?.error ?? "delete_failed");
+      setDeleting(null);
       return;
     }
     setDeleting(null);

@@ -22,7 +22,7 @@ export default async function TransfersPage({ params }: { params: Promise<{ loca
       orderBy: { date: "desc" },
       take: 200,
     }),
-    prisma.store.findMany({ where: { companyId: session.companyId, isActive: true }, orderBy: { name: "asc" } }),
+    prisma.store.findMany({ where: { companyId: session.companyId, isActive: true, NOT: { kind: "VAN", user: { role: "Vendeur" } }, }, orderBy: { name: "asc" } }),
   ]);
   return (
     <TransfersJournal

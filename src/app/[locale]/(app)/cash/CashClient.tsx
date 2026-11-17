@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { queueOp } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
+import { useDataVersion } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 type V = {
   id: string;
   kind: string;
@@ -71,9 +73,11 @@ export function CashClient({
     setRows(await fetch("/api/versements").then((r) => r.json()));
     if (depositsOn) setDeps(await fetch("/api/deposits").then((r) => r.json()).catch(() => []));
   }
+  const dataV = useDataVersion();
   useEffect(() => {
     reload().catch(() => {});
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataV]);
 
   async function submit() {
     if (submittingRef.current) return;
@@ -190,7 +194,7 @@ export function CashClient({
         <h1 className="text-xl font-bold">{labels.title}</h1>
       </div>
       {error && !creating && (
-        <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>
+        <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>
       )}
       {queued && (
         <p className="rounded-lg bg-amber-500/10 p-2 text-sm font-bold text-amber-600">{labels.queued}</p>
@@ -310,7 +314,7 @@ export function CashClient({
         icon="+"
       >
         <div className="grid gap-2">
-          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
           {tab === "v" ? (
             <>
               <div className="flex gap-2">

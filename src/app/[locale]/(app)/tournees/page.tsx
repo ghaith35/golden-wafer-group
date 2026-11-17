@@ -63,6 +63,8 @@ export default async function TourneesPage({ params }: { params: Promise<{ local
         autofill: t("fill"), clear: tc("cancel"),
         missingFields: t("missingFields"), duplicateDay: t("duplicateDay"),
         secteurRequired: t("secteurRequired"), allClients: t("allClients"),
+        repeatWeekly: t("repeatWeekly"), actionFailed: t("actionFailed"),
+        prevWeek: t("prevWeek"), nextWeek: t("nextWeek"),
       }}
     />
   );

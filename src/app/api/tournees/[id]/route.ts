@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { tourneeStopsSchema, stopUpdateSchema } from "@/lib/sales/validation";
-import { setStops, closeTournee, reorderStops, startDay, finishDay, setTourneeTimes } from "@/lib/tournees/service";
+import { setStops, propagateStops, deleteSeries, closeTournee, reorderStops, startDay, finishDay, setTourneeTimes } from "@/lib/tournees/service";
 import { optimizeRoute } from "@/lib/routes/optimize";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -69,7 +69,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
     const parsed = tourneeStopsSchema.safeParse(body);
     if (parsed.success) {
-      return NextResponse.json(await setStops(session.companyId, id, parsed.data.clientIds));
+      const updated = await setStops(session.companyId, id, parsed.data.clientIds);
+      await propagateStops(session.companyId, id);
+      return NextResponse.json(updated);
     }
     return NextResponse.json({ error: "bad_action" }, { status: 400 });
   } catch (e) {
@@ -78,7 +80,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   if (session.role !== "Admin") return NextResponse.json({ error: "forbidden" }, { status: 403 });
@@ -86,7 +88,13 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const existing = await prisma.tournee.findFirst({ where: { id, companyId: session.companyId } });
   if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
   // Stops cascade; linked sales survive with a nulled tour link.
-  await prisma.tournee.delete({ where: { id } });
+  // series=1 (the board): also drops every future open copy of this cell.
+  if (new URL(req.url).searchParams.get("series") === "1") {
+    await deleteSeries(session.companyId, id);
+    await prisma.tournee.deleteMany({ where: { id } });
+  } else {
+    await prisma.tournee.delete({ where: { id } });
+  }
   return NextResponse.json({ ok: true });
 }
 

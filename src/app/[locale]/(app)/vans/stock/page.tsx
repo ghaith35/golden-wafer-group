@@ -25,7 +25,7 @@ export default async function VanStockBoardPage({ params }: { params: Promise<{ 
     getOrCreateSettings(session.companyId),
   ]);
   const vans = await prisma.store.findMany({
-    where: { companyId: session.companyId, kind: "VAN", isActive: true },
+    where: { companyId: session.companyId, kind: "VAN", isActive: true, NOT: { user: { role: "Vendeur" } } },
     include: { user: { select: { id: true, fullName: true, username: true } } },
     orderBy: { name: "asc" },
     take: 100,

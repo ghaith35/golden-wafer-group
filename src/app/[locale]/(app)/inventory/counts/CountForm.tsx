@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { UnitQty, PackInfo, factorOf, baseNameOf } from "@/components/products/UnitQty";
 
+import { ErrText } from "@/components/ui/ErrText";
 const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
 
 export function CountForm({
@@ -73,7 +74,7 @@ export function CountForm({
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-4 p-5 md:p-6 lg:max-w-4xl xl:max-w-5xl">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <Card>
         <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.locations}</label>
         <select value={locationId} onChange={(e) => setLocationId(e.target.value)} className={inputCls}>

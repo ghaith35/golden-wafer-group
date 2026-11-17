@@ -3,25 +3,54 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
-import { Eye, EyeOff, QrCode } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { QrScanner } from "@/components/scan/QrScanner";
-import { getOfflineCred, hasOfflineUnlock, markOfflineUnlocked, saveOfflineCred, saveOfflineQr, tryOfflineUnlock, tryOfflineQrUnlock } from "@/lib/sync/client";
+import { Modal } from "@/components/ui/Modal";
+import { ErrText } from "@/components/ui/ErrText";
+import { getOfflineCred, hasOfflineUnlock, markOfflineUnlocked, saveOfflineCred, tryOfflineUnlock } from "@/lib/sync/client";
 
-export function LoginForm({ dark = false }: { dark?: boolean }) {
+export function LoginForm({ dark = false, canReset = false }: { dark?: boolean; canReset?: boolean }) {
   const t = useTranslations("login");
   const params = useParams();
   const locale = String(params.locale ?? "ar");
-  const [tab, setTab] = useState<"pw" | "qr">("pw");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [qrInput, setQrInput] = useState("");
-  const [scanning, setScanning] = useState(false);
-  const [scanError, setScanError] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // Forgot password → activation-key reset (desktop installs only).
+  const [resetOpen, setResetOpen] = useState(false);
+  const [rKey, setRKey] = useState("");
+  const [rUser, setRUser] = useState("");
+  const [rPw, setRPw] = useState("");
+  const [rPw2, setRPw2] = useState("");
+  const [rErr, setRErr] = useState<string | null>(null);
+  const [rBusy, setRBusy] = useState(false);
+  const [rDone, setRDone] = useState(false);
+  async function submitReset(e: React.FormEvent) {
+    e.preventDefault();
+    if (rBusy) return;
+    setRErr(null);
+    if (rPw !== rPw2) { setRErr("passwords_mismatch"); return; }
+    setRBusy(true);
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: rKey, newPassword: rPw, username: rUser }),
+      });
+      const d = await res.json().catch(() => null);
+      if (!res.ok) { setRErr(d?.error ?? "failed"); return; }
+      setUsername(d?.username ?? rUser);
+      setPassword("");
+      setRDone(true);
+    } catch {
+      setRErr("failed");
+    } finally {
+      setRBusy(false);
+    }
+  }
   /// Offline unlock: no connection but a cached credential from the first
   /// online login exists — verify on-device instead of the server.
   const [offline, setOffline] = useState(false);
@@ -36,8 +65,7 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
   }, []);
 
   // If a previous session cached credentials, offer the username immediately.
-  // Offline with a valid unlock session (opened within the credential
-  // lifetime): skip the form and go straight into the journée — the service
+  // Offline with a saved unlock session: go straight into the journée. The service
   // worker serves the cached pages, snapshot + outbox keep everything working.
   useEffect(() => {
     try {
@@ -73,48 +101,6 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
     window.location.assign(`/${locale}${safeFrom}`);
   }
 
-  async function loginWithQr(token: string): Promise<boolean> {
-    const trimmed = token.trim();
-    if (!trimmed || loading) return false;
-    setLoading(true);
-    setError(null);
-    try {
-      let res: Response;
-      try {
-        res = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({ qrToken: trimmed }),
-        });
-      } catch {
-        setError(t("networkError"));
-        return false;
-      }
-      if (res.status === 401) {
-        setError(t("invalidError"));
-        return false;
-      }
-      if (!res.ok) {
-        setError(t("error"));
-        return false;
-      }
-      const d = await res.json().catch(() => null);
-      // QR login also opens the offline session (reopening the app
-      // offline within the credential lifetime goes straight in) AND caches
-      // the badge itself — drivers who never type a password unlock later
-      // by scanning again, with zero connection.
-      try {
-        markOfflineUnlocked();
-        saveOfflineQr(trimmed, d?.user?.username ?? "", d?.user?.role ?? "");
-      } catch { /* offline cache is best-effort */ }
-      redirectAfterLogin(d?.user?.role);
-      return true;
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (loading) return;
@@ -130,9 +116,10 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
           credentials: "same-origin",
           body: JSON.stringify({ username: trimmedUsername, password }),
         });
+        if (res.status >= 500) throw new Error("server_unreachable");
       } catch {
         // No connection: fall back to the on-device credential cache from
-        // the first online login (30-day TTL, 5-tries lockout inside).
+        // the first online login (5-tries lockout inside).
         const r = tryOfflineUnlock(trimmedUsername, password);
         if (r.ok) {
           const c = getOfflineCred();
@@ -187,50 +174,13 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
     }
   }
 
-  // Camera QR scan via the shared QrScanner (native BarcodeDetector with
-  // jsQR fallback + frozen-preview watchdog). Stops after a successful login.
-  // Offline the scanned badge unlocks against the cached mapping from the
-  // last online QR login — no connection, no typing.
-  async function onScanDetect(text: string) {
-    try {
-      if (typeof navigator !== "undefined" && navigator.onLine === false) {
-        const r = tryOfflineQrUnlock(text);
-        if (r.ok) {
-          setScanning(false);
-          setError(null);
-          redirectAfterLogin(r.role);
-        } else if (r.error === "no_cache") {
-          setError(t("connectOnce"));
-          setScanning(false);
-        } else {
-          setError(t("invalidError"));
-          setScanning(false);
-        }
-        return;
-      }
-    } catch { /* fall through to the online path */ }
-    const ok = await loginWithQr(text);
-    if (ok) setScanning(false);
-  }
-
   const labelCls = dark
     ? "mb-1.5 block text-[13px] font-semibold text-white/50"
     : "mb-1 block text-xs font-semibold uppercase tracking-wide opacity-70";
   const inputCls = dark
-    ? "h-12 rounded-lg border-white/10 bg-white/[0.06] text-white caret-white placeholder:text-white/30 focus:border-[#b5dc63]/70 focus:bg-white/[0.08] focus:text-white"
+    ? "h-12 rounded-lg border-white/10 bg-white/[0.06] text-white caret-white placeholder:text-white/30 focus:border-[#63a4dc]/70 focus:bg-white/[0.08] focus:text-white"
     : undefined;
-  const tabCls = (active: boolean) =>
-    `flex-1 rounded-lg px-3 py-2 text-sm font-bold transition ${
-      active
-        ? dark
-          ? "bg-[#b5dc63] text-[#17271e]"
-          : "bg-(--brand-500)/10 text-(--brand-600)"
-        : dark
-          ? "text-white/55 hover:bg-white/10 hover:text-white"
-          : "opacity-60 hover:bg-(--bg-sunken)"
-    }`;
-  const primaryDark = "h-12 w-full bg-[#b5dc63] text-base font-bold text-[#17271e] hover:bg-[#c8e87f] hover:opacity-100";
-  const secondaryDark = "w-full border-white/10 bg-white/10 text-white hover:bg-white/15";
+  const primaryDark = "h-12 w-full bg-[#63a4dc] text-base font-bold text-[#171927] hover:bg-[#7fb8e8] hover:opacity-100";
 
   return (
     <div className="space-y-4">
@@ -239,19 +189,7 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
           📴 {t("offlineMode")}
         </p>
       )}
-      <div className={`flex gap-1 rounded-xl p-1 ${dark ? "bg-black/25" : "bg-(--bg-sunken)"}`}>
-        <button type="button" onClick={() => { setTab("pw"); setScanning(false); setError(null); }} className={tabCls(tab === "pw")}>
-          {t("tabPassword")}
-        </button>
-        <button type="button" onClick={() => { setTab("qr"); setError(null); }} className={tabCls(tab === "qr")}>
-          <span className="inline-flex items-center gap-1.5">
-            <QrCode size={15} />
-            {t("tabQr")}
-          </span>
-        </button>
-      </div>
-
-            {tab === "pw" ? (
+      {(
         <form onSubmit={onSubmit} className="auth-dark space-y-4">          <div>
             <label htmlFor="login-username" className={labelCls}>{t("username")}</label>
             <Input
@@ -301,75 +239,49 @@ export function LoginForm({ dark = false }: { dark?: boolean }) {
           <Button type="submit" className={dark ? primaryDark : "w-full"} disabled={loading}>
             {loading ? `${t("submit")}…` : t("submit")}
           </Button>
+          {canReset && (
+            <button
+              type="button"
+              onClick={() => { setResetOpen(true); setRDone(false); setRErr(null); }}
+              className={`w-full text-center text-xs font-bold underline-offset-4 hover:underline ${dark ? "text-white/60 hover:text-white" : "text-(--brand-600)"}`}
+            >
+              {t("forgot")}
+            </button>
+          )}
         </form>
-      ) : (
-        // QR badge scan works offline too (camera + bundled decoder, unlock
-        // against the cached badge) — no "connect once" wall anymore.
-        <div className="auth-dark space-y-3">
-          <p className={`text-xs ${dark ? "text-white/60" : "opacity-60"}`}>{t("qrHint")}</p>
-          {scanning ? (
-            <div className="overflow-hidden rounded-xl border border-white/10 bg-black">
-              <QrScanner
-                key="login-scan"
-                className="h-56 w-full object-cover"
-                onDetect={(v) => void onScanDetect(v)}
-                onError={() => {
-                  setScanError(true);
-                  setScanning(false);
-                  setError(t("error"));
-                }}
-              />
-            </div>
-          ) : (
-            <Button
-              type="button"
-              variant="secondary"
-              className={dark ? secondaryDark : undefined}
-              onClick={() => {
-                setScanError(false);
-                setError(null);
-                setScanning(true);
-              }}
-              disabled={loading}
-            >
-              {t("scanStart")}
-            </Button>
-          )}
-          {scanning && (
-            <Button
-              type="button"
-              variant="secondary"
-              className={dark ? secondaryDark : undefined}
-              onClick={() => setScanning(false)}
-              disabled={loading}
-            >
-              {t("scanStop")}
-            </Button>
-          )}
-          {scanError && (
-            <p role="alert" className={`text-xs ${dark ? "text-white/60" : "opacity-60"}`}>{t("scanRetryHint")}</p>
-          )}
-          <div>
-            <label htmlFor="login-qrtoken" className={labelCls}>{t("tabQr")}</label>
-            <Input
-              id="login-qrtoken"
-              value={qrInput}
-              onChange={(e) => setQrInput(e.target.value)}
-              placeholder={t("qrTokenPh")}
-              autoCapitalize="off"
-              autoCorrect="off"
-              spellCheck={false}
-              disabled={loading}
-              className={inputCls}
-              dir="ltr"
-            />
-          </div>
-          {error && <p role="alert" className={`text-sm ${dark ? "text-rose-300" : "text-red-500"}`}>{error}</p>}
-          <Button type="button" className={dark ? primaryDark : "w-full"} disabled={loading || !qrInput.trim()} onClick={() => void loginWithQr(qrInput)}>
-            {loading ? `${t("qrLogin")}…` : t("qrLogin")}
-          </Button>
-        </div>
       )}
+      <Modal open={resetOpen} onClose={() => setResetOpen(false)} title={t("resetTitle")} width="md" icon="🔑">
+        {rDone ? (
+          <div className="space-y-3 text-sm">
+            <p className="rounded-lg bg-emerald-500/10 p-3 font-bold text-emerald-700">{t("resetDone")}</p>
+            <Button type="button" className="w-full" onClick={() => setResetOpen(false)}>{t("resetClose")}</Button>
+          </div>
+        ) : (
+          <form onSubmit={submitReset} className="space-y-3 text-sm">
+            <p className="text-xs leading-5 text-(--text-secondary)">{t("resetHint")}</p>
+            <div>
+              <label className="mb-1 block text-xs font-bold uppercase opacity-60">{t("activationKey")}</label>
+              <Input value={rKey} onChange={(e) => setRKey(e.target.value)} dir="ltr" autoCapitalize="characters" autoComplete="off" spellCheck={false} placeholder="XXXXX-XXXXX-XXXXX-XXXXX" className="font-mono" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-bold uppercase opacity-60">{t("username")}</label>
+              <Input value={rUser} onChange={(e) => setRUser(e.target.value)} dir="ltr" autoCapitalize="off" autoComplete="off" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-bold uppercase opacity-60">{t("newPassword")}</label>
+              <Input type="password" value={rPw} onChange={(e) => setRPw(e.target.value)} dir="ltr" autoComplete="new-password" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-bold uppercase opacity-60">{t("confirmPassword")}</label>
+              <Input type="password" value={rPw2} onChange={(e) => setRPw2(e.target.value)} dir="ltr" autoComplete="new-password" />
+            </div>
+            {rErr && <p role="alert" className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={rErr} /></p>}
+            <Button type="submit" className="w-full" disabled={rBusy || !rKey.trim() || !rPw}>
+              {rBusy ? "…" : t("resetSubmit")}
+            </Button>
+          </form>
+        )}
+      </Modal>
     </div>
   );
 }

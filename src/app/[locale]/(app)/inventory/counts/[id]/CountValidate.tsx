@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 
+import { ErrText } from "@/components/ui/ErrText";
 export function CountValidate({ countId, label }: { countId: string; label: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -30,7 +31,7 @@ export function CountValidate({ countId, label }: { countId: string; label: stri
 
   return (
     <div>
-      {error && <p className="mb-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="mb-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <Button onClick={validate} disabled={busy}>{label}</Button>
     </div>
   );

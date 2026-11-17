@@ -436,6 +436,7 @@ model Customer {
   company          Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   /// Stable code: QR payload + printed cards (`CLT-0001…`).
   code             String
+  legacyQr         String?
   name             String
   /// Portal username (unique per company).
   phone            String?
@@ -471,6 +472,7 @@ model Customer {
   deposits     Deposit[]
 
   @@unique([companyId, code])
+  @@unique([companyId, legacyQr])
   @@unique([companyId, phone])
   @@unique([companyId, opId])
   @@index([companyId, name])

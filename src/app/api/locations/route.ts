@@ -8,7 +8,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const rows = await prisma.store.findMany({
     where: { companyId: session.companyId },
-    include: { user: { select: { id: true, fullName: true, username: true } } },
+    include: { user: { select: { id: true, fullName: true, username: true, role: true } } },
     orderBy: [{ kind: "asc" }, { name: "asc" }],
   });
   return NextResponse.json(rows);

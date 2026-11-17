@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 
+import { errorPageText } from "@/lib/error-page-text";
 /// App-wide crash catcher (admin/desktop + any route without its own
 /// boundary). Same contract as the livreur boundary: a full reload is always
 /// safe — the service worker answers from cache when offline, the server
@@ -14,6 +15,7 @@ export default function AppError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const ep = errorPageText();
   useEffect(() => {
     try {
       console.error("[app-error]", error?.message ?? error);
@@ -57,7 +59,7 @@ export default function AppError({
 
   return (
     <div
-      dir="rtl"
+      dir={ep.dir}
       style={{
         minHeight: "70vh",
         display: "flex",
@@ -78,11 +80,11 @@ export default function AppError({
         }}
       >
         <div style={{ fontSize: 44 }}>⚠️</div>
-        <h1 style={{ fontSize: 18, margin: "0 0 6px", fontWeight: 800 }}>تعذّر فتح هذه الصفحة</h1>
+        <h1 style={{ fontSize: 18, margin: "0 0 6px", fontWeight: 800 }}>{ep.t.title}</h1>
         <p style={{ fontSize: 13, opacity: 0.7, margin: "0 0 14px", lineHeight: 1.8 }}>
           {typeof navigator !== "undefined" && navigator.onLine === false
-            ? "لا يوجد اتصال — أعد التحميل لفتح النسخة المحفوظة."
-            : "حدث خطأ أثناء التنقل — أعد التحميل للمتابعة."}
+            ? ep.t.offline
+            : ep.t.nav}
         </p>
         <button
           type="button"
@@ -92,14 +94,14 @@ export default function AppError({
             padding: 14,
             border: 0,
             borderRadius: 12,
-            background: "#65a30d",
+            background: "#0d59a3",
             color: "#fff",
             fontSize: 16,
             fontWeight: 800,
             cursor: "pointer",
           }}
         >
-          ↻ إعادة تحميل الصفحة
+          {ep.t.reload}
         </button>
         <button
           type="button"
@@ -116,7 +118,7 @@ export default function AppError({
             cursor: "pointer",
           }}
         >
-          إعادة المحاولة
+          {ep.t.retry}
         </button>
         <button
           type="button"
@@ -133,10 +135,10 @@ export default function AppError({
             cursor: "pointer",
           }}
         >
-          → رجوع
+          {ep.t.back}
         </button>
         <details style={{ marginTop: 12, fontSize: 11, opacity: 0.6, textAlign: "left" }}>
-          <summary style={{ cursor: "pointer" }}>تفاصيل الخطأ (لإرسالها للدعم)</summary>
+          <summary style={{ cursor: "pointer" }}>{ep.t.details}</summary>
           <pre dir="ltr" style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{errText}</pre>
         </details>
       </div>

@@ -6,11 +6,15 @@ import { MapPin, Store, Wallet, Crosshair } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
+import { LegacyClientQrField } from "@/components/scan/LegacyClientQrField";
 import { ClientQrCard } from "./ClientQrCard";
 import { compareNatural } from "@/lib/sort";
+import { useSyncedState } from "@/lib/data-sync";
 
+import { ErrText } from "@/components/ui/ErrText";
 export type ClientData = {
   id?: string;
+  legacyQr?: string | null;
   name: string;
   phone: string;
   address: string;
@@ -60,11 +64,12 @@ export function ClientForm({
   const handleSuccess = onSuccess ?? goList;
   const handleClose = onClose ?? goList;
   const [form, setForm] = useState(initial);
+  const [legacyQrEdit, setLegacyQrEdit] = useState<string | null>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   /// Secteurs grow inline via the + button (uses the selected wilaya).
-  const [secteurList, setSecteurList] = useState(secteurs);
+  const [secteurList, setSecteurList] = useSyncedState(secteurs);
   const [showSecteur, setShowSecteur] = useState(false);
   const [secteurName, setSecteurName] = useState("");
   const [secteurBusy, setSecteurBusy] = useState(false);
@@ -185,6 +190,7 @@ export function ClientForm({
     try {
       const payload = {
         name: form.name.trim(),
+        ...(legacyQrEdit !== undefined ? { legacyQr: legacyQrEdit } : {}),
         phone: form.phone.trim() || null,
         address: form.address.trim() || null,
         wilayaCode: form.wilayaCode ? Number(form.wilayaCode) : null,
@@ -240,13 +246,21 @@ export function ClientForm({
 
   return (
     <div className="space-y-4">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       {initial.id && qrCard && showQrCode && (
         <ClientQrCard
           company={qrCard.company}
           clientName={form.name.trim()}
           clientCode={qrCard.code}
           qrUrl={qrCard.qrUrl}
+        />
+      )}
+      {initial.id && (
+        <LegacyClientQrField
+          value={legacyQrEdit === undefined ? initial.legacyQr : legacyQrEdit}
+          changed={legacyQrEdit !== undefined}
+          onChange={setLegacyQrEdit}
+          disabled={busy}
         />
       )}
       {secret && (

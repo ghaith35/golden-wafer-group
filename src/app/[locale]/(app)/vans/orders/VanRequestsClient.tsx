@@ -8,6 +8,7 @@ import { fmtDT } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { packBreakdown } from "@/components/products/UnitQty";
+import { useSyncedState } from "@/lib/data-sync";
 
 type Row = {
   id: string; number: string; status: string; date: unknown; notes: string | null;
@@ -42,7 +43,7 @@ export function VanRequestsClient({
   statusLabel: Record<string, string>;
 }) {
   const router = useRouter();
-  const [rows, setRows] = useState(initial);
+  const [rows, setRows] = useSyncedState(initial);
   const [armed, setArmed] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -114,25 +114,28 @@ describe("offline login credential cache", () => {
     expect(tryOfflineUnlock("ahmed", "ahmed2002", s)).toMatchObject({ ok: true });
   });
 
-  it("expired cache (30d+) behaves as no cache", async () => {
-    const { saveOfflineCred, getOfflineCred, tryOfflineUnlock } = await import("@/lib/sync/client");
+  it("keeps the saved password and session usable after a year offline", async () => {
+    const { saveOfflineCred, getOfflineCred, hasOfflineUnlock, tryOfflineUnlock } = await import("@/lib/sync/client");
     const s = mem();
     saveOfflineCred("ahmed", "ahmed2002", "Livreur", s);
     const raw = JSON.parse(s.getItem("dili_offline_cred_v1")!);
-    raw.cachedAt = Date.now() - 31 * 24 * 60 * 60 * 1000;
+    raw.cachedAt = Date.now() - 365 * 24 * 60 * 60 * 1000;
     s.setItem("dili_offline_cred_v1", JSON.stringify(raw));
-    expect(getOfflineCred(s)).toBeNull();
-    expect(tryOfflineUnlock("ahmed", "ahmed2002", s)).toMatchObject({ ok: false, error: "no_cache" });
+    s.setItem("dili_offline_unlocked_v1", JSON.stringify(raw.cachedAt));
+    expect(getOfflineCred(s)?.username).toBe("ahmed");
+    expect(hasOfflineUnlock(s)).toBe(true);
+    expect(tryOfflineUnlock("ahmed", "ahmed2002", s)).toMatchObject({ ok: true });
   });
 
   it("clearOfflineCred wipes everything (logout/reset path)", async () => {
-    const { saveOfflineCred, clearOfflineCred, getOfflineCred, tryOfflineUnlock } = await import(
+    const { saveOfflineCred, clearOfflineCred, getOfflineCred, hasOfflineUnlock, tryOfflineUnlock } = await import(
       "@/lib/sync/client"
     );
     const s = mem();
     saveOfflineCred("ahmed", "ahmed2002", "Livreur", s);
     expect(tryOfflineUnlock("ahmed", "ahmed2002", s)).toMatchObject({ ok: true });
     clearOfflineCred(s);
+    expect(hasOfflineUnlock(s)).toBe(false);
     expect(getOfflineCred(s)).toBeNull();
     expect(tryOfflineUnlock("ahmed", "ahmed2002", s)).toMatchObject({ ok: false, error: "no_cache" });
   });

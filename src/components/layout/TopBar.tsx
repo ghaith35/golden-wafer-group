@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDown, ChevronLeft, LogOut, Menu, Minus, Moon, Plus, Sun, UserRound } from "lucide-react";
+import { ChevronDown, ChevronLeft, LogOut, Menu, Minus, Moon, Plus, RefreshCw, Sun, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { notifyDataChanged, useRefreshPending } from "@/lib/data-sync";
+import { ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN, getZoom, subscribeZoom, zoomIn, zoomOut, zoomReset } from "@/lib/ui-zoom";
 import { serverUnreachable, popCrumb } from "@/lib/sync/client";
 import { SyncBadge, type SyncBadgeLabels } from "@/components/sync/SyncBadge";
 import { isDarkNow, toggleDark, THEME_CHANGED_EVENT } from "@/components/theme/ThemeSelector";
@@ -129,6 +131,8 @@ export function TopBar({
 
       <SyncBadge labels={syncLabels} forceShow={forceSyncShow} />
 
+      <RefreshButton />
+
       <div className="hidden items-center gap-2 md:flex">
         <ZoomControl />
         <LanguageSwitcher />
@@ -137,6 +141,25 @@ export function TopBar({
       <UserMenu username={username} onLogout={onLogout} />
     </header>
     </>
+  );
+}
+
+/// Actualiser: reloads the current page's data in place (no navigation, open
+/// forms keep what was typed). Same action F5 / Ctrl+R trigger.
+function RefreshButton() {
+  const t = useTranslations("nav");
+  const pending = useRefreshPending();
+  const mod = typeof navigator !== "undefined" && /Mac/i.test(navigator.platform) ? "⌘" : "Ctrl";
+  return (
+    <button
+      type="button"
+      onClick={() => notifyDataChanged()}
+      aria-label={t("refresh")}
+      title={`${t("refresh")} (F5 · ${mod} R)`}
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default) bg-(--bg-overlay) text-(--text-secondary) transition-colors hover:border-(--brand-500) hover:text-(--brand-600)"
+    >
+      <RefreshCw size={16} className={cn(pending && "animate-spin")} />
+    </button>
   );
 }
 
@@ -208,34 +231,11 @@ function UserMenu({ username, onLogout }: { username: string | null; onLogout: (
   );
 }
 
-/// Chrome-like UI zoom (A− / A+): scales the root font size, so every
-/// rem-based element grows/shrinks like browser zoom. Persisted per device.
-const ZOOM_KEY = "dili_ui_zoom";
-const ZOOM_MIN = 70;
-const ZOOM_MAX = 150;
-const ZOOM_STEP = 10;
-
+/// Interface zoom: − / 100% / + buttons. Same store as the keyboard shortcuts
+/// (Ctrl/Cmd + − 0, wired in UiZoomBoot) — see lib/ui-zoom.ts.
 function ZoomControl() {
-  // Lazy init from storage: the component remounts on every full document
-  // load (locale switch, login redirects), and a 100-default + apply-on-mount
-  // would flash the wrong size and clobber the saved value each time.
-  // Reading once up front keeps the zoom fixed until the user changes it.
-  const [zoom, setZoom] = useState(() => {
-    try {
-      const raw = window.localStorage.getItem(ZOOM_KEY);
-      if (raw === null) return 100; // never set → default, not the min clamp
-      const saved = Number(raw);
-      if (Number.isFinite(saved)) return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, saved));
-    } catch { /* private mode */ }
-    return 100;
-  });
-
-  useEffect(() => {
-    document.documentElement.style.fontSize = `${(16 * zoom) / 100}px`;
-    try {
-      window.localStorage.setItem(ZOOM_KEY, String(zoom));
-    } catch { /* private mode */ }
-  }, [zoom]);
+  const zoom = useSyncExternalStore(subscribeZoom, getZoom, () => ZOOM_DEFAULT);
+  const mod = typeof navigator !== "undefined" && /Mac/i.test(navigator.platform) ? "⌘" : "Ctrl";
 
   const btn = "flex h-11 w-9 shrink-0 items-center justify-center text-(--text-secondary) transition-colors hover:text-(--text-primary) disabled:opacity-30";
 
@@ -244,9 +244,9 @@ function ZoomControl() {
       <button
         type="button"
         aria-label="Zoom out"
-        title="Zoom out (−)"
+        title={`Zoom out (${mod} −)`}
         disabled={zoom <= ZOOM_MIN}
-        onClick={() => setZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP))}
+        onClick={zoomOut}
         className={btn}
       >
         <Minus size={15} />
@@ -254,8 +254,8 @@ function ZoomControl() {
       <button
         type="button"
         aria-label="Reset zoom"
-        title="Reset (100%)"
-        onClick={() => setZoom(100)}
+        title={`Reset (${mod} 0)`}
+        onClick={zoomReset}
         className="min-h-11 min-w-12 rounded-md px-1 text-xs font-black text-(--text-secondary) transition-colors hover:text-(--text-primary)"
       >
         {zoom}%
@@ -263,9 +263,9 @@ function ZoomControl() {
       <button
         type="button"
         aria-label="Zoom in"
-        title="Zoom in (+)"
+        title={`Zoom in (${mod} +)`}
         disabled={zoom >= ZOOM_MAX}
-        onClick={() => setZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP))}
+        onClick={zoomIn}
         className={btn}
       >
         <Plus size={15} />
@@ -293,7 +293,7 @@ export function LanguageSwitcher({ tone = "light" }: { tone?: "light" | "onDark"
     <div
       className={cn(
         "flex gap-1 rounded-xl p-1",
-        tone === "onDark" ? "bg-[#edf1e2]/95 shadow-[0_2px_12px_rgba(0,0,0,0.35)]" : "bg-(--bg-sunken)"
+        tone === "onDark" ? "bg-[#eaf1fd]/95 shadow-[0_2px_12px_rgba(0,0,0,0.35)]" : "bg-(--bg-sunken)"
       )}
       dir="ltr"
       role="group"
@@ -310,10 +310,10 @@ export function LanguageSwitcher({ tone = "light" }: { tone?: "light" | "onDark"
             "min-h-10 min-w-11 rounded-lg px-2 text-xs font-black transition-colors sm:px-3.5",
             l === locale
               ? tone === "onDark"
-                ? "bg-[#5f8f2e] text-white shadow"
+                ? "bg-[#3b82f6] text-white shadow"
                 : "bg-gradient-brand text-(--brand-contrast) shadow"
               : tone === "onDark"
-                ? "text-[#43552f] hover:text-[#1d2a12]"
+                ? "text-[#1e3a8a] hover:text-[#0f172a]"
                 : "text-(--text-secondary) hover:text-(--text-primary)"
           )}
         >

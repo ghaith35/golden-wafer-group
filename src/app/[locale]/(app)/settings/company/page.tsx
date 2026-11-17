@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { SettingsPanel, useSectionText } from "@/components/settings/SettingsPanel";
 import { api } from "@/components/settings/api";
 
+import { ErrText } from "@/components/ui/ErrText";
 const FIELDS: Array<{ key: string; dir?: "ltr" }> = [
   { key: "name" },
   { key: "phone", dir: "ltr" },
@@ -100,7 +101,7 @@ export default function CompanySettingsPage() {
 
   return (
     <SettingsPanel title={title} description={description}>
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <Card>
         <div className="grid gap-4 sm:grid-cols-3">
           {(

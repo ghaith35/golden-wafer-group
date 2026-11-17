@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
+import { ErrText } from "@/components/ui/ErrText";
 /// Section header: title + description, like Khiata's SettingsPanel heading.
 export function SettingsPanel({
   title,
@@ -76,7 +77,7 @@ export function SettingRow({
       </div>
       <div className={stacked ? "w-full" : "w-full sm:w-[280px] sm:shrink-0"}>
         {children}
-        {error && <p className="mt-1.5 text-[11px] font-black text-red-500">{error}</p>}
+        {error && <p className="mt-1.5 text-[11px] font-black text-red-500"><ErrText code={error} /></p>}
       </div>
     </div>
   );

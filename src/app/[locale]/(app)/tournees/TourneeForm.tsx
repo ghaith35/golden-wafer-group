@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
+import { addDaysKey } from "@/lib/tournees/days";
 
+import { ErrText } from "@/components/ui/ErrText";
 const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
 
 /// Secteur-only creation: pick a secteur and ALL its clients are uploaded to
@@ -22,6 +24,8 @@ export function TourneeForm({
   onClose,
   presetVanId,
   presetWeekday,
+  presetDate,
+  weekStartKey,
 }: {
   locale: string;
   vans: Array<{ id: string; name: string; matricule: string | null }>;
@@ -32,6 +36,11 @@ export function TourneeForm({
   onClose?: () => void;
   presetVanId?: string;
   presetWeekday?: number;
+  /// Exact calendar day (YYYY-MM-DD) of the clicked matrix cell.
+  presetDate?: string;
+  /// Saturday (YYYY-MM-DD) of the week shown on the board — the weekday
+  /// select resolves inside that week, not "next occurrence from today".
+  weekStartKey?: string;
 }) {
   const router = useRouter();
   const goBoard = () => {
@@ -55,6 +64,7 @@ export function TourneeForm({
   const [weekday, setWeekday] = useState(() => presetWeekday ?? (new Date().getDay() + 1) % 7);
   const [secteurId, setSecteurId] = useState("");
   const [notes, setNotes] = useState("");
+  const [repeat, setRepeat] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitGuard = useRef(false);
@@ -74,11 +84,18 @@ export function TourneeForm({
       setError(labels.secteurRequired ?? "secteur_required");
       return;
     }
-    // Upcoming date for the chosen fixed weekday (0 = Saturday).
-    const target = (weekday + 6) % 7; // JS getDay (Sat = 6)
-    const d = new Date();
-    d.setDate(d.getDate() + ((target - d.getDay() + 7) % 7));
-    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    // The clicked cell's exact day, else the chosen weekday inside the week
+    // currently shown on the board (0 = Saturday).
+    let date = presetDate ?? "";
+    if (!date) {
+      if (weekStartKey) date = addDaysKey(weekStartKey, weekday);
+      else {
+        const target = (weekday + 6) % 7; // JS getDay (Sat = 6)
+        const d = new Date();
+        d.setDate(d.getDate() + ((target - d.getDay() + 7) % 7));
+        date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      }
+    }
     submitGuard.current = true;
     setBusy(true);
     try {
@@ -91,6 +108,7 @@ export function TourneeForm({
           secteurId,
           notes: notes || null,
           clientIds: [], // server uploads ALL clients of the secteur
+          repeatWeeks: repeat ? 11 : 0,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -111,7 +129,7 @@ export function TourneeForm({
 
   return (
     <div className="space-y-4">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <Card>
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
@@ -162,6 +180,10 @@ export function TourneeForm({
           <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.notes}</label>
           <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
+        <label className="mt-2 flex cursor-pointer items-center gap-2 text-sm font-bold">
+          <input type="checkbox" checked={repeat} onChange={(e) => setRepeat(e.target.checked)} className="h-4 w-4 accent-(--brand-500)" />
+          {labels.repeatWeekly}
+        </label>
         <div className="mt-2 rounded-xl bg-(--brand-500)/10 px-3 py-2 text-sm font-black text-(--brand-600)">
           {secteurId
             ? `${secteurClients.length} ${labels.stops} · ${labels.allClients}`

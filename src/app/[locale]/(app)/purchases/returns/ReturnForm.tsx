@@ -9,6 +9,7 @@ import { factorOf, baseNameOf, PackInfo } from "@/components/products/UnitQty";
 import { breakdownNested } from "@/lib/products/colisage";
 import { dz } from "@/lib/format";
 
+import { ErrText } from "@/components/ui/ErrText";
 const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
 
 type ProductOpt = {
@@ -123,7 +124,7 @@ export function SupplierReturnForm({
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 p-5 md:p-6">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <Card>
         <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.supplier}</label>
         <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className={inputCls}>
