@@ -14,15 +14,16 @@ export async function GET(req: Request) {
   const machine = await prisma.machine.findUnique({ where: { machineId } });
   if (!machine) return NextResponse.json({ status: "pending" });
   if (machine.status === "revoked") return NextResponse.json({ status: "revoked", revoked: true });
-  // Key-bound and healthy → fresh token (self-heals pre-token rows).
+  // Key-bound and healthy → FRESH token (self-heals pre-token rows AND stale
+  // machine.token rows signed with a rotated/ALT key the installer rejects).
+  // The stored token is refreshed best-effort so the next poll converges.
   const key = await prisma.licenseKey.findFirst({ where: { machineId, revoked: false } });
   if (key || machine.status === "activated") {
     const label = key?.label ?? machine.label ?? "";
     const humanKey = key?.humanKey ?? machine.activationKey ?? undefined;
-    return NextResponse.json({
-      status: "active",
-      token: machine.token ?? activationToken(machineId, label, humanKey),
-    });
+    const token = activationToken(machineId, label, humanKey);
+    void prisma.machine.update({ where: { machineId }, data: { token, lastSeen: new Date() } }).catch(() => {});
+    return NextResponse.json({ status: "active", token });
   }
   if (machine.trialEnd && new Date() > machine.trialEnd) return NextResponse.json({ status: "pending", trialEnded: true });
   const trial = await prisma.trialIssue.findUnique({ where: { machineId } });

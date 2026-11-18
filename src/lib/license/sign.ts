@@ -12,11 +12,16 @@ function privateKey(): crypto.KeyObject {
 /// Legacy installers baked a different public key. Devices listed in
 /// LICENSE_ALT_MACHINES (comma-separated machine ids) are signed with
 /// LICENSE_PRIVATE_KEY_ALT (the key that installer trusts); everyone else is untouched.
+/// A malformed ALT key must never break signing — fall back to the main key.
 function privateKeyFor(machineId: unknown): crypto.KeyObject {
   const alt = process.env.LICENSE_PRIVATE_KEY_ALT;
   const ids = (process.env.LICENSE_ALT_MACHINES || "").split(",").map((x) => x.trim()).filter(Boolean);
   if (alt && typeof machineId === "string" && ids.includes(machineId)) {
-    return crypto.createPrivateKey({ key: Buffer.from(alt, "base64"), format: "der", type: "pkcs8" });
+    try {
+      return crypto.createPrivateKey({ key: Buffer.from(alt, "base64"), format: "der", type: "pkcs8" });
+    } catch {
+      return privateKey();
+    }
   }
   return privateKey();
 }
