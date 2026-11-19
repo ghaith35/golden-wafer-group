@@ -593,3 +593,20 @@ main .grid > *:nth-child(n+7), .table-shell tbody tr:nth-child(n+7) { animation-
   main > *, main .grid > *, main ul > li, .table-shell tbody tr { animation: none !important; }
   body { background: #fff !important; }
 }
+
+/* ── Dashboard motion ── */
+@keyframes gw-bar-rise { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); } }
+@keyframes gw-grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes gw-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes gw-donut { from { stroke-opacity: 0; } to { stroke-opacity: 1; } }
+@keyframes gw-pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.8); } }
+.gw-bar-rise { animation: gw-bar-rise 0.7s var(--ease-out) backwards; }
+.gw-grow-x { animation: gw-grow-x 0.9s var(--ease-out) backwards; transform-origin: left; }
+[dir="rtl"] .gw-grow-x { transform-origin: right; }
+.gw-draw { stroke-dasharray: 1; animation: gw-draw 1.3s var(--ease-out) 0.2s backwards; }
+.gw-fade-in { animation: gw-fade 1s ease 0.3s backwards; }
+.gw-donut { animation: gw-donut 0.8s ease backwards; }
+.gw-live { animation: gw-pulse-dot 2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .gw-bar-rise, .gw-grow-x, .gw-draw, .gw-fade-in, .gw-donut, .gw-live { animation: none !important; }
+}

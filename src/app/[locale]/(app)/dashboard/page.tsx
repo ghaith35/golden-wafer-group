@@ -10,6 +10,8 @@ import {
   Percent, ShoppingCart, Store, TrendingUp, Truck, Users, Wallet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DashboardClient, type DashAction } from "@/components/dashboard/DashboardClient";
+import { buildDashboard, dashboardSince } from "@/lib/dashboard/stats";
 
 const fmt = (v: number) => dzMoney(v);
 
@@ -27,6 +29,68 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const dayStart = new Date(now);
   dayStart.setHours(0, 0, 0, 0);
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  if (session.role === "Admin") {
+    const since = dashboardSince(now);
+    const KINDS = ["DELIVERY", "TICKET"] as ["DELIVERY", "TICKET"];
+    const [sales, expenses, vans, clientDebts, supplierDebts, products] = await Promise.all([
+      prisma.sale.findMany({
+        where: { companyId, kind: { in: KINDS }, status: "DELIVERED", date: { gte: since } },
+        select: {
+          id: true, number: true, date: true, total: true, paid: true, channel: true, locationId: true, clientId: true,
+          client: { select: { name: true } },
+          lines: { select: { productId: true, baseQty: true, lineTotal: true, unitCost: true, product: { select: { name: true } } } },
+        },
+        orderBy: { date: "desc" },
+        take: 40000,
+      }),
+      prisma.expense.findMany({
+        where: { companyId, deletedAt: null, expenseDate: { gte: since } },
+        select: { amount: true, expenseDate: true, locationId: true },
+        take: 20000,
+      }),
+      prisma.store.findMany({
+        where: { companyId, kind: "VAN" },
+        select: { id: true, name: true, matricule: true, isActive: true, user: { select: { fullName: true } } },
+      }),
+      prisma.customer.aggregate({ where: { companyId, balance: { gt: 0 } }, _sum: { balance: true } }),
+      prisma.supplier.aggregate({ where: { companyId, balance: { gt: 0 } }, _sum: { balance: true } }),
+      prisma.product.findMany({ where: { companyId, isActive: true }, select: { name: true, stockQty: true, minStock: true } }),
+    ]);
+    const low = products
+      .filter((p) => Number(p.stockQty) <= Number(p.minStock))
+      .sort((a, b) => Number(a.stockQty) - Number(b.stockQty));
+    const data = buildDashboard({
+      now,
+      sales,
+      expenses,
+      vans: vans.map((v) => ({ id: v.id, name: v.name, matricule: v.matricule, isActive: v.isActive, driver: v.user?.fullName ?? null })),
+    });
+    const adminActions: DashAction[] = [
+      { href: "pos", label: tn("pos"), icon: "Store", cls: "bg-gradient-brand text-(--brand-contrast)" },
+      { href: "sales/tickets/new", label: tn("sales"), icon: "ShoppingCart", cls: "bg-sky-500/15 text-sky-600" },
+      { href: "clients", label: tn("clients"), icon: "Users", cls: "bg-emerald-500/15 text-emerald-600" },
+      { href: "products", label: tn("inventory"), icon: "Boxes", cls: "bg-violet-500/15 text-violet-500" },
+      { href: "inventory/transfers", label: ti("transfers"), icon: "ArrowLeftRight", cls: "bg-amber-500/15 text-amber-600" },
+      { href: "expenses", label: tn("expenses"), icon: "Wallet", cls: "bg-red-500/15 text-red-500" },
+      { href: "journal", label: tr("journal"), icon: "NotebookPen", cls: "bg-teal-500/15 text-teal-600" },
+      { href: "reports", label: tr("title"), icon: "BarChart3", cls: "bg-indigo-500/15 text-indigo-500" },
+    ];
+    return (
+      <DashboardClient
+        data={data}
+        locale={locale}
+        userName={session.username}
+        extras={{
+          clientDebt: Number(clientDebts._sum.balance ?? 0),
+          supplierDebt: Number(supplierDebts._sum.balance ?? 0),
+          lowCount: low.length,
+          lowList: low.slice(0, 5).map((p) => ({ name: p.name, qty: Number(p.stockQty), min: Number(p.minStock) })),
+        }}
+        actions={adminActions}
+      />
+    );
+  }
 
   const [todaySales, monthSales, clientDebts, supplierDebts] = await Promise.all([
     prisma.sale.aggregate({
