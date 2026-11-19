@@ -98,8 +98,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
     return NextResponse.json({ error: "bad_action" }, { status: 400 });
   } catch (e) {
-    const err = e as Error & { status?: number };
-    return NextResponse.json({ error: err.message }, { status: err.status ?? 500 });
+    const err = e as Error & { status?: number; short?: Array<{ name: string; need: number; have: number }> };
+    // Name the short products so the screen can say exactly which ones.
+    const msg = err.message === "insufficient_stock" && err.short?.length
+      ? `insufficient_stock: ${err.short.map((x) => `${x.name} (${x.have}/${x.need})`).join(", ")}`
+      : err.message;
+    return NextResponse.json({ error: msg }, { status: err.status ?? 500 });
   }
 }
 
