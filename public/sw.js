@@ -305,7 +305,7 @@ function offlinePage() {
     `<body style="font-family:system-ui;display:flex;min-height:100vh;align-items:center;justify-content:center;background:#070708;color:#e2e8f0;margin:0">` +
     `<div style="text-align:center;padding:24px"><div style="font-size:44px">📴</div>` +
     `<h1>لا يوجد اتصال</h1><p>افتح هذه الصفحة مرة واحدة وأنت متصل لتتوفر دون إنترنت.</p>` +
-    `<button onclick="location.reload()" style="padding:12px 28px;border:0;border-radius:10px;background:#0d59a3;color:#fff;font-size:16px;font-weight:800">إعادة المحاولة</button>` +
+    `<button onclick="location.reload()" style="padding:12px 28px;border:0;border-radius:10px;background:#c9951a;color:#1c1200;font-size:16px;font-weight:800">إعادة المحاولة</button>` +
     `</div></body></html>`,
         { headers: { "Content-Type": "text/html; charset=utf-8" } }
   );

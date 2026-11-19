@@ -6,8 +6,22 @@ export function SwRegister() {
   useEffect(() => {
     // Desktop serves the bundled app locally and clears old workers before boot.
     if (window.distribuili?.isDesktop) return;
-    if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    // The offline shell ("لا يوجد اتصال") exists for the van APK only. Plain web
+    // browsers never get a worker; any worker/caches left from earlier visits
+    // are removed so that page can never appear on the web.
+    const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+    const isApk = !!cap && (typeof cap.isNativePlatform !== "function" || cap.isNativePlatform());
+    if ("serviceWorker" in navigator) {
+      if (isApk) {
+        if (process.env.NODE_ENV === "production") navigator.serviceWorker.register("/sw.js").catch(() => {});
+      } else {
+        navigator.serviceWorker
+          .getRegistrations()
+          .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+          .then(() => (typeof caches !== "undefined" ? caches.keys() : []))
+          .then((keys) => Promise.all(keys.filter((k) => /^dili|distribuili|workbox/i.test(k)).map((k) => caches.delete(k))))
+          .catch(() => {});
+      }
     }
     // Self-heal after a server redeploy: cached HTML can reference a rotated
     // JS chunk (404 → ChunkLoadError → "This page couldn't load"). Reload
