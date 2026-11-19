@@ -41,15 +41,15 @@ export function KpiCard({
     );
   }
   return (
-    <div className={cn("flex items-center gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5", className)}>
+    <div className={cn("flex flex-col items-start gap-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 sm:flex-row sm:items-center sm:gap-3 sm:p-3.5", className)}>
       {icon && (
-        <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl", accent ?? "bg-(--bg-sunken) text-(--text-secondary)")}>
+        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl sm:h-12 sm:w-12", accent ?? "bg-(--bg-sunken) text-(--text-secondary)")}>
           {icon}
         </div>
       )}
-      <div className="min-w-0">
-        <div className="truncate text-[11px] font-bold text-(--text-tertiary)">{label}</div>
-        <div className={cn("truncate text-[22px] font-black tabular-nums", valueClassName)}>{value}</div>
+      <div className="w-full min-w-0">
+        <div className="line-clamp-2 text-[11px] font-bold leading-tight text-(--text-tertiary)">{label}</div>
+        <div className={cn("whitespace-nowrap text-[clamp(16px,5vw,22px)] font-black leading-tight tabular-nums sm:text-[22px]", valueClassName)}>{value}</div>
       </div>
     </div>
   );

@@ -135,7 +135,8 @@ export function TopBar({
       <RefreshButton />
 
       <div className="hidden items-center gap-2 md:flex">
-        <ZoomControl />
+        {/* Zoom needs room: shown from 1024px; tablets keep title + language + user. */}
+        <div className="hidden lg:block"><ZoomControl /></div>
         <LanguageSwitcher />
       </div>
       <ThemeToggle />
@@ -201,7 +202,7 @@ function UserMenu({ username, onLogout }: { username: string | null; onLogout: (
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-brand text-xs font-black text-(--brand-contrast)">
           {username ? initial : <UserRound size={14} />}
         </span>
-        {username && <span className="hidden max-w-32 truncate sm:block">{username}</span>}
+        {username && <span className="hidden max-w-32 truncate lg:block">{username}</span>}
         <ChevronDown size={14} className={cn("shrink-0 opacity-60 transition-transform", open && "rotate-180")} />
       </button>
       {open && (
@@ -320,8 +321,8 @@ export function LanguageSwitcher({ tone = "light" }: { tone?: "light" | "onDark"
         >
           {/* Compact code on phones (full names overflow narrow drawers),
               full name from sm up. */}
-          <span className="sm:hidden">{l.toUpperCase()}</span>
-          <span className="hidden sm:block">{LANGUAGE_FULL[l]}</span>
+          <span className="lang-code sm:hidden">{l.toUpperCase()}</span>
+          <span className="lang-full hidden sm:block">{LANGUAGE_FULL[l]}</span>
         </button>
       ))}
     </div>

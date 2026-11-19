@@ -427,3 +427,9 @@ img, video, canvas, svg { max-width: 100%; }
 @media (min-width: 2200px) {
   main { max-width: 2000px; margin-inline: auto; }
 }
+
+/* Tablet top bar (sidebar open, ~530px of room): language switcher shows AR/FR/EN. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  header .lang-full { display: none !important; }
+  header .lang-code { display: block !important; }
+}
