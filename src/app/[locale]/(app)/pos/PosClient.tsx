@@ -289,10 +289,10 @@ export function PosClient({
   }
 
   return (
-    <div className="space-y-4 p-5 md:p-6">
+    <div className="flex flex-col gap-4 p-5 md:p-6 lg:h-[calc(var(--vh)-3.5rem)] lg:overflow-hidden lg:pb-4">
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
 
-      <div className="grid items-start gap-4 lg:h-[calc(var(--vh)-190px)] lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid items-start gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_380px] lg:grid-rows-[minmax(0,1fr)] lg:items-stretch">
         {/* ── Product shelf (start side) ── */}
         <div className="min-w-0 space-y-3 lg:h-full lg:overflow-y-auto lg:pe-1">
           <div className="flex gap-2">
