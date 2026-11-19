@@ -374,7 +374,8 @@
     "bonLivraison": "Bon de livraison",
     "bonLivraisonDesc": "Document A4 professionnel et détaillé, prêt à imprimer ou en PDF",
     "bonRoute": "Bon de route",
-    "soon": "Bientôt disponible"
+    "soon": "Bientôt disponible",
+    "bonRouteDesc": "Document fiscal : remise, TVA, timbre et identifiants vendeur / client (RC, NIF, AI, NIS, RIB)"
   },
   "tournees": {
     "title": "Tournées",

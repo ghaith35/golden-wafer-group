@@ -611,3 +611,9 @@ main .grid > *:nth-child(n+7), .table-shell tbody tr:nth-child(n+7) { animation-
 @media (prefers-reduced-motion: reduce) {
   .gw-bar-rise, .gw-grow-x, .gw-draw, .gw-fade-in, .gw-donut, .gw-live { animation: none !important; }
 }
+
+/* Printed documents never carry the app shell's sidebar / top-bar offsets. */
+@media print {
+  [data-shell-content] { padding: 0 !important; }
+  main { max-width: none !important; margin: 0 !important; }
+}

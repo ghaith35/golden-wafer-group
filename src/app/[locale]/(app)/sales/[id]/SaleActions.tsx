@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FileText, Truck, Bus, CalendarClock, Check, CircleDollarSign, Layers, Package, Printer, Store, Wallet, Coins } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
+import { BonRouteFlow } from "@/components/sales/BonRouteFlow";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
@@ -202,6 +203,7 @@ export function SaleActions({
       .catch(() => setIsAdmin(false));
   }, []);
   const [blOpen, setBlOpen] = useState(false);
+  const [bdrOpen, setBdrOpen] = useState(false);
   const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
   /// Depot availability for the load preview (fetched when opening it).
   const [depotMap, setDepotMap] = useState<Record<string, number> | null>(null);
@@ -617,6 +619,7 @@ export function SaleActions({
         message={`${labels.invoiceM ?? ""}\n${sale.number} · ${num(total)}`}
         confirmLabel={labels.invoice}
       />
+      <BonRouteFlow open={bdrOpen} onClose={() => setBdrOpen(false)} locale={locale} saleId={sale.id} saleNumber={sale.number} client={sale.client ? { code: sale.client.code, name: sale.client.name } : null} />
       <Modal open={blOpen} onClose={() => setBlOpen(false)} title={labels.bonLivraison ?? "Bon de livraison"} subtitle={sale.number} icon="🧾" width="2xl">
         {blOpen && (
           <iframe
@@ -637,11 +640,15 @@ export function SaleActions({
             <span className="text-base font-black">{labels.bonLivraison ?? "Bon de livraison"}</span>
             <span className="text-xs font-bold text-(--text-secondary)">{labels.bonLivraisonDesc ?? "A4"}</span>
           </button>
-          <div className="relative flex cursor-not-allowed flex-col gap-2 rounded-2xl border border-dashed border-(--border-default) p-4 text-start opacity-60">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--bg-sunken) text-(--text-secondary)"><Truck size={20} /></span>
+          <button
+            type="button"
+            onClick={() => { setModal(null); setBdrOpen(true); }}
+            className="group relative flex min-h-0 flex-col items-start gap-2 overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 text-start transition-all hover:-translate-y-0.5 hover:border-(--brand-500) hover:shadow-[0_16px_34px_-16px_var(--brand-500)]"
+          >
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--gold-wash) text-(--gold-text)"><Truck size={20} /></span>
             <span className="text-base font-black">{labels.bonRoute ?? "Bon de route"}</span>
-            <span className="text-xs font-bold text-(--text-secondary)">{labels.soon ?? "…"}</span>
-          </div>
+            <span className="text-xs font-bold text-(--text-secondary)">{labels.bonRouteDesc ?? ""}</span>
+          </button>
         </div>
       </Modal>
       <Modal open={modal === "assign"} onClose={() => setModal(null)} title={labels.assignT ?? labels.assign} icon="🚚" width="sm">

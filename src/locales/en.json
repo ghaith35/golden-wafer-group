@@ -374,7 +374,8 @@
     "bonLivraison": "Delivery note",
     "bonLivraisonDesc": "Detailed professional A4 document, ready to print or save as PDF",
     "bonRoute": "Route slip",
-    "soon": "Coming soon"
+    "soon": "Coming soon",
+    "bonRouteDesc": "Fiscal document: discount, VAT, stamp duty and seller / customer IDs (RC, NIF, AI, NIS, RIB)"
   },
   "tournees": {
     "title": "Routes",

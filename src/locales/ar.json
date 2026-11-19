@@ -374,7 +374,8 @@
     "bonLivraison": "سند تسليم (Bon de livraison)",
     "bonLivraisonDesc": "وثيقة A4 احترافية مفصّلة جاهزة للطباعة أو PDF",
     "bonRoute": "سند الطريق (Bon de route)",
-    "soon": "قريباً"
+    "soon": "قريباً",
+    "bonRouteDesc": "فاتورة جبائية: تخفيض، رسم TVA، طابع، ومعرّفات البائع والزبون (RC, NIF, AI, NIS, RIB)"
   },
   "tournees": {
     "title": "الجولات",
