@@ -369,7 +369,12 @@
     "vanLabel": "Camion",
     "progressPaid": "Taux d'encaissement",
     "subtotal": "Sous-total",
-    "discount": "Remise"
+    "discount": "Remise",
+    "factureBtn": "Facture",
+    "bonLivraison": "Bon de livraison",
+    "bonLivraisonDesc": "Document A4 professionnel et détaillé, prêt à imprimer ou en PDF",
+    "bonRoute": "Bon de route",
+    "soon": "Bientôt disponible"
   },
   "tournees": {
     "title": "Tournées",

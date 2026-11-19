@@ -164,6 +164,7 @@ export default async function SalesPage({
         kindTicket: t("kindTicket"), kindDelivery: t("kindDelivery"), kindInvoice: t("kindInvoice"), kindOrder: t("kindOrder"),
         linesCount: t("linesCount"), pieces: t("pieces"), dateLabel: t("dateLabel"), progressPaid: t("progressPaid"),
         subtotal: t("subtotal"), discount: t("discount"), back: t("back"),
+        factureBtn: t("factureBtn"), bonLivraison: t("bonLivraison"), bonLivraisonDesc: t("bonLivraisonDesc"), bonRoute: t("bonRoute"), soon: t("soon"),
       }}
       />
     </div>

@@ -369,7 +369,12 @@
     "vanLabel": "الشاحنة",
     "progressPaid": "نسبة التحصيل",
     "subtotal": "المجموع",
-    "discount": "التخفيض"
+    "discount": "التخفيض",
+    "factureBtn": "فاتورة",
+    "bonLivraison": "سند تسليم (Bon de livraison)",
+    "bonLivraisonDesc": "وثيقة A4 احترافية مفصّلة جاهزة للطباعة أو PDF",
+    "bonRoute": "سند الطريق (Bon de route)",
+    "soon": "قريباً"
   },
   "tournees": {
     "title": "الجولات",

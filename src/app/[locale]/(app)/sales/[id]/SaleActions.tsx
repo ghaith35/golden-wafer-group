@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bus, CalendarClock, Check, CircleDollarSign, Layers, Package, Printer, Store, Wallet, Coins } from "lucide-react";
+import { FileText, Truck, Bus, CalendarClock, Check, CircleDollarSign, Layers, Package, Printer, Store, Wallet, Coins } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -192,7 +192,7 @@ export function SaleActions({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   /// Popup form replacing the old JS confirm(): which action awaits approval.
-  const [modal, setModal] = useState<null | "load" | "assign" | "deliver" | "invoice" | "cancel" | "uncancel" | "deleteOrder">(null);
+  const [modal, setModal] = useState<null | "load" | "assign" | "deliver" | "invoice" | "cancel" | "uncancel" | "deleteOrder" | "facture">(null);
   const [editing, setEditing] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
@@ -349,6 +349,11 @@ export function SaleActions({
                   <Link href={`/${locale}/sales/${sale.id}/ticket`}>
                     <Button variant="secondary">{labels.print} ticket</Button>
                   </Link>
+                )}
+                {sale.kind !== "ORDER" && (
+                  <Button onClick={() => setModal("facture")} className="gap-1.5">
+                    <FileText size={14} />{labels.factureBtn ?? "Facture"}
+                  </Button>
                 )}
               </div>
               <div className="mt-1.5 truncate text-lg font-black leading-tight sm:text-xl">{sale.client ? sale.client.name : labels.walkin}</div>
@@ -611,6 +616,23 @@ export function SaleActions({
         message={`${labels.invoiceM ?? ""}\n${sale.number} · ${num(total)}`}
         confirmLabel={labels.invoice}
       />
+      <Modal open={modal === "facture"} onClose={() => setModal(null)} title={labels.factureBtn ?? "Facture"} subtitle={`${sale.number}`} icon="🧾" width="md">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Link
+            href={`/${locale}/sales/${sale.id}/bl`}
+            className="group relative flex flex-col gap-2 overflow-hidden rounded-2xl border border-(--brand-500) bg-[linear-gradient(135deg,var(--gold-wash),var(--bg-overlay))] p-4 text-start transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_34px_-16px_var(--brand-500)]"
+          >
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-brand text-(--brand-contrast)"><FileText size={20} /></span>
+            <span className="text-base font-black">{labels.bonLivraison ?? "Bon de livraison"}</span>
+            <span className="text-xs font-bold text-(--text-secondary)">{labels.bonLivraisonDesc ?? "A4"}</span>
+          </Link>
+          <div className="relative flex cursor-not-allowed flex-col gap-2 rounded-2xl border border-dashed border-(--border-default) p-4 text-start opacity-60">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--bg-sunken) text-(--text-secondary)"><Truck size={20} /></span>
+            <span className="text-base font-black">{labels.bonRoute ?? "Bon de route"}</span>
+            <span className="text-xs font-bold text-(--text-secondary)">{labels.soon ?? "…"}</span>
+          </div>
+        </div>
+      </Modal>
       <Modal open={modal === "assign"} onClose={() => setModal(null)} title={labels.assignT ?? labels.assign} icon="🚚" width="sm">
         <div className="space-y-3">
           <div className="rounded-xl bg-(--bg-sunken) px-3 py-2 text-sm font-bold">

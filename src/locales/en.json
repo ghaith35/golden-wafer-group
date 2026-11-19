@@ -369,7 +369,12 @@
     "vanLabel": "Van",
     "progressPaid": "Collected",
     "subtotal": "Subtotal",
-    "discount": "Discount"
+    "discount": "Discount",
+    "factureBtn": "Invoice",
+    "bonLivraison": "Delivery note",
+    "bonLivraisonDesc": "Detailed professional A4 document, ready to print or save as PDF",
+    "bonRoute": "Route slip",
+    "soon": "Coming soon"
   },
   "tournees": {
     "title": "Routes",
