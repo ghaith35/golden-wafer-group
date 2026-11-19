@@ -13,6 +13,7 @@ import { ConnLostDialog } from "@/components/sync/ConnLostDialog";
 import { LAST_PAGE_KEY } from "@/lib/navigation-recovery";
 import { watchChunkErrors } from "@/lib/chunk-reload";
 import { VanTracker } from "@/components/track/VanTracker";
+import { ApkOnly } from "@/components/layout/ApkOnly";
 import { LocationPrompt } from "@/components/track/LocationPrompt";
 import { AutoUpdate } from "@/components/sync/AutoUpdate";
 import { useSavedDistances } from "@/lib/geo";
@@ -342,14 +343,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen">
       {/* Van APK auto GPS: activates only when a device token is bound.
           Desktop browsers have none — zero behavior change there. */}
-      <VanTracker />
+      <ApkOnly><VanTracker /></ApkOnly>
       {/* No-fix banner (van phones): summons the Android allow-location
           form when the office can't see the driver. Token-gated inside. */}
-      <LocationPrompt
+      <ApkOnly><LocationPrompt
         labels={{ title: ts("locTitle"), hint: ts("locHint"), enable: ts("locEnable"), deniedHint: ts("locDenied") }}
-      />
+      /></ApkOnly>
       {/* Silent web updates + native APK banner (phones). No-op when fresh. */}
-      <AutoUpdate />
+      <ApkOnly><AutoUpdate /></ApkOnly>
       {/* Desktop sidebar — hidden on the Journée picker until a day is chosen.
           print:hidden everywhere: print pages (ticket, sheets) output only
           their document, never the app chrome. */}
@@ -402,7 +403,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Global connection-loss dialog: one controlled reload into offline
             mode instead of a silently half-broken page. Mounted for every
             role — drivers need it most, admins hit dead tunnels too. */}
-        <ConnLostDialog labels={connLabels} />
+        <ApkOnly><ConnLostDialog labels={connLabels} /></ApkOnly>
         {!hideChrome && visibleTabs.length > 0 && (
         <nav className="fixed inset-x-0 bottom-0 flex border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)] print:hidden md:hidden">
           {visibleTabs.map((item) => (

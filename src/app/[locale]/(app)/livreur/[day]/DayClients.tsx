@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ApkOnly } from "@/components/layout/ApkOnly";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Banknote, Clock, Crosshair, MapPin, Navigation, Phone, QrCode, UserPlus } from "lucide-react";
 import QRCode from "qrcode";
@@ -465,7 +466,7 @@ export function DayClients({
           <h1 className="truncate text-lg font-black">{labels.clients} ({list.length})</h1>
           <p className="truncate text-xs opacity-60">{vanName}</p>
         </div>
-        <OnlineBadge onlineLabel={labels.online ?? "online"} offlineLabel={labels.offline ?? "offline"} />
+        <ApkOnly><OnlineBadge onlineLabel={labels.online ?? "online"} offlineLabel={labels.offline ?? "offline"} /></ApkOnly>
         {!hasStarted && (
           <button
             onClick={() => goPage(router, `/${locale}/livreur/${day}/start`)}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ApkOnly } from "@/components/layout/ApkOnly";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Banknote, ClipboardList, Lock, Package, PackageCheck, Plus, ReceiptText, RefreshCw, Truck, UserRound, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -277,7 +278,7 @@ export function DashClient({
           <h1 className="truncate text-lg font-black">{labels.title}</h1>
           <p className="truncate text-xs opacity-60">{vanName} · <time dateTime={day.split("-").map((part) => part.padStart(2, "0")).join("-")} dir="ltr">{day}</time></p>
         </div>
-        <OnlineBadge onlineLabel={labels.online ?? "online"} offlineLabel={labels.offline ?? "offline"} />
+        <ApkOnly><OnlineBadge onlineLabel={labels.online ?? "online"} offlineLabel={labels.offline ?? "offline"} /></ApkOnly>
       </div>
 
       {effClient && (
@@ -410,7 +411,7 @@ export function DashClient({
         </button>
       </div>
 
-      <SyncModal
+      <ApkOnly><SyncModal
         open={syncOpen}
         offlinePages={{ locale, day, role }}
         onClose={() => setSyncOpen(false)}
@@ -438,12 +439,12 @@ export function DashClient({
           downloadApk: labels.syncDownloadApk, apkHint: labels.syncApkHint,
           clockSkew: labels.syncClockSkew, pages: labels.warmPages,
         }}
-      />
+      /></ApkOnly>
 
       {/* First-login warmup: fresh phones cache the whole driver app
           (sync + every screen verified) once, then vanish. Re-arms until
           a full run succeeds — dismiss only postpones. */}
-      <FirstRunWarmup
+      <ApkOnly><FirstRunWarmup
         locale={locale}
         day={day}
         role={role}
@@ -455,7 +456,7 @@ export function DashClient({
           pairNeeded: labels.warmPairNeeded, pairHint: labels.warmPairHint,
           openSync: labels.warmOpenSync, retry: labels.warmRetry,
         }}
-      />
+      /></ApkOnly>
 
       {/* Fin de journée recap: what the day produced, before locking it.
           Warns on undeclared till / unsynced ops — never blocks. */}

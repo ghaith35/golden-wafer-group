@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ApkOnly } from "@/components/layout/ApkOnly";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -380,7 +381,7 @@ export function VanExpensesClient({
           <h1 className="truncate text-lg font-black">{labels.title}</h1>
           <p className="truncate text-xs opacity-60">{vanName}</p>
         </div>
-        <OnlineBadge onlineLabel={labels.online} offlineLabel={labels.offline} />
+        <ApkOnly><OnlineBadge onlineLabel={labels.online} offlineLabel={labels.offline} /></ApkOnly>
       </div>
 
       {/* create */}

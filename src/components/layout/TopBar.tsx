@@ -9,6 +9,7 @@ import { notifyDataChanged, useRefreshPending } from "@/lib/data-sync";
 import { ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN, getZoom, subscribeZoom, zoomIn, zoomOut, zoomReset } from "@/lib/ui-zoom";
 import { serverUnreachable, popCrumb } from "@/lib/sync/client";
 import { SyncBadge, type SyncBadgeLabels } from "@/components/sync/SyncBadge";
+import { ApkOnly } from "@/components/layout/ApkOnly";
 import { isDarkNow, toggleDark, THEME_CHANGED_EVENT } from "@/components/theme/ThemeSelector";
 
 /// Route segment → `nav` translation key. Segments without a key fall back to
@@ -129,7 +130,7 @@ export function TopBar({
 
       <SectionTitle />
 
-      <SyncBadge labels={syncLabels} forceShow={forceSyncShow} />
+      <ApkOnly><SyncBadge labels={syncLabels} forceShow={forceSyncShow} /></ApkOnly>
 
       <RefreshButton />
 
