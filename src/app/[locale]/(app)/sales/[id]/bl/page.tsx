@@ -151,36 +151,39 @@ export default async function DeliveryNotePage({
         {/* ── header band ── */}
         <header className="relative px-[12mm] pb-[7mm] pt-[9mm] text-white" style={{ background: `linear-gradient(135deg, #0b0b0c 0%, #1b1508 70%, #2a1f06 100%)` }}>
           <span aria-hidden className="absolute inset-x-0 bottom-0 h-[2.2mm]" style={{ background: `linear-gradient(90deg, #f7da7c, ${GOLD}, #a87912)` }} />
-          <div className="flex items-start justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <span className="flex h-[22mm] w-[22mm] shrink-0 items-center justify-center rounded-2xl bg-white/95 p-1.5 shadow-lg">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={logo} alt="logo" className="h-full w-full object-contain" />
-              </span>
-              <div className="min-w-0">
-                <div className="text-[22px] font-black leading-tight tracking-tight" style={{ color: "#f6e3a1" }}>{company?.name}</div>
-                <div className="mt-1 space-y-0.5 text-[10px] leading-snug text-white/75">
-                  {company?.address && <div>{company.address}</div>}
-                  <div className="flex flex-wrap gap-x-3">
-                    {company?.phone && <span dir="ltr">☎ {company.phone}</span>}
-                    {company?.email && <span dir="ltr">✉ {company.email}</span>}
-                  </div>
-                  {fiscal.length > 0 && <div className="flex flex-wrap gap-x-4 text-white/60">{fiscal.map(([l, v]) => <span key={l}>{l} : <bdi dir="ltr">{v}</bdi></span>)}</div>}
+          <div className="flex items-center gap-5">
+            <span className="flex h-[24mm] w-[24mm] shrink-0 items-center justify-center rounded-2xl bg-white/95 p-1.5 shadow-lg">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logo} alt="logo" className="h-full w-full object-contain" />
+            </span>
+            <div className="min-w-0 flex-1 text-start">
+              <div className="text-[22px] font-black leading-tight tracking-tight" style={{ color: "#f6e3a1" }}>{company?.name}</div>
+              <div className="mt-1 space-y-0.5 text-[10px] leading-snug text-white/75">
+                {company?.address && <div>{company.address}</div>}
+                <div className="flex flex-wrap gap-x-3">
+                  {company?.phone && <span>{lang === "ar" ? "الهاتف" : "Tél"} : <bdi dir="ltr">{company.phone}</bdi></span>}
+                  {company?.email && <bdi dir="ltr">{company.email}</bdi>}
                 </div>
+                {fiscal.length > 0 && <div className="flex flex-wrap gap-x-4 text-white/60">{fiscal.map(([l, v]) => <span key={l}>{l} : <bdi dir="ltr">{v}</bdi></span>)}</div>}
               </div>
-            </div>
-            <div className="shrink-0 text-end">
-              <div className="text-[11px] font-black tracking-[0.28em]" style={{ color: GOLD }}>{T.title}</div>
-              <div className="mt-1 font-mono text-[22px] font-black leading-none" dir="ltr">{sale.number}</div>
-              <div className="mt-2 text-[10.5px] text-white/80">
-                {T.date}: <b>{d.toLocaleDateString(loc, { day: "2-digit", month: "long", year: "numeric" })}</b>
-              </div>
-              <div className="text-[10.5px] text-white/80">{T.time}: <b dir="ltr">{d.toLocaleTimeString(loc, { hour: "2-digit", minute: "2-digit", hour12: false })}</b></div>
             </div>
           </div>
         </header>
 
         <div className="relative px-[12mm] pb-[34mm] pt-[6mm]">
+          <div className="flex items-baseline justify-between gap-4">
+            <div>
+              <span className="text-[26px] font-black tracking-tight" style={{ color: "#8f6710" }}>{T.title}</span>
+              <span className="ms-4 inline-block text-[15px] font-black">{T.no} : <bdi className="font-mono" dir="ltr">{sale.number}</bdi></span>
+            </div>
+            <span className="text-[12.5px] font-black">
+              {T.date} : <bdi dir="ltr">{d.toLocaleDateString(loc, { day: "2-digit", month: "long", year: "numeric" })}</bdi>
+              <span className="mx-2 text-neutral-300">|</span>
+              {T.time} : <bdi dir="ltr">{d.toLocaleTimeString(loc, { hour: "2-digit", minute: "2-digit", hour12: false })}</bdi>
+            </span>
+          </div>
+          <div className="mb-4 mt-1 h-[2px] w-24 rounded-full" style={{ background: GOLD }} />
+
           {/* ── info cards ── */}
           <section className="grid grid-cols-[1.25fr_1fr_auto] gap-3.5">
             <div className="rounded-xl border p-3.5" style={{ borderColor: "#e6d6a6", background: "linear-gradient(180deg,#fffaf0,#ffffff)" }}>
