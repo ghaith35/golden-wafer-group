@@ -573,7 +573,8 @@ export function SaleActions({
               return (
                 <div key={l.id} className={cn("flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs tabular-nums", short ? "bg-red-500/10 text-red-500" : "bg-(--bg-sunken)")}>
                   <span className="min-w-0 flex-1 truncate font-bold">
-                    {p.name} · <bdi>{packF > 0 ? `${dz(Math.round((need / packF) * 100) / 100)} ${firstPack!.unit.name}` : `${dz(need)}`}</bdi>
+                    {short && "⚠ "}{p.name} · <bdi>{packF > 0 ? `${dz(Math.round((need / packF) * 100) / 100)} ${firstPack!.unit.name}` : `${dz(need)}`}</bdi>
+                    {short && depotQty != null && <span className="ms-1 rounded-full bg-red-500/20 px-1.5 text-[10px] font-black">− <bdi>{packF > 0 ? dz(Math.round(((need - depotQty) / packF) * 100) / 100) : dz(need - depotQty)}</bdi></span>}
                   </span>
                   <span className="shrink-0 font-black">
                     🏭 {depotQty == null ? "…" : (<><bdi>{packF > 0 ? dz(Math.round((depotQty / packF) * 100) / 100) : dz(depotQty)}</bdi> {packF > 0 ? firstPack!.unit.name : (p.baseUnit?.name ?? "")}</>)}
@@ -587,7 +588,7 @@ export function SaleActions({
             <Button variant="secondary" onClick={() => setModal(null)} className="flex-1">{labels.cancel}</Button>
             <Button
               onClick={() => void act("confirm-load", { locationId: assignTo })}
-              disabled={busy || !assignTo}
+              disabled={busy || !assignTo || (sale.lines ?? []).some((l) => depotMap != null && (depotMap[l.productId] ?? 0) + 1e-9 < Number(l.baseQty ?? l.qty))}
               className="flex-[2]"
             >
               {busy ? "…" : (labels.confirmLoad ?? labels.confirm)}

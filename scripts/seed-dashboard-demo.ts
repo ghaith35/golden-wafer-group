@@ -217,7 +217,8 @@ async function main() {
   const state: State = { customerDeltas, products: {}, suppliers: {}, expenseTypeIds: typeIds };
   for (const p of real.slice(0, 5)) {
     state.products[p.id] = { stockQty: String(p.stockQty), minStock: String(p.minStock) };
-    await prisma.product.update({ where: { id: p.id }, data: { stockQty: int(0, 14), minStock: int(24, 60) } });
+    // Low-stock alert WITHOUT touching real stock: raise the threshold above the current stock.
+    await prisma.product.update({ where: { id: p.id }, data: { minStock: Number(p.stockQty) + int(10, 40) } });
   }
   const sups = await prisma.supplier.findMany({ where: { companyId: cid }, select: { id: true, balance: true }, take: 4 });
   const debts = [85000, 240000, 38000, 120000];

@@ -259,7 +259,9 @@ export async function confirmOrder(companyId: string, saleId: string) {
     if (have + 1e-9 < n.qty) short.push({ productId: pid, name: n.name, need: n.qty, have });
   }
   if (short.length) {
-    throw Object.assign(new Error("insufficient_stock"), { status: 400, short });
+    // Name the products so the screen can say exactly which ones are short.
+    const label = short.map((x) => `${x.name} (${x.have}/${x.need})`).join(", ");
+    throw Object.assign(new Error(`insufficient_stock: ${label}`), { status: 400, short });
   }
   return prisma.sale.update({ where: { id: order.id }, data: { status: "CONFIRMED" } });
 }
