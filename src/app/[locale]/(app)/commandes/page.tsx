@@ -79,6 +79,7 @@ export default async function CommandesPage({
         invoiceT: ts("invoiceT"), invoiceM: ts("invoiceM"),
         assignT: ts("assignT"), deleteOrderT: ts("deleteOrderT"), deleteOrderM: ts("deleteOrderM"), deliverT: ts("deliverT"), van: ts("van"),
         confirmLoad: ts("confirmLoad"), confirmLoadT: ts("confirmLoadT"), confirmLoadM: ts("confirmLoadM"),
+        printOrder: ts("printOrder"),
       }}
     />
     </div>

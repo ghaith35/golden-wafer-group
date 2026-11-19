@@ -375,7 +375,8 @@
     "bonLivraisonDesc": "Detailed professional A4 document, ready to print or save as PDF",
     "bonRoute": "Route slip",
     "soon": "Coming soon",
-    "bonRouteDesc": "Fiscal document: discount, VAT, stamp duty and seller / customer IDs (RC, NIF, AI, NIS, RIB)"
+    "bonRouteDesc": "Fiscal document: discount, VAT, stamp duty and seller / customer IDs (RC, NIF, AI, NIS, RIB)",
+    "printOrder": "Print order"
   },
   "tournees": {
     "title": "Routes",

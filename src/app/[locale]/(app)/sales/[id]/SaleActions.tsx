@@ -204,6 +204,7 @@ export function SaleActions({
   }, []);
   const [blOpen, setBlOpen] = useState(false);
   const [bdrOpen, setBdrOpen] = useState(false);
+  const [bcOpen, setBcOpen] = useState(false);
   const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
   /// Depot availability for the load preview (fetched when opening it).
   const [depotMap, setDepotMap] = useState<Record<string, number> | null>(null);
@@ -352,6 +353,11 @@ export function SaleActions({
                   <Link href={`/${locale}/sales/${sale.id}/ticket`}>
                     <Button variant="secondary">{labels.print} ticket</Button>
                   </Link>
+                )}
+                {sale.kind === "ORDER" && (sale.status === "CONFIRMED" || sale.status === "DELIVERED" || sale.status === "INVOICED") && (
+                  <Button onClick={() => setBcOpen(true)} className="gap-1.5">
+                    <Printer size={14} />{labels.printOrder ?? "Print order"}
+                  </Button>
                 )}
                 {sale.kind !== "ORDER" && (
                   <Button onClick={() => setModal("facture")} className="gap-1.5">
@@ -621,6 +627,11 @@ export function SaleActions({
         confirmLabel={labels.invoice}
       />
       <BonRouteFlow open={bdrOpen} onClose={() => setBdrOpen(false)} locale={locale} saleId={sale.id} saleNumber={sale.number} client={sale.client ? { code: sale.client.code, name: sale.client.name } : null} />
+      <Modal open={bcOpen} onClose={() => setBcOpen(false)} title={labels.printOrder ?? "Print order"} subtitle={sale.number} icon="📋" width="2xl">
+        {bcOpen && (
+          <iframe src={`/${locale}/sales/${sale.id}/bc?embed=1`} title="Bon de commande" className="h-[min(78vh,900px)] w-full rounded-xl border border-(--border-default) bg-neutral-200" />
+        )}
+      </Modal>
       <Modal open={blOpen} onClose={() => setBlOpen(false)} title={labels.bonLivraison ?? "Bon de livraison"} subtitle={sale.number} icon="🧾" width="2xl">
         {blOpen && (
           <iframe
