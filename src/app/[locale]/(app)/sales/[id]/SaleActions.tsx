@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bus, Printer, Store } from "lucide-react";
+import { Bus, CalendarClock, Check, CircleDollarSign, Layers, Package, Printer, Store, Wallet, Coins } from "lucide-react";
+import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
@@ -28,6 +29,7 @@ export type SaleDetail = {
   locationId: string | null;
   tierId: string | null;
   notes: string | null;
+  date?: string | null;
   client: { id: string; name: string; code: string; gpsLat?: number | null; gpsLng?: number | null } | null;
   location: { id: string; name: string; kind?: string } | null;
   /// Silent sale-site check (admin eyes only — never shown to the driver).
@@ -57,6 +59,24 @@ export type SaleDetail = {
 };
 
 const num = (v: number) => dzMoney(v);
+
+const STATUS_PILL: Record<string, string> = {
+  DRAFT: "bg-(--bg-sunken) text-(--text-secondary)",
+  CONFIRMED: "bg-sky-500/15 text-sky-600",
+  DELIVERED: "bg-emerald-500/15 text-emerald-600",
+  INVOICED: "bg-(--brand-500)/15 text-(--gold-text)",
+  CANCELLED: "bg-red-500/15 text-red-500",
+};
+
+function MoneyTile({ icon: Icon, label, value, tone }: { icon: React.ComponentType<{ size?: number }>; label: string; value: string; tone: "gold" | "green" | "red" }) {
+  const t = tone === "gold" ? "bg-(--brand-500)/12 text-(--gold-text)" : tone === "green" ? "bg-emerald-500/12 text-(--semantic-success)" : "bg-red-500/12 text-(--semantic-danger)";
+  return (
+    <div className={cn("min-w-0 rounded-2xl p-2.5 sm:p-3", t)}>
+      <div className="flex items-center gap-1.5 text-[10.5px] font-black opacity-80"><Icon size={13} /><span className="truncate">{label}</span></div>
+      <div className="mt-1 truncate text-[clamp(13px,1.5vw,19px)] font-black tabular-nums" dir="ltr">{value}</div>
+    </div>
+  );
+}
 
 function MiniMetric({ label, value, tone }: { label: string; value: string; tone: "teal" | "gold" | "rose" }) {
   return (
@@ -226,165 +246,228 @@ export function SaleActions({
   const paid = Number(sale.paid ?? 0);
   const due = total - paid;
   const pct = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : paid > 0 ? 100 : 0;
+  const kindName = ({ TICKET: labels.kindTicket, DELIVERY: labels.kindDelivery, INVOICE: labels.kindInvoice, ORDER: labels.kindOrder } as Record<string, string | undefined>)[sale.kind] ?? sale.kind;
+  const statusName = labels[sale.status.toLowerCase()] ?? sale.status;
+  const when = sale.date ? new Date(sale.date) : null;
+  const dloc = `${locale === "ar" ? "ar-DZ" : locale}-u-nu-latn`;
+
+  const viewLine = (l: SaleDetail["lines"][number]) => {
+    const p = l.product;
+    const lineTotal = Number(l.lineTotal);
+    if (!p) return { hasProduct: false as const, name: "—", img: null as string | null, ref: "", qty: Number(l.qty), uname: "", remise: 0, lineTotal, piecePrice: 0, packPrice: 0, packName: "", packF: 0, packQty: 0, base: 0, baseName: "" };
+    const convs = p.conversions ?? [];
+    const imgs = p.images ?? [];
+    const f = factorOf({ ...p, conversions: convs }, l.unitId ?? "");
+    const firstPack = convs.filter((c) => Number(c.factor) > 1).sort((a, b) => Number(a.factor) - Number(b.factor))[0];
+    let uname = !l.unitId || l.unitId === p.baseUnitId ? (p.baseUnit?.name ?? "") : (convs.find((c) => c.unitId === l.unitId)?.unit.name ?? "");
+    if (!uname) uname = firstPack?.unit.name ?? p.baseUnit?.name ?? "";
+    const unitPrice = Number(l.unitPrice);
+    const nf = normFactor(f);
+    const base = Number(l.baseQty ?? l.qty);
+    const packF = firstPack ? normFactor(Number(firstPack.factor)) : 0;
+    const packName = f > 1 ? uname : (firstPack?.unit.name ?? "");
+    return {
+      hasProduct: true as const,
+      name: p.name,
+      img: imgs[0]?.url ?? null,
+      ref: p.reference ?? "",
+      qty: Number(l.qty),
+      uname,
+      remise: Number(l.remise),
+      lineTotal,
+      piecePrice: f > 1 ? unitPrice / nf : unitPrice,
+      packPrice: f > 1 ? unitPrice : packF > 0 ? unitPrice * packF : 0,
+      packName,
+      packF,
+      packQty: packF > 0 ? Math.round((base / packF) * 100) / 100 : 0,
+      base,
+      baseName: p.baseUnit?.name ?? "",
+    };
+  };
+  const piecesTotal = (sale.lines ?? []).reduce((s2, l) => s2 + Number(l.baseQty ?? l.qty ?? 0), 0);
 
   return (
     <div className="space-y-3">
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
-      {/* ── Khiata-style header: badge + paid dot, client, metric trio ── */}
-      <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="rounded-lg bg-(--brand-500)/10 px-2 py-0.5 text-[11px] font-black text-(--brand-600)">
-                {sale.kind} {sale.number}
-              </span>
-              <span className={cn(
-                "rounded-full px-2 py-0.5 text-[10px] font-black",
-                due <= 0 ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-500"
-              )}>
-                {due <= 0 ? "✓" : "!"}
-              </span>
-              <span className="rounded-full bg-(--bg-sunken) px-2 py-0.5 text-[10px] font-black opacity-70">
-                {sale.status}
-              </span>
+      {/* ── Invoice hero: identity, status, money trio, payment progress ── */}
+      <div className="relative overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay)">
+        <div className="h-1 bg-gradient-brand" />
+        <span aria-hidden className="pointer-events-none absolute -end-16 -top-16 h-44 w-44 rounded-full bg-(--brand-500) opacity-10 blur-3xl" />
+        <div className="relative space-y-4 p-4">
+          <div className="flex items-start gap-3">
+            <Avatar name={sale.client?.name ?? labels.walkin} size="lg" walkin={!sale.client} />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="rounded-lg bg-(--brand-500)/12 px-2 py-0.5 text-[11px] font-black text-(--gold-text)">{kindName}</span>
+                <span className="rounded-lg bg-(--bg-sunken) px-2 py-0.5 font-mono text-[11px] font-black text-(--text-secondary)" dir="ltr">{sale.number}</span>
+                <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-black", STATUS_PILL[sale.status] ?? STATUS_PILL.DRAFT)}>{statusName}</span>
+              </div>
+              <div className="mt-1.5 truncate text-lg font-black leading-tight sm:text-xl">{sale.client ? sale.client.name : labels.walkin}</div>
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] font-bold text-(--text-secondary)">
+                {sale.client && <span className="font-mono" dir="ltr">{sale.client.code}</span>}
+                {sale.location && (
+                  <span className="flex items-center gap-1">
+                    {sale.location.kind === "VAN" ? <Bus size={12} /> : <Store size={12} />}
+                    {sale.location.name}
+                  </span>
+                )}
+                {when && (
+                  <span className="flex items-center gap-1" dir="auto">
+                    <CalendarClock size={12} />
+                    {when.toLocaleDateString(dloc, { day: "numeric", month: "short", year: "numeric" })} · {when.toLocaleTimeString(dloc, { hour: "2-digit", minute: "2-digit", hour12: false })}
+                  </span>
+                )}
+                <span className="flex items-center gap-1"><Layers size={12} />{sale.lines?.length ?? 0} {labels.linesCount ?? ""}</span>
+              </div>
             </div>
-            <div className="mt-1.5 truncate text-base font-black">
-              {sale.client ? sale.client.name : labels.walkin}
-            </div>
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-semibold opacity-60">
-              {sale.client && <span className="font-mono" dir="ltr">{sale.client.code}</span>}
-              {sale.location && (
-                <span className="flex items-center gap-1">
-                  {sale.location.kind === "VAN" ? <Bus size={12} /> : <Store size={12} />}
-                  {sale.location.name}
-                </span>
+            <span
+              className={cn(
+                "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
+                due <= 0.005 ? "bg-emerald-500/15 text-(--semantic-success)" : "bg-red-500/15 text-(--semantic-danger)"
               )}
+              title={due <= 0.005 ? labels.paid : labels.due}
+            >
+              {due <= 0.005 ? <Check size={20} strokeWidth={3} /> : <CircleDollarSign size={20} />}
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <MoneyTile icon={Coins} label={labels.total} value={num(total)} tone="gold" />
+            <MoneyTile icon={Wallet} label={labels.paid} value={num(paid)} tone="green" />
+            <MoneyTile icon={CircleDollarSign} label={labels.due} value={num(Math.max(0, due))} tone={due > 0.005 ? "red" : "green"} />
+          </div>
+          <div>
+            <div className="mb-1 flex items-center justify-between text-[10.5px] font-black text-(--text-tertiary)">
+              <span>{labels.progressPaid ?? ""}</span>
+              <span className="tabular-nums" dir="ltr">{pct}%</span>
+            </div>
+            <div className="h-2.5 overflow-hidden rounded-full bg-(--bg-sunken)">
+              <div
+                className={cn("gw-grow-x h-full rounded-full", pct >= 100 ? "bg-gradient-to-r from-emerald-600 to-emerald-300" : pct > 0 ? "bg-gradient-to-r from-amber-600 to-amber-300" : "bg-(--border-default)")}
+                style={{ width: `${Math.max(pct, 3)}%` }}
+              />
             </div>
           </div>
-          <div className="flex shrink-0 gap-1.5 text-center">
-            <MiniMetric label={labels.total} value={num(total)} tone="teal" />
-            <MiniMetric label={labels.paid} value={num(paid)} tone="gold" />
-            <MiniMetric label={labels.due} value={num(due)} tone={due > 0 ? "rose" : "teal"} />
-          </div>
-        </div>
-        <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-(--bg-sunken)">
-          <div
-            className={cn("h-full rounded-full transition-all", pct >= 100 ? "bg-emerald-500" : pct > 0 ? "bg-amber-500" : "bg-(--border-default)")}
-            style={{ width: `${pct}%` }}
-          />
         </div>
       </div>
       <SiteCheckCard sale={sale} labels={labels} />
-      <Card>
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-[11px] font-black uppercase tracking-wide opacity-50">
-            {sale.lines?.length ?? 0} · {labels.total}
+      <div className="overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay)">
+        <div className="flex items-center justify-between gap-3 border-b border-(--border-default) bg-[linear-gradient(180deg,var(--gold-wash),transparent)] px-4 py-3">
+          <span className="flex items-center gap-2 text-[12px] font-black text-(--text-secondary)">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-(--gold-wash) text-(--gold-text)"><Package size={15} /></span>
+            {sale.lines?.length ?? 0} {labels.linesCount ?? ""}
+            <span className="text-(--text-tertiary)">·</span>
+            <span className="tabular-nums" dir="ltr">{dz(piecesTotal)} {labels.pieces ?? ""}</span>
           </span>
-          <span className="text-base font-black tabular-nums">{num(total)}</span>
+          <span className="text-lg font-black tabular-nums" dir="ltr">{num(total)}</span>
         </div>
-        <div className="table-shell">
-        <table className="min-w-[640px]">
-          <thead>
-            <tr>
-              <th>{labels.product}</th>
-              <th className="num">{labels.unitPriceL}</th>
-              <th className="num">{labels.packPriceL}</th>
-              <th className="num">{labels.qtyPack}</th>
-              <th className="num">{labels.qtyPiece}</th>
-              <th className="num">{labels.total}</th>
-            </tr>
-          </thead>
-          <tbody>
+
+        {/* phones: one card per line */}
+        <ul className="divide-y divide-(--border-subtle) md:hidden">
           {(sale.lines ?? []).map((l) => {
-            const p = l.product;
-            if (!p) {
-              return (
-                <tr key={l.id} className="border-t border-(--border-subtle)">
-                  <td className="px-1 py-2 opacity-60">—</td>
-                  <td colSpan={4} />
-                  <td className="px-1 py-2 text-end font-black tabular-nums" dir="ltr">{dzMoney(Number(l.lineTotal))}</td>
-                </tr>
-              );
-            }
-            const convs = p.conversions ?? [];
-            const imgs = p.images ?? [];
-            const f = factorOf({ ...p, conversions: convs }, l.unitId ?? "");
-            const firstPack = convs.filter((c) => Number(c.factor) > 1).sort((a, b) => Number(a.factor) - Number(b.factor))[0];
-            let uname = !l.unitId || l.unitId === p.baseUnitId
-              ? (p.baseUnit?.name ?? "")
-              : (convs.find((c) => c.unitId === l.unitId)?.unit.name ?? "");
-            if (!uname) uname = firstPack?.unit.name ?? p.baseUnit?.name ?? "";
-            const unitPrice = Number(l.unitPrice);
-            const nf = normFactor(f);
-            const base = Number(l.baseQty ?? l.qty);
-            const baseName = p.baseUnit?.name ?? "";
-            // Pack side + piece side, whichever the line unit is.
-            const packF = firstPack ? normFactor(Number(firstPack.factor)) : 0;
-            const packName = f > 1 ? uname : (firstPack?.unit.name ?? "");
-            const packPrice = f > 1 ? unitPrice : packF > 0 ? unitPrice * packF : 0;
-            const piecePrice = f > 1 ? unitPrice / nf : unitPrice;
-            const packQty = packF > 0 ? Math.round((base / packF) * 100) / 100 : 0;
+            const v = viewLine(l);
             return (
-              <tr key={l.id} className="border-t border-(--border-subtle) align-top">
-                <td className="px-1 py-2">
-                  <div className="flex min-w-0 items-center gap-2">
-                    {imgs[0] ? (
-                      <button
-                        type="button"
-                        onClick={() => setZoom({ src: imgs[0].url, name: p.name })}
-                        aria-label={p.name}
-                        className="shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--brand-500)"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={imgs[0].url} alt={p.name} className="h-9 w-9 rounded-lg object-cover" loading="lazy" />
-                      </button>
-                    ) : (
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-base opacity-50">📦</div>
-                    )}
-                    <div className="min-w-0">
-                      <div className="truncate text-[13px] font-bold">{p.name}</div>
-                      <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[10px] opacity-60">
-                        <span className="rounded-md bg-(--brand-500)/10 px-1.5 py-0.5 font-black tabular-nums text-(--brand-600)" dir="ltr">×{Number(l.qty)} {uname}</span>
-                        {p.reference && <span className="truncate font-mono" dir="ltr">{p.reference}</span>}
-                        {Number(l.remise) > 0 && <span dir="ltr">− {dzMoney(Number(l.remise))}</span>}
-                      </div>
-                      {packF > 0 && (
-                        <div className="mt-0.5 truncate text-[10px] font-bold text-(--brand-600)">
-                          <bdi>1 {packName} = {dz(packF)} {baseName}</bdi>
-                        </div>
-                      )}
+              <li key={l.id} className="p-3">
+                <div className="flex items-start gap-2.5">
+                  {v.img ? (
+                    <button type="button" onClick={() => setZoom({ src: v.img!, name: v.name })} aria-label={v.name} className="shrink-0 rounded-xl">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={v.img} alt={v.name} className="h-12 w-12 rounded-xl object-cover" loading="lazy" />
+                    </button>
+                  ) : (
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken) text-lg opacity-60">📦</div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="min-w-0 text-[13px] font-black leading-snug">{v.name}</span>
+                      <span className="shrink-0 text-[13px] font-black tabular-nums" dir="ltr">{dzMoney(v.lineTotal)}</span>
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] font-bold">
+                      <span className="rounded-md bg-(--brand-500)/12 px-1.5 py-0.5 font-black tabular-nums text-(--gold-text)" dir="ltr">×{v.qty} {v.uname}</span>
+                      {v.ref && <span className="font-mono text-(--text-tertiary)" dir="ltr">{v.ref}</span>}
+                      {v.remise > 0 && <span className="text-(--semantic-danger)" dir="ltr">− {dzMoney(v.remise)}</span>}
                     </div>
                   </div>
-                </td>
-                <td className="px-1 py-2 text-end tabular-nums" dir="ltr">
-                  <div className="text-[13px] font-bold">{dzMoney(piecePrice)}</div>
-                  <div className="truncate text-[10px] opacity-50">{baseName}</div>
-                </td>
-                <td className="px-1 py-2 text-end tabular-nums" dir="ltr">
-                  {packName ? (
-                    <>
-                      <div className="text-[13px] font-bold text-(--brand-600)">{dzMoney(packPrice)}</div>
-                      <div className="truncate text-[10px] opacity-50">{packName}</div>
-                    </>
-                  ) : (
-                    <span className="opacity-30">—</span>
-                  )}
-                </td>
-                <td className="px-1 py-2 text-end font-bold tabular-nums" dir="ltr">
-                  {packF > 0 ? dz(packQty) : <span className="opacity-30">—</span>}
-                </td>
-                <td className="px-1 py-2 text-end tabular-nums" dir="ltr">
-                  <div className="text-[13px] font-bold">{dz(base)}</div>
-                  <div className="truncate text-[10px] opacity-50">{baseName}</div>
-                </td>
-                <td className="px-1 py-2 text-end text-[13px] font-black tabular-nums" dir="ltr">{dzMoney(Number(l.lineTotal))}</td>
-              </tr>
+                </div>
+                <div className="mt-2.5 grid grid-cols-2 gap-1.5 text-[11px] font-bold">
+                  <div className="rounded-lg bg-(--bg-sunken) px-2.5 py-1.5"><div className="text-[9.5px] text-(--text-tertiary)">{labels.unitPriceL} · {v.baseName}</div><div className="tabular-nums" dir="ltr">{dzMoney(v.piecePrice)}</div></div>
+                  <div className="rounded-lg bg-(--bg-sunken) px-2.5 py-1.5"><div className="text-[9.5px] text-(--text-tertiary)">{labels.packPriceL}{v.packName ? ` · ${v.packName}` : ""}</div><div className="tabular-nums text-(--gold-text)" dir="ltr">{v.packName ? dzMoney(v.packPrice) : "—"}</div></div>
+                  <div className="rounded-lg bg-(--bg-sunken) px-2.5 py-1.5"><div className="text-[9.5px] text-(--text-tertiary)">{labels.qtyPack}</div><div className="tabular-nums" dir="ltr">{v.packF > 0 ? dz(v.packQty) : "—"}</div></div>
+                  <div className="rounded-lg bg-(--bg-sunken) px-2.5 py-1.5"><div className="text-[9.5px] text-(--text-tertiary)">{labels.qtyPiece} · {v.baseName}</div><div className="tabular-nums" dir="ltr">{dz(v.base)}</div></div>
+                </div>
+                {v.packF > 0 && <div className="mt-1.5 text-[10px] font-bold text-(--gold-text)"><bdi>1 {v.packName} = {dz(v.packF)} {v.baseName}</bdi></div>}
+              </li>
             );
           })}
-          </tbody>
-        </table>
+        </ul>
+
+        {/* ≥ md: dense table */}
+        <div className="table-shell hidden !rounded-none !border-0 !shadow-none md:block">
+          <table className="min-w-[640px]">
+            <thead>
+              <tr>
+                <th>{labels.product}</th>
+                <th className="num">{labels.unitPriceL}</th>
+                <th className="num">{labels.packPriceL}</th>
+                <th className="num">{labels.qtyPack}</th>
+                <th className="num">{labels.qtyPiece}</th>
+                <th className="num">{labels.total}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(sale.lines ?? []).map((l) => {
+                const v = viewLine(l);
+                if (!v.hasProduct) {
+                  return (
+                    <tr key={l.id}>
+                      <td className="opacity-60">—</td>
+                      <td colSpan={4} />
+                      <td className="num font-black" dir="ltr">{dzMoney(v.lineTotal)}</td>
+                    </tr>
+                  );
+                }
+                return (
+                  <tr key={l.id} className="align-top">
+                    <td>
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        {v.img ? (
+                          <button type="button" onClick={() => setZoom({ src: v.img!, name: v.name })} aria-label={v.name} className="shrink-0 rounded-lg">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={v.img} alt={v.name} className="h-10 w-10 rounded-lg object-cover" loading="lazy" />
+                          </button>
+                        ) : (
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-base opacity-60">📦</div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="truncate text-[13px] font-black">{v.name}</div>
+                          <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[10px] font-bold text-(--text-tertiary)">
+                            <span className="rounded-md bg-(--brand-500)/12 px-1.5 py-0.5 font-black tabular-nums text-(--gold-text)" dir="ltr">×{v.qty} {v.uname}</span>
+                            {v.ref && <span className="truncate font-mono" dir="ltr">{v.ref}</span>}
+                            {v.remise > 0 && <span className="text-(--semantic-danger)" dir="ltr">− {dzMoney(v.remise)}</span>}
+                          </div>
+                          {v.packF > 0 && <div className="mt-0.5 truncate text-[10px] font-bold text-(--gold-text)"><bdi>1 {v.packName} = {dz(v.packF)} {v.baseName}</bdi></div>}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="num" dir="ltr"><div className="text-[13px] font-bold">{dzMoney(v.piecePrice)}</div><div className="truncate text-[10px] text-(--text-tertiary)">{v.baseName}</div></td>
+                    <td className="num" dir="ltr">
+                      {v.packName ? (<><div className="text-[13px] font-bold text-(--gold-text)">{dzMoney(v.packPrice)}</div><div className="truncate text-[10px] text-(--text-tertiary)">{v.packName}</div></>) : <span className="opacity-30">—</span>}
+                    </td>
+                    <td className="num font-bold" dir="ltr">{v.packF > 0 ? dz(v.packQty) : <span className="opacity-30">—</span>}</td>
+                    <td className="num" dir="ltr"><div className="text-[13px] font-bold">{dz(v.base)}</div><div className="truncate text-[10px] text-(--text-tertiary)">{v.baseName}</div></td>
+                    <td className="num text-[13px] font-black" dir="ltr">{dzMoney(v.lineTotal)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
-      </Card>
+        {Number(sale.remise) > 0 && (
+          <div className="flex items-center justify-between border-t border-(--border-default) px-4 py-2 text-[12px] font-black text-(--text-secondary)">
+            <span>{labels.discount ?? ""}</span>
+            <span className="tabular-nums text-(--semantic-danger)" dir="ltr">− {dzMoney(Number(sale.remise))}</span>
+          </div>
+        )}
+      </div>
       {(sale.children ?? []).length > 0 && (
         <Card>
           {(sale.children ?? []).map((c) => (
