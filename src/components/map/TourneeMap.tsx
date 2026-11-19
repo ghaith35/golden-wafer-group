@@ -17,7 +17,7 @@ export type MapStop = {
 };
 
 const STATE_COLOR: Record<MapStop["state"], string> = {
-  pending: "#6366f1",
+  pending: "#c9951a",
   visited: "#10b981",
   sold: "#059669",
   skipped: "#ef4444",

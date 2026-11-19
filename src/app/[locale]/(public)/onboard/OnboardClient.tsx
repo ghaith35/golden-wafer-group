@@ -153,14 +153,14 @@ export function OnboardClient({
                   </span>
                   <div>
                     <h2 className="text-[15px] font-bold text-white 2xl:text-base">{title}</h2>
-                    <p className="mt-0.5 text-[13px] leading-5 text-[#c3c7d4] 2xl:text-sm">{detail}</p>
+                    <p className="mt-0.5 text-[13px] leading-5 text-[#d9c58f] 2xl:text-sm">{detail}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="relative z-10 hidden items-center justify-between gap-4 border-t border-white/15 pt-5 text-xs text-[#c3c7d4] lg:flex">
+          <div className="relative z-10 hidden items-center justify-between gap-4 border-t border-white/15 pt-5 text-xs text-[#d9c58f] lg:flex">
             <span className="flex items-center gap-2">
               {offlineInstall ? <WifiOff size={15} aria-hidden="true" /> : <Boxes size={15} aria-hidden="true" />}
               {offlineInstall ? labels.offlineNote : labels.startNote}
@@ -252,7 +252,7 @@ export function OnboardClient({
                 <div>
                   <label htmlFor="onboard-email" className="mb-1.5 block text-sm font-bold">{labels.email}</label>
                   <div className="relative">
-                    <Mail className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 text-[#7e818b] ltr:left-3 rtl:right-3" aria-hidden="true" />
+                    <Mail className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 text-[#a99c7a] ltr:left-3 rtl:right-3" aria-hidden="true" />
                     <input
                       id="onboard-email"
                       type="email"
@@ -271,7 +271,7 @@ export function OnboardClient({
                 <div>
                   <label htmlFor="onboard-phone" className="mb-1.5 block text-sm font-bold">{labels.phone}</label>
                   <div className="relative">
-                    <Phone className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 text-[#7e818b] ltr:left-3 rtl:right-3" aria-hidden="true" />
+                    <Phone className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 text-[#a99c7a] ltr:left-3 rtl:right-3" aria-hidden="true" />
                     <input
                       id="onboard-phone"
                       type="tel"
@@ -288,7 +288,7 @@ export function OnboardClient({
                 </div>
               </div>
               {prefillEmail && (
-                <p className="-mt-1 text-xs text-[#5f616d]" dir="ltr">{labels.email}: {prefillEmail}</p>
+                <p className="-mt-1 text-xs text-[#7b6b49]" dir="ltr">{labels.email}: {prefillEmail}</p>
               )}
               </>
               )}
@@ -335,7 +335,7 @@ export function OnboardClient({
                 <span>{busy ? labels.creating : labels.submit}</span>
                 {!busy ? <ForwardArrow size={18} className={isArabic ? "transition-transform group-hover:-translate-x-1" : "transition-transform group-hover:translate-x-1"} aria-hidden="true" /> : null}
               </button>
-              <p className="pt-1 text-center text-xs leading-5 text-[#5f616d]">{labels.loginHint}</p>
+              <p className="pt-1 text-center text-xs leading-5 text-[#7b6b49]">{labels.loginHint}</p>
             </form>
           </div>
         </section>

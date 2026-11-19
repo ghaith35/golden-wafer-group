@@ -302,7 +302,7 @@ self.addEventListener("fetch", (event) => {
 function offlinePage() {
   return new Response(
     `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>غير متصل</title></head>` +
-    `<body style="font-family:system-ui;display:flex;min-height:100vh;align-items:center;justify-content:center;background:#0f172a;color:#e2e8f0;margin:0">` +
+    `<body style="font-family:system-ui;display:flex;min-height:100vh;align-items:center;justify-content:center;background:#070708;color:#e2e8f0;margin:0">` +
     `<div style="text-align:center;padding:24px"><div style="font-size:44px">📴</div>` +
     `<h1>لا يوجد اتصال</h1><p>افتح هذه الصفحة مرة واحدة وأنت متصل لتتوفر دون إنترنت.</p>` +
     `<button onclick="location.reload()" style="padding:12px 28px;border:0;border-radius:10px;background:#0d59a3;color:#fff;font-size:16px;font-weight:800">إعادة المحاولة</button>` +

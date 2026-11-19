@@ -119,6 +119,21 @@
   --color-cyan-600: var(--gold-text);
 }
 
+@theme {
+  /* Remaining decorative accents → gold family so no off-brand hue shows. */
+  --color-violet-500: #a8741a;
+  --color-violet-600: var(--gold-text);
+  --color-violet-700: #85600e;
+  --color-purple-500: #a8741a;
+  --color-purple-600: var(--gold-text);
+  --color-teal-500: var(--brand-400);
+  --color-teal-600: var(--gold-text);
+  --color-lime-500: var(--brand-300);
+  --color-lime-600: var(--gold-text);
+  --color-indigo-400: var(--brand-400);
+  --color-cyan-400: var(--brand-400);
+}
+
 body {
   background: var(--bg-surface);
   color: var(--text-primary);

@@ -93,11 +93,11 @@ function setupPageHtml(current: string, error: string): string {
   return `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Golden Wafer — Server</title>
-<style>body{font-family:system-ui;background:#0f172a;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
-.card{background:#1e293b;border-radius:16px;padding:28px;max-width:420px;width:92%;box-shadow:0 10px 40px #0008}
+<style>body{font-family:system-ui;background:#070708;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
+.card{background:#121214;border-radius:16px;padding:28px;max-width:420px;width:92%;box-shadow:0 10px 40px #0008}
 h1{font-size:18px;margin:0 0 6px}p{font-size:13px;opacity:.7;margin:0 0 14px}
-input{width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:14px;direction:ltr}
-button{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#3b82f6;color:#fff;font-size:15px;font-weight:800;cursor:pointer}
+input{width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1px solid #2a2416;background:#070708;color:#fff;font-size:14px;direction:ltr}
+button{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#c9951a;color:#1c1200;font-size:15px;font-weight:800;cursor:pointer}
 .err{color:#f87171;font-size:13px;min-height:20px;margin-top:8px}</style></head>
 <body><div class="card"><h1>🖥️ عنوان السيرفر</h1>
 <p>أدخل عنوان السيرفر (دومين أو IP الشبكة) — مثال:<br><code dir="ltr">https://vente.mondomaine.dz</code> أو <code dir="ltr">http://192.168.1.50:32517</code></p>
@@ -1185,10 +1185,10 @@ function bootErrorPageHtml(error: string, logPath: string): string {
   return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Golden Wafer — تعذر التشغيل</title>
-<style>body{font-family:system-ui;background:#0f172a;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
-.card{background:#1e293b;border-radius:16px;padding:28px;max-width:560px;width:94%;box-shadow:0 10px 40px #0008}
+<style>body{font-family:system-ui;background:#070708;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
+.card{background:#121214;border-radius:16px;padding:28px;max-width:560px;width:94%;box-shadow:0 10px 40px #0008}
 h1{font-size:18px;margin:0 0 8px;color:#f87171}p{font-size:13px;opacity:.85;line-height:1.9}
-pre{background:#0f172a;border:1px solid #334155;border-radius:10px;padding:12px;font-size:12px;direction:ltr;text-align:left;white-space:pre-wrap;max-height:220px;overflow:auto}
+pre{background:#070708;border:1px solid #2a2416;border-radius:10px;padding:12px;font-size:12px;direction:ltr;text-align:left;white-space:pre-wrap;max-height:220px;overflow:auto}
 code{direction:ltr;display:inline-block}</style></head>
 <body><div class="card"><h1>⚠️ تعذر تشغيل السيرفر المحلي</h1>
 <p>التطبيق يعمل لكن السيرفر الداخلي لم يقلع (لهذا تبدو الصفحة "غير reachable").
@@ -1213,7 +1213,7 @@ function startupPageHtml(
 main{width:min(100% - 40px,440px);padding:40px 24px;text-align:center}
 .mark{width:84px;height:84px;margin:0 auto 19px;display:block;border-radius:20px}
 .brand{margin:0;font:800 15px/1.2 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:1.4px;direction:ltr;color:#e8c14a}
-.spinner{width:38px;height:38px;margin:38px auto 20px;border:3px solid rgba(255,255,255,.22);border-top-color:#60a5fa;border-radius:50%;animation:spin .85s linear infinite}
+.spinner{width:38px;height:38px;margin:38px auto 20px;border:3px solid rgba(255,255,255,.22);border-top-color:#e8ba4c;border-radius:50%;animation:spin .85s linear infinite}
 h1{margin:0;font-size:26px;line-height:1.5;font-weight:800}p{margin:7px 0 0;color:#c3d4c6;font-size:15px;line-height:1.8}
 .fr{margin-top:24px;font-size:17px;font-weight:700;color:#fff;direction:ltr}.fr-note{margin-top:3px;font-size:14px}
 @keyframes spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.spinner{animation-duration:2.5s}}

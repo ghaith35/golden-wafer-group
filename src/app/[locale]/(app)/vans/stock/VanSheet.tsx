@@ -97,7 +97,7 @@ export function VanSheet({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 bg-[#f5f7f0] px-5 py-2.5 text-xs">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 bg-[#f3ecda] px-5 py-2.5 text-xs">
           <span className="font-black">{van.name}</span>
           {van.matricule && (
             <span className="font-mono opacity-70" dir="ltr">{van.matricule}</span>
