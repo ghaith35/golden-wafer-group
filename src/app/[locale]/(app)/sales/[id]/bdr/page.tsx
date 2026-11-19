@@ -68,11 +68,13 @@ export default async function BonRoutePage({
   if (!sale) notFound();
 
   const raw = parseOptions(sp.d);
-  const lang: DocLang = sp.lang === "ar" || sp.lang === "fr" || sp.lang === "en" ? sp.lang : settings.ticketLang === "ar" ? "ar" : locale === "en" ? "en" : "fr";
+  const lang: DocLang = sp.lang === "ar" || sp.lang === "fr" || sp.lang === "en" ? sp.lang : locale === "ar" || locale === "en" ? locale : "fr";
   const embed = sp.embed === "1";
   const T = L[lang];
   const loc = lang === "ar" ? "ar-DZ-u-nu-latn" : lang === "fr" ? "fr-DZ" : "en-GB";
-  const title = str(raw.title) || T.def;
+  const DEFAULTS = ["Bon de route", "Route slip", "سند الطريق", "BON DE ROUTE", "ROUTE SLIP"];
+  const custom = str(raw.title);
+  const title = custom && !DEFAULTS.includes(custom) ? custom : T.def;
   const remisePercent = clampPercent(Number(raw.remisePercent));
   const timbrePercent = clampPercent(Number(raw.timbrePercent));
   const tvaPercent = clampPercent(Number(raw.tvaPercent));
@@ -96,14 +98,15 @@ export default async function BonRoutePage({
   const balance = sale.client ? Number(sale.client.balance ?? 0) : 0;
   const prevBalance = Math.max(0, balance - Math.max(0, Number(sale.total) - Number(sale.paid)));
   const d = new Date(sale.date);
-  const dateStr = d.toLocaleDateString(loc, { day: "2-digit", month: "2-digit", year: "numeric" });
+  const dateStr = `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
   const compact = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
   const idLine = (b: DIdBlock, keys: Array<[keyof DIdBlock, string]>) => keys.filter(([k]) => b[k]).map(([k, l]) => `${l}: ${b[k]}`).join("   ");
   const sellerL1 = idLine(seller, [["rc", "RC"], ["nif", "NIF"], ["art", "AI"]]);
   const sellerL2 = idLine(seller, [["nis", "NIS"], ["rib", "RIB"]]);
   const clientRows = ([["rc", "RC"], ["art", "AI"], ["nif", "NIF"], ["nis", "NIS"], ["rib", "RIB"]] as Array<[keyof DIdBlock, string]>).filter(([k]) => clientIds[k]);
   const logo = company?.logoUrl || "/icons/logo-192.png";
-  const money = (v: number) => dzMoney(Math.round(v * 100) / 100, 2);
+  const cur = lang === "ar" ? "دج" : lang === "en" ? "DZD" : "DA";
+  const money = (v: number) => dzMoney(Math.round(v * 100) / 100, 2).replace(/ DA/g, `\u00A0${cur}`);
   const num = (v: number) => dz(Math.round(v * 100) / 100, 2);
   const dq = `&d=${encodeURIComponent(sp.d ?? "")}${embed ? "&embed=1" : ""}`;
 
@@ -151,9 +154,9 @@ export default async function BonRoutePage({
           <div className="flex items-baseline justify-between gap-4">
             <div>
               <span className="text-[26px] font-black tracking-tight" style={{ color: "#8f6710" }}>{title}</span>
-              <span className="ms-3 font-mono text-[15px] font-black" dir="ltr">{T.no} : {sale.number}</span>
+              <span className="ms-4 inline-block text-[15px] font-black">{T.no} : <bdi className="font-mono" dir="ltr">{sale.number}</bdi></span>
             </div>
-            <span className="text-[13px] font-black">{T.date} : <span dir="ltr">{dateStr}</span></span>
+            <span className="text-[13px] font-black">{T.date} : <bdi dir="ltr">{dateStr}</bdi></span>
           </div>
           <div className="mt-1 h-[2px] w-24 rounded-full" style={{ background: GOLD }} />
 

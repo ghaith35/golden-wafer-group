@@ -77,7 +77,7 @@ export default async function DeliveryNotePage({
   ]);
   if (!sale) notFound();
 
-  const lang: DocLang = sp.lang === "ar" || sp.lang === "fr" || sp.lang === "en" ? sp.lang : settings.ticketLang === "ar" ? "ar" : locale === "en" ? "en" : "fr";
+  const lang: DocLang = sp.lang === "ar" || sp.lang === "fr" || sp.lang === "en" ? sp.lang : locale === "ar" || locale === "en" ? locale : "fr";
   const embed = sp.embed === "1";
   const qs = embed ? "&embed=1" : "";
   const T = L[lang];
@@ -122,7 +122,8 @@ export default async function DeliveryNotePage({
   const qr = await QRCode.toDataURL(JSON.stringify({ app: "golden-wafer", type: "bl", n: sale.number, t: total }), { margin: 0, width: 220, color: { dark: INK, light: "#ffffff" } }).catch(() => null);
   const fiscal = [company?.rc && `${T.rcLine}: ${company.rc}`, company?.nif && `NIF: ${company.nif}`, company?.ai && `AI: ${company.ai}`, company?.nis && `NIS: ${company.nis}`].filter(Boolean) as string[];
   const logo = company?.logoUrl || "/icons/logo-192.png";
-  const money = (v: number) => dzMoney(Math.round(v * 100) / 100, 2);
+  const cur = lang === "ar" ? "دج" : lang === "en" ? "DZD" : "DA";
+  const money = (v: number) => dzMoney(Math.round(v * 100) / 100, 2).replace(/ DA/g, `\u00A0${cur}`);
 
   return (
     <div className="bl-root min-h-screen bg-neutral-200 py-6 print:bg-white print:py-0" dir={T.dir}>
