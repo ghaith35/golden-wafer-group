@@ -120,7 +120,8 @@ export default async function DeliveryNotePage({
   const totalPieces = rows.reduce((s, r) => s + r.base, 0);
 
   const qr = await QRCode.toDataURL(JSON.stringify({ app: "golden-wafer", type: "bl", n: sale.number, t: total }), { margin: 0, width: 220, color: { dark: INK, light: "#ffffff" } }).catch(() => null);
-  const fiscal = [company?.rc && `${T.rcLine}: ${company.rc}`, company?.nif && `NIF: ${company.nif}`, company?.ai && `AI: ${company.ai}`, company?.nis && `NIS: ${company.nis}`].filter(Boolean) as string[];
+  const FL = lang === "ar" ? { rc: "السجل التجاري", nif: "رقم التعريف الجبائي", ai: "رقم المادة", nis: "رقم التعريف الإحصائي" } : { rc: "RC", nif: "NIF", ai: "AI", nis: "NIS" };
+  const fiscal = ([[FL.rc, company?.rc], [FL.nif, company?.nif], [FL.ai, company?.ai], [FL.nis, company?.nis]] as Array<[string, string | null | undefined]>).filter(([, v]) => v);
   const logo = company?.logoUrl || "/icons/logo-192.png";
   const cur = lang === "ar" ? "دج" : lang === "en" ? "DZD" : "DA";
   const money = (v: number) => dzMoney(Math.round(v * 100) / 100, 2).replace(/ DA/g, `\u00A0${cur}`);
@@ -164,7 +165,7 @@ export default async function DeliveryNotePage({
                     {company?.phone && <span dir="ltr">☎ {company.phone}</span>}
                     {company?.email && <span dir="ltr">✉ {company.email}</span>}
                   </div>
-                  {fiscal.length > 0 && <div className="flex flex-wrap gap-x-3 text-white/60" dir="ltr">{fiscal.map((f) => <span key={f}>{f}</span>)}</div>}
+                  {fiscal.length > 0 && <div className="flex flex-wrap gap-x-4 text-white/60">{fiscal.map(([l, v]) => <span key={l}>{l} : <bdi dir="ltr">{v}</bdi></span>)}</div>}
                 </div>
               </div>
             </div>

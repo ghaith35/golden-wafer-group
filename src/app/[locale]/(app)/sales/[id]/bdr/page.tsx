@@ -16,14 +16,19 @@ const L = {
   fr: { dir: "ltr", def: "BON DE ROUTE", no: "N°", date: "Date", for: "Pour", phone: "Téléphone", address: "Adresse", ref: "Réf.", designation: "Désignation", qty: "Qté", pu: "Prix U", tva: "TVA", totalHt: "Total HT",
     lines: "Nombre de lignes", tvaRate: "TVA", nb: "NB", oldBal: "Ancien solde", remise: "Remise", ht: "Total HT", totTva: "Total TVA", timbre: "Timbre", ttc: "TOTAL TTC", words: "Arrête la présente facture à la somme de",
     foot: "N° {n} le : {d}", page: "Page", print: "Imprimer / PDF", tel: "Tél" },
-  ar: { dir: "rtl", def: "سند الطريق", no: "رقم", date: "التاريخ", for: "إلى السيد", phone: "الهاتف", address: "العنوان", ref: "المرجع", designation: "التعيين", qty: "الكمية", pu: "السعر", tva: "TVA", totalHt: "المجموع خ.ر",
-    lines: "عدد الأسطر", tvaRate: "الرسم TVA", nb: "ملاحظة", oldBal: "الرصيد السابق", remise: "التخفيض", ht: "المجموع خ.ر", totTva: "مجموع TVA", timbre: "الطابع", ttc: "المجموع مع الرسم", words: "أوقفت هذه الوثيقة عند مبلغ",
+  ar: { dir: "rtl", def: "سند الطريق", no: "رقم", date: "التاريخ", for: "إلى السيد", phone: "الهاتف", address: "العنوان", ref: "المرجع", designation: "التعيين", qty: "الكمية", pu: "السعر", tva: "الرسم", totalHt: "المبلغ دون الرسم",
+    lines: "عدد الأسطر", tvaRate: "نسبة الرسم (TVA)", nb: "ملاحظة", oldBal: "الرصيد السابق", remise: "التخفيض", ht: "المجموع دون الرسم", totTva: "مجموع الرسم", timbre: "الطابع", ttc: "المجموع مع الرسم", words: "أوقفت هذه الوثيقة عند مبلغ",
     foot: "رقم {n} بتاريخ : {d}", page: "صفحة", print: "طباعة / PDF", tel: "الهاتف" },
   en: { dir: "ltr", def: "ROUTE SLIP", no: "No.", date: "Date", for: "To", phone: "Phone", address: "Address", ref: "Ref.", designation: "Description", qty: "Qty", pu: "Unit price", tva: "VAT", totalHt: "Total excl.",
     lines: "Number of lines", tvaRate: "VAT", nb: "NB", oldBal: "Previous balance", remise: "Discount", ht: "Total excl. tax", totTva: "Total VAT", timbre: "Stamp duty", ttc: "TOTAL INCL. TAX", words: "This document is closed at the amount of",
     foot: "No. {n} on : {d}", page: "Page", print: "Print / PDF", tel: "Phone" },
 } as const;
 
+const IDL = {
+  fr: { rc: "RC", nif: "NIF", art: "AI", nis: "NIS", rib: "RIB" },
+  ar: { rc: "السجل التجاري", nif: "رقم التعريف الجبائي", art: "رقم المادة", nis: "رقم التعريف الإحصائي", rib: "الحساب البنكي" },
+  en: { rc: "RC", nif: "NIF", art: "AI", nis: "NIS", rib: "RIB" },
+} as const;
 const GOLD = "#c9951a";
 const INK = "#14100a";
 
@@ -100,10 +105,9 @@ export default async function BonRoutePage({
   const d = new Date(sale.date);
   const dateStr = `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
   const compact = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
-  const idLine = (b: DIdBlock, keys: Array<[keyof DIdBlock, string]>) => keys.filter(([k]) => b[k]).map(([k, l]) => `${l}: ${b[k]}`).join("   ");
-  const sellerL1 = idLine(seller, [["rc", "RC"], ["nif", "NIF"], ["art", "AI"]]);
-  const sellerL2 = idLine(seller, [["nis", "NIS"], ["rib", "RIB"]]);
-  const clientRows = ([["rc", "RC"], ["art", "AI"], ["nif", "NIF"], ["nis", "NIS"], ["rib", "RIB"]] as Array<[keyof DIdBlock, string]>).filter(([k]) => clientIds[k]);
+  const IL = IDL[lang];
+  const sellerIds = (["rc", "nif", "art", "nis", "rib"] as Array<keyof DIdBlock>).filter((k) => seller[k]).map((k) => [IL[k], seller[k]] as const);
+  const clientRows = (["rc", "art", "nif", "nis", "rib"] as Array<keyof DIdBlock>).filter((k) => clientIds[k]).map((k) => [k, IL[k]] as const);
   const logo = company?.logoUrl || "/icons/logo-192.png";
   const cur = lang === "ar" ? "دج" : lang === "en" ? "DZD" : "DA";
   const money = (v: number) => dzMoney(Math.round(v * 100) / 100, 2).replace(/ DA/g, `\u00A0${cur}`);
@@ -132,21 +136,24 @@ export default async function BonRoutePage({
 
         <header className="relative px-[12mm] pb-[7mm] pt-[9mm] text-white" style={{ background: "linear-gradient(135deg, #0b0b0c 0%, #1b1508 70%, #2a1f06 100%)" }}>
           <span aria-hidden className="absolute inset-x-0 bottom-0 h-[2.2mm]" style={{ background: `linear-gradient(90deg, #f7da7c, ${GOLD}, #a87912)` }} />
-          <div className="flex items-start justify-between gap-6">
-            <div className="min-w-0">
+          <div className="flex items-center gap-5">
+            <span className="flex h-[24mm] w-[24mm] shrink-0 items-center justify-center rounded-2xl bg-white/95 p-1.5 shadow-lg">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logo} alt="logo" className="h-full w-full object-contain" />
+            </span>
+            <div className="min-w-0 flex-1 text-start">
               {seller.name && <div className="text-[22px] font-black leading-tight" style={{ color: "#f6e3a1" }}>{seller.name}</div>}
               <div className="mt-1 space-y-0.5 text-[10px] leading-snug text-white/75">
                 {seller.descriptor && <div className="font-bold text-white/90">{seller.descriptor}</div>}
                 {seller.address && <div>{seller.address}</div>}
-                {seller.phone && <div dir="ltr">☎ {T.tel}: {seller.phone}</div>}
-                {sellerL1 && <div className="text-white/60" dir="ltr">{sellerL1}</div>}
-                {sellerL2 && <div className="text-white/60" dir="ltr">{sellerL2}</div>}
+                {seller.phone && <div>{T.tel} : <bdi dir="ltr">{seller.phone}</bdi></div>}
+                {sellerIds.length > 0 && (
+                  <div className="flex flex-wrap gap-x-4 gap-y-0.5 pt-0.5 text-white/65">
+                    {sellerIds.map(([l, v]) => <span key={l}>{l} : <bdi dir="ltr">{v}</bdi></span>)}
+                  </div>
+                )}
               </div>
             </div>
-            <span className="flex h-[22mm] w-[22mm] shrink-0 items-center justify-center rounded-2xl bg-white/95 p-1.5 shadow-lg">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={logo} alt="logo" className="h-full w-full object-contain" />
-            </span>
           </div>
         </header>
 
@@ -173,17 +180,18 @@ export default async function BonRoutePage({
               <div className="flex-[9] rounded-xl border p-3.5" style={{ borderColor: "#e5e5e5" }}>
                 <div className="space-y-1 text-[10.5px]">
                   {clientRows.map(([k, l]) => (
-                    <div key={k} className="flex gap-2"><span className="text-neutral-500">{l} :</span><b className="break-all" dir="ltr">{clientIds[k]}</b></div>
+                    <div key={k} className="flex flex-wrap items-baseline gap-x-2"><span className="text-neutral-500">{l} :</span><b className="break-all"><bdi dir="ltr">{clientIds[k]}</bdi></b></div>
                   ))}
                 </div>
               </div>
             )}
           </section>
 
-          <table className="bl-table mt-4 w-full border-collapse text-[10.5px]">
+          <table className="bl-table mt-4 w-full table-fixed border-collapse text-[10.5px]">
+            <colgroup><col style={{ width: "6%" }} /><col style={{ width: "36%" }} /><col style={{ width: "14%" }} /><col style={{ width: "15%" }} /><col style={{ width: "13%" }} /><col style={{ width: "16%" }} /></colgroup>
             <thead>
               <tr style={{ background: INK, color: "#f6e3a1" }}>
-                <th className="w-[8mm] px-1.5 py-2 text-center text-[9px] font-black">{T.no}</th>
+                <th className="px-1.5 px-1.5 py-2 text-center text-[9px] font-black">{T.no}</th>
                 <th className="px-2 py-2 text-start text-[9px] font-black">{T.designation}</th>
                 <th className="px-1.5 py-2 text-center text-[9px] font-black">{T.qty}</th>
                 <th className="px-1.5 py-2 text-end text-[9px] font-black">{T.pu}</th>
@@ -221,10 +229,10 @@ export default async function BonRoutePage({
             </div>
             <div className="overflow-hidden rounded-xl border" style={{ borderColor: "#e6d6a6" }}>
               <div className="space-y-1 p-3 text-[11px]">
-                {totals.remise > 0 && <Row k={`${T.remise} (${remisePercent}%)`} v={`− ${money(totals.remise)}`} red />}
+                {totals.remise > 0 && <Row k={<>{T.remise} (<bdi dir="ltr">{remisePercent}%</bdi>)</>} v={`− ${money(totals.remise)}`} red />}
                 <Row k={T.ht} v={money(totals.netHt)} />
-                <Row k={`${T.totTva} (${tvaPercent}%)`} v={money(totals.tva)} />
-                {totals.timbre > 0 && <Row k={`${T.timbre} (${timbrePercent}%)`} v={money(totals.timbre)} />}
+                <Row k={<>{T.totTva} (<bdi dir="ltr">{tvaPercent}%</bdi>)</>} v={money(totals.tva)} />
+                {totals.timbre > 0 && <Row k={<>{T.timbre} (<bdi dir="ltr">{timbrePercent}%</bdi>)</>} v={money(totals.timbre)} />}
               </div>
               <div className="flex items-center justify-between gap-2 px-3 py-2.5" style={{ background: "linear-gradient(135deg, #0b0b0c, #2a1f06)", color: "#f6e3a1" }}>
                 <span className="text-[9px] font-black tracking-[0.16em]">{T.ttc}</span>
@@ -261,7 +269,7 @@ export default async function BonRoutePage({
   );
 }
 
-function Row({ k, v, red }: { k: string; v: string; red?: boolean }) {
+function Row({ k, v, red }: { k: React.ReactNode; v: string; red?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-2 font-bold">
       <span className="text-neutral-600">{k}</span>
