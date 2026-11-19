@@ -340,6 +340,7 @@ exports.Prisma.CustomerScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
   code: 'code',
+  legacyQr: 'legacyQr',
   name: 'name',
   phone: 'phone',
   address: 'address',

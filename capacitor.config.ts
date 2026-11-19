@@ -8,7 +8,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 const localLanTest = process.env.DISTRIBUILI_LOCAL_LAN_TEST === "1";
 const config: CapacitorConfig = {
   appId: localLanTest ? "com.distribuili.van.localtest" : "com.distribuili.van",
-  appName: localLanTest ? "Distribuili Van Local Test" : "Distribuili Van",
+  appName: localLanTest ? "Golden Wafer Local Test" : "Golden Wafer",
   webDir: "out-van",
   server: {
     cleartext: localLanTest,

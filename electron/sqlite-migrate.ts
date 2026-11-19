@@ -15,6 +15,15 @@
 // never blocks startup.
 //
 // Pure logic (no Electron imports) so it can be unit-tested in plain Node.
+import { createRequire } from "node:module";
+import { join } from "node:path";
+
+export function loadSqliteDatabase(standaloneDir: string) {
+  // Cross-platform builds stage target bindings in the standalone server.
+  // Resolve its driver there, including during main-process schema upgrades.
+  return createRequire(join(standaloneDir, "package.json"))("libsql");
+}
+
 export interface MigrateResult {
   addedTables: string[];
   addedColumns: string[];
@@ -26,10 +35,11 @@ export function migrateSqliteSchema(
   dbPath: string,
   ddl: string,
   log: (msg: string) => void,
+  standaloneDir?: string,
 ): MigrateResult {
   const result: MigrateResult = { addedTables: [], addedColumns: [], addedIndexes: [], skipped: [] };
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const Database = require("libsql");
+  const Database = standaloneDir ? loadSqliteDatabase(standaloneDir) : require("libsql");
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const dbc: any = new Database(dbPath, {});
   try {

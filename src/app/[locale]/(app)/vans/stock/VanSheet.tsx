@@ -70,7 +70,7 @@ export function VanSheet({
     <div>
       {/* ── Polished preview ─────────────────────────────────────────── */}
       <div className="van-sheet overflow-hidden rounded-xl border border-(--border-default) bg-white text-black">
-        <div className="flex items-center justify-between gap-4 bg-[#365314] px-5 py-4 text-white">
+        <div className="flex items-center justify-between gap-4 bg-[#3a2b08] px-5 py-4 text-white">
           <div className="flex min-w-0 items-center gap-3">
             {company.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -126,7 +126,7 @@ export function VanSheet({
                   <td className="px-3 py-2 tabular-nums opacity-50">{i + 1}</td>
                   <td className="px-3 py-2 font-bold">{r.name}</td>
                   <td className="px-3 py-2 font-mono opacity-70" dir="ltr">{r.reference}</td>
-                  <td className="px-3 py-2 font-bold text-[#365314]">{r.colis}</td>
+                  <td className="px-3 py-2 font-bold text-[#3a2b08]">{r.colis}</td>
                   <td className="px-3 py-2 tabular-nums" dir="ltr">{r.units}</td>
                   <td className="px-3 py-2 text-end tabular-nums" dir="ltr">{fmtMoney(r.value)}</td>
                 </tr>

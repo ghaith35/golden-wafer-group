@@ -29050,6 +29050,7 @@ export namespace Prisma {
     id: string | null
     companyId: string | null
     code: string | null
+    legacyQr: string | null
     name: string | null
     phone: string | null
     address: string | null
@@ -29073,6 +29074,7 @@ export namespace Prisma {
     id: string | null
     companyId: string | null
     code: string | null
+    legacyQr: string | null
     name: string | null
     phone: string | null
     address: string | null
@@ -29096,6 +29098,7 @@ export namespace Prisma {
     id: number
     companyId: number
     code: number
+    legacyQr: number
     name: number
     phone: number
     address: number
@@ -29139,6 +29142,7 @@ export namespace Prisma {
     id?: true
     companyId?: true
     code?: true
+    legacyQr?: true
     name?: true
     phone?: true
     address?: true
@@ -29162,6 +29166,7 @@ export namespace Prisma {
     id?: true
     companyId?: true
     code?: true
+    legacyQr?: true
     name?: true
     phone?: true
     address?: true
@@ -29185,6 +29190,7 @@ export namespace Prisma {
     id?: true
     companyId?: true
     code?: true
+    legacyQr?: true
     name?: true
     phone?: true
     address?: true
@@ -29295,6 +29301,7 @@ export namespace Prisma {
     id: string
     companyId: string
     code: string
+    legacyQr: string | null
     name: string
     phone: string | null
     address: string | null
@@ -29337,6 +29344,7 @@ export namespace Prisma {
     id?: boolean
     companyId?: boolean
     code?: boolean
+    legacyQr?: boolean
     name?: boolean
     phone?: boolean
     address?: boolean
@@ -29371,6 +29379,7 @@ export namespace Prisma {
     id?: boolean
     companyId?: boolean
     code?: boolean
+    legacyQr?: boolean
     name?: boolean
     phone?: boolean
     address?: boolean
@@ -29398,6 +29407,7 @@ export namespace Prisma {
     id?: boolean
     companyId?: boolean
     code?: boolean
+    legacyQr?: boolean
     name?: boolean
     phone?: boolean
     address?: boolean
@@ -29425,6 +29435,7 @@ export namespace Prisma {
     id?: boolean
     companyId?: boolean
     code?: boolean
+    legacyQr?: boolean
     name?: boolean
     phone?: boolean
     address?: boolean
@@ -29444,7 +29455,7 @@ export namespace Prisma {
     opId?: boolean
   }
 
-  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "code" | "name" | "phone" | "address" | "wilayaCode" | "secteurId" | "activityType" | "tierId" | "creditLimit" | "creditDays" | "gpsLat" | "gpsLng" | "portalSecretHash" | "balance" | "isActive" | "createdAt" | "updatedAt" | "opId", ExtArgs["result"]["customer"]>
+  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "code" | "legacyQr" | "name" | "phone" | "address" | "wilayaCode" | "secteurId" | "activityType" | "tierId" | "creditLimit" | "creditDays" | "gpsLat" | "gpsLng" | "portalSecretHash" | "balance" | "isActive" | "createdAt" | "updatedAt" | "opId", ExtArgs["result"]["customer"]>
   export type CustomerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     wilaya?: boolean | Customer$wilayaArgs<ExtArgs>
@@ -29492,6 +29503,7 @@ export namespace Prisma {
        * Stable code: QR payload + printed cards (`CLT-0001…`).
        */
       code: string
+      legacyQr: string | null
       name: string
       /**
        * Portal username (unique per company).
@@ -29957,6 +29969,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Customer", 'String'>
     readonly companyId: FieldRef<"Customer", 'String'>
     readonly code: FieldRef<"Customer", 'String'>
+    readonly legacyQr: FieldRef<"Customer", 'String'>
     readonly name: FieldRef<"Customer", 'String'>
     readonly phone: FieldRef<"Customer", 'String'>
     readonly address: FieldRef<"Customer", 'String'>
@@ -69670,6 +69683,7 @@ export namespace Prisma {
     id: 'id',
     companyId: 'companyId',
     code: 'code',
+    legacyQr: 'legacyQr',
     name: 'name',
     phone: 'phone',
     address: 'address',
@@ -71932,6 +71946,7 @@ export namespace Prisma {
     id?: StringFilter<"Customer"> | string
     companyId?: StringFilter<"Customer"> | string
     code?: StringFilter<"Customer"> | string
+    legacyQr?: StringNullableFilter<"Customer"> | string | null
     name?: StringFilter<"Customer"> | string
     phone?: StringNullableFilter<"Customer"> | string | null
     address?: StringNullableFilter<"Customer"> | string | null
@@ -71965,6 +71980,7 @@ export namespace Prisma {
     id?: SortOrder
     companyId?: SortOrder
     code?: SortOrder
+    legacyQr?: SortOrderInput | SortOrder
     name?: SortOrder
     phone?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
@@ -71997,6 +72013,7 @@ export namespace Prisma {
   export type CustomerWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     companyId_code?: CustomerCompanyIdCodeCompoundUniqueInput
+    companyId_legacyQr?: CustomerCompanyIdLegacyQrCompoundUniqueInput
     companyId_phone?: CustomerCompanyIdPhoneCompoundUniqueInput
     companyId_opId?: CustomerCompanyIdOpIdCompoundUniqueInput
     AND?: CustomerWhereInput | CustomerWhereInput[]
@@ -72004,6 +72021,7 @@ export namespace Prisma {
     NOT?: CustomerWhereInput | CustomerWhereInput[]
     companyId?: StringFilter<"Customer"> | string
     code?: StringFilter<"Customer"> | string
+    legacyQr?: StringNullableFilter<"Customer"> | string | null
     name?: StringFilter<"Customer"> | string
     phone?: StringNullableFilter<"Customer"> | string | null
     address?: StringNullableFilter<"Customer"> | string | null
@@ -72031,12 +72049,13 @@ export namespace Prisma {
     tourneeStops?: TourneeStopListRelationFilter
     versements?: VersementListRelationFilter
     deposits?: DepositListRelationFilter
-  }, "id" | "companyId_code" | "companyId_phone" | "companyId_opId">
+  }, "id" | "companyId_code" | "companyId_legacyQr" | "companyId_phone" | "companyId_opId">
 
   export type CustomerOrderByWithAggregationInput = {
     id?: SortOrder
     companyId?: SortOrder
     code?: SortOrder
+    legacyQr?: SortOrderInput | SortOrder
     name?: SortOrder
     phone?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
@@ -72068,6 +72087,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Customer"> | string
     companyId?: StringWithAggregatesFilter<"Customer"> | string
     code?: StringWithAggregatesFilter<"Customer"> | string
+    legacyQr?: StringNullableWithAggregatesFilter<"Customer"> | string | null
     name?: StringWithAggregatesFilter<"Customer"> | string
     phone?: StringNullableWithAggregatesFilter<"Customer"> | string | null
     address?: StringNullableWithAggregatesFilter<"Customer"> | string | null
@@ -76774,6 +76794,7 @@ export namespace Prisma {
   export type CustomerCreateInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -76804,6 +76825,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -76832,6 +76854,7 @@ export namespace Prisma {
   export type CustomerUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -76862,6 +76885,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -76891,6 +76915,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -76913,6 +76938,7 @@ export namespace Prisma {
   export type CustomerUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -76933,6 +76959,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -81537,6 +81564,11 @@ export namespace Prisma {
     code: string
   }
 
+  export type CustomerCompanyIdLegacyQrCompoundUniqueInput = {
+    companyId: string
+    legacyQr: string
+  }
+
   export type CustomerCompanyIdPhoneCompoundUniqueInput = {
     companyId: string
     phone: string
@@ -81551,6 +81583,7 @@ export namespace Prisma {
     id?: SortOrder
     companyId?: SortOrder
     code?: SortOrder
+    legacyQr?: SortOrder
     name?: SortOrder
     phone?: SortOrder
     address?: SortOrder
@@ -81583,6 +81616,7 @@ export namespace Prisma {
     id?: SortOrder
     companyId?: SortOrder
     code?: SortOrder
+    legacyQr?: SortOrder
     name?: SortOrder
     phone?: SortOrder
     address?: SortOrder
@@ -81606,6 +81640,7 @@ export namespace Prisma {
     id?: SortOrder
     companyId?: SortOrder
     code?: SortOrder
+    legacyQr?: SortOrder
     name?: SortOrder
     phone?: SortOrder
     address?: SortOrder
@@ -89482,6 +89517,7 @@ export namespace Prisma {
   export type CustomerCreateWithoutCompanyInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -89510,6 +89546,7 @@ export namespace Prisma {
   export type CustomerUncheckedCreateWithoutCompanyInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -90613,6 +90650,7 @@ export namespace Prisma {
     id?: StringFilter<"Customer"> | string
     companyId?: StringFilter<"Customer"> | string
     code?: StringFilter<"Customer"> | string
+    legacyQr?: StringNullableFilter<"Customer"> | string | null
     name?: StringFilter<"Customer"> | string
     phone?: StringNullableFilter<"Customer"> | string | null
     address?: StringNullableFilter<"Customer"> | string | null
@@ -92296,6 +92334,7 @@ export namespace Prisma {
   export type CustomerCreateWithoutTierInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -92325,6 +92364,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -92874,6 +92914,7 @@ export namespace Prisma {
   export type CustomerCreateWithoutWilayaInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -92903,6 +92944,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -93150,6 +93192,7 @@ export namespace Prisma {
   export type CustomerCreateWithoutSecteurInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -93179,6 +93222,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -100205,6 +100249,7 @@ export namespace Prisma {
   export type CustomerCreateWithoutSalesInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -100234,6 +100279,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -100768,6 +100814,7 @@ export namespace Prisma {
   export type CustomerUpdateWithoutSalesInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -100797,6 +100844,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -101524,6 +101572,7 @@ export namespace Prisma {
   export type CustomerCreateWithoutReturnsInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -101553,6 +101602,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -101854,6 +101904,7 @@ export namespace Prisma {
   export type CustomerUpdateWithoutReturnsInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -101883,6 +101934,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -102855,6 +102907,7 @@ export namespace Prisma {
   export type CustomerCreateWithoutTourneeStopsInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -102884,6 +102937,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -102976,6 +103030,7 @@ export namespace Prisma {
   export type CustomerUpdateWithoutTourneeStopsInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -103005,6 +103060,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106554,6 +106610,7 @@ export namespace Prisma {
   export type CustomerCreateWithoutVersementsInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -106583,6 +106640,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -106854,6 +106912,7 @@ export namespace Prisma {
   export type CustomerUpdateWithoutVersementsInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106883,6 +106942,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -107478,6 +107538,7 @@ export namespace Prisma {
   export type CustomerCreateWithoutDepositsInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -107507,6 +107568,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -107651,6 +107713,7 @@ export namespace Prisma {
   export type CustomerUpdateWithoutDepositsInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -107680,6 +107743,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -107843,6 +107907,7 @@ export namespace Prisma {
   export type CustomerCreateWithoutDistancesInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -107872,6 +107937,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -108063,6 +108129,7 @@ export namespace Prisma {
   export type CustomerUpdateWithoutDistancesInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -108092,6 +108159,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -108151,6 +108219,7 @@ export namespace Prisma {
   export type CustomerCreateManyCompanyInput = {
     id?: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -108611,6 +108680,7 @@ export namespace Prisma {
   export type CustomerUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -108639,6 +108709,7 @@ export namespace Prisma {
   export type CustomerUncheckedUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -108667,6 +108738,7 @@ export namespace Prisma {
   export type CustomerUncheckedUpdateManyWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110055,6 +110127,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -110126,6 +110199,7 @@ export namespace Prisma {
   export type CustomerUpdateWithoutTierInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110155,6 +110229,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110183,6 +110258,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110362,6 +110438,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -110428,6 +110505,7 @@ export namespace Prisma {
   export type CustomerUpdateWithoutWilayaInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110457,6 +110535,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110485,6 +110564,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110560,6 +110640,7 @@ export namespace Prisma {
     id?: string
     companyId: string
     code: string
+    legacyQr?: string | null
     name: string
     phone?: string | null
     address?: string | null
@@ -110613,6 +110694,7 @@ export namespace Prisma {
   export type CustomerUpdateWithoutSecteurInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110642,6 +110724,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110670,6 +110753,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     companyId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null

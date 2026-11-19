@@ -1,8 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// Service-worker self-heal: a chunk URL that 404s (stale cached page from
-// a previous deploy) evicts the page cache, so the next navigation fetches
-// fresh HTML instead of replaying the dead page forever.
+// A missing asset must preserve the driver's cached screens for the next outage.
 //   BASE_URL=http://localhost:3000 PW_SKIP_SERVER=1 npx playwright test sw-chunk-purge
 
 const USER = process.env.E2E_USER ?? "ghaith";
@@ -21,10 +19,10 @@ async function pageCacheSize(page: Page): Promise<number> {
   });
 }
 
-test.describe("sw stale-page purge", () => {
+test.describe("sw offline page retention", () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
-  test("chunk 404 drops the page cache", async ({ page }) => {
+  test("chunk and image 404s preserve the page cache", async ({ page }) => {
     await page.goto("/ar/login");
     await page.locator("#login-username").fill(USER);
     await page.locator("#login-password").fill(PASS);
@@ -44,7 +42,8 @@ test.describe("sw stale-page purge", () => {
     expect(st).toBe(404);
     await page.waitForTimeout(500);
 
-    // …and the stale page cache is gone, forcing fresh HTML next time.
-    await expect.poll(async () => pageCacheSize(page), { timeout: 10_000 }).toBe(0);
+    const imageStatus = await page.evaluate(async () => (await fetch("/uploads/missing-offline-test.png")).status);
+    expect(imageStatus).toBe(404);
+    await expect.poll(async () => pageCacheSize(page), { timeout: 10_000 }).toBeGreaterThanOrEqual(before);
   });
 });

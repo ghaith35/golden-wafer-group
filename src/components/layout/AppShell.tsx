@@ -10,6 +10,7 @@ import { recordCrumb, serverUnreachable, startReachabilityProbe } from "@/lib/sy
 import { canSell } from "@/lib/staff-permissions";
 import { TopBar, LanguageSwitcher } from "@/components/layout/TopBar";
 import { ConnLostDialog } from "@/components/sync/ConnLostDialog";
+import { LAST_PAGE_KEY } from "@/lib/navigation-recovery";
 import { watchChunkErrors } from "@/lib/chunk-reload";
 import { VanTracker } from "@/components/track/VanTracker";
 import { LocationPrompt } from "@/components/track/LocationPrompt";
@@ -98,6 +99,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // would render collapsed on the client but expanded on the server — a
   // hydration mismatch for anyone who collapsed the sidebar.
   const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      if (document.querySelector("[data-route-recovery]")) return;
+      try { sessionStorage.setItem(LAST_PAGE_KEY, window.location.pathname); } catch { /* storage unavailable */ }
+    }, 1500);
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
+
 
   useEffect(() => {
     try {
@@ -445,11 +455,11 @@ function SidebarBody({
     <>
       <div className={cn("mb-2 flex items-center", collapsed ? "justify-center" : "gap-2")}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/logo-192.png" alt="Distribuili" className="h-9 w-9 shrink-0 rounded-xl shadow-[0_6px_16px_-6px_var(--brand-600)]" />
+        <img src="/icons/logo-192.png" alt="Golden Wafer" className="h-9 w-9 shrink-0 rounded-xl shadow-[0_6px_16px_-6px_var(--brand-600)]" />
         {!collapsed && (
           <div className="min-w-0">
             <div className="truncate text-[17px] font-black leading-tight tracking-tight" dir="ltr">
-              <span className="text-(--text-primary)">DISTRIB</span><span className="logo-accent text-(--brand-600)">UILI</span>
+              <span className="text-(--text-primary)">GOLDEN</span><span className="logo-accent text-(--brand-600)"> WAFER</span>
             </div>
             <div className="truncate text-[10px] font-bold text-(--text-tertiary)">{ta("tagline")}</div>
           </div>

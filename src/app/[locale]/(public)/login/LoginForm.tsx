@@ -178,9 +178,9 @@ export function LoginForm({ dark = false, canReset = false }: { dark?: boolean; 
     ? "mb-1.5 block text-[13px] font-semibold text-white/50"
     : "mb-1 block text-xs font-semibold uppercase tracking-wide opacity-70";
   const inputCls = dark
-    ? "h-12 rounded-lg border-white/10 bg-white/[0.06] text-white caret-white placeholder:text-white/30 focus:border-[#63a4dc]/70 focus:bg-white/[0.08] focus:text-white"
+    ? "h-12 rounded-lg border-white/10 bg-white/[0.06] text-white caret-white placeholder:text-white/30 focus:border-[#e8ba4c]/70 focus:bg-white/[0.08] focus:text-white"
     : undefined;
-  const primaryDark = "h-12 w-full bg-[#63a4dc] text-base font-bold text-[#171927] hover:bg-[#7fb8e8] hover:opacity-100";
+  const primaryDark = "h-12 w-full bg-[#e8ba4c] text-base font-bold text-[#1c1200] hover:bg-[#ffe08a] hover:opacity-100";
 
   return (
     <div className="space-y-4">

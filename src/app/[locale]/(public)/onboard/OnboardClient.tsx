@@ -108,7 +108,7 @@ export function OnboardClient({
     }
   }
 
-  const inputClass = "h-12 w-full rounded-md border border-[#d8ded7] bg-white px-3.5 text-[15px] text-[#171927] outline-none transition placeholder:text-[#686a74] focus:border-[#48547b] focus:ring-2 focus:ring-[#48547b]/15 disabled:opacity-60";
+  const inputClass = "h-12 w-full rounded-md border border-[#eadfc2] bg-white px-3.5 text-[15px] text-[#1c1200] outline-none transition placeholder:text-[#686a74] focus:border-[#7b6b49] focus:ring-2 focus:ring-[#7b6b49]/15 disabled:opacity-60";
   const features = [
     { icon: Package, title: labels.inventoryTitle, detail: labels.inventoryDetail },
     { icon: UsersRound, title: labels.partnersTitle, detail: labels.partnersDetail },
@@ -119,17 +119,17 @@ export function OnboardClient({
   return (
     <main
       dir={isArabic ? "rtl" : "ltr"}
-      className="min-h-dvh bg-[#f3f5ef] text-[#171927] selection:bg-[#63a4dc] selection:text-[#171927]"
+      className="min-h-dvh bg-[#fbf8f1] text-[#1c1200] selection:bg-[#e8ba4c] selection:text-[#1c1200]"
     >
       <div className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] 2xl:mx-auto 2xl:max-w-[1600px]">
         {/* ── Brand panel ── */}
-        <section className="relative flex flex-col justify-between gap-8 overflow-hidden bg-[#171b3d] px-6 py-6 text-white sm:px-10 sm:py-8 lg:min-h-dvh lg:gap-10 lg:px-10 lg:py-10 xl:px-14 2xl:px-16 2xl:py-12">
+        <section className="relative flex flex-col justify-between gap-8 overflow-hidden bg-[#0b0b0c] px-6 py-6 text-white sm:px-10 sm:py-8 lg:min-h-dvh lg:gap-10 lg:px-10 lg:py-10 xl:px-14 2xl:px-16 2xl:py-12">
           <div className="pointer-events-none absolute inset-0 opacity-[0.11]" aria-hidden="true" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.14) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.14) 1px, transparent 1px)", backgroundSize: "42px 42px", maskImage: "linear-gradient(to bottom, black, transparent 78%)" }} />
           <div className="relative z-10 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/icons/logo-192.png" alt="" className="h-10 w-10 rounded-xl sm:h-12 sm:w-12" />
-              <span className="text-base font-black tracking-[0.04em] sm:text-lg" dir="ltr">DISTRIBUILI</span>
+              <span className="text-base font-black tracking-[0.04em] sm:text-lg" dir="ltr">GOLDEN WAFER</span>
             </div>
             <div className="rounded-full border border-white/20 bg-white/[0.07] px-3 py-1.5 text-xs font-semibold text-white/75">
               {labels.distributionLabel}
@@ -148,7 +148,7 @@ export function OnboardClient({
             <div className="mt-8 hidden border-t border-white/15 lg:mt-10 lg:block">
               {features.map(({ icon: Icon, title, detail }) => (
                 <div key={title} className="flex items-center gap-4 border-b border-white/15 py-4 2xl:py-5">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#63a4dc] text-[#171b3d] 2xl:h-11 2xl:w-11">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#e8ba4c] text-[#0b0b0c] 2xl:h-11 2xl:w-11">
                     <Icon size={20} strokeWidth={1.8} aria-hidden="true" />
                   </span>
                   <div>
@@ -165,7 +165,7 @@ export function OnboardClient({
               {offlineInstall ? <WifiOff size={15} aria-hidden="true" /> : <Boxes size={15} aria-hidden="true" />}
               {offlineInstall ? labels.offlineNote : labels.startNote}
             </span>
-            <span dir="ltr">DISTRIBUILI</span>
+            <span dir="ltr">GOLDEN WAFER</span>
           </div>
         </section>
 
@@ -176,16 +176,16 @@ export function OnboardClient({
               <div className="flex items-center gap-3" aria-label={labels.progressLabel}>
                 {offlineInstall ? (
                   <>
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#c4d8eb] text-[#313a5a]" aria-label={labels.complete}>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f7dc8c] text-[#3a2b08]" aria-label={labels.complete}>
                       <Check size={17} strokeWidth={2.5} />
                     </span>
                     <span className="h-px w-8 bg-[#b6bbc5]" />
                   </>
                 ) : null}
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#313a5a] text-sm font-bold text-white">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#3a2b08] text-sm font-bold text-white">
                   {offlineInstall ? "2" : "1"}
                 </span>
-                <span className="text-sm font-bold text-[#313a5a]">
+                <span className="text-sm font-bold text-[#3a2b08]">
                   {offlineInstall ? labels.stepAccount : labels.stepSetup}
                 </span>
               </div>
@@ -194,12 +194,12 @@ export function OnboardClient({
 
             <header className="mb-6 2xl:mb-8">
               <h2 className="text-[1.7rem] font-black leading-tight sm:text-4xl">{labels.title}</h2>
-              <p className="mt-2 max-w-md text-sm leading-6 text-[#4b4d5b] sm:text-[15px]">{labels.subtitle}</p>
+              <p className="mt-2 max-w-md text-sm leading-6 text-[#7b6b49] sm:text-[15px]">{labels.subtitle}</p>
             </header>
 
             <form onSubmit={(event) => void submit(event)} className="space-y-4 2xl:space-y-5">
               {slim ? (
-                <div className="rounded-xl border border-[#d8ded7] bg-white px-4 py-1">
+                <div className="rounded-xl border border-[#eadfc2] bg-white px-4 py-1">
                   {(
                     [
                       [labels.company, company],
@@ -208,9 +208,9 @@ export function OnboardClient({
                       [labels.email, prefillEmail ?? ""],
                     ] as const
                   ).map(([k, v]) => (
-                    <div key={k} className="flex items-baseline justify-between gap-3 border-b border-[#edf1e9] py-2.5 last:border-0">
+                    <div key={k} className="flex items-baseline justify-between gap-3 border-b border-[#f3ecda] py-2.5 last:border-0">
                       <span className="shrink-0 text-xs font-bold text-[#616470]">{k}</span>
-                      <span className="truncate text-sm font-bold text-[#171927]" dir="auto">{v}</span>
+                      <span className="truncate text-sm font-bold text-[#1c1200]" dir="auto">{v}</span>
                     </div>
                   ))}
                 </div>
@@ -311,7 +311,7 @@ export function OnboardClient({
                   <button
                     type="button"
                     onClick={() => setShowPassword((visible) => !visible)}
-                    className="absolute top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded text-[#4b4d5b] hover:bg-[#edf1e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#313a5a] ltr:right-1 rtl:left-1"
+                    className="absolute top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded text-[#7b6b49] hover:bg-[#f3ecda] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3a2b08] ltr:right-1 rtl:left-1"
                     aria-label={showPassword ? labels.hidePassword : labels.showPassword}
                     title={showPassword ? labels.hidePassword : labels.showPassword}
                   >
@@ -329,7 +329,7 @@ export function OnboardClient({
               <button
                 type="submit"
                 disabled={busy}
-                className="group mt-2 flex h-13 w-full items-center justify-center gap-2 rounded-md bg-[#313a5a] px-5 text-base font-bold text-white transition hover:bg-[#252c4a] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#313a5a] disabled:cursor-wait disabled:opacity-70"
+                className="group mt-2 flex h-13 w-full items-center justify-center gap-2 rounded-md bg-[#3a2b08] px-5 text-base font-bold text-white transition hover:bg-[#252c4a] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#3a2b08] disabled:cursor-wait disabled:opacity-70"
               >
                 {busy ? <LoaderCircle size={19} className="animate-spin" aria-hidden="true" /> : null}
                 <span>{busy ? labels.creating : labels.submit}</span>

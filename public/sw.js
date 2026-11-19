@@ -246,15 +246,9 @@ self.addEventListener("fetch", (event) => {
         caches.open(STATIC_CACHE).then((cache) =>
           cache.match(req).then((hit) => hit ?? fetch(req).then((res) => {
             try {
-              // Rotated chunk: the cached page predates a deploy and the
-              // server only keeps the current build. Drop the page cache so
-              // the NEXT navigation fetches fresh HTML instead of replaying
-              // the dead page (one bad load, then self-healed — served as-is
-              // this time so callers see a normal 404, never HTML-as-JS).
-              if (res.status === 404) {
-                caches.delete(PAGE_CACHE).catch(() => {});
-                return res;
-              }
+              // A missing asset must not discard every saved driver screen.
+              // Network-first documents replace old HTML on the next online visit.
+              if (res.status === 404) return res;
               const ct = (res.headers.get("content-type") || "").toLowerCase();
               const p = url.pathname.toLowerCase();
               const okType =

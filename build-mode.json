@@ -1,5 +1,5 @@
 {
-  "mode": "server",
-  "serverUrl": "https://client1.distribuili.khiatadz.com",
-  "bundleUpdates": "auto"
+  "mode": "local",
+  "serverUrl": "https://votre-domaine.com",
+  "bundleUpdates": "manual"
 }

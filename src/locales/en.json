@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Distribuili",
+    "name": "Golden Wafer",
     "tagline": "Distribution management system"
   },
   "nav": {
@@ -88,7 +88,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome to Distribuili",
+    "welcome": "Welcome to Golden Wafer",
     "empty": "Business modules (customers, inventory, sales…) will be built here.",
     "today": "Today",
     "month": "Month",
@@ -697,7 +697,7 @@
     "driverBusy": "This driver is already linked to another van"
   },
   "onboard": {
-    "title": "Start with Distribuili",
+    "title": "Start with Golden Wafer",
     "subtitle": "Set up your business and owner account, then get straight to distribution.",
     "heroTitle": "Every distribution move, in its place.",
     "heroCopy": "From stock and purchasing to delivery and collection, see your operation clearly each day.",

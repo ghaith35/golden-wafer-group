@@ -92,7 +92,7 @@ export function SuperAdminShell({
               </span>
               {!collapsed && (
                 <span className="block truncate text-[13px] font-black leading-4 text-(--sa-sidebar-fg)">
-                  DISTRIBUILI
+                  GOLDEN WAFER
                 </span>
               )}
             </Link>

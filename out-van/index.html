@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Distribuili Van</title>
+<title>Golden Wafer</title>
 <script src="./js/jsQR.js"></script>
 <style>
 body{font-family:system-ui;background:#0f172a;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
@@ -21,7 +21,7 @@ video{width:100%;border-radius:12px;background:#000;max-height:46vh;object-fit:c
 <body>
 <!-- returning user: brief splash, then straight into the app -->
 <div class="card" id="loading" style="display:none">
-  <div class="logo">🚚</div>
+  <img class="logo" src="logo.png" alt="" style="width:72px;height:72px;border-radius:16px">
   <h1>جارٍ الفتح…</h1>
   <p>يتم فتح تطبيق التوزيع الخاص بك</p>
 </div>
@@ -29,7 +29,7 @@ video{width:100%;border-radius:12px;background:#000;max-height:46vh;object-fit:c
 <!-- first run: scan only — no address is ever typed or shown -->
 <div class="card" id="setup" style="display:none">
   <div id="serverView">
-    <div class="logo">🚚</div>
+    <img class="logo" src="logo.png" alt="" style="width:72px;height:72px;border-radius:16px">
     <h1>الاتصال بخادم التوزيع</h1>
     <p>امسح رمز الاتصال المشترك الظاهر في صفحة الأجهزة على الكمبيوتر.</p>
     <button id="scanBtn" onclick="startScan()">📷 مسح الرمز</button>

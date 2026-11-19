@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Distribuili Van</string>
-    <string name="title_activity_main">Distribuili Van</string>
+    <string name="app_name">Golden Wafer</string>
+    <string name="title_activity_main">Golden Wafer</string>
     <string name="package_name">com.distribuili.van</string>
     <string name="custom_url_scheme">com.distribuili.van</string>
 </resources>

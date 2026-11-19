@@ -18,6 +18,7 @@ export function AutoUpdate() {
   const [apk, setApk] = useState<{ versionName: string; size: number; url: string } | null>(null);
 
   useEffect(() => {
+    if (window.distribuili?.isDesktop) return;
     let dead = false;
     (async () => {
       try {

@@ -901,6 +901,7 @@ CREATE INDEX "customers_companyId_secteurId_idx" ON "customers"("companyId", "se
 -- CreateIndex
 CREATE UNIQUE INDEX "customers_companyId_code_key" ON "customers"("companyId", "code");
 
+-- CreateIndex
 CREATE UNIQUE INDEX "customers_companyId_legacyQr_key" ON "customers"("companyId", "legacyQr");
 
 -- CreateIndex

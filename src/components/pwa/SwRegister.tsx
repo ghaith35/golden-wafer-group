@@ -4,6 +4,8 @@ import { useEffect } from "react";
 
 export function SwRegister() {
   useEffect(() => {
+    // Desktop serves the bundled app locally and clears old workers before boot.
+    if (window.distribuili?.isDesktop) return;
     if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }

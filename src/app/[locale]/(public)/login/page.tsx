@@ -20,7 +20,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
       {/* Drenched olive night — lighter core, near-black edges */}
       <div
         className="absolute inset-0"
-        style={{ background: "radial-gradient(120% 90% at 50% 18%, #1d3245 0%, #12202c 48%, #0a1016 100%)" }}
+        style={{ background: "radial-gradient(120% 90% at 50% 18%, #1a1408 0%, #0b0b0c 48%, #030303 100%)" }}
       />
 
       {/* Subtle plus-pattern texture */}
@@ -38,13 +38,13 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/icons/logo-192.png"
-            alt="Distribuili"
+            alt="Golden Wafer"
             className="mb-5 inline-block h-16 w-16 rounded-[20px] 2xl:h-20 2xl:w-20"
-            style={{ boxShadow: "0 0 55px -8px rgba(181,220,99,0.6), 0 0 0 1px rgba(181,220,99,0.25)" }}
+            style={{ boxShadow: "0 0 55px -8px rgba(232,186,76,0.6), 0 0 0 1px rgba(232,186,76,0.25)" }}
           />
           <h1 className="text-[2rem] font-extrabold leading-none tracking-tight text-white 2xl:text-4xl" dir="ltr">
-            <span>DISTRIB</span>
-            <span className="text-[#63a4dc]">UILI</span>
+            <span>GOLDEN</span>
+            <span className="text-[#e8ba4c]"> WAFER</span>
           </h1>
           <p className="mt-2.5 text-sm text-white/55">
             {t("tagline")}

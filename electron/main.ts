@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, nativeImage, shell, ipcMain, Tray, dialog } from "electron";
+import { app, BrowserWindow, Menu, nativeImage, shell, ipcMain, Tray, dialog, session } from "electron";
 import { TRAY_ICON_B64 } from "./tray-icon";
 import { join } from "node:path";
 import { existsSync, readFileSync, writeFileSync, copyFileSync, appendFileSync, mkdirSync } from "node:fs";
@@ -7,7 +7,7 @@ import net from "node:net";
 import crypto from "node:crypto";
 import * as license from "./license";
 import { configureUpdater } from "./updater";
-import { migrateSqliteSchema } from "./sqlite-migrate";
+import { loadSqliteDatabase, migrateSqliteSchema } from "./sqlite-migrate";
 import type { BundleEntryPoints } from "./bundle-update";
 import {
   activateBundle,
@@ -92,7 +92,7 @@ function setupPageHtml(current: string, error: string): string {
   const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
   return `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Distribuili — Server</title>
+<title>Golden Wafer — Server</title>
 <style>body{font-family:system-ui;background:#0f172a;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
 .card{background:#1e293b;border-radius:16px;padding:28px;max-width:420px;width:92%;box-shadow:0 10px 40px #0008}
 h1{font-size:18px;margin:0 0 6px}p{font-size:13px;opacity:.7;margin:0 0 14px}
@@ -232,7 +232,7 @@ function offerAlwaysOn(log: (m: string) => void): void {
       buttons: ["تفعيل التشغيل الدائم", "لاحقاً"],
       defaultId: 0,
       cancelId: 1,
-      title: "Distribuili",
+      title: "Golden Wafer Group",
       message: "تشغيل دائم لهذا الكمبيوتر؟",
       detail:
         "سيطلب ويندوز صلاحية المسؤول (UAC)، ثم تُدخل كلمة السر مرة واحدة في النافذة السوداء. بعدها: أي إعادة تشغيل تدخل تلقائياً ويعود السيرفر وحده.",
@@ -705,11 +705,11 @@ function setupTray(log: (m: string) => void): void {
   if (tray) return;
   try {
     tray = new Tray(trayIcon());
-    tray.setToolTip("Distribuili — server running");
+    tray.setToolTip("Golden Wafer — server running");
     tray.setContextMenu(
       Menu.buildFromTemplate([
         {
-          label: "فتح Distribuili",
+          label: "فتح Golden Wafer",
           click: () => {
             mainWindow?.show();
             mainWindow?.focus();
@@ -889,7 +889,7 @@ async function bootstrapIfNeeded(log: (m: string) => void): Promise<void> {
   }
   log("[db] no seed bundle — creating empty schema from DDL");
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const Database = require("libsql");
+  const Database = loadSqliteDatabase(activeEntry.standaloneDir);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db: any = new Database(dbFile(), {});
   try { db.exec(readFileSync(ddlPath, "utf8")); }
@@ -900,11 +900,13 @@ function migrateSchemaIfNeeded(log: (m: string) => void): void {
   const ddlPath = activeEntry.ddlPath;
   if (!existsSync(dbFile()) || !existsSync(ddlPath)) return;
   try {
-    const res = migrateSqliteSchema(dbFile(), readFileSync(ddlPath, "utf8"), log);
+    const res = migrateSqliteSchema(dbFile(), readFileSync(ddlPath, "utf8"), log, activeEntry.standaloneDir);
     const n = res.addedTables.length + res.addedColumns.length + res.addedIndexes.length;
+    if (res.skipped.length) throw new Error(`SQLite schema upgrade incomplete: ${res.skipped.join("; ")}`);
     log(n > 0 ? `[db-migrate] applied ${n} schema change(s)` : "[db-migrate] schema up to date");
   } catch (e) {
-    log(`[db-migrate] FAILED (${e}) — continuing with unmigrated schema`);
+    log(`[db-migrate] FAILED (${e})`);
+    throw e;
   }
 }
 
@@ -1182,7 +1184,7 @@ function bootErrorPageHtml(error: string, logPath: string): string {
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").slice(0, 4000);
   return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Distribuili — تعذر التشغيل</title>
+<title>Golden Wafer — تعذر التشغيل</title>
 <style>body{font-family:system-ui;background:#0f172a;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
 .card{background:#1e293b;border-radius:16px;padding:28px;max-width:560px;width:94%;box-shadow:0 10px 40px #0008}
 h1{font-size:18px;margin:0 0 8px;color:#f87171}p{font-size:13px;opacity:.85;line-height:1.9}
@@ -1205,18 +1207,18 @@ function startupPageHtml(
 ): string {
   return `<!doctype html><html lang="ar"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Distribuili</title>
+<title>Golden Wafer</title>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#173d2b;color:#f7f9f5;font-family:-apple-system,BlinkMacSystemFont,"Geeza Pro",sans-serif}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#030303;color:#f7f9f5;font-family:-apple-system,BlinkMacSystemFont,"Geeza Pro",sans-serif}
 main{width:min(100% - 40px,440px);padding:40px 24px;text-align:center}
-.mark{width:58px;height:58px;margin:0 auto 19px;display:grid;place-items:center;border-radius:15px;background:#60a5fa;color:#0f172a;font-size:26px;font-weight:900}
-.brand{margin:0;font:800 15px/1.2 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:1.4px;direction:ltr;color:#d9e8d7}
+.mark{width:84px;height:84px;margin:0 auto 19px;display:block;border-radius:20px}
+.brand{margin:0;font:800 15px/1.2 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:1.4px;direction:ltr;color:#e8c14a}
 .spinner{width:38px;height:38px;margin:38px auto 20px;border:3px solid rgba(255,255,255,.22);border-top-color:#60a5fa;border-radius:50%;animation:spin .85s linear infinite}
 h1{margin:0;font-size:26px;line-height:1.5;font-weight:800}p{margin:7px 0 0;color:#c3d4c6;font-size:15px;line-height:1.8}
 .fr{margin-top:24px;font-size:17px;font-weight:700;color:#fff;direction:ltr}.fr-note{margin-top:3px;font-size:14px}
 @keyframes spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.spinner{animation-duration:2.5s}}
 </style></head><body><main role="status" aria-live="polite">
-<div class="mark" aria-hidden="true">D</div><p class="brand">DISTRIBUILI</p>
+<img class="mark" alt="" src="data:image/png;base64,${TRAY_ICON_B64}"><p class="brand">GOLDEN WAFER GROUP</p>
 <div class="spinner" aria-hidden="true"></div>
 <h1 dir="rtl">${titleAr}</h1><p dir="rtl">${subAr}</p>
 <p class="fr">${titleFr}</p><p class="fr-note" dir="ltr">${subFr}</p>
@@ -1299,6 +1301,10 @@ app.whenReady().then(async () => {
   // (DISTRIBUILI_BUNDLE_URL env or <userData>/bundle-feed.json).
   bundleFeedUrl = resolveFeedUrl(userDataDir, BAKED_BUNDLE_FEED);
   const log = makeLogger();
+  // An earlier desktop build registered the phone worker. Remove it before
+  // navigating so cached mobile fallbacks cannot hide local server failures.
+  await session.defaultSession.clearStorageData({ storages: ["serviceworkers", "cachestorage"] });
+  log("[boot] cleared desktop service workers and page caches");
   log(`[updater] ${configureUpdater(log, userDataDir)}`);
   log(`[bundle] feed → ${bundleFeedUrl} (mode: ${bundleUpdates})`);
   registerLicenseIpc();

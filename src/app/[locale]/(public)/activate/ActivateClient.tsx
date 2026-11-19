@@ -75,7 +75,7 @@ function TrialRing({ daysLeft, label }: { daysLeft: number; label: string }) {
           strokeLinecap="round"
           strokeDasharray={c}
           strokeDashoffset={c * (1 - frac)}
-          className="stroke-[#63a4dc] transition-all duration-700"
+          className="stroke-[#e8ba4c] transition-all duration-700"
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -387,11 +387,11 @@ export function ActivateClient({ locale, labels }: { locale: string; labels: Rec
   const fieldLabel = "mb-1.5 block text-[13px] font-semibold text-white/50";
   const fieldLabelIcon = "mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold text-white/50";
   const fieldInput =
-    "h-12 w-full rounded-xl border border-white/10 bg-white/[0.06] px-3.5 text-[15px] text-white outline-none transition placeholder:text-white/30 focus:border-[#63a4dc]/70 focus:bg-white/[0.08] disabled:opacity-60";
+    "h-12 w-full rounded-xl border border-white/10 bg-white/[0.06] px-3.5 text-[15px] text-white outline-none transition placeholder:text-white/30 focus:border-[#e8ba4c]/70 focus:bg-white/[0.08] disabled:opacity-60";
   const fieldError = "mt-1.5 text-xs font-bold text-rose-300";
   const alertError = "rounded-xl border border-red-400/20 bg-red-500/15 p-2.5 text-sm font-bold text-rose-200";
   const primaryBtn =
-    "flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#63a4dc] text-base font-black text-[#171927] transition hover:bg-[#7fb8e8] disabled:opacity-50";
+    "flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#e8ba4c] text-base font-black text-[#1c1200] transition hover:bg-[#ffe08a] disabled:opacity-50";
   const ghostBtn =
     "flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-white/15 px-4 text-xs font-bold text-white/75 transition hover:bg-white/10 hover:text-white";
   const card =
@@ -415,7 +415,7 @@ export function ActivateClient({ locale, labels }: { locale: string; labels: Rec
       {/* Drenched olive night — lighter core, near-black edges */}
       <div
         className="absolute inset-0"
-        style={{ background: "radial-gradient(120% 90% at 50% 18%, #1d3245 0%, #12202c 48%, #0a1016 100%)" }}
+        style={{ background: "radial-gradient(120% 90% at 50% 18%, #1a1408 0%, #0b0b0c 48%, #030303 100%)" }}
       />
 
       {/* Subtle plus-pattern texture */}
@@ -433,13 +433,13 @@ export function ActivateClient({ locale, labels }: { locale: string; labels: Rec
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/icons/logo-192.png"
-            alt="Distribuili"
+            alt="Golden Wafer"
             className="mb-4 inline-block h-14 w-14 rounded-[18px] 2xl:h-16 2xl:w-16"
-            style={{ boxShadow: "0 0 55px -8px rgba(181,220,99,0.6), 0 0 0 1px rgba(181,220,99,0.25)" }}
+            style={{ boxShadow: "0 0 55px -8px rgba(232,186,76,0.6), 0 0 0 1px rgba(232,186,76,0.25)" }}
           />
           <h1 className="text-[1.7rem] font-extrabold leading-none tracking-tight text-white 2xl:text-3xl" dir="ltr">
-            <span>DISTRIB</span>
-            <span className="text-[#63a4dc]">UILI</span>
+            <span>GOLDEN</span>
+            <span className="text-[#e8ba4c]"> WAFER</span>
           </h1>
           <p className="mt-2 text-sm font-medium text-white/55">{labels.title}</p>
         </div>
@@ -464,11 +464,11 @@ export function ActivateClient({ locale, labels }: { locale: string; labels: Rec
               <p className="mx-auto mt-1 max-w-sm text-sm text-white/60">{labels.revoked}</p>
             </div>
           ) : entitled && !okMsg && !savedKey ? (
-            <div className="flex items-center gap-4 rounded-2xl border border-[#63a4dc]/25 bg-[#63a4dc]/10 p-5 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+            <div className="flex items-center gap-4 rounded-2xl border border-[#e8ba4c]/25 bg-[#e8ba4c]/10 p-5 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl">
               {st.inTrial ? (
                 <TrialRing daysLeft={st.daysLeft} label={labels.daysShort} />
               ) : (
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#63a4dc] text-[#171927]">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#e8ba4c] text-[#1c1200]">
                   <BadgeCheck size={30} />
                 </div>
               )}
@@ -484,7 +484,7 @@ export function ActivateClient({ locale, labels }: { locale: string; labels: Rec
                 {st.devBypass && <p className="text-xs font-bold text-amber-300">DEV — placeholder key</p>}
                 <button
                   onClick={goOnboard}
-                  className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-[#63a4dc] px-5 py-2 text-sm font-black text-[#171927] transition hover:bg-[#7fb8e8]"
+                  className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-[#e8ba4c] px-5 py-2 text-sm font-black text-[#1c1200] transition hover:bg-[#ffe08a]"
                 >
                   {labels.goOnboard} <span aria-hidden>{dir === "rtl" ? "←" : "→"}</span>
                 </button>
@@ -502,8 +502,8 @@ export function ActivateClient({ locale, labels }: { locale: string; labels: Rec
 
           {/* success / saved-key celebration */}
           {(okMsg || savedKey) && (
-            <div className="rounded-2xl border border-[#63a4dc]/25 bg-[#63a4dc]/10 p-6 text-center shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl">
-              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#63a4dc] text-[#171927]">
+            <div className="rounded-2xl border border-[#e8ba4c]/25 bg-[#e8ba4c]/10 p-6 text-center shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e8ba4c] text-[#1c1200]">
                 <Check size={24} strokeWidth={3} />
               </div>
               <p className="text-lg font-black text-white">{okMsg ?? labels.successMsg}</p>
@@ -551,7 +551,7 @@ export function ActivateClient({ locale, labels }: { locale: string; labels: Rec
                     }}
                     className={cn(
                       "flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-black transition",
-                      tab === t.id ? "bg-[#63a4dc] text-[#171927] shadow" : "text-white/55 hover:bg-white/10 hover:text-white"
+                      tab === t.id ? "bg-[#e8ba4c] text-[#1c1200] shadow" : "text-white/55 hover:bg-white/10 hover:text-white"
                     )}
                   >
                     <t.Icon size={16} /> {t.label}
@@ -638,7 +638,7 @@ export function ActivateClient({ locale, labels }: { locale: string; labels: Rec
                   </div>
                     {phase === "waiting" ? (
                       <div className="py-2 text-center">
-                        <Loader2 size={32} className="mx-auto animate-spin text-[#63a4dc]" />
+                        <Loader2 size={32} className="mx-auto animate-spin text-[#e8ba4c]" />
                         <p className="mt-3 text-sm font-black text-white">{labels.waitingTitle}</p>
                         <p className="mx-auto mt-1 max-w-xs text-xs leading-5 text-white/55">{labels.waitingSub}</p>
                         <button
@@ -655,7 +655,7 @@ export function ActivateClient({ locale, labels }: { locale: string; labels: Rec
                             href={`https://wa.me/${supportPhone}?text=${waText}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="mx-auto mt-3 flex min-h-11 max-w-xs items-center justify-center gap-2 rounded-xl bg-[#2542d3] px-4 text-sm font-black text-white transition hover:brightness-110"
+                            className="mx-auto mt-3 flex min-h-11 max-w-xs items-center justify-center gap-2 rounded-xl bg-[#a67812] px-4 text-sm font-black text-white transition hover:brightness-110"
                           >
                             <MessageCircle size={17} /> {labels.whatsappBtn}
                           </a>
@@ -770,7 +770,7 @@ export function ActivateClient({ locale, labels }: { locale: string; labels: Rec
               rel="noreferrer"
               className="mx-auto flex min-h-11 w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 text-xs font-black text-white/70 backdrop-blur-xl transition hover:bg-white/10 hover:text-white"
             >
-              <MessageCircle size={15} className="text-[#2542d3]" /> {labels.whatsappBtn}
+              <MessageCircle size={15} className="text-[#a67812]" /> {labels.whatsappBtn}
             </a>
           )}
         </div>
