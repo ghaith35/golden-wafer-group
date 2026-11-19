@@ -244,6 +244,7 @@ div[id^="DndLiveRegion"] {
   --text-secondary: rgba(255, 255, 255, 0.72);
   --text-tertiary: rgba(255, 255, 255, 0.45);
   --bg-sunken: rgba(255, 255, 255, 0.09);
+  --bg-overlay: #1b160b;
   --border-default: rgba(255, 255, 255, 0.12);
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.22);

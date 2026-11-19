@@ -102,7 +102,7 @@ function Seg<T extends string>({ value, onChange, options, small }: { value: T; 
           onClick={() => onChange(o.v)}
           className={cn(
             "whitespace-nowrap rounded-[10px] font-black transition-all",
-            small ? "min-h-0 px-2 py-0.5 text-[10px]" : "min-h-0 px-3.5 py-1.5 text-xs",
+            small ? "min-h-0 px-1.5 py-0.5 text-[10px] leading-tight" : "min-h-0 px-3.5 py-1.5 text-xs",
             value === o.v ? "bg-gradient-brand text-(--brand-contrast) shadow" : "text-(--text-secondary) hover:text-(--text-primary)"
           )}
         >
@@ -545,14 +545,12 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
     </Panel>
   );
 
+  const metricSeg = (
+    <Seg small value={prodMetric} onChange={setProdMetric} options={[{ v: "revenue", label: t("mRevenue") }, { v: "profit", label: t("mProfit") }, { v: "qty", label: t("mQty") }]} />
+  );
   const productsPanel = (
-    <Panel
-      fit={fit}
-      className={fit ? "col-span-3" : ""}
-      title={t("topProducts")}
-      icon={Package}
-      right={<Seg small value={prodMetric} onChange={setProdMetric} options={[{ v: "revenue", label: t("byRevenue") }, { v: "profit", label: t("byProfit") }, { v: "qty", label: t("byQty") }]} />}
-    >
+    <Panel fit={fit} className={fit ? "col-span-3" : ""} title={t("topProducts")} icon={Package} right={fit ? undefined : metricSeg}>
+      {fit && <div className="mb-2 flex shrink-0">{metricSeg}</div>}
       {products.length === 0 ? empty : <RankList items={productItems} max={prodMax} fit={fit} t={t as unknown as (k: string) => string} green={prodMetric === "profit"} />}
     </Panel>
   );

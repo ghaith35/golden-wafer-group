@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDown, ChevronLeft, LogOut, Menu, Minus, Moon, Plus, RefreshCw, Sun, UserRound } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, Globe, LogOut, Menu, Minus, Moon, Plus, RefreshCw, Sun, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { notifyDataChanged, useRefreshPending } from "@/lib/data-sync";
 import { ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN, getZoom, subscribeZoom, zoomIn, zoomOut, zoomReset } from "@/lib/ui-zoom";
@@ -276,14 +276,44 @@ function ZoomControl() {
   );
 }
 
-/// Compact AR / FR / EN switcher. Full reload so the server re-renders with
-/// the right `dir` + messages (same approach as Khiata).
+/// AR / FR / EN switcher: one compact button showing the current language;
+/// click opens the list. Full reload so the server re-renders with the right
+/// `dir` + messages (same approach as Khiata).
 /// tone="onDark" renders the light cream pill used on drenched dark screens.
 export function LanguageSwitcher({ tone = "light" }: { tone?: "light" | "onDark" }) {
   const locale = useLocale();
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const [up, setUp] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("touchstart", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("touchstart", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  function toggle() {
+    if (!open && boxRef.current) {
+      // Open upwards when there is no room below (sidebar footer, drawers).
+      const r = boxRef.current.getBoundingClientRect();
+      setUp(window.innerHeight - r.bottom < 190 && r.top > 190);
+    }
+    setOpen((o) => !o);
+  }
 
   function switchLang(next: string) {
+    setOpen(false);
     if (next === locale) return;
     const nextPathname = pathname.match(/^\/(ar|fr|en)(\/|$)/)
       ? pathname.replace(/^\/(ar|fr|en)(?=\/|$)/, `/${next}`)
@@ -291,40 +321,57 @@ export function LanguageSwitcher({ tone = "light" }: { tone?: "light" | "onDark"
     window.location.assign(`${nextPathname}${window.location.search}${window.location.hash}`);
   }
 
+  const dark = tone === "onDark";
   return (
-    <div
-      className={cn(
-        "flex gap-1 rounded-xl p-1",
-        tone === "onDark" ? "bg-[#fbf1d3]/95 shadow-[0_2px_12px_rgba(0,0,0,0.35)]" : "bg-(--bg-sunken)"
-      )}
-      dir="ltr"
-      role="group"
-      aria-label="language"
-    >
-      {LOCALES.map((l) => (
-        <button
-          key={l}
-          type="button"
-          onClick={() => switchLang(l)}
-          aria-pressed={l === locale}
-          title={LANGUAGE_FULL[l]}
+    <div ref={boxRef} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={toggle}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="language"
+        className={cn(
+          "flex h-11 min-w-11 items-center gap-1.5 rounded-xl border px-2.5 text-xs font-black transition-colors",
+          dark
+            ? "border-transparent bg-[#fbf1d3]/95 text-[#3a2a06] shadow-[0_2px_12px_rgba(0,0,0,0.35)] hover:bg-[#fbf1d3]"
+            : "border-(--border-default) bg-(--bg-overlay) text-(--text-primary) hover:border-(--brand-500)"
+        )}
+      >
+        <Globe size={15} className={dark ? "text-[#85600e]" : "text-(--gold-text)"} />
+        <span className="lang-code sm:hidden">{locale.toUpperCase()}</span>
+        <span className="lang-full hidden sm:block">{LANGUAGE_FULL[locale as keyof typeof LANGUAGE_FULL] ?? locale}</span>
+        <ChevronDown size={13} className={cn("shrink-0 opacity-60 transition-transform duration-200", open && "rotate-180")} />
+      </button>
+      {open && (
+        <ul
+          role="listbox"
+          aria-label="language"
           className={cn(
-            "min-h-10 min-w-11 rounded-lg px-2 text-xs font-black transition-colors sm:px-3.5",
-            l === locale
-              ? tone === "onDark"
-                ? "bg-[#c9951a] text-[#1c1200] shadow"
-                : "bg-gradient-brand text-(--brand-contrast) shadow"
-              : tone === "onDark"
-                ? "text-[#654a0e] hover:text-[#1c1200]"
-                : "text-(--text-secondary) hover:text-(--text-primary)"
+            "absolute end-0 z-50 w-44 overflow-hidden rounded-xl border p-1 shadow-xl",
+            up ? "bottom-[calc(100%+6px)]" : "top-[calc(100%+6px)]",
+            dark ? "border-[#e8ba4c]/40 bg-[#fbf1d3] text-[#3a2a06]" : "border-(--border-default) bg-(--bg-overlay) text-(--text-primary)"
           )}
+          style={{ animation: "gw-pop 0.18s var(--ease-out)", transformOrigin: up ? "bottom" : "top" }}
         >
-          {/* Compact code on phones (full names overflow narrow drawers),
-              full name from sm up. */}
-          <span className="lang-code sm:hidden">{l.toUpperCase()}</span>
-          <span className="lang-full hidden sm:block">{LANGUAGE_FULL[l]}</span>
-        </button>
-      ))}
+          {LOCALES.map((l) => (
+            <li key={l} role="option" aria-selected={l === locale}>
+              <button
+                type="button"
+                onClick={() => switchLang(l)}
+                className={cn(
+                  "flex min-h-10 w-full items-center justify-between gap-2 rounded-lg px-3 text-start text-sm font-black transition-colors",
+                  l === locale
+                    ? dark ? "bg-[#c9951a] text-[#1c1200]" : "bg-gradient-brand text-(--brand-contrast)"
+                    : dark ? "hover:bg-[#e8ba4c]/25" : "hover:bg-(--bg-sunken)"
+                )}
+              >
+                <span>{LANGUAGE_FULL[l]}</span>
+                {l === locale ? <Check size={15} /> : <span className="text-[10px] font-bold opacity-50">{l.toUpperCase()}</span>}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

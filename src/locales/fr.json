@@ -146,7 +146,10 @@
     "debtsTitle": "Créances & dettes",
     "inv": "facture",
     "day": "Aujourd'hui",
-    "noVans": "Aucun camion pour l'instant"
+    "noVans": "Aucun camion pour l'instant",
+    "mRevenue": "CA",
+    "mProfit": "Marge",
+    "mQty": "Qté"
   },
   "common": {
     "save": "Enregistrer",
