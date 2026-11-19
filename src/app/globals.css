@@ -24,15 +24,22 @@
   --gold-wash: #fbf1d3;
   --gold-glow: 0 8px 24px -8px rgba(201, 149, 26, 0.55);
 
-  --bg-surface: #fbf8f1;
-  --bg-sunken: #f3ecda;
-  --bg-overlay: #ffffff;
+  --bg-page: #f7f1e1;
+  --bg-surface: #fbf6e8;       /* fields / insets */
+  --bg-sunken: #f4e9c8;        /* chips, wells, table heads */
+  --bg-overlay: #ffffff;       /* cards */
+  --ambient: radial-gradient(1100px 520px at 88% -8%, rgba(236, 188, 62, 0.30), transparent 62%),
+    radial-gradient(900px 520px at -8% 108%, rgba(201, 149, 26, 0.16), transparent 60%);
+  --card-shadow: 0 1px 2px rgba(120, 88, 14, 0.06), 0 14px 32px -16px rgba(166, 120, 18, 0.30);
+  --card-shadow-hover: 0 2px 4px rgba(120, 88, 14, 0.08), 0 22px 44px -16px rgba(166, 120, 18, 0.42);
+  --card-edge: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --focus-ring: 0 0 0 3px rgba(201, 149, 26, 0.24);
   --text-primary: #1b1406;
-  --text-secondary: #7b6b49;
+  --text-secondary: #75653f;
   --text-tertiary: #9a8a68;
-  --border-default: #eadfc2;
-  --border-subtle: #f3ecda;
-  --border-strong: #d9c58f;
+  --border-default: #e6d6a6;
+  --border-subtle: #f1e6c4;
+  --border-strong: #d2b866;
   --semantic-success: #2e8b57;
   --semantic-warning: #d98a0b;
   --semantic-danger: #c8403a;
@@ -54,15 +61,23 @@
 
 
 .dark {
-  --bg-surface: #070708;
-  --bg-sunken: #040404;
-  --bg-overlay: #121214;
-  --text-primary: #f7f0dc;
-  --text-secondary: #a99c7a;
-  --text-tertiary: #7d7357;
-  --border-default: #2a2416;
-  --border-subtle: #1a160c;
-  --border-strong: #4a3d1c;
+  color-scheme: dark;
+  --bg-page: #0d0c09;
+  --bg-surface: #221f16;       /* fields / insets: a step ABOVE the card so they read as inputs */
+  --bg-sunken: #29251a;        /* chips, wells, table heads */
+  --bg-overlay: #17150f;       /* cards */
+  --ambient: radial-gradient(1000px 520px at 90% -10%, rgba(232, 186, 76, 0.13), transparent 62%),
+    radial-gradient(800px 500px at -10% 110%, rgba(201, 149, 26, 0.09), transparent 60%);
+  --card-shadow: 0 1px 0 rgba(0, 0, 0, 0.5), 0 16px 34px -18px rgba(0, 0, 0, 0.85);
+  --card-shadow-hover: 0 1px 0 rgba(0, 0, 0, 0.5), 0 24px 44px -16px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(232, 186, 76, 0.18);
+  --card-edge: inset 0 1px 0 rgba(255, 232, 160, 0.06);
+  --focus-ring: 0 0 0 3px rgba(232, 186, 76, 0.26);
+  --text-primary: #f6efdb;
+  --text-secondary: #bcae8b;
+  --text-tertiary: #8f8467;
+  --border-default: #342d1b;
+  --border-subtle: #262014;
+  --border-strong: #5a4a22;
   --brand-500: #e8ba4c;
   --brand-600: #c99524;
   --brand-contrast: #1c1200;
@@ -136,7 +151,9 @@
 }
 
 body {
-  background: var(--bg-surface);
+  background: var(--bg-page);
+  background-image: var(--ambient);
+  background-attachment: fixed;
   color: var(--text-primary);
   /* Cairo carries Arabic + Latin; safe-area padding for phones / desktop shell. */
   font-family: var(--font-cairo), system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -434,4 +451,145 @@ img, video, canvas, svg { max-width: 100%; }
 @media (min-width: 768px) and (max-width: 1023px) {
   header .lang-full { display: none !important; }
   header .lang-code { display: block !important; }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Polish layer — depth, fields, motion (light = warm gold glow, dark =
+   layered graphite with gold edges). Everything is token-driven.
+   ════════════════════════════════════════════════════════════════════════ */
+:root { --ease-out: cubic-bezier(0.22, 1, 0.36, 1); }
+::selection { background: color-mix(in srgb, var(--brand-500) 38%, transparent); color: inherit; }
+
+/* Themed scrollbars (page + inner scrollers). */
+* { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+*::-webkit-scrollbar { width: 9px; height: 9px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--brand-500); background-clip: padding-box; border: 2px solid transparent; }
+
+/* Smooth light⇄dark flip (class added for ~450 ms by applyTheme). */
+html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after {
+  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, fill 0.4s ease !important;
+}
+
+/* Cards / panels: edge highlight + soft shadow, lift on hover for links. */
+[class*="bg-(--bg-overlay)"][class*="border-(--border-default)"],
+.ui-panel,
+.table-shell {
+  box-shadow: var(--card-edge), var(--card-shadow);
+}
+.ui-panel, .table-shell { background: var(--bg-overlay); }
+a[class*="bg-(--bg-overlay)"][class*="border-(--border-default)"],
+button[class*="bg-(--bg-overlay)"][class*="border-(--border-default)"] {
+  transition: transform 0.2s var(--ease-out), box-shadow 0.25s var(--ease-out), border-color 0.2s var(--ease-out), background-color 0.2s var(--ease-out);
+}
+a[class*="bg-(--bg-overlay)"][class*="border-(--border-default)"]:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: var(--card-edge), var(--card-shadow-hover);
+}
+
+/* Frosted top bar + bottom nav. */
+header.fixed, nav.fixed.bottom-0 {
+  background: color-mix(in srgb, var(--bg-overlay) 82%, transparent) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+  border-color: color-mix(in srgb, var(--brand-500) 22%, var(--border-default)) !important;
+}
+header.fixed::after {
+  content: ""; position: absolute; inset-inline: 0; bottom: -1px; height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--brand-500) 70%, transparent), transparent);
+  opacity: 0.55; pointer-events: none;
+}
+
+/* Fields: tonal inset, gold focus glow (search boxes are no longer glaring white). */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+select, textarea {
+  transition: border-color 0.18s var(--ease-out), box-shadow 0.2s var(--ease-out), background-color 0.18s var(--ease-out);
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not(.auth-dark input):focus,
+select:focus, textarea:focus {
+  border-color: var(--brand-500) !important;
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+input::placeholder, textarea::placeholder { color: var(--text-tertiary); opacity: 1; }
+input:not(.auth-dark input):hover:not(:focus), select:hover:not(:focus), textarea:hover:not(:focus) {
+  border-color: var(--border-strong);
+}
+.dark select option, .dark select optgroup { background: #1c1911; color: #f6efdb; }
+.dark input:-webkit-autofill, .dark textarea:-webkit-autofill {
+  -webkit-text-fill-color: var(--text-primary);
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-surface) inset;
+}
+.field-input, .field-input:focus { background: var(--bg-surface); }
+
+/* Buttons: gold sheen sweep + glow on the primary, press feedback everywhere. */
+.bg-gradient-brand { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), var(--gold-glow); }
+button.bg-gradient-brand, a.bg-gradient-brand { position: relative; overflow: hidden; isolation: isolate; }
+button.bg-gradient-brand::after, a.bg-gradient-brand::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%);
+  transform: translateX(-120%); transition: transform 0.7s var(--ease-out);
+}
+button.bg-gradient-brand:hover::after, a.bg-gradient-brand:hover::after { transform: translateX(120%); }
+button:not(:disabled):active, a[class*="rounded"]:active { transform: translateY(1px) scale(0.985); }
+button, [role="button"] { transition-property: background-color, color, border-color, box-shadow, transform, opacity; transition-duration: 0.18s; transition-timing-function: var(--ease-out); }
+
+/* Tables: gold-tinted header, row hover wash with an accent edge. */
+.table-shell thead th {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--brand-500) 12%, var(--bg-sunken)), var(--bg-sunken));
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-default);
+}
+.table-shell tbody tr { transition: background-color 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out); }
+.table-shell tbody tr:hover {
+  background: color-mix(in srgb, var(--brand-500) 9%, transparent);
+  box-shadow: inset 3px 0 0 var(--brand-500);
+}
+[dir="rtl"] .table-shell tbody tr:hover { box-shadow: inset -3px 0 0 var(--brand-500); }
+
+/* Status pills in dark: tinted glass instead of pastel blocks. */
+.dark .pill-amber { background-color: rgba(240, 176, 58, 0.16); color: #f6c866; }
+.dark .pill-emerald { background-color: rgba(76, 195, 138, 0.16); color: #6fe0a8; }
+.dark .pill-red { background-color: rgba(240, 107, 99, 0.16); color: #ff9a93; }
+.dark .pill-brand { background-color: rgba(232, 186, 76, 0.16); color: #f3cf74; }
+
+/* ── Motion ─────────────────────────────────────────────────────────── */
+@keyframes gw-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes gw-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes gw-pop { from { opacity: 0; transform: scale(0.96) translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes gw-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(232, 186, 76, 0.0); } 50% { box-shadow: 0 0 0 6px rgba(232, 186, 76, 0.16); } }
+
+/* Page enter: top-level blocks rise in, lightly staggered. */
+main > * { animation: gw-rise 0.5s var(--ease-out) backwards; }
+main > *:nth-child(2) { animation-delay: 0.05s; }
+main > *:nth-child(3) { animation-delay: 0.1s; }
+main > *:nth-child(n+4) { animation-delay: 0.15s; }
+/* Grids of cards / product tiles cascade in (first 12 items). */
+main .grid > *, main ul > li, .table-shell tbody tr { animation: gw-rise 0.45s var(--ease-out) backwards; }
+main .grid > *:nth-child(1), .table-shell tbody tr:nth-child(1) { animation-delay: 0.03s; }
+main .grid > *:nth-child(2), .table-shell tbody tr:nth-child(2) { animation-delay: 0.06s; }
+main .grid > *:nth-child(3), .table-shell tbody tr:nth-child(3) { animation-delay: 0.09s; }
+main .grid > *:nth-child(4), .table-shell tbody tr:nth-child(4) { animation-delay: 0.12s; }
+main .grid > *:nth-child(5), .table-shell tbody tr:nth-child(5) { animation-delay: 0.15s; }
+main .grid > *:nth-child(6), .table-shell tbody tr:nth-child(6) { animation-delay: 0.18s; }
+main .grid > *:nth-child(n+7), .table-shell tbody tr:nth-child(n+7) { animation-delay: 0.21s; }
+/* Dialogs / sheets / dropdown menus. */
+[role="dialog"], .animate-pop { animation: gw-pop 0.25s var(--ease-out); }
+[role="menu"], header .absolute.z-50 { animation: gw-pop 0.18s var(--ease-out); transform-origin: top; }
+
+@media (prefers-reduced-motion: reduce) {
+  main > *, main .grid > *, main ul > li, .table-shell tbody tr, [role="dialog"], [role="menu"] { animation: none !important; }
+  button.bg-gradient-brand::after, a.bg-gradient-brand::after { display: none; }
+  html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after { transition: none !important; }
+}
+@media print {
+  main > *, main .grid > *, main ul > li, .table-shell tbody tr { animation: none !important; }
+  body { background: #fff !important; }
 }

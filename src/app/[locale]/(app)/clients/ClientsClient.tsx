@@ -185,7 +185,7 @@ export function ClientsClient({
           {labels.import}
         </Button>
         <div className="min-w-40 flex-1">
-          <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="flex shrink-0 gap-1">
           <Button

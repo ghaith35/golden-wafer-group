@@ -460,7 +460,7 @@ export function StockBoard({
       <div className="grid min-h-0 items-start gap-4 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:overflow-hidden">
         {/* ── Sidebar: vans ── */}
         <div className="flex flex-col gap-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 lg:h-full lg:min-h-0 lg:overflow-hidden">
-          <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
               <span className="mb-1 block text-[11px] font-bold uppercase opacity-60">{labels.sortBy}</span>

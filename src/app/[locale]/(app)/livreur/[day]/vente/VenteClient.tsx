@@ -760,7 +760,7 @@ export function VenteClient({
                 <Search size={16} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-(--brand-600)" />
                 <Input
                   autoFocus
-                  className="ps-9 bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white"
+                  className="ps-9"
                   placeholder={labels.searchProduct}
                   value={pq}
                   onChange={(e) => setPq(e.target.value)}

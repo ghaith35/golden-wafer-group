@@ -265,7 +265,7 @@ export function PurchasesClient({
             {labels.neW}
           </Button>
           <div className="min-w-32 flex-1 basis-full sm:basis-auto">
-            <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+            <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
           <select value={fYear} onChange={(e) => setFYear(e.target.value)} className={cn(inputCls, "w-24 shrink-0")} aria-label="year">
             <option value="">—</option>

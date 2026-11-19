@@ -10,7 +10,14 @@ const KEY = "distribuili-theme";
 export function applyTheme(choice: ThemeChoice) {
   const dark =
     choice === "dark" || (choice === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  document.documentElement.classList.toggle("dark", dark);
+  const root = document.documentElement;
+  const flipping = root.classList.contains("dark") !== dark;
+  if (flipping) {
+    // Briefly enable colour transitions so the flip fades instead of snapping.
+    root.classList.add("theme-anim");
+    window.setTimeout(() => root.classList.remove("theme-anim"), 450);
+  }
+  root.classList.toggle("dark", dark);
 }
 
 export const THEME_KEY = "distribuili-theme";

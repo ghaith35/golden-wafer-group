@@ -176,7 +176,7 @@ export function DettesClient({ labels }: { labels: Record<string, string> }) {
 
       <div className="flex flex-col gap-2 lg:flex-row">
         <div className="flex-1">
-          <Input className="bg-white text-neutral-900 placeholder:text-neutral-400 focus:bg-white" placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="flex gap-1">
           {(["", "unpaid", "partial", "settled"] as const).map((s) => (
