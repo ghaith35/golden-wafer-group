@@ -1,7 +1,7 @@
 {
   "name": "distribuili",
   "version": "0.1.10",
-  "description": "Distribuili \u2014 wholesale distribution ERP (Algeria)",
+  "description": "Distribuili — wholesale distribution ERP (Algeria)",
   "author": "Distribuili",
   "private": true,
   "main": "electron/dist/main.js",
@@ -69,6 +69,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "electron-updater": "^6.8.9",
+    "html-to-image": "^1.11.13",
     "jose": "^6.2.3",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",

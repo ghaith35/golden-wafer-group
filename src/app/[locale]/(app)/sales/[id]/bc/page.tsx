@@ -4,7 +4,7 @@ import Link from "next/link";
 import QRCode from "qrcode";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { PrintButton } from "@/components/ui/PrintButton";
+import { DocActions } from "@/components/sales/DocActions";
 import { BackButton } from "@/components/ui/BackButton";
 import { dz, dzMoney } from "@/lib/format";
 import { amountInWords, type DocLang } from "@/lib/numwords";
@@ -133,7 +133,7 @@ export default async function OrderSheetPage({
               </Link>
             ))}
           </div>
-          <PrintButton label={`🖨 ${T.print}`} className="rounded-lg bg-[#c9951a] px-4 py-2 text-sm font-black text-white shadow" />
+          <DocActions lang={lang} fileName={`${"BC"}-${sale.number}`} />
         </div>
       </div>
 

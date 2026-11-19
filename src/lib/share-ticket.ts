@@ -179,3 +179,61 @@ export async function savePdfFile(opts: {
     return "failed";
   }
 }
+
+/// Share a PNG (A4 document as an image): native share sheet on the APK,
+/// Web Share with the file in browsers/phones, otherwise a plain download.
+export async function shareImageFile(opts: { fileName: string; blob: Blob; title: string }): Promise<PdfShareWhere> {
+  const { fileName, blob, title } = opts;
+  if (typeof window === "undefined") return "failed";
+  try {
+    const { Capacitor } = await import("@capacitor/core");
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const { Filesystem, Directory } = await import("@capacitor/filesystem");
+        await Filesystem.writeFile({ path: fileName, data: await blobToB64(blob), directory: Directory.Cache });
+        const { Share } = await import("@capacitor/share");
+        const uri = await Filesystem.getUri({ path: fileName, directory: Directory.Cache });
+        await Share.share({ title, text: title, dialogTitle: title, files: [uri.uri] });
+        return "shared";
+      } catch {
+        /* fall through */
+      }
+    }
+  } catch {
+    /* not native */
+  }
+  try {
+    const file = new File([blob], fileName, { type: "image/png" });
+    const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean; share?: (d: { files: File[]; title?: string }) => Promise<void> };
+    if (nav.canShare?.({ files: [file] })) {
+      await nav.share!({ files: [file], title });
+      return "shared";
+    }
+  } catch {
+    /* dismissed — try clipboard / download */
+  }
+  // Desktop browsers: copy the image to the clipboard so it can be pasted into WhatsApp Web, mail…
+  let copied = false;
+  try {
+    const CI = (window as unknown as { ClipboardItem?: new (i: Record<string, Blob>) => unknown }).ClipboardItem;
+    if (CI && navigator.clipboard && "write" in navigator.clipboard) {
+      await (navigator.clipboard as unknown as { write: (i: unknown[]) => Promise<void> }).write([new CI({ "image/png": blob })]);
+      copied = true;
+    }
+  } catch {
+    /* ignore */
+  }
+  try {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 5000);
+    return copied ? "shared" : "saved";
+  } catch {
+    return "failed";
+  }
+}
