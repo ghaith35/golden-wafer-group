@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Card } from "@/components/ui/Card";
+import { Minus, Package, Plus, ShoppingBasket, Trash2, UserRound, Wallet, Store, StickyNote } from "lucide-react";
+import { SaleProductPicker } from "@/components/sales/SaleProductPicker";
+import { Avatar } from "@/components/ui/Avatar";
+import { dzMoney } from "@/lib/format";
 import { UnitQty, PackInfo, factorOf, baseNameOf, priceForUnit, saleUnits } from "@/components/products/UnitQty";
 import { cn } from "@/lib/utils";
 import { getVanSnapshot, getOutbox, type VanSnapshot } from "@/lib/sync/client";
@@ -25,10 +27,18 @@ export type DocProduct = {
   saleUnitId: string | null;
   conversions: Array<{ unitId: string; factor: number; barcode?: string | null; unit: { id: string; name: string } }>;
   tierPrices: Array<{ tierId: string; price: number }>;
+  images?: Array<{ url: string }>;
+  category?: { id: string; name: string } | null;
 };
 export type DocLine = { productId: string; unitId: string; qty: number; unitPrice: string; remise: number };
 
-const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none";
+
+const TX = {
+  ar: { lines: "المنتجات", pick: "اختيار المنتجات", picker: { title: "اختيار المنتجات", search: "ابحث بالاسم أو الباركود…", all: "الكل", selected: "المحدد", matches: "النتائج", selectAll: "تحديد الكل", clear: "إلغاء التحديد", add: "إضافة المحدد", noProducts: "لا توجد منتجات", added: "مضاف", cancel: "إلغاء" } },
+  fr: { lines: "Produits", pick: "Choisir les produits", picker: { title: "Choisir les produits", search: "Nom ou code-barres…", all: "Tous", selected: "Sélectionnés", matches: "Résultats", selectAll: "Tout cocher", clear: "Tout décocher", add: "Ajouter la sélection", noProducts: "Aucun produit", added: "Ajouté", cancel: "Annuler" } },
+  en: { lines: "Products", pick: "Pick products", picker: { title: "Pick products", search: "Name or barcode…", all: "All", selected: "Selected", matches: "Matches", selectAll: "Select all", clear: "Clear", add: "Add selected", noProducts: "No products", added: "Added", cancel: "Cancel" } },
+} as const;
+
 
 /// Shared order/ticket editor: tier pricing, conversions, remise, paid.
 export function SaleDocForm({
@@ -108,6 +118,7 @@ export function SaleDocForm({
         }))
       : [{ productId: "", unitId: "", qty: 1, unitPrice: "", remise: 0 }]
   );
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [queued, setQueued] = useState(false);
@@ -378,186 +389,243 @@ export function SaleDocForm({
     }
   }
 
+  const tx = TX[locale === "fr" || locale === "en" ? locale : "ar"];
+  const defUnit = (np: DocProduct | undefined) => {
+    const opts = saleUnits(np, allowPieces);
+    return np?.saleUnitId && opts.some((u) => u.id === np.saleUnitId) ? np.saleUnitId : (opts[0]?.id ?? np?.baseUnitId ?? "");
+  };
+  const depotText = (p: DocProduct | undefined, id: string): string | null => {
+    const q = depot ? (depot[id] ?? 0) : Number(snap?.depotStock?.find((b) => b.productId === id)?.qty ?? NaN);
+    if (!Number.isFinite(q)) return null;
+    const pack = p?.conversions?.filter((c) => Number(c.factor) > 1).sort((a, b) => Number(a.factor) - Number(b.factor))[0];
+    if (!pack) return `${q} ${p?.baseUnit?.name ?? ""}`;
+    const f = Number(pack.factor);
+    const whole = Math.floor(q / f);
+    const rest = Math.round((q - whole * f) * 1000) / 1000;
+    return `${whole} ${pack.unit.name}${rest > 0 ? ` + ${rest} ${p?.baseUnit?.name ?? ""}` : ""}`;
+  };
+  /// Multi-add from the picker: one line per ticked product; a lone empty starter row is replaced.
+  function addPicked(picked: Array<{ product: DocProduct; qty: number }>) {
+    setLines((ls) => {
+      const taken = new Set(ls.map((l) => l.productId).filter(Boolean));
+      const fresh: DocLine[] = picked
+        .filter((x) => !taken.has(x.product.id))
+        .map((x) => ({ productId: x.product.id, unitId: defUnit(x.product), qty: x.qty, unitPrice: "", remise: 0 }));
+      if (!fresh.length) return ls;
+      if (ls.length === 1 && !ls[0].productId) return fresh;
+      return [...ls, ...fresh];
+    });
+  }
+  const filledLines = lines.filter((l) => l.productId).length;
+  const inputC = "h-10 w-full rounded-xl border border-(--border-default) bg-(--bg-surface) px-2.5 text-sm font-bold outline-none";
+  const secLabel = "mb-1.5 flex items-center gap-1.5 text-[10.5px] font-black uppercase tracking-wider text-(--text-tertiary)";
+  const balanceN = Number(client?.balance ?? 0);
+
   return (
     <div className="space-y-4">
-      {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
-      {snapshotActive && <p className="rounded-lg bg-amber-500/10 p-2 text-sm font-bold text-amber-600">{labels.offlineMode}</p>}
-      {queued && <p className="rounded-lg bg-amber-500/10 p-2 text-sm font-bold text-amber-600">⏳ queued offline — will sync</p>}
-      <Card>
+      {error && <p className="rounded-xl bg-red-500/10 p-2.5 text-sm font-bold text-red-500"><ErrText code={error} /></p>}
+      {snapshotActive && <p className="rounded-xl bg-amber-500/10 p-2.5 text-sm font-bold text-amber-600">{labels.offlineMode}</p>}
+      {queued && <p className="rounded-xl bg-amber-500/10 p-2.5 text-sm font-bold text-amber-600">⏳ queued offline — will sync</p>}
+
+      {/* ── customer & options ── */}
+      <section className="rounded-2xl border border-(--border-default) bg-(--bg-sunken) p-3">
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.client}</label>
-            <Input placeholder={labels.searchClient} value={clientQ} onChange={(e) => setClientQ(e.target.value)} />
-            <select value={clientId} onChange={(e) => { setClientId(e.target.value); setLines((ls) => ls.map((l) => ({ ...l, unitPrice: "" }))); }} className={inputCls}>
+            <div className={secLabel}><UserRound size={12} />{labels.client}</div>
+            <Input placeholder={labels.searchClient} value={clientQ} onChange={(e) => setClientQ(e.target.value)} className="mb-1.5 h-10 rounded-xl" />
+            <select value={clientId} onChange={(e) => { setClientId(e.target.value); setLines((ls) => ls.map((l) => ({ ...l, unitPrice: "" }))); }} className={inputC}>
               <option value="">— {mode === "order" ? labels.required : labels.walkin}</option>
-              {clientId && !shownClients.some((c) => c.id === clientId) && client && (
-                <option value={client.id}>{client.name} · {client.code}</option>
-              )}
-              {shownClients.map((c) => (
-                <option key={c.id} value={c.id}>{c.name} · {c.code}</option>
-              ))}
+              {clientId && !shownClients.some((c) => c.id === clientId) && client && <option value={client.id}>{client.name} · {client.code}</option>}
+              {shownClients.map((c) => <option key={c.id} value={c.id}>{c.name} · {c.code}</option>)}
             </select>
-            {client && <div className="mt-1 text-xs opacity-60">{labels.balance}: {String(client.balance)}</div>}
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.tier}</label>
-            {lockTier ? (
-              <div className={cn(inputCls, "opacity-70")}>
-                {tiers.find((x) => x.id === effTier)?.name ?? "—"}
+            {client && (
+              <div className="mt-2 flex items-center gap-2.5 rounded-xl bg-(--bg-overlay) p-2">
+                <Avatar name={client.name} size="sm" />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[13px] font-black">{client.name}</div>
+                  <div className="font-mono text-[10.5px] text-(--text-tertiary)" dir="ltr">{client.code}</div>
+                </div>
+                <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black tabular-nums", balanceN > 0 ? "bg-red-500/15 text-(--semantic-danger)" : "bg-emerald-500/15 text-(--semantic-success)")} title={labels.balance}>
+                  {labels.balance}: {dzMoney(balanceN)}
+                </span>
               </div>
-            ) : (
-            <select
-              value={effTier}
-              onChange={(e) => {
-                setTierId(e.target.value);
-                // Tier drives all line prices: drop manual price overrides so
-                // every line reprices from the new tier immediately.
-                setLines((ls) => ls.map((l) => ({ ...l, unitPrice: "" })));
-              }}
-              className={inputCls}
-            >
-              <option value="">—</option>
-              {tiers.map((x) => (
-                <option key={x.id} value={x.id}>{x.name}</option>
-              ))}
-            </select>
             )}
           </div>
-        </div>
-        {mode === "ticket" && (
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="space-y-3">
             <div>
-              <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.location}</label>
-              <select value={locationId} onChange={(e) => setLocationId(e.target.value)} className={inputCls}>
-                <option value="">—</option>
-                {locations.map((x) => (
-                  <option key={x.id} value={x.id}>{x.name}</option>
-                ))}
-              </select>
-            </div>
-            {channel === "VAN" && (
-              <label className="flex items-center gap-2 text-sm font-semibold">
-                <input type="checkbox" checked={qrScanned} onChange={(e) => setQrScanned(e.target.checked)} className="h-5 w-5" />
-                {labels.qrScanned}
-              </label>
-            )}
-          </div>
-        )}
-      </Card>
-
-      {lines.map((l, i) => {
-        const p = effProducts.find((x) => x.id === l.productId);
-        const price = l.unitPrice === "" ? (p ? priceFor(p, l.unitId) : 0) : Number(l.unitPrice);
-        return (
-          <Card key={i}>
-            <div className="grid gap-2">
-              <div>
-                <select
-                  value={l.productId}
-                onChange={(e) => {
-                  const np = effProducts.find((x) => x.id === e.target.value);
-                  const opts = saleUnits(np, allowPieces);
-                  const def = np?.saleUnitId && opts.some((u) => u.id === np.saleUnitId)
-                    ? np.saleUnitId
-                    : (opts[0]?.id ?? np?.baseUnitId ?? "");
-                  setLine(i, { productId: e.target.value, unitId: def });
-                }}
-                  className={inputCls}
-                >
-                  <option value="">{labels.product}</option>
-                  {effProducts.map((x) => (
-                    <option key={x.id} value={x.id}>{x.name}</option>
+              <div className={secLabel}><Wallet size={12} />{labels.tier}</div>
+              {lockTier ? (
+                <div className={cn(inputC, "flex items-center opacity-70")}>{tiers.find((x) => x.id === effTier)?.name ?? "—"}</div>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {tiers.map((x) => (
+                    <button
+                      key={x.id}
+                      type="button"
+                      onClick={() => { setTierId(x.id); setLines((ls) => ls.map((l) => ({ ...l, unitPrice: "" }))); }}
+                      className={cn("min-h-0 rounded-xl border px-3 py-2 text-xs font-black transition-all", effTier === x.id ? "border-transparent bg-gradient-brand text-(--brand-contrast) shadow" : "border-(--border-default) bg-(--bg-overlay) text-(--text-secondary) hover:border-(--brand-500)")}
+                    >
+                      {x.name}
+                    </button>
                   ))}
+                </div>
+              )}
+            </div>
+            {mode === "ticket" && (
+              <div>
+                <div className={secLabel}><Store size={12} />{labels.location}</div>
+                <select value={locationId} onChange={(e) => setLocationId(e.target.value)} className={inputC}>
+                  <option value="">—</option>
+                  {locations.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
                 </select>
-                <PackInfo product={p} unitId={l.unitId} />
-                {mode === "order" && l.productId && (
-                  <div className="mt-0.5 truncate text-[11px] font-bold text-(--brand-600)">
-                    🏭 {labels.depotStock}:{" "}
-                    <span className="tabular-nums" dir="ltr">
-                      {(() => {
-                        const q = depot ? (depot[l.productId] ?? 0)
-                          : Number(snap?.depotStock?.find((b) => b.productId === l.productId)?.qty ?? NaN);
-                        if (!Number.isFinite(q)) return "—";
-                        const pack = p?.conversions
-                          ?.filter((c) => Number(c.factor) > 1)
-                          .sort((a, b) => Number(a.factor) - Number(b.factor))[0];
-                        if (!pack) return `${q} ${p?.baseUnit?.name ?? ""}`;
-                        const f = Number(pack.factor);
-                        const whole = Math.floor(q / f);
-                        const rest = Math.round((q - whole * f) * 1000) / 1000;
-                        return `${whole} ${pack.unit.name}${rest > 0 ? ` + ${rest} ${p?.baseUnit?.name ?? ""}` : ""}`;
-                      })()}
-                    </span>
-                  </div>
+                {channel === "VAN" && (
+                  <label className="mt-2 flex items-center gap-2 text-xs font-bold">
+                    <input type="checkbox" checked={qrScanned} onChange={(e) => setQrScanned(e.target.checked)} className="h-5 w-5" />
+                    {labels.qrScanned}
+                  </label>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <div>
-                  <label className="text-xs opacity-60">{labels.unit}</label>
-                  <select value={l.unitId} onChange={(e) => setLine(i, { unitId: e.target.value })} className={inputCls}>
-                    {unitOptions(p).map((u) => (
-                      <option key={u.id} value={u.id}>{u.name}</option>
-                    ))}
-                  </select>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ── products ── */}
+      <section className="space-y-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <div className={cn(secLabel, "mb-0")}><ShoppingBasket size={13} />{tx.lines} <span className="rounded-full bg-(--brand-500)/15 px-2 text-(--gold-text)">{filledLines}</span></div>
+          <div className="flex gap-1.5">
+            <button type="button" onClick={() => setPickerOpen(true)} className="bg-gradient-brand flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 text-xs font-black text-(--brand-contrast) transition-transform hover:-translate-y-0.5">
+              <Package size={14} />{tx.pick}
+            </button>
+            <button type="button" onClick={() => setLines((ls) => [...ls, { productId: "", unitId: "", qty: 1, unitPrice: "", remise: 0 }])} className="flex min-h-9 items-center gap-1 whitespace-nowrap rounded-xl border border-(--border-default) px-3 text-xs font-black text-(--text-secondary) hover:border-(--brand-500)">
+              <Plus size={14} />{labels.addLine}
+            </button>
+          </div>
+        </div>
+
+        {lines.map((l, i) => {
+          const p = effProducts.find((x) => x.id === l.productId);
+          const price = l.unitPrice === "" ? (p ? priceFor(p, l.unitId) : 0) : Number(l.unitPrice);
+          const lineTotal = Math.max(0, l.qty * price - l.remise);
+          const img = p?.images?.[0]?.url;
+          const uopts = unitOptions(p);
+          const stock = mode === "order" && l.productId ? depotText(p, l.productId) : null;
+          return (
+            <div key={i} className="relative rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 transition-shadow hover:shadow-[0_10px_28px_-18px_var(--brand-500)]">
+              <button type="button" onClick={() => setLines((ls) => (ls.length > 1 ? ls.filter((_, j) => j !== i) : [{ productId: "", unitId: "", qty: 1, unitPrice: "", remise: 0 }]))} aria-label="remove" className="absolute end-2 top-2 flex h-7 min-h-0 w-7 min-w-0 items-center justify-center rounded-lg text-(--text-tertiary) hover:bg-red-500/10 hover:text-red-500">
+                <Trash2 size={14} />
+              </button>
+              <div className="flex gap-3">
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-(--bg-sunken)">
+                  {img ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={img} alt={p?.name ?? ""} className="h-full w-full object-cover" loading="lazy" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-(--text-tertiary)"><Package size={22} /></div>
+                  )}
                 </div>
-                <div>
-                  <label className="text-xs opacity-60">{labels.qty}</label>
-                  <Input type="number" min={0} step="any" value={l.qty} onChange={(e) => setLine(i, { qty: Number(e.target.value) })} />
-                  <UnitQty qty={l.qty} factor={factorOf(p, l.unitId)} baseName={baseNameOf(p)} product={p} />
-                </div>
-                <div>
-                  <label className="text-xs opacity-60">{labels.price}</label>
-                  <Input
-                    type="number" min={0} step="any" value={l.unitPrice} placeholder={String(price)}
-                    onChange={(e) => setLine(i, { unitPrice: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs opacity-60">{labels.lineTotal}</label>
-                  <div className="flex h-10 items-center text-sm font-black">{Math.max(0, l.qty * price - l.remise).toFixed(2)}</div>
+                <div className="min-w-0 flex-1 pe-7">
+                  {p ? (
+                    <>
+                      <div className="truncate text-sm font-black">{p.name}</div>
+                      <PackInfo product={p} unitId={l.unitId} />
+                      {stock && <div className="mt-0.5 truncate text-[11px] font-bold text-(--gold-text)">🏭 {labels.depotStock}: <span className="tabular-nums" dir="ltr">{stock}</span></div>}
+                    </>
+                  ) : (
+                    <select
+                      value={l.productId}
+                      onChange={(e) => { const np = effProducts.find((x) => x.id === e.target.value); setLine(i, { productId: e.target.value, unitId: defUnit(np) }); }}
+                      className={inputC}
+                    >
+                      <option value="">{labels.product}</option>
+                      {effProducts.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+                    </select>
+                  )}
                 </div>
               </div>
-              {remiseEnabled && (
-                <div className="w-32">
-                  <label className="text-xs opacity-60">{labels.remise}</label>
-                  <Input type="number" min={0} step="any" value={l.remise} onChange={(e) => setLine(i, { remise: Number(e.target.value) })} />
+              {p && (
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-[1.1fr_1.2fr_1fr_1fr]">
+                  <div>
+                    <div className="mb-1 text-[10px] font-bold text-(--text-tertiary)">{labels.unit}</div>
+                    {uopts.length <= 3 ? (
+                      <div className="flex gap-1">
+                        {uopts.map((u) => (
+                          <button key={u.id} type="button" onClick={() => setLine(i, { unitId: u.id })} className={cn("min-h-0 flex-1 rounded-lg border px-1.5 py-2 text-[11px] font-black transition-all", l.unitId === u.id ? "border-(--brand-500) bg-(--brand-500)/15 text-(--gold-text)" : "border-(--border-default) text-(--text-secondary)")}>{u.name}</button>
+                        ))}
+                      </div>
+                    ) : (
+                      <select value={l.unitId} onChange={(e) => setLine(i, { unitId: e.target.value })} className={inputC}>{uopts.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}</select>
+                    )}
+                  </div>
+                  <div>
+                    <div className="mb-1 text-[10px] font-bold text-(--text-tertiary)">{labels.qty}</div>
+                    <div className="flex h-10 items-center overflow-hidden rounded-xl border border-(--border-default) bg-(--bg-surface)">
+                      <button type="button" onClick={() => setLine(i, { qty: Math.max(0, Math.round((l.qty - 1) * 1000) / 1000) })} className="flex h-full min-h-0 w-9 min-w-0 items-center justify-center text-(--text-secondary) hover:bg-(--bg-sunken)" aria-label="-"><Minus size={14} /></button>
+                      <input type="number" min={0} step="any" value={l.qty} onChange={(e) => setLine(i, { qty: Number(e.target.value) })} className="h-full min-w-0 flex-1 border-0 bg-transparent text-center text-sm font-black tabular-nums outline-none" />
+                      <button type="button" onClick={() => setLine(i, { qty: Math.round((l.qty + 1) * 1000) / 1000 })} className="flex h-full min-h-0 w-9 min-w-0 items-center justify-center text-(--text-secondary) hover:bg-(--bg-sunken)" aria-label="+"><Plus size={14} /></button>
+                    </div>
+                    <UnitQty qty={l.qty} factor={factorOf(p, l.unitId)} baseName={baseNameOf(p)} product={p} />
+                  </div>
+                  <div>
+                    <div className="mb-1 text-[10px] font-bold text-(--text-tertiary)">{labels.price}</div>
+                    <Input type="number" min={0} step="any" value={l.unitPrice} placeholder={String(price)} onChange={(e) => setLine(i, { unitPrice: e.target.value })} className="h-10 rounded-xl text-center font-black" />
+                  </div>
+                  <div>
+                    <div className="mb-1 text-[10px] font-bold text-(--text-tertiary)">{labels.lineTotal}</div>
+                    <div className="flex h-10 items-center justify-center rounded-xl bg-(--gold-wash) text-sm font-black tabular-nums text-(--gold-text)" dir="ltr">{dzMoney(lineTotal)}</div>
+                  </div>
+                  {remiseEnabled && (
+                    <div className="col-span-2 sm:col-span-1">
+                      <div className="mb-1 text-[10px] font-bold text-(--text-tertiary)">{labels.remise}</div>
+                      <Input type="number" min={0} step="any" value={l.remise} onChange={(e) => setLine(i, { remise: Number(e.target.value) })} className="h-10 rounded-xl text-center" />
+                    </div>
+                  )}
                 </div>
               )}
-              <div className="flex justify-end">
-                <Button type="button" variant="ghost" onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))}>✕</Button>
-              </div>
             </div>
-          </Card>
-        );
-      })}
-      <Button type="button" variant="secondary" onClick={() => setLines((ls) => [...ls, { productId: "", unitId: "", qty: 1, unitPrice: "", remise: 0 }])}>
-        {labels.addLine}
-      </Button>
+          );
+        })}
+      </section>
 
-      <Card>
-        <div className="grid gap-3 sm:grid-cols-3">
+      {/* ── summary (sticky) ── */}
+      <section className="sticky bottom-0 -mx-1 space-y-2 rounded-2xl border border-(--border-strong) bg-(--bg-overlay)/95 p-2.5 shadow-[0_-12px_30px_-18px_rgba(0,0,0,0.5)] backdrop-blur">
+        <div className={cn("grid items-stretch gap-2", remiseEnabled ? "grid-cols-2 sm:grid-cols-[1fr_1fr_1.1fr_1.2fr]" : "grid-cols-2 sm:grid-cols-[1fr_1.1fr_1.3fr]")}>
           {remiseEnabled && (
-            <div>
-              <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.remise}</label>
-              <Input type="number" min={0} step="any" value={docRemise} onChange={(e) => setDocRemise(Number(e.target.value))} />
-            </div>
+            <label className="block">
+              <span className="mb-0.5 block text-[10px] font-black uppercase text-(--text-tertiary)">{labels.remise}</span>
+              <Input type="number" min={0} step="any" value={docRemise} onChange={(e) => setDocRemise(Number(e.target.value))} className="h-10 rounded-xl" />
+            </label>
           )}
-          <div>
-            <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.paid} {creditEnabled ? "" : `(${labels.cashOnly})`}</label>
-            <Input type="number" min={0} step="any" value={paid} placeholder={String(totals.total.toFixed(2))} onChange={(e) => setPaid(e.target.value)} />
+          <label className="block">
+            <span className="mb-0.5 block text-[10px] font-black uppercase text-(--text-tertiary)">{labels.paid} {creditEnabled ? "" : `(${labels.cashOnly})`}</span>
+            <Input type="number" min={0} step="any" value={paid} placeholder={String(totals.total.toFixed(2))} onChange={(e) => setPaid(e.target.value)} className="h-10 rounded-xl" />
+          </label>
+          <div className="bg-gradient-brand flex flex-col justify-center rounded-xl px-3 text-(--brand-contrast)">
+            <span className="text-[10px] font-black uppercase opacity-70">{labels.total}</span>
+            <span className="text-lg font-black leading-tight tabular-nums" dir="ltr">{dzMoney(totals.total)}</span>
           </div>
-          <div>
-            <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.total}</label>
-            <div className="flex h-10 items-center text-lg font-black">{totals.total.toFixed(2)}</div>
-          </div>
+          <button type="button" onClick={submit} disabled={busy} className="col-span-2 min-h-11 rounded-xl bg-(--text-primary) text-sm font-black text-(--bg-overlay) transition-transform hover:-translate-y-0.5 disabled:opacity-60 sm:col-span-1">
+            {busy ? "…" : labels.save}
+          </button>
         </div>
-        <div className="mt-2">
-          <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.notes}</label>
-          <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
-        </div>
-      </Card>
+        <label className="flex items-center gap-2 rounded-xl border border-(--border-default) bg-(--bg-surface) px-3">
+          <StickyNote size={13} className="shrink-0 text-(--text-tertiary)" />
+          <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={labels.notes} className="h-9 w-full border-0 bg-transparent text-xs font-bold outline-none" />
+        </label>
+      </section>
 
-      <Button onClick={submit} disabled={busy} className="w-full">{labels.save}</Button>
+      <SaleProductPicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        products={effProducts}
+        takenIds={lines.map((l) => l.productId).filter(Boolean)}
+        priceOf={(p) => priceFor(p, defUnit(p))}
+        stockOf={mode === "order" ? (p) => depotText(p, p.id) : undefined}
+        subtitle={client?.name}
+        text={tx.picker}
+        onAdd={addPicked}
+      />
     </div>
   );
 }

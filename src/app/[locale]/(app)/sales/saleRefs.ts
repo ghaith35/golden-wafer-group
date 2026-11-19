@@ -8,7 +8,7 @@ export async function getSaleFormData(companyId: string) {
     prisma.customer.findMany({ where: { companyId, isActive: true }, orderBy: { name: "asc" }, take: 500 }),
     prisma.product.findMany({
       where: { companyId, isActive: true },
-      include: { baseUnit: true, conversions: { include: { unit: true } }, tierPrices: true },
+      include: { baseUnit: true, conversions: { include: { unit: true } }, tierPrices: true, images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } }, category: { select: { id: true, name: true } } },
       orderBy: { name: "asc" },
       take: 500,
     }),
