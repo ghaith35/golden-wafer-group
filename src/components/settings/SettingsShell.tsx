@@ -70,7 +70,7 @@ export function SettingsShell({ children, isAdmin }: { children: React.ReactNode
             onClick={() => setPickerOpen(false)}
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           />
-          <div className="relative max-h-[80vh] w-full overflow-y-auto rounded-t-2xl border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)]">
+          <div className="relative max-h-[calc(var(--vh)*0.8)] w-full overflow-y-auto rounded-t-2xl border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)]">
             <div className="sticky top-0 flex justify-center bg-(--bg-overlay) pb-1 pt-3">
               <span className="h-1 w-10 rounded-full bg-(--border-default)" />
             </div>

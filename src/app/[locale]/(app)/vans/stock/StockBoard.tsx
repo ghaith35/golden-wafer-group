@@ -407,7 +407,7 @@ export function StockBoard({
   };
 
   return (
-    <div className="flex flex-col gap-4 p-5 md:p-6 lg:h-[calc(100dvh-3.5rem)] lg:overflow-hidden lg:pb-4">
+    <div className="flex flex-col gap-4 p-5 md:p-6 lg:h-[calc(var(--vh)-3.5rem)] lg:overflow-hidden lg:pb-4">
 
       <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
         <KpiCard
@@ -491,7 +491,7 @@ export function StockBoard({
               </span>
             )}
           </div>
-          <div className="max-h-[40vh] flex-1 space-y-1.5 overflow-y-auto lg:max-h-none lg:min-h-0">
+          <div className="max-h-[calc(var(--vh)*0.4)] flex-1 space-y-1.5 overflow-y-auto lg:max-h-none lg:min-h-0">
             {/* General depot — always pinned at the top */}
             {depots.map(renderCard)}
             {depots.length === 0 && filtered.length === 0 && <p className="py-6 text-center text-sm opacity-60">{labels.empty}</p>}

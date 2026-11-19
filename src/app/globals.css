@@ -3,6 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  --vh: 100dvh; /* zoom-aware viewport height: see html[data-ui-zoom] */
   --font-cairo: 'Cairo';
   --font-mono: 'IBM Plex Mono';
   /* ── Golden Wafer gold scale (sampled from the badge) ── */
@@ -398,6 +399,7 @@ button, input, select, textarea {
 /* ── Interface zoom (web / APK): CSS zoom on <html>. Viewport-height shells
    would be multiplied by the zoom — divide it back so pages never gain a
    phantom scrollbar. Print always renders at 100 %. ── */
+html[data-ui-zoom] { --vh: calc(100dvh / var(--ui-zoom, 1)); }
 html[data-ui-zoom] .min-h-screen,
 html[data-ui-zoom] .min-h-dvh { min-height: calc(100vh / var(--ui-zoom, 1)); }
 html[data-ui-zoom] .h-screen,

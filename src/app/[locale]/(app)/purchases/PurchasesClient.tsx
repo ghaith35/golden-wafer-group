@@ -299,7 +299,7 @@ export function PurchasesClient({
       <div className="grid min-h-0 items-start gap-4 lg:flex-1 lg:grid-cols-[300px_minmax(0,1fr)] lg:overflow-hidden">
         {/* ── Sidebar: list (sticky full height on desktop) ── */}
         <div className="space-y-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
-          <div className="max-h-[50vh] flex-1 space-y-1.5 overflow-y-auto lg:max-h-none lg:min-h-0">
+          <div className="max-h-[calc(var(--vh)*0.5)] flex-1 space-y-1.5 overflow-y-auto lg:max-h-none lg:min-h-0">
             {filtered.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
             {filtered.map((r) => {
               const total = Number(r.total);

@@ -433,7 +433,7 @@ export function FacturesClient({
       <Modal open={detail !== null} onClose={() => { setDetail(null); setError(null); }} title={detail?.number ?? ""} subtitle={detail?.client?.name ?? ""} icon={<Printer size={18} />}>
         {detail && (
           <div className="space-y-2">
-            <div className="max-h-[40vh] space-y-1.5 overflow-y-auto pe-0.5">
+            <div className="max-h-[calc(var(--vh)*0.4)] space-y-1.5 overflow-y-auto pe-0.5">
               {detail.lines.map((l, i) => (
                 <div key={l.id ?? i} className="flex items-center gap-2 rounded-xl bg-(--bg-sunken) px-3 py-2">
                   <span className="min-w-0 flex-1 truncate text-sm font-bold">{l.product?.name ?? ""}</span>

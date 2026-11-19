@@ -145,7 +145,7 @@ export function StartClient({
   }
 
   return (
-    <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-4 p-5 text-center">
+    <div className="flex min-h-[calc(var(--vh)*0.7)] flex-col items-center justify-center gap-4 p-5 text-center">
       <button
         aria-label="back"
         onClick={() => goPage(router, `/${locale}/livreur`)}

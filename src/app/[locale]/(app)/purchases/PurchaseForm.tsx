@@ -724,7 +724,7 @@ export function PurchaseForm({
             />
             {labels.selectAll ?? ""}
           </label>
-          <div className="max-h-[50vh] space-y-1.5 overflow-y-auto">
+          <div className="max-h-[calc(var(--vh)*0.5)] space-y-1.5 overflow-y-auto">
             {bulkList.map((p) => {
               const inLines = lines.some((l) => l.productId === p.id);
               const checked = bulkChecked.has(p.id);

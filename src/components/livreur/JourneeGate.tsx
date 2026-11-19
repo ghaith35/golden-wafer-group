@@ -35,7 +35,7 @@ export function JourneeGate({
 
   const toStart = need === "active"; // not started (or already ended) → go to the start screen
   return (
-    <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-4 p-6 text-center">
+    <div className="flex min-h-[calc(var(--vh)*0.7)] flex-col items-center justify-center gap-4 p-6 text-center">
       <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-(--brand-500)/10 text-(--brand-600)">
         <Lock size={28} />
       </span>

@@ -68,7 +68,7 @@ export default async function PurchasesPage({ params }: { params: Promise<{ loca
     newProduct: tp("new"),
   };
   return (
-    <div className="flex flex-col space-y-4 p-5 md:p-6 lg:h-[calc(100dvh-3.5rem)] lg:overflow-hidden lg:pb-4">
+    <div className="flex flex-col space-y-4 p-5 md:p-6 lg:h-[calc(var(--vh)-3.5rem)] lg:overflow-hidden lg:pb-4">
       <div className="grid shrink-0 grid-cols-2 gap-2 lg:grid-cols-4">
         <KpiCard
           label={t("kpiMonth")}

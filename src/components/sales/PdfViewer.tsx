@@ -139,7 +139,7 @@ export function PdfViewer({
           <iframe
             src={url}
             title={`facture-${String(ticket.number ?? "")}`}
-            className="h-[60vh] w-full rounded-xl border border-(--border-default) bg-white"
+            className="h-[calc(var(--vh)*0.6)] w-full rounded-xl border border-(--border-default) bg-white"
           />
         ) : (
           <div className="overflow-hidden rounded-xl bg-white text-black shadow" dir={rtl ? "rtl" : "ltr"}>

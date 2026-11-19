@@ -163,7 +163,7 @@ export function TransferPopup({
       </Card>
 
       <Card>
-        <div className="max-h-[40vh] space-y-1.5 overflow-y-auto pe-0.5">
+        <div className="max-h-[calc(var(--vh)*0.4)] space-y-1.5 overflow-y-auto pe-0.5">
           {row.lines.map((l) => (
             <div key={l.id} className="flex items-center gap-2 rounded-xl bg-(--bg-sunken) px-2 py-1.5">
               {l.product.images?.[0] ? (

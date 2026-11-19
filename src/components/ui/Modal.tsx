@@ -69,7 +69,7 @@ export function Modal({
     >
       <div
         className={cn(
-          "flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-2xl border border-(--border-default) bg-(--bg-overlay) shadow-2xl md:max-h-[92vh] md:rounded-2xl",
+          "flex max-h-[calc(var(--vh)*0.9)] w-full flex-col overflow-hidden rounded-t-2xl border border-(--border-default) bg-(--bg-overlay) shadow-2xl md:max-h-[calc(var(--vh)*0.92)] md:rounded-2xl",
           widthCls
         )}
       >

@@ -200,7 +200,7 @@ export function TourneesClient({
   const fmtDay = new Intl.DateTimeFormat(locale, { weekday: "long", timeZone: "UTC" });
 
   return (
-    <div className="space-y-4 p-5 md:p-6 lg:flex lg:h-[calc(100dvh-57px)] lg:flex-col lg:space-y-3 lg:overflow-hidden">
+    <div className="space-y-4 p-5 md:p-6 lg:flex lg:h-[calc(var(--vh)-57px)] lg:flex-col lg:space-y-3 lg:overflow-hidden">
       <div className="grid shrink-0 grid-cols-3 gap-2">
         <KpiCard
           label={labels.today}

@@ -35,7 +35,7 @@ export function PageRecovery({ error, reset }: { error: Error & { digest?: strin
   }, [error, reset]);
 
   return (
-    <div data-route-recovery role="status" aria-live="polite" dir={locale === "ar" ? "rtl" : "ltr"} className="flex min-h-[50vh] flex-col items-center justify-center gap-4 p-6 text-center">
+    <div data-route-recovery role="status" aria-live="polite" dir={locale === "ar" ? "rtl" : "ltr"} className="flex min-h-[calc(var(--vh)*0.5)] flex-col items-center justify-center gap-4 p-6 text-center">
       <p className="text-sm font-semibold">{waiting ? text.waiting : text.restoring}</p>
       {waiting && <a href={home} className="rounded-lg bg-(--brand-500) px-5 py-3 font-semibold text-(--brand-contrast)">{text.home}</a>}
     </div>

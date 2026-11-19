@@ -292,7 +292,7 @@ export function PosClient({
     <div className="space-y-4 p-5 md:p-6">
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
 
-      <div className="grid items-start gap-4 lg:h-[calc(100dvh-190px)] lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid items-start gap-4 lg:h-[calc(var(--vh)-190px)] lg:grid-cols-[minmax(0,1fr)_380px]">
         {/* ── Product shelf (start side) ── */}
         <div className="min-w-0 space-y-3 lg:h-full lg:overflow-y-auto lg:pe-1">
           <div className="flex gap-2">
@@ -366,7 +366,7 @@ export function PosClient({
           </div>
 
           {filtered.length === 0 && <p className="py-10 text-center text-sm opacity-60">{labels.empty}</p>}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(190px,1fr))]">
             {filtered.map((p) => {
               const img = p.images[0]?.url;
               const added = justAdded === p.id;

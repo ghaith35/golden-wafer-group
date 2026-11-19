@@ -46,7 +46,7 @@ export default async function CommandesPage({
     getSaleFormData(session.companyId),
   ]);
   return (
-    <div className="flex flex-col p-5 md:p-6 lg:h-[calc(100dvh-3.5rem)] lg:overflow-hidden lg:pb-4">
+    <div className="flex flex-col p-5 md:p-6 lg:h-[calc(var(--vh)-3.5rem)] lg:overflow-hidden lg:pb-4">
     <CommandesClient
       locale={locale}
       year={year}

@@ -498,7 +498,7 @@ export function TransferForm({
   }
 
   return (
-    <div className="mx-auto flex min-h-[55vh] w-full max-w-4xl flex-col space-y-4 p-5 md:p-6">
+    <div className="mx-auto flex min-h-[calc(var(--vh)*0.55)] w-full max-w-4xl flex-col space-y-4 p-5 md:p-6">
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       {queued && <p className="rounded-lg bg-amber-500/10 p-2 text-sm font-bold text-amber-600">{labels.queued}</p>}
 
@@ -802,7 +802,7 @@ export function TransferForm({
             {toLoc && <PlaceThumb place={toLoc} />}
             <span className="truncate text-sm">{toLoc?.name ?? "—"}</span>
           </div>
-          <div className="max-h-[52vh] space-y-1.5 overflow-y-auto pe-0.5">
+          <div className="max-h-[calc(var(--vh)*0.52)] space-y-1.5 overflow-y-auto pe-0.5">
             {valid.map((l, i) => {
               const p = products.find((x) => x.id === l.productId);
               const uname = l.unitId === p?.baseUnitId

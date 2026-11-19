@@ -491,7 +491,7 @@ export function CommandeClient({
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
             <button type="button" aria-label={labels.cancel} onClick={() => setQtyFor(null)} className="absolute inset-0 bg-black/55" />
-            <div className="relative max-h-[90dvh] w-full max-w-sm overflow-y-auto rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-2xl">
+            <div className="relative max-h-[calc(var(--vh)*0.9)] w-full max-w-sm overflow-y-auto rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-2xl">
               <div className="mb-1 truncate text-base font-black">{qtyFor.name}</div>
               <div className={cn("mb-2 rounded-xl bg-(--bg-sunken) p-2.5", live <= 0 ? "text-red-500" : "")}>
                 <div className="flex items-baseline justify-between gap-2">
@@ -567,7 +567,7 @@ export function CommandeClient({
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={gallery.images[gIdx]?.url} alt={gallery.name} className="max-h-[60vh] w-full rounded-xl object-contain" />
+            <img src={gallery.images[gIdx]?.url} alt={gallery.name} className="max-h-[calc(var(--vh)*0.6)] w-full rounded-xl object-contain" />
             {gallery.images.length > 1 && (
               <div className="mt-2 flex items-center justify-center gap-1.5">
                 <button aria-label="prev" onClick={() => setGIdx((i) => Math.max(0, i - 1))} className="rounded-lg bg-(--bg-sunken) px-3 py-2 font-black">‹</button>
