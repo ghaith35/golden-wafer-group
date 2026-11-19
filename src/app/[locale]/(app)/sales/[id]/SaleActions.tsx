@@ -31,7 +31,7 @@ export type SaleDetail = {
   tierId: string | null;
   notes: string | null;
   date?: string | null;
-  client: { id: string; name: string; code: string; gpsLat?: number | null; gpsLng?: number | null } | null;
+  client: { id: string; name: string; code: string; gpsLat?: number | null; gpsLng?: number | null; rc?: string | null; ai?: string | null; nif?: string | null; nis?: string | null; rib?: string | null } | null;
   location: { id: string; name: string; kind?: string } | null;
   /// Silent sale-site check (admin eyes only — never shown to the driver).
   saleLat?: number | null;
@@ -626,7 +626,7 @@ export function SaleActions({
         message={`${labels.invoiceM ?? ""}\n${sale.number} · ${num(total)}`}
         confirmLabel={labels.invoice}
       />
-      <BonRouteFlow open={bdrOpen} onClose={() => setBdrOpen(false)} locale={locale} saleId={sale.id} saleNumber={sale.number} client={sale.client ? { code: sale.client.code, name: sale.client.name } : null} />
+      <BonRouteFlow open={bdrOpen} onClose={() => setBdrOpen(false)} locale={locale} saleId={sale.id} saleNumber={sale.number} client={sale.client ? { code: sale.client.code, name: sale.client.name, ids: { rc: sale.client.rc ?? "", art: sale.client.ai ?? "", nif: sale.client.nif ?? "", nis: sale.client.nis ?? "", rib: sale.client.rib ?? "" } } : null} />
       <Modal open={bcOpen} onClose={() => setBcOpen(false)} title={labels.printOrder ?? "Print order"} subtitle={sale.number} icon="📋" width="2xl">
         {bcOpen && (
           <iframe src={`/${locale}/sales/${sale.id}/bc?embed=1`} title="Bon de commande" className="h-[min(78vh,900px)] w-full rounded-xl border border-(--border-default) bg-neutral-200" />

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Store, Wallet, Crosshair } from "lucide-react";
+import { MapPin, Store, Wallet, Crosshair, ChevronDown, FileText } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
@@ -21,6 +21,11 @@ export type ClientData = {
   wilayaCode: string;
   secteurId: string;
   activityType: string;
+  rc: string;
+  ai: string;
+  nif: string;
+  nis: string;
+  rib: string;
   tierId: string;
   creditLimit: number;
   creditDays: number;
@@ -56,6 +61,7 @@ export function ClientForm({
   showQr?: boolean;
 }) {
   const showQrCode = showQr ?? true;
+  const fx = locale === "fr" ? { title: "Informations de facture", hint: "Facultatif — RC, AI, NIF, NIS, RIB" } : locale === "en" ? { title: "Invoice details", hint: "Optional — RC, AI, NIF, NIS, RIB" } : { title: "معلومات الفاتورة", hint: "اختياري — تظهر في سند الطريق" };
   const router = useRouter();
   const goList = () => {
     router.push(`/${locale}/clients`);
@@ -65,6 +71,7 @@ export function ClientForm({
   const handleClose = onClose ?? goList;
   const [form, setForm] = useState(initial);
   const [legacyQrEdit, setLegacyQrEdit] = useState<string | null>();
+  const [showFiscal, setShowFiscal] = useState(() => !!(initial.rc || initial.ai || initial.nif || initial.nis || initial.rib));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
@@ -196,6 +203,11 @@ export function ClientForm({
         wilayaCode: form.wilayaCode ? Number(form.wilayaCode) : null,
         secteurId: form.secteurId || null,
         activityType: form.activityType.trim() || null,
+        rc: form.rc.trim() || null,
+        ai: form.ai.trim() || null,
+        nif: form.nif.trim() || null,
+        nis: form.nis.trim() || null,
+        rib: form.rib.trim() || null,
         tierId: form.tierId || null,
         creditLimit: form.creditLimit,
         creditDays: form.creditDays,
@@ -296,6 +308,28 @@ export function ClientForm({
             </div>
           </div>
         </div>
+      </Card>
+      <Card>
+        <button type="button" onClick={() => setShowFiscal((v) => !v)} aria-expanded={showFiscal} className="flex min-h-0 w-full items-center justify-between gap-2 text-start">
+          <span className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-(--gold-wash) text-(--gold-text)"><FileText size={16} /></span>
+            <span>
+              <span className="block text-sm font-black">{fx.title}</span>
+              <span className="block text-[11px] font-bold text-(--text-tertiary)">{fx.hint}</span>
+            </span>
+          </span>
+          <ChevronDown size={18} className={`shrink-0 text-(--text-tertiary) transition-transform duration-300 ${showFiscal ? "rotate-180" : ""}`} />
+        </button>
+        {showFiscal && (
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3" style={{ animation: "gw-fade 0.3s ease" }}>
+            {([["rc", "RC"], ["ai", "AI"], ["nif", "NIF"], ["nis", "NIS"], ["rib", "RIB"]] as const).map(([k, l]) => (
+              <div key={k}>
+                <label className="mb-1 block text-xs font-bold uppercase opacity-60">{l}</label>
+                <Input value={form[k]} onChange={(e) => set(k, e.target.value)} dir="ltr" />
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
       <Card>
         <div className="mb-2 flex items-center gap-2">

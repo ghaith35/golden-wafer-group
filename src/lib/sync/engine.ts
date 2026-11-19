@@ -308,6 +308,11 @@ async function applyOp(
             wilayaCode: d.wilayaCode ?? null,
             secteurId: d.secteurId ?? null,
             activityType: d.activityType?.trim() || null,
+            rc: d.rc?.trim() || null,
+            ai: d.ai?.trim() || null,
+            nif: d.nif?.trim() || null,
+            nis: d.nis?.trim() || null,
+            rib: d.rib?.trim() || null,
             tierId,
             creditLimit: d.creditLimit ?? 0,
             creditDays: d.creditDays ?? 0,
@@ -340,6 +345,11 @@ async function applyOp(
       if (patch.phone !== undefined) data.phone = str(patch.phone) || null;
       if (patch.address !== undefined) data.address = str(patch.address) || null;
       if (patch.activityType !== undefined) data.activityType = str(patch.activityType) || null;
+      if (patch.rc !== undefined) data.rc = str(patch.rc) || null;
+      if (patch.ai !== undefined) data.ai = str(patch.ai) || null;
+      if (patch.nif !== undefined) data.nif = str(patch.nif) || null;
+      if (patch.nis !== undefined) data.nis = str(patch.nis) || null;
+      if (patch.rib !== undefined) data.rib = str(patch.rib) || null;
       if (patch.wilayaCode !== undefined) {
         const w = Number(patch.wilayaCode);
         data.wilayaCode = Number.isFinite(w) ? Math.trunc(w) : null;

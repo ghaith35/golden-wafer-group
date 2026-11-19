@@ -31,7 +31,7 @@ type Row = {
 
 const EMPTY: ClientData = {
   name: "", phone: "", address: "", wilayaCode: "", secteurId: "",
-  activityType: "", tierId: "", creditLimit: 0, creditDays: 0, gpsLat: "", gpsLng: "",
+  activityType: "", rc: "", ai: "", nif: "", nis: "", rib: "", tierId: "", creditLimit: 0, creditDays: 0, gpsLat: "", gpsLng: "",
 };
 
 export function ClientsClient({
@@ -85,6 +85,11 @@ export function ClientsClient({
       wilayaCode: c.wilayaCode ? String(c.wilayaCode) : "",
       secteurId: c.secteurId ?? "",
       activityType: c.activityType ?? "",
+      rc: (c as { rc?: string | null }).rc ?? "",
+      ai: (c as { ai?: string | null }).ai ?? "",
+      nif: (c as { nif?: string | null }).nif ?? "",
+      nis: (c as { nis?: string | null }).nis ?? "",
+      rib: (c as { rib?: string | null }).rib ?? "",
       tierId: c.tierId ?? "",
       creditLimit: Number(c.creditLimit ?? 0),
       creditDays: c.creditDays ?? 0,

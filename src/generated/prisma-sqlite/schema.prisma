@@ -439,6 +439,12 @@ model Customer {
   secteurId        String?
   secteur          Secteur?   @relation(fields: [secteurId], references: [id], onDelete: SetNull)
   activityType     String?
+  /// Optional fiscal identifiers (prefill the Bon de route / facture).
+  rc               String?
+  ai               String?
+  nif              String?
+  nis              String?
+  rib              String?
   /// Sale price tier assigned at creation.
   tierId           String?
   tier             PriceTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)

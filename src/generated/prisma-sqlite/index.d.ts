@@ -29057,6 +29057,11 @@ export namespace Prisma {
     wilayaCode: number | null
     secteurId: string | null
     activityType: string | null
+    rc: string | null
+    ai: string | null
+    nif: string | null
+    nis: string | null
+    rib: string | null
     tierId: string | null
     creditLimit: Decimal | null
     creditDays: number | null
@@ -29081,6 +29086,11 @@ export namespace Prisma {
     wilayaCode: number | null
     secteurId: string | null
     activityType: string | null
+    rc: string | null
+    ai: string | null
+    nif: string | null
+    nis: string | null
+    rib: string | null
     tierId: string | null
     creditLimit: Decimal | null
     creditDays: number | null
@@ -29105,6 +29115,11 @@ export namespace Prisma {
     wilayaCode: number
     secteurId: number
     activityType: number
+    rc: number
+    ai: number
+    nif: number
+    nis: number
+    rib: number
     tierId: number
     creditLimit: number
     creditDays: number
@@ -29149,6 +29164,11 @@ export namespace Prisma {
     wilayaCode?: true
     secteurId?: true
     activityType?: true
+    rc?: true
+    ai?: true
+    nif?: true
+    nis?: true
+    rib?: true
     tierId?: true
     creditLimit?: true
     creditDays?: true
@@ -29173,6 +29193,11 @@ export namespace Prisma {
     wilayaCode?: true
     secteurId?: true
     activityType?: true
+    rc?: true
+    ai?: true
+    nif?: true
+    nis?: true
+    rib?: true
     tierId?: true
     creditLimit?: true
     creditDays?: true
@@ -29197,6 +29222,11 @@ export namespace Prisma {
     wilayaCode?: true
     secteurId?: true
     activityType?: true
+    rc?: true
+    ai?: true
+    nif?: true
+    nis?: true
+    rib?: true
     tierId?: true
     creditLimit?: true
     creditDays?: true
@@ -29308,6 +29338,11 @@ export namespace Prisma {
     wilayaCode: number | null
     secteurId: string | null
     activityType: string | null
+    rc: string | null
+    ai: string | null
+    nif: string | null
+    nis: string | null
+    rib: string | null
     tierId: string | null
     creditLimit: Decimal
     creditDays: number
@@ -29351,6 +29386,11 @@ export namespace Prisma {
     wilayaCode?: boolean
     secteurId?: boolean
     activityType?: boolean
+    rc?: boolean
+    ai?: boolean
+    nif?: boolean
+    nis?: boolean
+    rib?: boolean
     tierId?: boolean
     creditLimit?: boolean
     creditDays?: boolean
@@ -29386,6 +29426,11 @@ export namespace Prisma {
     wilayaCode?: boolean
     secteurId?: boolean
     activityType?: boolean
+    rc?: boolean
+    ai?: boolean
+    nif?: boolean
+    nis?: boolean
+    rib?: boolean
     tierId?: boolean
     creditLimit?: boolean
     creditDays?: boolean
@@ -29414,6 +29459,11 @@ export namespace Prisma {
     wilayaCode?: boolean
     secteurId?: boolean
     activityType?: boolean
+    rc?: boolean
+    ai?: boolean
+    nif?: boolean
+    nis?: boolean
+    rib?: boolean
     tierId?: boolean
     creditLimit?: boolean
     creditDays?: boolean
@@ -29442,6 +29492,11 @@ export namespace Prisma {
     wilayaCode?: boolean
     secteurId?: boolean
     activityType?: boolean
+    rc?: boolean
+    ai?: boolean
+    nif?: boolean
+    nis?: boolean
+    rib?: boolean
     tierId?: boolean
     creditLimit?: boolean
     creditDays?: boolean
@@ -29455,7 +29510,7 @@ export namespace Prisma {
     opId?: boolean
   }
 
-  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "code" | "legacyQr" | "name" | "phone" | "address" | "wilayaCode" | "secteurId" | "activityType" | "tierId" | "creditLimit" | "creditDays" | "gpsLat" | "gpsLng" | "portalSecretHash" | "balance" | "isActive" | "createdAt" | "updatedAt" | "opId", ExtArgs["result"]["customer"]>
+  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "code" | "legacyQr" | "name" | "phone" | "address" | "wilayaCode" | "secteurId" | "activityType" | "rc" | "ai" | "nif" | "nis" | "rib" | "tierId" | "creditLimit" | "creditDays" | "gpsLat" | "gpsLng" | "portalSecretHash" | "balance" | "isActive" | "createdAt" | "updatedAt" | "opId", ExtArgs["result"]["customer"]>
   export type CustomerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     wilaya?: boolean | Customer$wilayaArgs<ExtArgs>
@@ -29513,6 +29568,14 @@ export namespace Prisma {
       wilayaCode: number | null
       secteurId: string | null
       activityType: string | null
+      /**
+       * Optional fiscal identifiers (prefill the Bon de route / facture).
+       */
+      rc: string | null
+      ai: string | null
+      nif: string | null
+      nis: string | null
+      rib: string | null
       /**
        * Sale price tier assigned at creation.
        */
@@ -29976,6 +30039,11 @@ export namespace Prisma {
     readonly wilayaCode: FieldRef<"Customer", 'Int'>
     readonly secteurId: FieldRef<"Customer", 'String'>
     readonly activityType: FieldRef<"Customer", 'String'>
+    readonly rc: FieldRef<"Customer", 'String'>
+    readonly ai: FieldRef<"Customer", 'String'>
+    readonly nif: FieldRef<"Customer", 'String'>
+    readonly nis: FieldRef<"Customer", 'String'>
+    readonly rib: FieldRef<"Customer", 'String'>
     readonly tierId: FieldRef<"Customer", 'String'>
     readonly creditLimit: FieldRef<"Customer", 'Decimal'>
     readonly creditDays: FieldRef<"Customer", 'Int'>
@@ -69690,6 +69758,11 @@ export namespace Prisma {
     wilayaCode: 'wilayaCode',
     secteurId: 'secteurId',
     activityType: 'activityType',
+    rc: 'rc',
+    ai: 'ai',
+    nif: 'nif',
+    nis: 'nis',
+    rib: 'rib',
     tierId: 'tierId',
     creditLimit: 'creditLimit',
     creditDays: 'creditDays',
@@ -71953,6 +72026,11 @@ export namespace Prisma {
     wilayaCode?: IntNullableFilter<"Customer"> | number | null
     secteurId?: StringNullableFilter<"Customer"> | string | null
     activityType?: StringNullableFilter<"Customer"> | string | null
+    rc?: StringNullableFilter<"Customer"> | string | null
+    ai?: StringNullableFilter<"Customer"> | string | null
+    nif?: StringNullableFilter<"Customer"> | string | null
+    nis?: StringNullableFilter<"Customer"> | string | null
+    rib?: StringNullableFilter<"Customer"> | string | null
     tierId?: StringNullableFilter<"Customer"> | string | null
     creditLimit?: DecimalFilter<"Customer"> | Decimal | DecimalJsLike | number | string
     creditDays?: IntFilter<"Customer"> | number
@@ -71987,6 +72065,11 @@ export namespace Prisma {
     wilayaCode?: SortOrderInput | SortOrder
     secteurId?: SortOrderInput | SortOrder
     activityType?: SortOrderInput | SortOrder
+    rc?: SortOrderInput | SortOrder
+    ai?: SortOrderInput | SortOrder
+    nif?: SortOrderInput | SortOrder
+    nis?: SortOrderInput | SortOrder
+    rib?: SortOrderInput | SortOrder
     tierId?: SortOrderInput | SortOrder
     creditLimit?: SortOrder
     creditDays?: SortOrder
@@ -72028,6 +72111,11 @@ export namespace Prisma {
     wilayaCode?: IntNullableFilter<"Customer"> | number | null
     secteurId?: StringNullableFilter<"Customer"> | string | null
     activityType?: StringNullableFilter<"Customer"> | string | null
+    rc?: StringNullableFilter<"Customer"> | string | null
+    ai?: StringNullableFilter<"Customer"> | string | null
+    nif?: StringNullableFilter<"Customer"> | string | null
+    nis?: StringNullableFilter<"Customer"> | string | null
+    rib?: StringNullableFilter<"Customer"> | string | null
     tierId?: StringNullableFilter<"Customer"> | string | null
     creditLimit?: DecimalFilter<"Customer"> | Decimal | DecimalJsLike | number | string
     creditDays?: IntFilter<"Customer"> | number
@@ -72062,6 +72150,11 @@ export namespace Prisma {
     wilayaCode?: SortOrderInput | SortOrder
     secteurId?: SortOrderInput | SortOrder
     activityType?: SortOrderInput | SortOrder
+    rc?: SortOrderInput | SortOrder
+    ai?: SortOrderInput | SortOrder
+    nif?: SortOrderInput | SortOrder
+    nis?: SortOrderInput | SortOrder
+    rib?: SortOrderInput | SortOrder
     tierId?: SortOrderInput | SortOrder
     creditLimit?: SortOrder
     creditDays?: SortOrder
@@ -72094,6 +72187,11 @@ export namespace Prisma {
     wilayaCode?: IntNullableWithAggregatesFilter<"Customer"> | number | null
     secteurId?: StringNullableWithAggregatesFilter<"Customer"> | string | null
     activityType?: StringNullableWithAggregatesFilter<"Customer"> | string | null
+    rc?: StringNullableWithAggregatesFilter<"Customer"> | string | null
+    ai?: StringNullableWithAggregatesFilter<"Customer"> | string | null
+    nif?: StringNullableWithAggregatesFilter<"Customer"> | string | null
+    nis?: StringNullableWithAggregatesFilter<"Customer"> | string | null
+    rib?: StringNullableWithAggregatesFilter<"Customer"> | string | null
     tierId?: StringNullableWithAggregatesFilter<"Customer"> | string | null
     creditLimit?: DecimalWithAggregatesFilter<"Customer"> | Decimal | DecimalJsLike | number | string
     creditDays?: IntWithAggregatesFilter<"Customer"> | number
@@ -76799,6 +76897,11 @@ export namespace Prisma {
     phone?: string | null
     address?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -76832,6 +76935,11 @@ export namespace Prisma {
     wilayaCode?: number | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -76859,6 +76967,11 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -76892,6 +77005,11 @@ export namespace Prisma {
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -76922,6 +77040,11 @@ export namespace Prisma {
     wilayaCode?: number | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -76943,6 +77066,11 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -76966,6 +77094,11 @@ export namespace Prisma {
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -81590,6 +81723,11 @@ export namespace Prisma {
     wilayaCode?: SortOrder
     secteurId?: SortOrder
     activityType?: SortOrder
+    rc?: SortOrder
+    ai?: SortOrder
+    nif?: SortOrder
+    nis?: SortOrder
+    rib?: SortOrder
     tierId?: SortOrder
     creditLimit?: SortOrder
     creditDays?: SortOrder
@@ -81623,6 +81761,11 @@ export namespace Prisma {
     wilayaCode?: SortOrder
     secteurId?: SortOrder
     activityType?: SortOrder
+    rc?: SortOrder
+    ai?: SortOrder
+    nif?: SortOrder
+    nis?: SortOrder
+    rib?: SortOrder
     tierId?: SortOrder
     creditLimit?: SortOrder
     creditDays?: SortOrder
@@ -81647,6 +81790,11 @@ export namespace Prisma {
     wilayaCode?: SortOrder
     secteurId?: SortOrder
     activityType?: SortOrder
+    rc?: SortOrder
+    ai?: SortOrder
+    nif?: SortOrder
+    nis?: SortOrder
+    rib?: SortOrder
     tierId?: SortOrder
     creditLimit?: SortOrder
     creditDays?: SortOrder
@@ -89522,6 +89670,11 @@ export namespace Prisma {
     phone?: string | null
     address?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -89553,6 +89706,11 @@ export namespace Prisma {
     wilayaCode?: number | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -90657,6 +90815,11 @@ export namespace Prisma {
     wilayaCode?: IntNullableFilter<"Customer"> | number | null
     secteurId?: StringNullableFilter<"Customer"> | string | null
     activityType?: StringNullableFilter<"Customer"> | string | null
+    rc?: StringNullableFilter<"Customer"> | string | null
+    ai?: StringNullableFilter<"Customer"> | string | null
+    nif?: StringNullableFilter<"Customer"> | string | null
+    nis?: StringNullableFilter<"Customer"> | string | null
+    rib?: StringNullableFilter<"Customer"> | string | null
     tierId?: StringNullableFilter<"Customer"> | string | null
     creditLimit?: DecimalFilter<"Customer"> | Decimal | DecimalJsLike | number | string
     creditDays?: IntFilter<"Customer"> | number
@@ -92339,6 +92502,11 @@ export namespace Prisma {
     phone?: string | null
     address?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -92371,6 +92539,11 @@ export namespace Prisma {
     wilayaCode?: number | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -92919,6 +93092,11 @@ export namespace Prisma {
     phone?: string | null
     address?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -92950,6 +93128,11 @@ export namespace Prisma {
     address?: string | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -93197,6 +93380,11 @@ export namespace Prisma {
     phone?: string | null
     address?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -93228,6 +93416,11 @@ export namespace Prisma {
     address?: string | null
     wilayaCode?: number | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -100254,6 +100447,11 @@ export namespace Prisma {
     phone?: string | null
     address?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -100286,6 +100484,11 @@ export namespace Prisma {
     wilayaCode?: number | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -100819,6 +101022,11 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -100851,6 +101059,11 @@ export namespace Prisma {
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -101577,6 +101790,11 @@ export namespace Prisma {
     phone?: string | null
     address?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -101609,6 +101827,11 @@ export namespace Prisma {
     wilayaCode?: number | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -101909,6 +102132,11 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -101941,6 +102169,11 @@ export namespace Prisma {
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -102912,6 +103145,11 @@ export namespace Prisma {
     phone?: string | null
     address?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -102944,6 +103182,11 @@ export namespace Prisma {
     wilayaCode?: number | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -103035,6 +103278,11 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -103067,6 +103315,11 @@ export namespace Prisma {
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -106615,6 +106868,11 @@ export namespace Prisma {
     phone?: string | null
     address?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -106647,6 +106905,11 @@ export namespace Prisma {
     wilayaCode?: number | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -106917,6 +107180,11 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -106949,6 +107217,11 @@ export namespace Prisma {
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -107543,6 +107816,11 @@ export namespace Prisma {
     phone?: string | null
     address?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -107575,6 +107853,11 @@ export namespace Prisma {
     wilayaCode?: number | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -107718,6 +108001,11 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -107750,6 +108038,11 @@ export namespace Prisma {
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -107912,6 +108205,11 @@ export namespace Prisma {
     phone?: string | null
     address?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -107944,6 +108242,11 @@ export namespace Prisma {
     wilayaCode?: number | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -108134,6 +108437,11 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -108166,6 +108474,11 @@ export namespace Prisma {
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -108226,6 +108539,11 @@ export namespace Prisma {
     wilayaCode?: number | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -108685,6 +109003,11 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -108716,6 +109039,11 @@ export namespace Prisma {
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -108745,6 +109073,11 @@ export namespace Prisma {
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -110134,6 +110467,11 @@ export namespace Prisma {
     wilayaCode?: number | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
     gpsLat?: number | null
@@ -110204,6 +110542,11 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -110236,6 +110579,11 @@ export namespace Prisma {
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -110265,6 +110613,11 @@ export namespace Prisma {
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -110444,6 +110797,11 @@ export namespace Prisma {
     address?: string | null
     secteurId?: string | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -110510,6 +110868,11 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -110541,6 +110904,11 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -110570,6 +110938,11 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     secteurId?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -110646,6 +111019,11 @@ export namespace Prisma {
     address?: string | null
     wilayaCode?: number | null
     activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
     tierId?: string | null
     creditLimit?: Decimal | DecimalJsLike | number | string
     creditDays?: number
@@ -110699,6 +111077,11 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
     gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -110730,6 +111113,11 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number
@@ -110759,6 +111147,11 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
     activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
     tierId?: NullableStringFieldUpdateOperationsInput | string | null
     creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     creditDays?: IntFieldUpdateOperationsInput | number

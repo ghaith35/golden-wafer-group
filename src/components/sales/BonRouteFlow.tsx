@@ -50,7 +50,7 @@ export function BonRouteFlow({
   locale: string;
   saleId: string;
   saleNumber: string;
-  client: { code: string; name: string } | null;
+  client: { code: string; name: string; ids?: DIdBlock } | null;
 }) {
   const t = T[locale === "fr" || locale === "en" ? locale : "ar"];
   const [step, setStep] = useState<"form" | "preview">("form");
@@ -83,9 +83,14 @@ export function BonRouteFlow({
       const merged = { ...saved } as DSeller;
       (Object.keys(base) as Array<keyof DSeller>).forEach((k) => { if (base[k]) merged[k] = base[k]; });
       setSeller(merged);
-      setCl(load(clientKey(client?.code ?? client?.name ?? "walkin"), emptyIds()));
+      // Customer record (Clients → Invoice details) wins; remembered values fill the gaps.
+      const savedC = load<DIdBlock>(clientKey(client?.code ?? client?.name ?? "walkin"), emptyIds());
+      const mergedC = { ...savedC } as DIdBlock;
+      (Object.keys(client?.ids ?? {}) as Array<keyof DIdBlock>).forEach((k) => { if (client?.ids?.[k]) mergedC[k] = client.ids[k]; });
+      setCl(mergedC);
     })();
     return () => { on = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, client?.code, client?.name, locale]);
 
   const input = "h-10 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2.5 text-xs font-bold outline-none";
