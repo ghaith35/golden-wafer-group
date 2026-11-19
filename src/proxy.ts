@@ -104,7 +104,7 @@ async function mintAccess(c: Claims): Promise<string | null> {
   return new SignJWT({ sub: c.sub, companyId: c.companyId, username: c.username, role: c.role })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("12h")
+    .setExpirationTime("365d")
     .sign(new TextEncoder().encode(secret));
 }
 

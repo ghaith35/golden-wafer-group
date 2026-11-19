@@ -302,6 +302,55 @@ export function SaleActions({
                 <span className="rounded-lg bg-(--bg-sunken) px-2 py-0.5 font-mono text-[11px] font-black text-(--text-secondary)" dir="ltr">{sale.number}</span>
                 <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-black", STATUS_PILL[sale.status] ?? STATUS_PILL.DRAFT)}>{statusName}</span>
               </div>
+              <div className="mt-2 flex flex-wrap gap-1.5 [&_button]:min-h-9 [&_button]:rounded-lg [&_button]:px-3 [&_button]:py-1 [&_button]:text-xs [&_button]:font-black">
+                {sale.kind === "ORDER" && sale.status === "DRAFT" && (
+                  <Button onClick={openLoad} disabled={busy} className="flex-1">📦 {labels.confirmLoad ?? labels.confirm}</Button>
+                )}
+                {sale.kind === "ORDER" && (sale.status === "DRAFT" || sale.status === "CONFIRMED") && (
+                  <Button variant="secondary" onClick={() => { setAssignTo(sale.locationId ?? ""); setModal("assign"); }} disabled={busy} className="flex-1">
+                    🚚 {sale.location ? sale.location.name : labels.assign}
+                  </Button>
+                )}
+                {sale.kind === "ORDER" && sale.status === "CONFIRMED" && (
+                  <Button onClick={() => { setLocationId(sale.locationId ?? ""); setExtraPaid(0); setModal("deliver"); }} disabled={busy} className="flex-1">
+                    {labels.deliver}
+                  </Button>
+                )}
+                {sale.kind === "DELIVERY" && sale.status === "DELIVERED" && (
+                  <Button onClick={() => setModal("invoice")} disabled={busy}>{labels.invoice}</Button>
+                )}
+                {((sale.kind === "TICKET" || sale.kind === "DELIVERY") && sale.status === "DELIVERED") && (
+                  <Button variant="secondary" onClick={() => setModal("cancel")} disabled={busy} className="text-red-500">{labels.cancelT ?? labels.cancel}</Button>
+                )}
+                {sale.kind === "DELIVERY" && sale.status === "CANCELLED" && (
+                  <Button onClick={() => setModal("uncancel")} disabled={busy}>{labels.redeliverT ?? labels.deliver}</Button>
+                )}
+                {sale.kind === "ORDER" && (sale.status === "DRAFT" || sale.status === "CONFIRMED") && canEdit && isAdmin && formData && formLabels && (
+                  <Button variant="secondary" onClick={() => setEditing(true)} disabled={busy}>
+                    ✎ {labels.edit ?? "Edit"}
+                  </Button>
+                )}
+                {sale.kind === "ORDER" && sale.status !== "DELIVERED" && sale.status !== "INVOICED" && sale.children.length === 0 && canEdit && isAdmin && (
+                  <Button variant="secondary" onClick={() => setModal("deleteOrder")} disabled={busy} className="text-red-500">
+                    {labels.deleteOrderT ?? "Delete"}
+                  </Button>
+                )}
+                {sale.kind === "TICKET" && sale.status !== "CANCELLED" && canEdit && isAdmin && formData && formLabels && (
+                  <Button variant="secondary" onClick={() => setEditing(true)} disabled={busy}>
+                    ✎ {labels.edit ?? "Edit"}
+                  </Button>
+                )}
+                {sale.kind === "INVOICE" && (
+                  <Link href={`/${locale}/sales/${sale.id}/print`}>
+                    <Button variant="secondary">{labels.print} FAC</Button>
+                  </Link>
+                )}
+                {sale.kind === "TICKET" && (
+                  <Link href={`/${locale}/sales/${sale.id}/ticket`}>
+                    <Button variant="secondary">{labels.print} ticket</Button>
+                  </Link>
+                )}
+              </div>
               <div className="mt-1.5 truncate text-lg font-black leading-tight sm:text-xl">{sale.client ? sale.client.name : labels.walkin}</div>
               <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] font-bold text-(--text-secondary)">
                 {sale.client && <span className="font-mono" dir="ltr">{sale.client.code}</span>}
@@ -483,55 +532,6 @@ export function SaleActions({
           ))}
         </Card>
       )}
-      <div className="flex flex-wrap gap-2">
-        {sale.kind === "ORDER" && sale.status === "DRAFT" && (
-          <Button onClick={openLoad} disabled={busy} className="flex-1">📦 {labels.confirmLoad ?? labels.confirm}</Button>
-        )}
-        {sale.kind === "ORDER" && (sale.status === "DRAFT" || sale.status === "CONFIRMED") && (
-          <Button variant="secondary" onClick={() => { setAssignTo(sale.locationId ?? ""); setModal("assign"); }} disabled={busy} className="flex-1">
-            🚚 {sale.location ? sale.location.name : labels.assign}
-          </Button>
-        )}
-        {sale.kind === "ORDER" && sale.status === "CONFIRMED" && (
-          <Button onClick={() => { setLocationId(sale.locationId ?? ""); setExtraPaid(0); setModal("deliver"); }} disabled={busy} className="flex-1">
-            {labels.deliver}
-          </Button>
-        )}
-        {sale.kind === "DELIVERY" && sale.status === "DELIVERED" && (
-          <Button onClick={() => setModal("invoice")} disabled={busy}>{labels.invoice}</Button>
-        )}
-        {((sale.kind === "TICKET" || sale.kind === "DELIVERY") && sale.status === "DELIVERED") && (
-          <Button variant="secondary" onClick={() => setModal("cancel")} disabled={busy} className="text-red-500">{labels.cancelT ?? labels.cancel}</Button>
-        )}
-        {sale.kind === "DELIVERY" && sale.status === "CANCELLED" && (
-          <Button onClick={() => setModal("uncancel")} disabled={busy}>{labels.redeliverT ?? labels.deliver}</Button>
-        )}
-        {sale.kind === "ORDER" && (sale.status === "DRAFT" || sale.status === "CONFIRMED") && canEdit && isAdmin && formData && formLabels && (
-          <Button variant="secondary" onClick={() => setEditing(true)} disabled={busy}>
-            ✎ {labels.edit ?? "Edit"}
-          </Button>
-        )}
-        {sale.kind === "ORDER" && sale.status !== "DELIVERED" && sale.status !== "INVOICED" && sale.children.length === 0 && canEdit && isAdmin && (
-          <Button variant="secondary" onClick={() => setModal("deleteOrder")} disabled={busy} className="text-red-500">
-            {labels.deleteOrderT ?? "Delete"}
-          </Button>
-        )}
-        {sale.kind === "TICKET" && sale.status !== "CANCELLED" && canEdit && isAdmin && formData && formLabels && (
-          <Button variant="secondary" onClick={() => setEditing(true)} disabled={busy}>
-            ✎ {labels.edit ?? "Edit"}
-          </Button>
-        )}
-        {sale.kind === "INVOICE" && (
-          <Link href={`/${locale}/sales/${sale.id}/print`}>
-            <Button variant="secondary">{labels.print} FAC</Button>
-          </Link>
-        )}
-        {sale.kind === "TICKET" && (
-          <Link href={`/${locale}/sales/${sale.id}/ticket`}>
-            <Button variant="secondary">{labels.print} ticket</Button>
-          </Link>
-        )}
-      </div>
 
       {/* ── Popup forms (no more JS confirm) ── */}
       <Modal open={modal === "load"} onClose={() => setModal(null)} title={labels.confirmLoadT ?? labels.confirmLoad ?? labels.confirm} icon="📦" width="sm">
