@@ -137,7 +137,7 @@ export function TrendChart({
                 opacity={hover === null || hover === i ? 1 : 0.55}
                 style={{ animationDelay: `${i * 18}ms`, transformOrigin: `${x(i)}px ${padT + ih}px` }}
               />
-              {i % labelEvery === 0 || i === n - 1 ? (
+              {(n - 1 - i) % labelEvery === 0 ? (
                 <text x={x(i)} y={height - 8} textAnchor="middle" fontSize="10.5" fontWeight="700" style={{ fill: "var(--text-tertiary)" }}>
                   {d.label}
                 </text>
