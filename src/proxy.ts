@@ -108,7 +108,9 @@ async function mintAccess(c: Claims): Promise<string | null> {
     .sign(new TextEncoder().encode(secret));
 }
 
-function withAccessCookie(res: NextResponse, token: string): NextResponse {
+function withAccessCookie(res: NextResponse, token: string, refresh?: string): NextResponse {
+  // Sliding: every renewal also pushes the refresh cookie another year out.
+  if (refresh) res.cookies.set("refresh_token", refresh, { httpOnly: true, secure: COOKIE_SECURE, sameSite: "lax", maxAge: 60 * 60 * 24 * 365, path: "/" });
   res.cookies.set("access_token", token, {
     httpOnly: true,
     secure: COOKIE_SECURE,
@@ -183,7 +185,7 @@ export async function proxy(request: NextRequest) {
       );
       if (denied) return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
-    return renewed ? withAccessCookie(NextResponse.next(), renewed) : NextResponse.next();
+    return renewed ? withAccessCookie(NextResponse.next(), renewed, refreshToken) : NextResponse.next();
   }
 
   // Never interfere with Next internals, static files, or service worker.
@@ -253,7 +255,7 @@ export async function proxy(request: NextRequest) {
     // Must pass through the i18n handler (not plain NextResponse.next()),
     // otherwise the locale is never resolved and every page renders Arabic.
     const res = handleI18nRouting(request);
-    return renewed ? withAccessCookie(res, renewed) : res;
+    return renewed ? withAccessCookie(res, renewed, refreshToken) : res;
   }
 
   // NOTE: no bounce for authenticated users visiting /login. A still-valid
