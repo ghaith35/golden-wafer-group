@@ -78,7 +78,11 @@ export function BonRouteFlow({
         }
       } catch { /* offline: keep remembered values only */ }
       if (!on) return;
-      setSeller(load(SELLER_KEY, base));
+      // Company settings win; remembered values only fill what settings leave empty.
+      const saved = load<DSeller>(SELLER_KEY, emptySeller());
+      const merged = { ...saved } as DSeller;
+      (Object.keys(base) as Array<keyof DSeller>).forEach((k) => { if (base[k]) merged[k] = base[k]; });
+      setSeller(merged);
       setCl(load(clientKey(client?.code ?? client?.name ?? "walkin"), emptyIds()));
     })();
     return () => { on = false; };
