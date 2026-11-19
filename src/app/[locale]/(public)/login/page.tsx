@@ -71,7 +71,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
 
         {/* Footer */}
         <p className="mt-5 text-center text-xs text-white/35" dir="ltr">
-          Distribuili · v{pkg.version}
+          Golden Wafer · v{pkg.version}
         </p>
       </div>
     </main>

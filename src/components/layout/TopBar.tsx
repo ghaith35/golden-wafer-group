@@ -293,7 +293,7 @@ export function LanguageSwitcher({ tone = "light" }: { tone?: "light" | "onDark"
     <div
       className={cn(
         "flex gap-1 rounded-xl p-1",
-        tone === "onDark" ? "bg-[#eaf1fd]/95 shadow-[0_2px_12px_rgba(0,0,0,0.35)]" : "bg-(--bg-sunken)"
+        tone === "onDark" ? "bg-[#fbf1d3]/95 shadow-[0_2px_12px_rgba(0,0,0,0.35)]" : "bg-(--bg-sunken)"
       )}
       dir="ltr"
       role="group"
@@ -310,10 +310,10 @@ export function LanguageSwitcher({ tone = "light" }: { tone?: "light" | "onDark"
             "min-h-10 min-w-11 rounded-lg px-2 text-xs font-black transition-colors sm:px-3.5",
             l === locale
               ? tone === "onDark"
-                ? "bg-[#3b82f6] text-white shadow"
+                ? "bg-[#c9951a] text-[#1c1200] shadow"
                 : "bg-gradient-brand text-(--brand-contrast) shadow"
               : tone === "onDark"
-                ? "text-[#1e3a8a] hover:text-[#0f172a]"
+                ? "text-[#654a0e] hover:text-[#1c1200]"
                 : "text-(--text-secondary) hover:text-(--text-primary)"
           )}
         >

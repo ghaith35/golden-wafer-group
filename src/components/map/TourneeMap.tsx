@@ -82,7 +82,7 @@ function VendeurDot({ follow }: { follow: boolean }) {
     return () => navigator.geolocation.clearWatch(watch);
   }, [map, follow]);
   if (!pos) return null;
-  return <CircleMarker center={pos} radius={8} pathOptions={{ color: "#fff", weight: 2, fillColor: "#2563eb", fillOpacity: 1 }} />;
+  return <CircleMarker center={pos} radius={8} pathOptions={{ color: "#fff", weight: 2, fillColor: "#c9951a", fillOpacity: 1 }} />;
 }
 
 /// Shared secteur/tournée map: numbered pins in visit order, route polyline,
