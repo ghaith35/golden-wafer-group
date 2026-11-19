@@ -289,13 +289,6 @@ export default async function DeliveryNotePage({
               </div>
             </div>
           </section>
-
-          {/* ── signatures ── */}
-          <section className="bl-keep mt-6 grid grid-cols-3 gap-4 text-[10px]">
-            <Sig title={T.delivered} sub={T.name} />
-            <Sig title={T.stamp} sub="" img={company?.stampUrl ?? undefined} img2={company?.signatureUrl ?? undefined} />
-            <Sig title={T.received} sub={T.name} />
-          </section>
         </div>
 
         {/* footer (repeats on every printed page) */}
@@ -332,21 +325,6 @@ function Row({ k, v, red, green, bold, small }: { k: string; v: string; red?: bo
     <div className={`flex items-center justify-between gap-2 ${small ? "text-[9.5px]" : ""} ${bold ? "font-black" : "font-bold"}`}>
       <span className="text-neutral-600">{k}</span>
       <span className={`tabular-nums ${red ? "text-red-700" : green ? "text-emerald-700" : ""}`} dir="ltr">{v}</span>
-    </div>
-  );
-}
-
-function Sig({ title, sub, img, img2 }: { title: string; sub: string; img?: string; img2?: string }) {
-  return (
-    <div className="rounded-xl border p-2.5" style={{ borderColor: "#e5e5e5" }}>
-      <div className="text-[9px] font-black uppercase tracking-wider text-neutral-600">{title}</div>
-      <div className="relative mt-1 flex h-[20mm] items-end justify-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {img && <img src={img} alt="" className="absolute h-[18mm] w-[18mm] rounded-full object-contain opacity-90" />}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {img2 && <img src={img2} alt="" className="absolute h-[14mm] object-contain" />}
-      </div>
-      {sub && <div className="border-t border-neutral-400 pt-1 text-center text-[8.5px] text-neutral-500">{sub}</div>}
     </div>
   );
 }
