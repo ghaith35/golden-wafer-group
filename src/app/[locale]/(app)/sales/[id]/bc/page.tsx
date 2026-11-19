@@ -240,11 +240,6 @@ export default async function OrderSheetPage({
                       {r.ref && <span className="font-mono" dir="ltr">{T.ref} {r.ref}</span>}
                       {r.packLabel && <span style={{ color: "#8f6710" }}>{r.packLabel}</span>}
                     </div>
-                    {r.haveText && (
-                      <div className="mt-0.5 text-[8.5px] font-black" style={{ color: r.short ? "#b91c1c" : "#047857" }}>
-                        🏭 {T.depot}: <bdi dir="ltr">{r.haveText}</bdi> — {r.short ? T.short : T.ok}
-                      </div>
-                    )}
                   </td>
                   <td className="px-1 py-2 text-center text-[13px] font-black tabular-nums" dir="ltr">{r.packQty !== null ? dz(r.packQty) : "—"}</td>
                   <td className="px-1 py-2 text-center tabular-nums" dir="ltr"><b>{dz(r.base)}</b> <span className="text-[8px] text-neutral-500">{r.baseName}</span></td>
@@ -267,9 +262,6 @@ export default async function OrderSheetPage({
                   </div>
                 ))}
               </div>
-              {anyShort && (
-                <div className="rounded-lg border p-2 text-[10px] font-black" style={{ borderColor: "#fca5a5", background: "#fef2f2", color: "#b91c1c" }}>⚠ {T.short} — {T.depot}</div>
-              )}
               <div className="rounded-lg border border-dashed p-2.5 text-[10.5px] leading-relaxed" style={{ borderColor: GOLD }}>
                 <div className="text-[8.5px] font-black uppercase tracking-widest" style={{ color: GOLD }}>{T.words}</div>
                 <div className="mt-0.5 font-bold capitalize">{amountInWords(total, lang)}</div>
