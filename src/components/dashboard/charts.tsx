@@ -70,7 +70,10 @@ export function TrendChart({
   revenueLabel,
   profitLabel,
   money,
+  rtl = false,
 }: {
+  /// Right-to-left UI (Arabic): time runs right→left and the value axis sits on the right.
+  rtl?: boolean;
   data: TrendPoint[];
   /// The chart fills its (flex) container; this is the floor.
   minHeight?: number;
@@ -81,7 +84,7 @@ export function TrendChart({
   const [ref, w, h] = useSize<HTMLDivElement>();
   const height = Math.max(minHeight, h);
   const [hover, setHover] = React.useState<number | null>(null);
-  const padL = 46, padR = 10, padT = 14, padB = 26;
+  const padL = rtl ? 10 : 46, padR = rtl ? 46 : 10, padT = 14, padB = 26;
   const iw = Math.max(10, w - padL - padR);
   const ih = height - padT - padB;
   const max = Math.max(100, ...data.map((d) => Math.max(d.revenue, d.profit)));
@@ -93,7 +96,7 @@ export function TrendChart({
   const n = data.length;
   const step = iw / Math.max(1, n);
   const bw = Math.max(3, Math.min(26, step * 0.62));
-  const x = (i: number) => padL + step * i + step / 2;
+  const x = (i: number) => padL + step * (rtl ? n - 1 - i : i) + step / 2;
   const y = (v: number) => padT + ih - (Math.max(0, v) / niceMax) * ih;
   const linePath = data.map((d, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(d.profit).toFixed(1)}`).join(" ");
   const areaPath = n ? `${linePath} L${x(n - 1).toFixed(1)},${padT + ih} L${x(0).toFixed(1)},${padT + ih} Z` : "";
@@ -118,7 +121,7 @@ export function TrendChart({
           {ticks.map((t) => (
             <g key={t}>
               <line x1={padL} x2={w - padR} y1={y(niceMax * t)} y2={y(niceMax * t)} style={{ stroke: "var(--border-default)" }} strokeDasharray={t === 0 ? undefined : "3 5"} />
-              <text x={padL - 8} y={y(niceMax * t) + 4} textAnchor="end" fontSize="10.5" fontWeight="700" style={{ fill: "var(--text-tertiary)" }}>
+              <text x={rtl ? w - padR + 8 : padL - 8} y={y(niceMax * t) + 4} textAnchor={rtl ? "start" : "end"} fontSize="10.5" fontWeight="700" style={{ fill: "var(--text-tertiary)" }}>
                 {compactNum(niceMax * t)}
               </text>
             </g>
@@ -225,10 +228,10 @@ export function Donut({ segs, size = 150, thickness = 20, center }: { segs: Donu
 }
 
 /// Tiny bar sparkline (per-van 14-day trend).
-export function MiniBars({ values, height = 56, className }: { values: number[]; height?: number; className?: string }) {
+export function MiniBars({ values, height = 56, className, rtl = false }: { values: number[]; height?: number; className?: string; rtl?: boolean }) {
   const max = Math.max(1, ...values);
   return (
-    <div className={cn("flex items-end gap-[3px]", className)} style={{ height }} dir="ltr" aria-hidden>
+    <div className={cn("flex items-end gap-[3px]", className)} style={{ height }} dir={rtl ? "rtl" : "ltr"} aria-hidden>
       {values.map((v, i) => (
         <span
           key={i}

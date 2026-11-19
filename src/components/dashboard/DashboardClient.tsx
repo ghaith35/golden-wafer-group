@@ -378,7 +378,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
             <span>{t("last14")}</span>
             <span className="text-(--text-tertiary)" dir="ltr">{monthTotal > 0 ? ((v.periods.month.revenue / monthTotal) * 100).toFixed(0) : 0}% · {t("share")}</span>
           </div>
-          <MiniBars values={v.trend.map((x) => x.r)} height={fit ? 64 : 92} />
+          <MiniBars rtl={locale === "ar"} values={v.trend.map((x) => x.r)} height={fit ? 64 : 92} />
         </div>
         {([["products", t("bestProducts")], ["clients", t("bestClients")]] as const).map(([k, title]) => (
           <div key={k} className="min-w-0">
@@ -541,7 +541,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
         </div>
       }
     >
-      <TrendChart data={trend} revenueLabel={t("revenue")} profitLabel={t("profit")} money={money} minHeight={fit ? 120 : 260} />
+      <TrendChart rtl={locale === "ar"} data={trend} revenueLabel={t("revenue")} profitLabel={t("profit")} money={money} minHeight={fit ? 120 : 260} />
     </Panel>
   );
 
