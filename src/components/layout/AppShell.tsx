@@ -356,7 +356,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {!hideChrome && (
       <aside
         className={cn(
-          "app-sidebar fixed inset-y-0 start-0 hidden flex-col border-e border-(--border-default) transition-all duration-300 ease-in-out print:hidden lg:flex",
+          "app-sidebar fixed inset-y-0 start-0 hidden flex-col border-e border-(--border-default) transition-all duration-300 ease-in-out print:hidden md:flex",
           collapsed ? "w-[68px] overflow-visible p-2" : "w-60 overflow-hidden p-3"
         )}
       >
@@ -374,7 +374,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile drawer — always expanded */}
       {!hideChrome && navOpen && (
-        <div className="fixed inset-0 z-50 print:hidden lg:hidden">
+        <div className="fixed inset-0 z-50 print:hidden md:hidden">
           <button
             type="button"
             aria-label={t("closeMenu")}
@@ -396,15 +396,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <div className={cn("pt-[calc(60px+env(safe-area-inset-top))] transition-all duration-300 ease-in-out md:pt-[calc(3.5rem+env(safe-area-inset-top))] print:pt-0", !hideChrome && (collapsed ? "lg:ps-[68px]" : "lg:ps-60"))}>
+      <div className={cn("pt-[calc(60px+env(safe-area-inset-top))] transition-all duration-300 ease-in-out md:pt-[calc(3.5rem+env(safe-area-inset-top))] print:pt-0", !hideChrome && (collapsed ? "md:ps-[68px]" : "md:ps-60"))}>
         <TopBar onMenuClick={() => setNavOpen(true)} onLogout={logout} syncLabels={syncLabels} forceSyncShow={role !== "Admin"} hideMenu={hideChrome} username={username} sidebarOffset={hideChrome ? "none" : collapsed ? "slim" : "wide"} />
-        <main className={!hideChrome && visibleTabs.length > 0 ? "pb-20 lg:pb-0" : ""}>{children}</main>
+        <main className={!hideChrome && visibleTabs.length > 0 ? "pb-20 md:pb-0" : ""}>{children}</main>
         {/* Global connection-loss dialog: one controlled reload into offline
             mode instead of a silently half-broken page. Mounted for every
             role — drivers need it most, admins hit dead tunnels too. */}
         <ConnLostDialog labels={connLabels} />
         {!hideChrome && visibleTabs.length > 0 && (
-        <nav className="fixed inset-x-0 bottom-0 flex border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)] print:hidden lg:hidden">
+        <nav className="fixed inset-x-0 bottom-0 flex border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)] print:hidden md:hidden">
           {visibleTabs.map((item) => (
             <Link key={item.key} href={`/${locale}/${item.href}`} className="flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold leading-tight opacity-70">
               <item.Icon size={19} />
@@ -474,7 +474,7 @@ function SidebarBody({
           title={collapsed ? t("expand") : t("collapse")}
           className={cn(
             "side-item mb-2 flex h-8 w-8 items-center justify-center rounded-lg border border-(--border-default) text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-600)",
-            collapsed ? "mx-auto hidden lg:flex" : "ms-auto"
+            collapsed ? "mx-auto hidden md:flex" : "ms-auto"
           )}
         >
           {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}

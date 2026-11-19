@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, nativeImage, shell, ipcMain, Tray, dialog, session } from "electron";
+import { app, BrowserWindow, Menu, nativeImage, shell, ipcMain, Tray, dialog, session, screen } from "electron";
 import { TRAY_ICON_B64 } from "./tray-icon";
 import { join } from "node:path";
 import { existsSync, readFileSync, writeFileSync, copyFileSync, appendFileSync, mkdirSync } from "node:fs";
@@ -1225,19 +1225,62 @@ h1{margin:0;font-size:26px;line-height:1.5;font-weight:800}p{margin:7px 0 0;colo
 </main></body></html>`;
 }
 
+/// Window geometry persisted between launches: first run opens maximized
+/// (like ZZ Sanitaire); afterwards the last size + maximized state is restored,
+/// so un-maximizing returns to a sensible, on-screen window.
+type WinState = { width: number; height: number; x?: number; y?: number; maximized: boolean };
+const winStateFile = () => join(app.getPath("userData"), "window-state.json");
+function loadWinState(): WinState {
+  try {
+    const j = JSON.parse(readFileSync(winStateFile(), "utf8")) as Partial<WinState>;
+    const w = Number(j.width), h = Number(j.height);
+    if (w >= 900 && h >= 600) {
+      const ok = typeof j.x === "number" && typeof j.y === "number" &&
+        screen.getAllDisplays().some((d) => {
+          const b = d.workArea;
+          return j.x! >= b.x - 20 && j.y! >= b.y - 20 && j.x! < b.x + b.width - 100 && j.y! < b.y + b.height - 100;
+        });
+      return { width: w, height: h, x: ok ? j.x : undefined, y: ok ? j.y : undefined, maximized: j.maximized !== false };
+    }
+  } catch { /* first run */ }
+  return { width: 1366, height: 860, maximized: true };
+}
+function saveWinState(win: BrowserWindow): void {
+  try {
+    const maximized = win.isMaximized();
+    const b = maximized ? win.getNormalBounds() : win.getBounds();
+    writeFileSync(winStateFile(), JSON.stringify({ width: b.width, height: b.height, x: b.x, y: b.y, maximized }));
+  } catch { /* best effort */ }
+}
+
 function createWindow() {
+  const ws = loadWinState();
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: ws.width,
+    height: ws.height,
+    x: ws.x,
+    y: ws.y,
+    minWidth: 900,
+    minHeight: 600,
     show: false,
+    backgroundColor: "#070708",
     // Like ZZ Sanitaire: no always-visible menu bar on Windows (Alt reveals it).
     autoHideMenuBar: true,
     webPreferences: { preload: join(__dirname, "preload.js"), contextIsolation: true, nodeIntegration: false, devTools: true },
   });
   mainWindow.once("ready-to-show", () => {
-    mainWindow?.maximize();
+    if (ws.maximized) mainWindow?.maximize();
     mainWindow?.show();
   });
+  let saveTimer: NodeJS.Timeout | undefined;
+  const scheduleSave = () => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isMinimized()) saveWinState(mainWindow); }, 400);
+  };
+  mainWindow.on("resize", scheduleSave);
+  mainWindow.on("move", scheduleSave);
+  mainWindow.on("maximize", scheduleSave);
+  mainWindow.on("unmaximize", scheduleSave);
   mainWindow.webContents.on("before-input-event", (event, input) => {
     if (process.platform === "darwin" && input.type === "keyDown" && input.meta && input.alt && input.key.toLowerCase() === "i") {
       event.preventDefault();

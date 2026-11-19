@@ -110,10 +110,10 @@ export function TopBar({
     {/* Punch-hole phones: solid white strip behind the status bar / camera
         cutout (clock, wifi, battery) so it never blends with the app.
         Zero-height where there is no cutout — invisible elsewhere. */}
-    <div aria-hidden className="fixed inset-x-0 top-0 z-30 h-[env(safe-area-inset-top)] bg-white print:hidden" />
+    <div aria-hidden className="fixed inset-x-0 top-0 z-30 h-[env(safe-area-inset-top)] bg-(--bg-overlay) print:hidden" />
     <header className={cn(
       "fixed inset-x-0 top-[env(safe-area-inset-top)] z-30 flex items-center gap-2 border-b border-(--border-default) bg-(--bg-overlay) px-3 pb-2 pt-2 print:hidden md:px-5 md:py-0 md:h-14",
-      sidebarOffset === "wide" ? "lg:start-60" : sidebarOffset === "slim" ? "lg:start-[68px]" : ""
+      sidebarOffset === "wide" ? "md:start-60" : sidebarOffset === "slim" ? "md:start-[68px]" : ""
     )}>
       <DesktopBackButton />
       {!hideMenu && (
@@ -121,7 +121,7 @@ export function TopBar({
         type="button"
         aria-label={t("menu")}
         onClick={onMenuClick}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-(--text-primary) lg:hidden"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-(--text-primary) md:hidden"
       >
         <Menu size={18} />
       </button>

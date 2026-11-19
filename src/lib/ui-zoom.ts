@@ -4,8 +4,10 @@
 /// - Desktop shell: native Chromium zoom through the preload bridge — exactly
 ///   like browser zoom, so vh/dvh layouts, px sizes and fixed bars all scale
 ///   correctly.
-/// - Web / APK / older desktop shells without the bridge: root font-size
-///   scaling (every rem-based element grows like browser zoom).
+/// - Web / APK / older desktop shells without the bridge: CSS `zoom` on <html>
+///   (same approach as ZZ Sanitaire) — everything scales, px included.
+///   globals.css divides vh-based shells by --ui-zoom so short pages never
+///   gain a phantom scrollbar.
 /// Persisted per device (percent, same key the old control used).
 
 export const ZOOM_KEY = "dili_ui_zoom";
@@ -44,11 +46,21 @@ function read(): number {
 
 function apply(pct: number) {
   const b = bridge();
+  const root = document.documentElement;
+  root.style.fontSize = "";
   if (b?.setZoom) {
-    document.documentElement.style.fontSize = "";
+    root.style.zoom = "";
+    root.removeAttribute("data-ui-zoom");
+    root.style.removeProperty("--ui-zoom");
     void b.setZoom(pct).catch(() => {});
+  } else if (pct === ZOOM_DEFAULT) {
+    root.style.zoom = "";
+    root.removeAttribute("data-ui-zoom");
+    root.style.removeProperty("--ui-zoom");
   } else {
-    document.documentElement.style.fontSize = pct === ZOOM_DEFAULT ? "" : `${(16 * pct) / 100}px`;
+    root.style.zoom = String(pct / 100);
+    root.setAttribute("data-ui-zoom", String(pct));
+    root.style.setProperty("--ui-zoom", String(pct / 100));
   }
 }
 

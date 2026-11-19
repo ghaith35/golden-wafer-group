@@ -378,3 +378,37 @@ button, input, select, textarea {
     display: none;
   }
 }
+
+
+/* ── Interface zoom (web / APK): CSS zoom on <html>. Viewport-height shells
+   would be multiplied by the zoom — divide it back so pages never gain a
+   phantom scrollbar. Print always renders at 100 %. ── */
+html[data-ui-zoom] .min-h-screen,
+html[data-ui-zoom] .min-h-dvh { min-height: calc(100vh / var(--ui-zoom, 1)); }
+html[data-ui-zoom] .h-screen,
+html[data-ui-zoom] .h-dvh { height: calc(100vh / var(--ui-zoom, 1)); }
+@media print { html { zoom: 1 !important; } }
+
+/* ── Responsiveness base ───────────────────────────────────────────────── */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+img, video, canvas, svg { max-width: 100%; }
+/* Wide tables/boards scroll inside their own box, never the whole page. */
+.overflow-x-auto { overscroll-behavior-x: contain; }
+
+/* Phones: iOS/Android WebView zoom into <16px fields on focus — keep 16px. */
+@media (pointer: coarse) and (max-width: 820px) {
+  input, select, textarea { font-size: 16px !important; }
+}
+@media (pointer: coarse) {
+  a, button, select { -webkit-tap-highlight-color: transparent; }
+  .overflow-x-auto { -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .overflow-x-auto::-webkit-scrollbar { display: none; }
+}
+/* Tablets: slightly roomier fields. */
+@media (min-width: 768px) and (max-width: 1099px) and (pointer: coarse) {
+  input, select, textarea { min-height: 44px; }
+}
+/* Big monitors: keep content readable instead of stretching edge to edge. */
+@media (min-width: 2200px) {
+  main { max-width: 2000px; margin-inline: auto; }
+}
