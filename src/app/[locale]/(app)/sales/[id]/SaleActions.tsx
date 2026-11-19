@@ -201,6 +201,7 @@ export function SaleActions({
       .then((d) => setIsAdmin(d?.user?.role === "Admin"))
       .catch(() => setIsAdmin(false));
   }, []);
+  const [blOpen, setBlOpen] = useState(false);
   const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
   /// Depot availability for the load preview (fetched when opening it).
   const [depotMap, setDepotMap] = useState<Record<string, number> | null>(null);
@@ -616,16 +617,26 @@ export function SaleActions({
         message={`${labels.invoiceM ?? ""}\n${sale.number} · ${num(total)}`}
         confirmLabel={labels.invoice}
       />
+      <Modal open={blOpen} onClose={() => setBlOpen(false)} title={labels.bonLivraison ?? "Bon de livraison"} subtitle={sale.number} icon="🧾" width="2xl">
+        {blOpen && (
+          <iframe
+            src={`/${locale}/sales/${sale.id}/bl?embed=1`}
+            title="Bon de livraison"
+            className="h-[min(78vh,900px)] w-full rounded-xl border border-(--border-default) bg-neutral-200"
+          />
+        )}
+      </Modal>
       <Modal open={modal === "facture"} onClose={() => setModal(null)} title={labels.factureBtn ?? "Facture"} subtitle={`${sale.number}`} icon="🧾" width="md">
         <div className="grid gap-3 sm:grid-cols-2">
-          <Link
-            href={`/${locale}/sales/${sale.id}/bl`}
-            className="group relative flex flex-col gap-2 overflow-hidden rounded-2xl border border-(--brand-500) bg-[linear-gradient(135deg,var(--gold-wash),var(--bg-overlay))] p-4 text-start transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_34px_-16px_var(--brand-500)]"
+          <button
+            type="button"
+            onClick={() => { setModal(null); setBlOpen(true); }}
+            className="group relative flex min-h-0 flex-col items-start gap-2 overflow-hidden rounded-2xl border border-(--brand-500) bg-[linear-gradient(135deg,var(--gold-wash),var(--bg-overlay))] p-4 text-start transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_34px_-16px_var(--brand-500)]"
           >
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-brand text-(--brand-contrast)"><FileText size={20} /></span>
             <span className="text-base font-black">{labels.bonLivraison ?? "Bon de livraison"}</span>
             <span className="text-xs font-bold text-(--text-secondary)">{labels.bonLivraisonDesc ?? "A4"}</span>
-          </Link>
+          </button>
           <div className="relative flex cursor-not-allowed flex-col gap-2 rounded-2xl border border-dashed border-(--border-default) p-4 text-start opacity-60">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--bg-sunken) text-(--text-secondary)"><Truck size={20} /></span>
             <span className="text-base font-black">{labels.bonRoute ?? "Bon de route"}</span>

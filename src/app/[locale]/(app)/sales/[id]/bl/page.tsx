@@ -52,7 +52,7 @@ export default async function DeliveryNotePage({
   searchParams,
 }: {
   params: Promise<{ locale: string; id: string }>;
-  searchParams: Promise<{ lang?: string }>;
+  searchParams: Promise<{ lang?: string; embed?: string }>;
 }) {
   const { locale, id } = await params;
   const sp = await searchParams;
@@ -78,6 +78,8 @@ export default async function DeliveryNotePage({
   if (!sale) notFound();
 
   const lang: DocLang = sp.lang === "ar" || sp.lang === "fr" || sp.lang === "en" ? sp.lang : settings.ticketLang === "ar" ? "ar" : locale === "en" ? "en" : "fr";
+  const embed = sp.embed === "1";
+  const qs = embed ? "&embed=1" : "";
   const T = L[lang];
   const loc = lang === "ar" ? "ar-DZ-u-nu-latn" : lang === "fr" ? "fr-DZ" : "en-GB";
 
@@ -126,11 +128,11 @@ export default async function DeliveryNotePage({
     <div className="bl-root min-h-screen bg-neutral-200 py-6 print:bg-white print:py-0" dir={T.dir}>
       {/* toolbar (screen only) */}
       <div className="mx-auto mb-4 flex w-[210mm] max-w-full flex-wrap items-center justify-between gap-2 px-2 print:hidden" dir="ltr">
-        <BackButton fallback={`/${locale}/sales/${id}`} />
+        {embed ? <span /> : <BackButton fallback={`/${locale}/sales/${id}`} />}
         <div className="flex items-center gap-2">
           <div className="flex rounded-lg bg-white p-0.5 text-xs font-bold shadow">
             {(["fr", "ar", "en"] as const).map((l) => (
-              <Link key={l} href={`/${locale}/sales/${id}/bl?lang=${l}`} className={`rounded-md px-3 py-1.5 ${l === lang ? "text-white" : "text-neutral-600"}`} style={l === lang ? { background: GOLD } : undefined}>
+              <Link key={l} href={`/${locale}/sales/${id}/bl?lang=${l}${qs}`} className={`rounded-md px-3 py-1.5 ${l === lang ? "text-white" : "text-neutral-600"}`} style={l === lang ? { background: GOLD } : undefined}>
                 {l.toUpperCase()}
               </Link>
             ))}
@@ -307,6 +309,7 @@ export default async function DeliveryNotePage({
         </footer>
       </article>
 
+      {embed && <style>{`header.fixed, .app-sidebar, nav.fixed, div.fixed.inset-x-0.top-0 { display: none !important; } [data-shell-content] { padding: 0 !important; } body { padding: 0 !important; } main { padding: 0 !important; max-width: none !important; } .bl-root { padding-top: 12px !important; min-height: 0 !important; }`}</style>}
       <style>{`
         @page { size: A4; margin: 0; }
         .bl-sheet { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
