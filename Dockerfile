@@ -19,6 +19,10 @@ ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholde
 ENV SHADOW_DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
 RUN npm run db:generate \
  && npm run build
+# Stage the runtime-only deps that standalone tracing misses (the pg tree,
+# dynamically required through @prisma/adapter-pg: xtend etc. never traced).
+# Staged separately so the runner stays slim (~0.5GB, like zz-sanitaire).
+RUN mkdir -p /tmp/nm_extra && for p in pg pg-connection-string pg-int8 pg-pool pg-protocol pg-types pgpass postgres-array postgres-bytea postgres-date postgres-interval xtend; do cp -r ./node_modules/$p /tmp/nm_extra/ 2>/dev/null || true; done && ls /tmp/nm_extra
 
 # ── migrator: tiny image that only applies Prisma migrations ──────────────────
 # Pushed by CI next to the app image; the server runs it before each restart.
@@ -47,10 +51,11 @@ ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-# Standalone tracing can miss transitive deps (e.g. xtend/mutable via pg);
-# fill in anything absent without overwriting traced modules.
-COPY --from=builder /app/node_modules /tmp/nm_full
-RUN cp -rn /tmp/nm_full/. ./node_modules/ && rm -rf /tmp/nm_full
+# Standalone tracing misses transitive deps (e.g. xtend via pg, dynamically
+# required through @prisma/adapter-pg). Merge the staged pg subtree without
+# overwriting traced modules — never the full node_modules (that was 3.98GB).
+COPY --from=builder /tmp/nm_extra /tmp/nm_extra
+RUN mkdir -p ./node_modules && cp -rn /tmp/nm_extra/. ./node_modules/ && rm -rf /tmp/nm_extra
 COPY --from=builder /app/public ./public
 EXPOSE 3000
 CMD ["node", "server.js"]
