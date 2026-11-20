@@ -11,11 +11,11 @@ import { queueOp, goPage, warmJourneePages } from "@/lib/sync/client";
 export function StartClient({
   locale,
   day,
-  dateIso,
+  dateIso: dateIsoP,
   vanName,
-  tourneeId,
-  startedAt,
-  stopsCount,
+  tourneeId: tourneeIdP,
+  startedAt: startedAtP,
+  stopsCount: stopsCountP,
   labels,
 }: {
   locale: string;
@@ -28,11 +28,27 @@ export function StartClient({
   labels: Record<string, string>;
 }) {
   const router = useRouter();
+  /// Offline on a new day: the cached copy is relabelled by the service
+  /// worker (window.__DILI_DAY_SHIFTED) — its tour belongs to the old day.
+  /// Today has no tour yet: stamp with the real date of THIS day instead.
+  const [shifted, setShifted] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount gate
+    if ((window as unknown as { __DILI_DAY_SHIFTED?: string }).__DILI_DAY_SHIFTED) setShifted(true);
+  }, []);
+  const dayMatch = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(day);
+  const dateIso = shifted && dayMatch ? new Date(Number(dayMatch[1]), Number(dayMatch[2]) - 1, Number(dayMatch[3])).toISOString() : dateIsoP;
+  const tourneeId = shifted ? null : tourneeIdP;
+  const stopsCount = shifted ? 0 : stopsCountP;
   /// Live clock: null until mounted so server and client render the same
   /// placeholder (a ticking Date in state always mismatches hydration).
   const [now, setNow] = useState<Date | null>(null);
   const [busy, setBusy] = useState(false);
-  const [started, setStarted] = useState<string | null>(startedAt);
+  const [started, setStarted] = useState<string | null>(startedAtP);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset once the day is known to be a relabelled copy
+    if (shifted) setStarted(null);
+  }, [shifted]);
   const [startQueued, setStartQueued] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
   /// Location permission state (asked once here, then lazily per feature).

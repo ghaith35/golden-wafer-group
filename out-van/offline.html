@@ -9,7 +9,7 @@ body{font-family:system-ui;background:#070708;color:#e2e8f0;display:flex;min-hei
 .card{background:#121214;border-radius:16px;padding:28px;max-width:420px;width:92%;box-shadow:0 10px 40px #0008;text-align:center}
 .logo{font-size:44px}h1{font-size:18px;margin:0 0 6px}
 p{font-size:13px;opacity:.75;margin:0 0 10px;line-height:1.8}
-button{width:100%;margin-top:10px;padding:14px;border:0;border-radius:12px;background:#0d59a3;color:#fff;font-size:16px;font-weight:800;cursor:pointer}
+button{width:100%;margin-top:10px;padding:14px;border:0;border-radius:12px;background:linear-gradient(135deg,#f7da7c,#d9a62a 48%,#a87912);color:#2a1b00;font-size:16px;font-weight:800;cursor:pointer}
 button.ghost{background:transparent;border:1px solid #2a2416;font-size:14px;font-weight:600}
 button:disabled{opacity:.5;cursor:wait}
 .meta{font-size:12px;opacity:.55;margin-top:10px;min-height:18px}
@@ -22,17 +22,17 @@ button:disabled{opacity:.5;cursor:wait}
   <h1 id="title">تعذّر فتح التطبيق</h1>
   <p id="desc">التطبيق غير محفوظ بعد على الهاتف — افتحه مرة واحدة وأنت متصل.</p>
   <button id="retry" onclick="retry()">إعادة المحاولة ✓</button>
-  <button class="ghost" onclick="goSetup()">مسح رمز جديد</button>
   <div class="meta" id="meta"></div>
 </div>
 <script>
+var DEFAULT_SERVER = "https://golden-wafer-group.khiatadz.com";
 var KEY = "dili_apk_server";
 var TKEY = "dili_apk_token";
 var ERR_TS = "dili_off_err_ts";
 
 function saved() {
-  try { return { url: localStorage.getItem(KEY) || "", token: localStorage.getItem(TKEY) || "" }; }
-  catch (e) { return { url: "", token: "" }; }
+  try { return { url: localStorage.getItem(KEY) || DEFAULT_SERVER, token: localStorage.getItem(TKEY) || "" }; }
+  catch (e) { return { url: DEFAULT_SERVER, token: "" }; }
 }
 function baseOf(url) {
   var u = String(url || "").trim().replace(/\/+$/, "");

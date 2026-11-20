@@ -14,6 +14,11 @@ export function SwRegister() {
     if ("serviceWorker" in navigator) {
       if (isApk) {
         if (process.env.NODE_ENV === "production") navigator.serviceWorker.register("/sw.js").catch(() => {});
+        // Ask Android to keep the offline caches (service worker + SQLite
+        // origin storage) instead of evicting them under storage pressure.
+        try {
+          void navigator.storage?.persist?.().catch(() => {});
+        } catch { /* best effort */ }
       } else {
         navigator.serviceWorker
           .getRegistrations()

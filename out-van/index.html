@@ -10,7 +10,7 @@ body{font-family:system-ui;background:#070708;color:#e2e8f0;display:flex;min-hei
 .card{background:#121214;border-radius:16px;padding:28px;max-width:420px;width:92%;box-shadow:0 10px 40px #0008;text-align:center}
 h1{font-size:18px;margin:0 0 6px}.logo{font-size:40px}
 p{font-size:13px;opacity:.7;margin:0 0 14px;line-height:1.8}
-button{width:100%;margin-top:12px;padding:14px;border:0;border-radius:12px;background:#0d59a3;color:#fff;font-size:16px;font-weight:800;cursor:pointer}
+button{width:100%;margin-top:12px;padding:14px;border:0;border-radius:12px;background:linear-gradient(135deg,#f7da7c,#d9a62a 48%,#a87912);color:#2a1b00;font-size:16px;font-weight:800;cursor:pointer}
 button.ghost{background:transparent;border:1px solid #2a2416;font-size:14px;font-weight:600}
 .hint{font-size:12px;opacity:.6;margin-top:10px}
 video{width:100%;border-radius:12px;background:#000;max-height:46vh;object-fit:cover}
@@ -43,6 +43,8 @@ video{width:100%;border-radius:12px;background:#000;max-height:46vh;object-fit:c
 </div>
 
 <script>
+// Client build: always points at this server — no QR scan needed on first run.
+var DEFAULT_SERVER = "https://golden-wafer-group.khiatadz.com";
 var KEY = "dili_apk_server";
 var TKEY = "dili_apk_token";
 var timer = null, stream = null, scanning = false, scanTimer = 0;
@@ -187,6 +189,7 @@ document.getElementById("gallery").addEventListener("change", function (e) {
 
 (function init() {
   var s = saved();
+  if (!s.url) s = { url: DEFAULT_SERVER, token: s.token };
   // Connectivity returning mid-splash: enter immediately.
   window.addEventListener("online", function () {
     try {

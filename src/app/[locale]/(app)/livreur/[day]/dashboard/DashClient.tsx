@@ -24,12 +24,12 @@ export function DashClient({
   vanId,
   vanName,
   client,
-  dayCount,
-  dayTotal,
+  dayCount: dayCountP,
+  dayTotal: dayTotalP,
   readyCount,
-  tournee,
-  dueCash,
-  declared,
+  tournee: tourneeP,
+  dueCash: dueCashP,
+  declared: declaredP,
   role,
   labels,
 }: {
@@ -48,6 +48,20 @@ export function DashClient({
   labels: Record<string, string>;
 }) {
   const router = useRouter();
+  /// Offline on a NEW day the service worker relabels the last cached copy
+  /// (window.__DILI_DAY_SHIFTED): its server-side figures belong to the old
+  /// day, so today starts clean — no old totals, no old tour to stamp.
+  /// Read after mount so hydration still matches the served HTML.
+  const [shifted, setShifted] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount gate
+    if ((window as unknown as { __DILI_DAY_SHIFTED?: string }).__DILI_DAY_SHIFTED) setShifted(true);
+  }, []);
+  const dayCount = shifted ? 0 : dayCountP;
+  const dayTotal = shifted ? 0 : dayTotalP;
+  const tournee = shifted ? null : tourneeP;
+  const dueCash = shifted ? 0 : dueCashP;
+  const declared = shifted ? null : declaredP;
   const [pending, setPending] = useState(0);
   const [lastSync, setLastSync] = useState<string | null>(null);
   /// Till declaration state (pre-filled from his sales — still editable).
@@ -67,6 +81,10 @@ export function DashClient({
     tournee ? { startedAt: tournee.startedAt, finishedAt: tournee.finishedAt } : null
   );
   const [stamping, setStamping] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset once the day is known to be a relabelled copy
+    if (shifted) setStamp(null);
+  }, [shifted]);
   /// Fin-journée recap (warns, never blocks).
   const [finishOpen, setFinishOpen] = useState(false);
   // Live elapsed counter while the day is open.

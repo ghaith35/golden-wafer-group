@@ -80,12 +80,15 @@ describe("offline driver startup", () => {
     app.save(latest);
 
     const response = await app.request(dashboard("2026-11-17") + "?device=old-token");
-    expect(response.status).toBe(302);
-    expect(response.headers.get("location")).toBe(latest);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    expect(await response.text()).toContain("__DILI_DAY_SHIFTED");
     expect(await (await app.request(latest)).text()).toBe("driver dashboard");
     app.dropRollingPages();
 
-    expect((await app.request(dashboard("2026-11-17"))).headers.get("location")).toBe(latest);
+    const afterClear = await app.request(dashboard("2026-11-17"));
+    expect(afterClear.status).toBe(200);
+    expect(await afterClear.text()).toContain("driver dashboard");
     expect(await (await app.request(latest)).text()).toBe("driver dashboard");
   });
 
@@ -100,7 +103,9 @@ describe("offline driver startup", () => {
     app.dropRollingPages();
     app.disconnect();
 
-    expect((await app.request(dashboard("2026-11-17"))).headers.get("location")).toBe(lastOpened);
+    const next = await app.request(dashboard("2026-11-17"));
+    expect(next.status).toBe(200);
+    expect(await next.text()).toContain("driver dashboard");
     expect(await (await app.request(lastOpened)).text()).toBe("driver dashboard");
     expect(await (await app.request(login)).text()).toBe("driver dashboard");
   });
@@ -120,5 +125,17 @@ describe("offline driver startup", () => {
     const response = await app.request(dashboard("2026-11-17"), "cors");
     expect(response.headers.get("location")).toBeNull();
     expect(await response.text()).not.toBe("driver dashboard");
+  });
+
+  it("relabels any cached journée screen of an older day (vente, factures…) for today", async () => {
+    const app = setup();
+    app.save(origin + "/ar/livreur/2026-10-12/vente");
+    app.save(origin + "/ar/livreur/2026-10-9/vente");
+
+    const response = await app.request(origin + "/ar/livreur/2026-11-17/vente");
+    expect(response.status).toBe(200);
+    const body = await response.text();
+    expect(body).toContain("driver dashboard");
+    expect(body).toContain('__DILI_DAY_SHIFTED="2026-10-12"');
   });
 });

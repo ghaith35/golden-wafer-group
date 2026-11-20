@@ -113,11 +113,67 @@ async function newestCachedDashboard() {
   return null;
 }
 
-function openCachedDashboard(hit, requestedUrl) {
+const DAYPAGE = /^\/(ar|fr|en)\/livreur\/(\d{4})-(\d{1,2})-(\d{1,2})(\/.*)?$/;
+const DAYSLUG = /\/livreur\/(\d{4}-\d{1,2}-\d{1,2})(?:\/|$)/;
+
+/// Serve a cached journée page of ANOTHER day as the requested day: the
+/// phone synced on day N, opens offline on day N+k, and still lands directly
+/// in the app (no error, no redirect to an old date). The day slug inside the
+/// HTML (URL props + flight payload) is rewritten to the requested one and a
+/// marker tells the client the server-side day figures (totals, tour) are
+/// stale so it resets them. Never cached — it is a view of the old copy.
+async function shiftToDay(hit, requestedUrl) {
+  try {
+    const from = DAYSLUG.exec(new URL(hit.url).pathname);
+    const to = DAYSLUG.exec(requestedUrl.pathname);
+    if (!from || !to) return null;
+    if (from[1] === to[1]) return hit;
+    const re = new RegExp("(?<![\\d-])" + from[1] + "(?!\\d)", "g");
+    let html = await hit.clone().text();
+    html = html.replace(re, to[1]);
+    const marker = `<script>window.__DILI_DAY_SHIFTED=${JSON.stringify(from[1])};</script>`;
+    html = html.includes("<head>") ? html.replace("<head>", "<head>" + marker) : marker + html;
+    return new Response(html, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } });
+  } catch {
+    return null;
+  }
+}
+
+/// Newest cached copy of the same journée screen (same locale + sub-page),
+/// whatever its day. History is kept (60 days) so any past sync can serve.
+function dayNum(path) {
+  const m = DAYPAGE.exec(path);
+  return m ? Number(m[2]) * 10000 + Number(m[3]) * 100 + Number(m[4]) : 0;
+}
+
+async function newestCachedSibling(locale, suffix) {
+  try {
+    const keys = await (await caches.open(PAGE_CACHE)).keys();
+    const urls = keys.map((key) => new URL(key.url))
+      .filter((u) => {
+        if (u.origin !== location.origin || u.search) return false;
+        const m = DAYPAGE.exec(u.pathname);
+        return !!m && m[1] === locale && (m[5] || "") === suffix;
+      })
+      .sort((a, b) => dayNum(b.pathname) - dayNum(a.pathname));
+    for (const u of urls) {
+      const hit = await caches.match(u.href);
+      if (hit) return hit;
+    }
+  } catch {
+    /* storage unavailable */
+  }
+  return null;
+}
+
+async function openCachedDashboard(hit, requestedUrl) {
   const target = new URL(hit.url);
   if (target.origin !== requestedUrl.origin || !DASHBOARD.test(target.pathname)) return null;
-  // Keep historical HTML on its original date and URL so its route and data agree.
-  return target.pathname === requestedUrl.pathname ? hit : Response.redirect(target.href, 302);
+  if (target.pathname === requestedUrl.pathname) return hit;
+  // Dashboard asked for another day → same page, relabelled. Any other
+  // journée page that has no copy yet → land on the cached dashboard.
+  if (DASHBOARD.test(requestedUrl.pathname)) return shiftToDay(hit, requestedUrl);
+  return Response.redirect(target.href, 302);
 }
 
 async function offlineFallback(req) {
@@ -138,25 +194,40 @@ async function offlineFallback(req) {
     if (req.mode === "navigate" && /^\/(ar|fr|en)\/livreur(?:\/|$)/.test(url.pathname)) {
       const locale = url.pathname.split("/")[1];
       const locales = [locale, ...["ar", "fr", "en"].filter((l) => l !== locale)];
+      // Same screen, any earlier day (the phone synced days ago): relabel it.
+      const dm = DAYPAGE.exec(url.pathname);
+      if (dm) {
+        const sibling = await newestCachedSibling(dm[1], dm[5] || "");
+        if (sibling) {
+          // A dashboard copy also refreshes the recovery entry (survives the
+          // rolling page cache being trimmed or cleared).
+          if ((dm[5] || "") === "/dashboard") {
+            const key = recoveryKey(new URL(sibling.url));
+            if (key) await caches.open(RECOVERY_CACHE).then((cache) => cache.put(key, sibling.clone())).catch(() => {});
+          }
+          const shifted = await shiftToDay(sibling, url);
+          if (shifted) return shifted;
+        }
+      }
       const now = new Date();
       const day = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
       for (const l of locales) {
         const hit = await caches.match(`/${l}/livreur/${day}/dashboard`);
         if (hit) {
-          const response = openCachedDashboard(hit, url);
+          const response = await openCachedDashboard(hit, url);
           if (response) return response;
         }
       }
 
       const entry = await caches.match(`/${locale}/livreur/offline-entry`, { cacheName: RECOVERY_CACHE });
       if (entry) {
-        const response = openCachedDashboard(entry, url);
+        const response = await openCachedDashboard(entry, url);
         if (response) return response;
       }
       // Existing installs already have dated pages from before the recovery cache.
       const previous = await newestCachedDashboard();
       if (previous) {
-        const response = openCachedDashboard(previous, url);
+        const response = await openCachedDashboard(previous, url);
         if (response) {
           const key = recoveryKey(new URL(previous.url));
           await caches.open(RECOVERY_CACHE).then((cache) => cache.put(key, previous.clone())).catch(() => {});
@@ -166,7 +237,7 @@ async function offlineFallback(req) {
       for (const l of locales.slice(1)) {
         const hit = await caches.match(`/${l}/livreur/offline-entry`, { cacheName: RECOVERY_CACHE });
         if (hit) {
-          const response = openCachedDashboard(hit, url);
+          const response = await openCachedDashboard(hit, url);
           if (response) return response;
         }
       }

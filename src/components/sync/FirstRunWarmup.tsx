@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import {
   getDeviceToken,
+  setDeviceToken,
+  setVanId,
   isServerReachable,
   syncNow,
   prepareOfflinePages,
@@ -111,6 +113,25 @@ export function FirstRunWarmup({
     try {
       token = !!getDeviceToken();
     } catch { /* ignore */ }
+    if (!token) {
+      // No QR on the client APK: pair this phone to the driver's own van
+      // silently (same endpoint the Sync pill uses), then carry on.
+      try {
+        const res = await fetch("/api/devices/self-register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+        const d = await res.json().catch(() => null);
+        if (res.ok && d?.token) {
+          setDeviceToken(d.token);
+          if (d.vanId) {
+            try { setVanId(d.vanId); } catch { /* ignore */ }
+          }
+          token = true;
+        }
+      } catch { /* offline / server error: fall back to manual pairing */ }
+    }
     if (!token) {
       setSync("pair");
     } else {

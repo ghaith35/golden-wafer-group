@@ -1,6 +1,7 @@
 package com.distribuili.van;
 
 import android.os.Bundle;
+import android.webkit.CookieManager;
 import com.getcapacitor.BridgeActivity;
 
 // Permanent offline guard: DO NOT add a custom WebViewClient here.
@@ -21,5 +22,21 @@ public class MainActivity extends BridgeActivity {
         // get the native bridge injection — re-graft it after each page load
         // so print/share/filesystem work there too. Local pages self-skip.
         RemoteBridgePatch.attach(getBridge());
+    }
+
+    // Session never dies: the 365-day login cookies are set by the page, not
+    // through Capacitor's cookie plugin, so nothing forces them to disk. Flush
+    // whenever the app leaves the foreground — a swipe-kill right after login
+    // can no longer lose the session.
+    @Override
+    public void onPause() {
+        super.onPause();
+        try { CookieManager.getInstance().flush(); } catch (Exception ignored) {}
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        try { CookieManager.getInstance().flush(); } catch (Exception ignored) {}
     }
 }
