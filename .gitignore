@@ -46,3 +46,5 @@ trial-feed/
 !build/stop-distribuili-server.ps1
 !build/icon.icns
 !build/icon.ico
+desktop-thin/dist/
+desktop-thin/node_modules/

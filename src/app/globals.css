@@ -446,6 +446,8 @@ img, video, canvas, svg { max-width: 100%; }
 /* Big monitors: keep content readable instead of stretching edge to edge. */
 @media (min-width: 2200px) {
   main { max-width: 2000px; margin-inline: auto; }
+  /* Full-bleed split screens (onboarding) opt out of the readability cap. */
+  main.gw-bleed { max-width: none; margin-inline: 0; }
 }
 
 /* Tablet top bar (sidebar open, ~530px of room): language switcher shows AR/FR/EN. */
@@ -617,3 +619,15 @@ main .grid > *:nth-child(n+7), .table-shell tbody tr:nth-child(n+7) { animation-
   [data-shell-content] { padding: 0 !important; }
   main { max-width: none !important; margin: 0 !important; }
 }
+
+/* ── Big-desktop scaling for centered auth/onboarding content ─────────────────
+   Content blocks (not the full-height panels) scale up on large screens so the
+   page keeps its proportions instead of floating small between empty margins.
+   Chromium / Safari / Firefox 126+ support `zoom`. */
+.gw-zoom { zoom: 1; }
+@media (min-width: 1800px) { .gw-zoom { zoom: 1.2; } }
+@media (min-width: 2300px) { .gw-zoom { zoom: 1.5; } }
+@media (min-width: 3000px) { .gw-zoom { zoom: 2; } }
+@media (min-width: 3800px) { .gw-zoom { zoom: 2.6; } }
+.gw-rise { animation: gw-rise 0.6s var(--ease-out) backwards; animation-delay: 0.08s; }
+@media (prefers-reduced-motion: reduce) { .gw-rise { animation: none; } }

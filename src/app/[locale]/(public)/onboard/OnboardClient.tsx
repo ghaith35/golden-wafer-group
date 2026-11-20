@@ -119,13 +119,17 @@ export function OnboardClient({
   return (
     <main
       dir={isArabic ? "rtl" : "ltr"}
-      className="min-h-dvh bg-[#fbf8f1] text-[#1c1200] selection:bg-[#e8ba4c] selection:text-[#1c1200]"
+      className="gw-bleed min-h-dvh bg-[#fbf8f1] text-[#1c1200] selection:bg-[#e8ba4c] selection:text-[#1c1200]"
     >
-      <div className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] 2xl:mx-auto 2xl:max-w-[1600px]">
+      <div className="grid min-h-dvh lg:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)]">
         {/* ── Brand panel ── */}
         <section className="relative flex flex-col justify-between gap-8 overflow-hidden bg-[#0b0b0c] px-6 py-6 text-white sm:px-10 sm:py-8 lg:min-h-dvh lg:gap-10 lg:px-10 lg:py-10 xl:px-14 2xl:px-16 2xl:py-12">
           <div className="pointer-events-none absolute inset-0 opacity-[0.11]" aria-hidden="true" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.14) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.14) 1px, transparent 1px)", backgroundSize: "42px 42px", maskImage: "linear-gradient(to bottom, black, transparent 78%)" }} />
-          <div className="relative z-10 flex items-center justify-between gap-4">
+          {/* gold glow + faint wafer lattice: depth for the big-screen canvas */}
+          <div className="pointer-events-none absolute -start-[18%] -top-[12%] h-[70%] w-[70%] rounded-full opacity-60 blur-3xl" aria-hidden="true" style={{ background: "radial-gradient(closest-side, rgba(232,186,76,.34), transparent 72%)" }} />
+          <div className="pointer-events-none absolute -bottom-[22%] -end-[14%] h-[60%] w-[60%] rounded-full opacity-50 blur-3xl" aria-hidden="true" style={{ background: "radial-gradient(closest-side, rgba(201,149,26,.30), transparent 70%)" }} />
+          <div className="pointer-events-none absolute inset-0 hidden opacity-[0.07] lg:block" aria-hidden="true" style={{ backgroundImage: "repeating-linear-gradient(45deg, #e8ba4c 0 1px, transparent 1px 34px), repeating-linear-gradient(-45deg, #e8ba4c 0 1px, transparent 1px 34px)", maskImage: "radial-gradient(ellipse at 30% 40%, black 0%, transparent 70%)" }} />
+          <div className="gw-zoom relative z-10 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/icons/logo-192.png" alt="" className="h-10 w-10 rounded-xl sm:h-12 sm:w-12" />
@@ -136,7 +140,7 @@ export function OnboardClient({
             </div>
           </div>
 
-          <div className="relative z-10 w-full max-w-md py-2 sm:py-4 lg:max-w-lg lg:py-6 2xl:max-w-xl">
+          <div className="gw-zoom gw-rise relative z-10 w-full max-w-md py-2 sm:py-4 lg:max-w-lg lg:py-6 2xl:max-w-xl">
             <h1 className="max-w-[13ch] text-4xl font-black leading-[1.18] text-white text-balance sm:text-5xl lg:text-[2.6rem] lg:leading-[1.2] 2xl:text-6xl 2xl:leading-[1.14]">
               {labels.heroTitle}
             </h1>
@@ -147,8 +151,8 @@ export function OnboardClient({
             {/* Secondary on desktop, tucked away on small screens where the form is the task */}
             <div className="mt-8 hidden border-t border-white/15 lg:mt-10 lg:block">
               {features.map(({ icon: Icon, title, detail }) => (
-                <div key={title} className="flex items-center gap-4 border-b border-white/15 py-4 2xl:py-5">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#e8ba4c] text-[#0b0b0c] 2xl:h-11 2xl:w-11">
+                <div key={title} className="group flex items-center gap-4 border-b border-white/15 py-4 transition-colors duration-300 hover:bg-white/[0.03] 2xl:py-5">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#e8ba4c] text-[#0b0b0c] transition-transform duration-300 group-hover:scale-110 2xl:h-11 2xl:w-11">
                     <Icon size={20} strokeWidth={1.8} aria-hidden="true" />
                   </span>
                   <div>
@@ -160,7 +164,7 @@ export function OnboardClient({
             </div>
           </div>
 
-          <div className="relative z-10 hidden items-center justify-between gap-4 border-t border-white/15 pt-5 text-xs text-[#d9c58f] lg:flex">
+          <div className="gw-zoom relative z-10 hidden items-center justify-between gap-4 border-t border-white/15 pt-5 text-xs text-[#d9c58f] lg:flex">
             <span className="flex items-center gap-2">
               {offlineInstall ? <WifiOff size={15} aria-hidden="true" /> : <Boxes size={15} aria-hidden="true" />}
               {offlineInstall ? labels.offlineNote : labels.startNote}
@@ -170,8 +174,9 @@ export function OnboardClient({
         </section>
 
         {/* ── Form panel ── */}
-        <section className="flex items-center justify-center px-5 py-8 sm:px-8 sm:py-10 lg:min-h-dvh lg:px-10 lg:py-12 xl:px-14 2xl:px-16">
-          <div className="w-full max-w-[440px] xl:max-w-[480px] 2xl:max-w-[520px]">
+        <section className="relative flex items-center justify-center overflow-hidden px-5 py-8 sm:px-8 sm:py-10 lg:min-h-dvh lg:px-10 lg:py-12 xl:px-14 2xl:px-16">
+          <div className="pointer-events-none absolute -end-[20%] -top-[18%] h-[60%] w-[60%] rounded-full opacity-70 blur-3xl" aria-hidden="true" style={{ background: "radial-gradient(closest-side, rgba(232,186,76,.22), transparent 70%)" }} />
+          <div className="gw-zoom gw-rise relative w-full max-w-[440px] xl:max-w-[480px] 2xl:max-w-[520px]">
             <div className="mb-8 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 2xl:mb-10">
               <div className="flex items-center gap-3" aria-label={labels.progressLabel}>
                 {offlineInstall ? (
