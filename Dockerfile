@@ -22,7 +22,7 @@ RUN npm run db:generate \
 # Stage the runtime-only deps that standalone tracing misses (the pg tree,
 # dynamically required through @prisma/adapter-pg: xtend etc. never traced).
 # Staged separately so the runner stays slim (~0.5GB, like zz-sanitaire).
-RUN mkdir -p /tmp/nm_extra && for p in pg pg-connection-string pg-int8 pg-pool pg-protocol pg-types pgpass postgres-array postgres-bytea postgres-date postgres-interval xtend; do cp -r ./node_modules/$p /tmp/nm_extra/ 2>/dev/null || true; done && ls /tmp/nm_extra
+RUN mkdir -p /tmp/nm_extra/@prisma && for p in pg pg-connection-string pg-int8 pg-pool pg-protocol pg-types pgpass postgres-array postgres-bytea postgres-date postgres-interval xtend; do cp -r ./node_modules/$p /tmp/nm_extra/ 2>/dev/null || true; done && for p in client adapter-pg adapter-libsql; do cp -r ./node_modules/@prisma/$p /tmp/nm_extra/@prisma/ 2>/dev/null || true; done && cp -r ./node_modules/.prisma /tmp/nm_extra/ 2>/dev/null || true && ls /tmp/nm_extra /tmp/nm_extra/@prisma
 
 # ── migrator: tiny image that only applies Prisma migrations ──────────────────
 # Pushed by CI next to the app image; the server runs it before each restart.
