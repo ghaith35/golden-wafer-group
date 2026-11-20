@@ -3,7 +3,7 @@
 const { app, BrowserWindow, shell, Menu } = require("electron");
 const path = require("path");
 
-const SITE_URL = process.env.GW_SITE_URL || "https://golden-wafer-group.khiatadz.com/ar/login";
+const SITE_URL = process.env.GW_SITE_URL || "https://golden-wafer-group.khiatadz.com/ar/dashboard";
 const ORIGIN = new URL(SITE_URL).origin;
 
 // One window only: opening the app twice focuses the existing one.

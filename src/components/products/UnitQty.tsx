@@ -260,6 +260,11 @@ export function packBreakdown(
       rest = Math.round((rest - count * pack.factor) * 1000) / 1000;
     }
   }
+  // Empty stock with colisage: show in sale colis ("0 CARTON"), not base pieces.
+  if (parts.length === 0 && !(rest > 0) && packs.length > 0) {
+    const l1 = packs[packs.length - 1];
+    return `0 ${unitName(l1.unitId)}`;
+  }
   if (rest > 0 || parts.length === 0) {
     parts.push(`${rest.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${baseName}`);
   }
