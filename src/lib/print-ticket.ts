@@ -68,7 +68,7 @@ export function ticketPrintHtml(
   const logo = opts?.origin ? logoSrc(company.logoUrl ?? null, opts.origin) : null;
   const rows = (t.lines ?? [])
     .map(
-      (l) => `<tr><td class="n">${esc(l.name ?? "")}</td>` +
+      (l) => `<tr><td class="n">${esc(l.name ?? "")}${l.bonus ? `<br><span class="m b">&#9733; ${lang === "fr" ? "Gratuit" : "مجاني"}</span>` : ""}</td>` +
         `<td class="r">${esc(num(l.qty))}</td>` +
         `<td class="r">${esc(num(l.unitPrice))}</td>` +
         `<td class="r b">${esc(num(l.lineTotal))}</td></tr>`

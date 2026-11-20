@@ -1,4 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
+import { FREE_LABEL } from "@/lib/threepack/labels";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import QRCode from "qrcode";
@@ -114,6 +115,7 @@ export default async function OrderSheetPage({
       pPiece, pPack: packF ? pPiece * packF : null, amount: Number(l.lineTotal),
       haveText: have === undefined ? null : packF ? `${dz(Math.round((have / packF) * 100) / 100)} ${pack!.unit.name}` : `${dz(have)} ${p.baseUnit?.name ?? ""}`,
       short: have !== undefined && have + 1e-9 < base,
+      bonus: l.isBonus,
     };
   });
   const totalPacks = rows.reduce((s, r) => s + (r.packQty ?? 0), 0);
@@ -224,7 +226,7 @@ export default async function OrderSheetPage({
             </thead>
             <tbody>
               {rows.map((r, i) => (
-                <tr key={r.n} className="bl-row" style={{ background: i % 2 ? "#fbf7ea" : "#fff", borderBottom: "1px solid #eee3c3" }}>
+                <tr key={r.n} className="bl-row" style={{ background: r.bonus ? "#eef8f0" : i % 2 ? "#fbf7ea" : "#fff", borderBottom: "1px solid #eee3c3" }}>
                   <td className="px-1 py-2 text-center font-bold text-neutral-500">{r.n}</td>
                   <td className="px-1 py-1.5 text-center">
                     {r.img ? (
@@ -235,7 +237,10 @@ export default async function OrderSheetPage({
                     )}
                   </td>
                   <td className="px-2 py-1.5">
-                    <div className="text-[11px] font-black leading-tight">{r.name}</div>
+                    <div className="text-[11px] font-black leading-tight">
+                      {r.name}
+                      {r.bonus && <span className="ms-1.5 rounded-full px-1.5 py-px text-[8px] font-black uppercase" style={{ background: "#047857", color: "#fff" }}>★ {FREE_LABEL[lang]}</span>}
+                    </div>
                     <div className="mt-0.5 flex flex-wrap gap-x-2 text-[8.5px] text-neutral-500">
                       {r.ref && <span className="font-mono" dir="ltr">{T.ref} {r.ref}</span>}
                       {r.packLabel && <span style={{ color: "#8f6710" }}>{r.packLabel}</span>}

@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Golden Wafer Group registry auto-deploy every 2 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+Unit=golden-wafer-registry.service
+
+[Install]
+WantedBy=timers.target

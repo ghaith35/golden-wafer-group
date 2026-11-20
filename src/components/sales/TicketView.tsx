@@ -12,6 +12,8 @@ export type TicketLineVM = {
   baseQty?: number | string | null;
   unitPrice: number | string;
   lineTotal: number | string;
+  /// 3pack free-colis line: shown at 0 with a "free" tag, qty kept.
+  bonus?: boolean;
 };
 
 export type TicketVM = {
@@ -174,7 +176,10 @@ export function TicketView({
             const rowBorder = lastRow ? "" : "border-b border-dotted border-black/10";
             return (
               <Fragment key={i}>
-                <span className={`min-w-0 break-words px-1 py-1 text-start font-bold ${rowBorder}`}>{l.name}</span>
+                <span className={`min-w-0 break-words px-1 py-1 text-start font-bold ${rowBorder}`}>
+                  {l.name}
+                  {l.bonus && <span className="block text-[9px] font-black uppercase">★ {lang === "fr" ? "Gratuit" : "مجاني"}</span>}
+                </span>
               <span className={`whitespace-nowrap border-s border-dotted border-black/10 px-1 py-1 text-center ${rowBorder}`} dir="ltr">{f > 1 && perPiece > 0 ? money(perPiece) : "—"}</span>
               <span className={`whitespace-nowrap border-s border-dotted border-black/10 px-1 py-1 text-center ${rowBorder}`} dir="ltr">{dz(num(l.qty))}{f > 1 ? ` × [${f % 1 === 0 ? f : f.toFixed(2)}]` : ""}</span>
               <span className={`whitespace-nowrap border-s border-dotted border-black/10 px-1 py-1 text-center ${rowBorder}`} dir="ltr">{money(num(l.unitPrice))}</span>

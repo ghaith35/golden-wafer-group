@@ -7,7 +7,7 @@ import { isLocalMode, localEntitledCached, isDesktopUserAgent } from "@/lib/lice
 
 const handleI18nRouting = createMiddleware(routing);
 
-const PROTECTED_PREFIXES = ["/dashboard", "/clients", "/suppliers", "/inventory", "/products", "/sales", "/purchases", "/expenses", "/reports", "/settings",   "/pos", "/tournees", "/vans", "/carte", "/cash", "/cash-daily", "/journal", "/users", "/devices", "/license", "/livreur", "/dettes", "/presence", "/suivi", "/commandes"];
+const PROTECTED_PREFIXES = ["/dashboard", "/clients", "/suppliers", "/inventory", "/products", "/sales", "/purchases", "/expenses", "/reports", "/settings",   "/pos", "/tournees", "/vans", "/carte", "/cash", "/cash-daily", "/journal", "/users", "/devices", "/license", "/livreur", "/dettes", "/presence", "/suivi", "/commandes", "/threepack"];
 const PORTAL_PREFIXES = ["/portal"];
 
 /// Permanent role-based access control (server-enforced, PWA/offline-safe).
@@ -24,7 +24,7 @@ const LIVREUR_PAGES = ["/livreur"];
 const STAFF_BLOCKED_PAGES = [
   "/suppliers", "/pos", "/purchases", "/products", "/inventory", "/vans",
   "/dettes", "/cash", "/cash-daily", "/expenses", "/reports", "/settings",
-  "/license", "/devices", "/users", "/journal",
+  "/license", "/devices", "/users", "/journal", "/threepack",
 ];
 
 /// Admin-only API areas (any authenticated staff gets 403).
@@ -53,6 +53,9 @@ const ADMIN_APIS: Array<{ p: string; m: string[] | null }> = [
   { p: "/api/debts", m: null },
   { p: "/api/versements", m: null },
   { p: "/api/users", m: null },
+  // 3pack: staff only READ the active rules (/api/threepack/active); managing them is admin.
+  { p: "/api/threepack/rules", m: null },
+  { p: "/api/threepack/given", m: null },
   { p: "/api/vans", m: ["POST", "PUT", "PATCH", "DELETE"] },
   { p: "/api/locations", m: ["POST", "PUT", "PATCH", "DELETE"] },
 ];

@@ -1,0 +1,11 @@
+[Unit]
+Description=Golden Wafer Group polling registry auto-deploy (pull -> migrate -> restart)
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=ghaith
+WorkingDirectory=/home/ghaith/apps/golden-wafer-group
+ExecStart=/home/ghaith/apps/golden-wafer-group/scripts/registry-deploy.sh

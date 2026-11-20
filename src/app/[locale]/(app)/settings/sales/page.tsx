@@ -13,6 +13,7 @@ const HINTS: Record<string, string> = {
   qrStrictMode: "qrHint",
   gpsEnabled: "gpsHint",
   supplierFilterEnabled: "supplierFilterHint",
+  threePackEnabled: "threePackHint",
 } as const;
 
 /// Client-visible toggles only. The business-model toggles (expiry, credit
@@ -24,6 +25,7 @@ const BOOL_TOGGLES = [
   "qrStrictMode",
   "gpsEnabled",
   "supplierFilterEnabled",
+  "threePackEnabled",
 ] as const;
 
 export default function SalesSettingsPage() {

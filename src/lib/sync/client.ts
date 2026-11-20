@@ -9,6 +9,7 @@ import { parseClientScan } from "@/lib/clients/qr";
 
 import { db, type OutboxRow } from "./offline-db";
 import { sortOutbox } from "./offline-rules";
+import type { ThreePackRuleLite } from "@/lib/threepack/match";
 
 const SNAP_KEY = "dili_snapshot_v1";
 const SKEW_KEY = "dili_clock_skew_v1";
@@ -127,7 +128,10 @@ export type VanSnapshot = {
     transferConfirmRequired: boolean;
     pieceSalesEnabled: boolean;
     debtTrackingEnabled?: boolean;
+    threePackEnabled?: boolean;
   };
+  /// 3pack free-colis rules (active only), applied offline by the phone.
+  threePack?: { enabled: boolean; rules: ThreePackRuleLite[] };
   products: SnapshotProduct[];
   units: Array<{ id: string; name: string }>;
   tiers: Array<{ id: string; name: string }>;
@@ -538,6 +542,8 @@ export type PendingDocLine = {
   qty: number;
   unitPrice: number;
   lineTotal: number;
+  /// 3pack gift line queued offline.
+  bonus?: boolean;
 };
 export type PendingDoc = {
   opId: string;
@@ -598,7 +604,7 @@ export async function getPendingDocs(): Promise<PendingDoc[]> {
         const up = Number(l.unitPrice ?? 0);
         const q = Number.isFinite(qty) ? qty : 0;
         const u = Number.isFinite(up) ? up : 0;
-        return { productId: pid, name: prodName.get(pid) ?? "…", qty: q, unitPrice: u, lineTotal: Math.round(q * u * 100) / 100 };
+        return { productId: pid, name: prodName.get(pid) ?? "…", qty: q, unitPrice: u, lineTotal: Math.round(q * u * 100) / 100, ...(l.bonusRuleId ? { bonus: true } : {}) };
       });
       const cid = typeof p.clientId === "string" && p.clientId ? p.clientId : null;
       let cname: string | null = null;
@@ -648,6 +654,7 @@ const SALE_ERR_KEYS: Record<string, string> = {
   remise_disabled: "errRemise",
   qr_required: "errQr",
   insufficient_stock: "errStock",
+  bonus_not_earned: "errBonus",
   cash_only: "errCashOnly",
   debt_disabled: "errDebtOff",
   client_required: "errClientReq",

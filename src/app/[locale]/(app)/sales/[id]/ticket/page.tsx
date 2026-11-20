@@ -67,6 +67,7 @@ export default async function TicketPrintPage({ params }: { params: Promise<{ lo
             baseQty: Number(l.baseQty),
             unitPrice: Number(l.unitPrice),
             lineTotal: Number(l.lineTotal),
+            bonus: l.isBonus,
           })),
         }}
         company={{

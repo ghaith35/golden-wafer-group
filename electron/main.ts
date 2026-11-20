@@ -288,7 +288,12 @@ function getStableMachineId(): string {
   } catch { return "unknown-machine"; }
 }
 
+/// Desktop activation was removed: always entitled (set true to enforce licenses again;
+/// keep in sync with LICENSE_ENFORCED in src/lib/license/gate.ts).
+const LICENSE_ENFORCED = false;
+
 function entitled(): boolean {
+  if (!LICENSE_ENFORCED) return true;
   if (readLockFlag()) return false;
   if (isRevoked()) return false;
   const e = license.getEntitlement(userDataDir, machineId);
@@ -334,6 +339,7 @@ function clearLockFlag(): void {
 /// to /activate. Survives offline AND file replanting — only a fresh server
 /// token (unrevoke) resurrects the install.
 function enforceLock(log: (m: string) => void): void {
+  if (!LICENSE_ENFORCED) return; // activation removed: a server revoke never locks the install
   writeLockFlag();
   license.wipeAllTokens(userDataDir);
   log("[license] REVOKED by server — install locked");
@@ -1427,6 +1433,7 @@ app.whenReady().then(async () => {
     setTimeout(() => offerAlwaysOn(log), 4000);
     // Live activation pickup + revocation enforcement (fail-open, online only).
     setInterval(async () => {
+      if (!LICENSE_ENFORCED) return; // activation removed: nothing to pick up or revoke
       try {
         const res = await license.pullActivation(licenseServerUrl(), machineId);
         if (res.revoked) {

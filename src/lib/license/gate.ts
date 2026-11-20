@@ -52,11 +52,16 @@ function readTrim(p: string): string | null {
   }
 }
 
+/// Desktop activation was REMOVED: every install is entitled — no key, trial or
+/// lock. The license machinery below stays in the repo (flip this to true to
+/// enforce it again); the Electron shell has the same switch in electron/main.ts.
+export const LICENSE_ENFORCED = false;
+
 export type LocalEntitlement = { entitled: boolean; reason: "no-key" | "ok" | "expired" | "locked" | "bypass" };
 
 /// Fresh evaluation from disk. Sticky lock file wins over everything.
 export function localEntitlement(): LocalEntitlement {
-  if (!isLocalMode()) return { entitled: true, reason: "bypass" };
+  if (!LICENSE_ENFORCED || !isLocalMode()) return { entitled: true, reason: "bypass" };
   const dir = process.env.DISTRIBUILI_USERDATA;
   const machineId = process.env.DISTRIBUILI_MACHINE_ID;
   // Not an Electron install → never gated (central/vendor/dev servers).

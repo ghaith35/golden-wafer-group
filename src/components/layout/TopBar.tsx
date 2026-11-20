@@ -129,6 +129,9 @@ export function TopBar({
       )}
 
       <SectionTitle />
+      {/* Pages with no section title would leave the controls at the START (right in Arabic):
+          this spacer always pushes them to the END (left in Arabic). */}
+      <span aria-hidden className="ms-auto" />
 
       <ApkOnly><SyncBadge labels={syncLabels} forceShow={forceSyncShow} /></ApkOnly>
 

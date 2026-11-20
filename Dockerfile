@@ -20,6 +20,22 @@ ENV SHADOW_DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/pla
 RUN npm run db:generate \
  && npm run build
 
+# ── migrator: tiny image that only applies Prisma migrations ──────────────────
+# Pushed by CI next to the app image; the server runs it before each restart.
+FROM node:24-slim AS migrator
+WORKDIR /app
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends openssl ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
+COPY prisma.config.ts ./
+# Config requires SHADOW_DATABASE_URL at load; only `migrate dev` uses it.
+ENV SHADOW_DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
+RUN npm ci \
+ && npm cache clean --force
+CMD ["sh", "-c", "npx prisma migrate deploy"]
+
 # ── runner: minimal production image ──────────────────────────────────────────
 FROM node:24-slim AS runner
 WORKDIR /app

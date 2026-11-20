@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ArrowDownUp, ArrowLeft, ClipboardList, Minus, Plus, QrCode, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -11,6 +12,7 @@ import { normFactor, saleUnits } from "@/components/products/UnitQty";
 import { queueOp, getVanSnapshot, getLastSync, getPendingClients, findScannedClient, serverUnreachable, goPage, saleErrText, queueErrText, type VanSnapshot } from "@/lib/sync/client";
 import { beepAdd, beepConfirm } from "@/lib/beep";
 import { cn } from "@/lib/utils";
+import { GiftLineRow, giftBodyLines, giftProductsFrom, useGifts, useThreePackRules } from "@/components/threepack/useThreePack";
 
 import { ErrText } from "@/components/ui/ErrText";
 type Client = { id: string; name: string; code: string; phone: string | null; tierId: string | null; balance: unknown };
@@ -110,6 +112,13 @@ export function CommandeClient({
   })() : null;
   const effProducts = products.length > 0 ? products : (snapProds ?? []);
   const effCategories = categories.length > 0 ? categories : (snap?.categories ?? []);
+
+  // 3pack: free colis appear on their own in the recap (read-only, price 0).
+  // Rules: live from the server when reachable, else the synced snapshot.
+  const t3 = useTranslations("threepack");
+  const tpRules = useThreePackRules(snap, true);
+  const giftProducts = useMemo(() => giftProductsFrom(products, snap?.products), [products, snap]);
+  const gifts = useGifts(tpRules, giftProducts, lines);
   const snapDepot = (() => {
     if (!snap?.depotStock) return null;
     const m: Record<string, number> = {};
@@ -259,7 +268,7 @@ export function CommandeClient({
       paid: 0,
       notes: notes.trim() || null,
       // No unitPrice: the server prices from the client tier at confirm.
-      lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty })),
+      lines: [...lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty })), ...giftBodyLines(gifts)],
     };
     try {
       const res = await fetch("/api/sales/orders", {
@@ -430,6 +439,15 @@ export function CommandeClient({
                 </div>
               );
             })}
+            {gifts.map((g) => (
+              <GiftLineRow
+                key={`${g.ruleId}:${g.productId}`}
+                gift={g}
+                product={giftProducts.find((x) => x.id === g.productId)}
+                freeLabel={t3("free")}
+                money="0"
+              />
+            ))}
             {lines.length === 0 && <p className="text-center text-sm opacity-60">{labels.empty}</p>}
           </div>
           <div>

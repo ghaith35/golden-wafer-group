@@ -35,6 +35,8 @@ export function Modal({
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !locked) {
+        // A nested popup (product picker) closes itself first.
+        if (document.querySelector("[data-nested-popup]")) return;
         e.stopPropagation();
         onClose();
       }

@@ -18,6 +18,7 @@ export async function GET() {
   ]);
   return NextResponse.json({
     gpsEnabled: s.gpsEnabled ?? true,
+    threePackEnabled: s.threePackEnabled ?? false,
     qrStrictMode: s.qrStrictMode ?? false,
     ticketWidth: s.ticketWidth ?? "80",
     ticketLang: s.ticketLang === "ar" ? "ar" : "fr",

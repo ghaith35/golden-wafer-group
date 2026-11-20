@@ -71,6 +71,7 @@ model Company {
   stockCounts      StockCount[]
   stockLosses      StockLoss[]
   sales            Sale[]
+  threePackRules   ThreePackRule[]
   clientReturns    ClientReturn[]
   tournees         Tournee[]
   expenses         Expense[]
@@ -115,6 +116,8 @@ model CompanySettings {
   ticketLang              String         @default("fr")
   /// Purchase picker: only the chosen supplier's products (default ON).
   supplierFilterEnabled   Boolean        @default(true)
+  /// 3pack: free-colis bonus rules (buy X get Y free). Admin-editable.
+  threePackEnabled        Boolean        @default(false)
   /// Expected départ time for vans ("HH:MM", null = no late flag).
   workStartAt             String?
   /// A journée longer than this (hours) flags overtime on presence.
@@ -606,6 +609,7 @@ model Product {
   countLines        StockCountLine[]
   lossLines         StockLoss[]
   saleLines         SaleLine[]
+  threePackItems    ThreePackItem[]
   clientReturnLines ClientReturnLine[]
 
   @@index([companyId, name])
@@ -755,6 +759,9 @@ model SaleLine {
   lineTotal Decimal @db.Decimal(14, 2)
   /// Snapshot COGS at delivery (for margin reports).
   unitCost  Decimal @default(0) @db.Decimal(14, 2)
+  /// 3pack gift line (price 0, stock still deducted).
+  isBonus     Boolean @default(false)
+  bonusRuleId String?
 
   @@index([saleId])
   @@map("sale_lines")
@@ -1338,4 +1345,51 @@ model ClientDistance {
   @@unique([companyId, userId, clientId])
   @@index([companyId, userId])
   @@map("client_distances")
+}
+
+
+// ─── 3pack: free-colis bonus rules ───────────────────────────────────────────
+enum ThreePackMode {
+  SINGLE
+  PACK
+}
+
+enum ThreePackRole {
+  BUY
+  GIVE
+}
+
+/// SINGLE: buy X colis of P → Y colis of P free.
+/// PACK: buy A×a + B×b (+ …) → fixed free colis. Every multiple counts.
+/// Rules are deactivated, never hard-deleted (offline sales reference them).
+model ThreePackRule {
+  id        String          @id @default(cuid())
+  companyId String
+  company   Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name      String
+  mode      ThreePackMode
+  isActive  Boolean         @default(true)
+  /// Editing a rule's products/quantities archives it and creates a new rule,
+  /// so an offline sale always validates against the exact rule the phone had.
+  isArchived Boolean        @default(false)
+  createdAt DateTime        @default(now())
+  items     ThreePackItem[]
+
+  @@index([companyId])
+  @@map("three_pack_rules")
+}
+
+model ThreePackItem {
+  id        String        @id @default(cuid())
+  ruleId    String
+  rule      ThreePackRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  role      ThreePackRole
+  productId String
+  product   Product       @relation(fields: [productId], references: [id], onDelete: Restrict)
+  /// Quantity in colis.
+  colis     Decimal       @db.Decimal(14, 3)
+
+  @@index([ruleId])
+  @@index([productId])
+  @@map("three_pack_items")
 }

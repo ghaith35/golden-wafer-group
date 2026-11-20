@@ -69,7 +69,7 @@ describe("declareTransfer guards (offline transfer-declare op)", () => {
   it("whole packs pass the pack-only rule and reach the transaction", async () => {
     (getOrCreateSettings as any).mockResolvedValue({ vanBindingMode: "LOCKED", multiDepotEnabled: true, pieceSalesEnabled: false, expiryEnabled: false, transferConfirmRequired: true });
     (prisma.store.findMany as any).mockResolvedValue([{ id: "d1", kind: "DEPOT" }, { id: "v1", kind: "VAN" }]);
-    (prisma.user.findFirst as any).mockResolvedValue({ id: "u1", role: "Admin", assignedVans: [] });
+    (prisma.user.findFirst as any).mockResolvedValue({ id: "u1", role: "Livreur", assignedVans: [{ id: "v1" }] });
     (prisma.product.findMany as any).mockResolvedValue([{ id: "p1" }]);
     (prisma.productUnitConversion.findMany as any).mockResolvedValue([{ productId: "p1", factor: 12 }]);
     (prisma.$transaction as any).mockImplementation(async (cb: any) =>
@@ -84,6 +84,40 @@ describe("declareTransfer guards (offline transfer-declare op)", () => {
     (consumeStock as any).mockResolvedValue([{ batchId: "b", qty: 24, unitCost: 10 }]);
     const t = await declareTransfer("co", "u1", { fromLocationId: "d1", toLocationId: "v1", lines: [{ productId: "p1", qty: 24 }] } as any);
     expect(t).toBeDefined();
+  });
+});
+
+describe("declareTransfer: admin transfers are approved immediately", () => {
+  // deliverHolding is what "approve" runs; it starts with transferLine.findMany.
+  function setup(role: string) {
+    (getOrCreateSettings as any).mockResolvedValue({ vanBindingMode: "LOCKED", multiDepotEnabled: true, pieceSalesEnabled: true, expiryEnabled: false, transferConfirmRequired: true });
+    (prisma.store.findMany as any).mockResolvedValue([{ id: "d1", kind: "DEPOT" }, { id: "v1", kind: "VAN" }]);
+    (prisma.user.findFirst as any).mockResolvedValue({ id: "u1", role, assignedVans: [{ id: "v1" }] });
+    (prisma.product.findMany as any).mockResolvedValue([{ id: "p1" }]);
+    (prisma.productUnitConversion.findMany as any).mockResolvedValue([]);
+    const delivered = vi.fn(async () => { throw new Error("approved-now"); });
+    (prisma.$transaction as any).mockImplementation(async (cb: any) =>
+      cb({
+        transfer: { create: async () => ({ id: "t1" }), findUniqueOrThrow: async () => ({ id: "t1" }) },
+        transferLine: { create: async () => ({ id: "l1" }), findMany: delivered },
+        stockBatch: { findMany: async () => [] },
+        product: { update: async () => ({}) },
+      })
+    );
+    return delivered;
+  }
+  const input = { fromLocationId: "d1", toLocationId: "v1", lines: [{ productId: "p1", qty: 3 }] } as any;
+
+  it("Admin: delivered straight to the van even though confirmation is required company-wide", async () => {
+    const delivered = setup("Admin");
+    await expect(declareTransfer("co", "u1", input)).rejects.toThrow("approved-now");
+    expect(delivered).toHaveBeenCalled();
+  });
+
+  it("Livreur: still waits for confirmation (not delivered)", async () => {
+    const delivered = setup("Livreur");
+    await expect(declareTransfer("co", "u1", input)).resolves.toBeDefined();
+    expect(delivered).not.toHaveBeenCalled();
   });
 });
 

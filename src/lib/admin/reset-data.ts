@@ -157,6 +157,8 @@ export async function resetScope(companyId: string, scope: ResetScope): Promise<
       if (f.tournees) await tx.tournee.deleteMany({ where: { ...co, ...atVans("locationId") } });
 
       if (f.products) {
+        // 3pack rules reference products (Restrict): they go first (items cascade).
+        await tx.threePackRule.deleteMany({ where: co });
         await tx.product.deleteMany({ where: co });
         await tx.productCategory.deleteMany({ where: co });
       }

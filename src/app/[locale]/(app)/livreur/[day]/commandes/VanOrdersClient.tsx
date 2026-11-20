@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ArrowLeft, ClipboardList, Printer, RotateCcw, Share2, Truck, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -33,6 +34,8 @@ type Detail = {
   location: { id: string; name: string } | null;
   lines: Array<{
     id: string; qty: unknown; baseQty: unknown; unitPrice: unknown; lineTotal: unknown;
+    /// 3pack gift line.
+    isBonus?: boolean;
     product: {
       name: string;
       images?: Array<{ url: string }>;
@@ -67,6 +70,7 @@ export function VanOrdersClient({
   ticketLang: "ar" | "fr";
 }) {
   const router = useRouter();
+  const t3 = useTranslations("threepack");
   const [rows, setRows] = useSyncedState(initial);
   const [doneRows, setDoneRows] = useSyncedState(initialDone);
   const [reopenArmed, setReopenArmed] = useState<string | null>(null);
@@ -129,6 +133,7 @@ export function VanOrdersClient({
             baseQty: null,
             unitPrice: 0,
             lineTotal: 0,
+            isBonus: !!l.bonus,
             product: { name: l.name },
           })),
         });
@@ -226,6 +231,7 @@ export function VanOrdersClient({
         baseQty: (l as { baseQty?: unknown }).baseQty as number | string | null,
         unitPrice: (l as { unitPrice?: unknown }).unitPrice as number | string,
         lineTotal: (l as { lineTotal?: unknown }).lineTotal as number | string,
+        bonus: !!l.isBonus,
       })),
     };
   }
@@ -664,7 +670,10 @@ export function VanOrdersClient({
                       ) : (
                         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--bg-overlay) text-sm">📦</span>
                       )}
-                      <span className="min-w-0 break-words">{l.product?.name ?? ""}</span>
+                      <span className="min-w-0 break-words">
+                        {l.product?.name ?? ""}
+                        {l.isBonus && <span className="ms-1 block text-[9px] font-black uppercase text-emerald-700">★ {t3("free")}</span>}
+                      </span>
                     </span>
                     <span className="whitespace-nowrap border-b border-dotted border-black/10 border-s px-1 py-1.5 text-center" dir="ltr">{f > 1 && perPiece > 0 ? dzMoney(perPiece) : "—"}</span>
                     <span className="whitespace-nowrap border-b border-dotted border-black/10 border-s px-1 py-1.5 text-center" dir="ltr">{dz(Number(l.qty))}{f > 1 ? ` × [${f % 1 === 0 ? f : f.toFixed(2)}]` : ""}</span>

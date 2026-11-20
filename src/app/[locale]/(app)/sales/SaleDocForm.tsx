@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/Input";
 import { Minus, Package, Plus, ShoppingBasket, Trash2, UserRound, Wallet, Store, StickyNote } from "lucide-react";
 import { SaleProductPicker } from "@/components/sales/SaleProductPicker";
@@ -13,6 +14,8 @@ import { getVanSnapshot, getOutbox, type VanSnapshot } from "@/lib/sync/client";
 import { queueOp } from "@/lib/sync/client";
 import { checkOfflineSale } from "@/lib/sync/offline-rules";
 import type { OutboxRow } from "@/lib/sync/offline-db";
+import { ProductSelect, type PickerProduct } from "@/components/threepack/ProductPicker";
+import { GiftLineRow, colisMap, giftBodyLines, lineBaseQty, useGifts, useThreePackRules } from "@/components/threepack/useThreePack";
 
 import { ErrText } from "@/components/ui/ErrText";
 export type DocClient = { id: string; name: string; code: string; tierId: string | null; balance: unknown };
@@ -199,6 +202,27 @@ export function SaleDocForm({
       tierPrices: p.tierPrices,
     }));
   }, [snapshotActive, snap, products]);
+  /// Photo / search / category picker data for the line product field.
+  const pickerProducts: PickerProduct[] = useMemo(
+    () =>
+      effProducts.map((p) => {
+        const pack = p.conversions.filter((c) => Number(c.factor) > 1).sort((a, b) => Number(a.factor) - Number(b.factor))[0];
+        return {
+          id: p.id,
+          name: p.name,
+          reference: p.barcode ?? null,
+          imageUrl: p.images?.[0]?.url ?? null,
+          category: p.category ?? null,
+          colisLabel: pack ? `${pack.unit.name} × ${Number(pack.factor)}` : null,
+        };
+      }),
+    [effProducts],
+  );
+  const pickerCategories = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const p of effProducts) if (p.category) m.set(p.category.id, p.category.name);
+    return [...m.entries()].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+  }, [effProducts]);
   const effClients: DocClient[] = useMemo(() => {
     if (!snapshotActive || !snap) return clients;
     return snap.clients.map((c) => ({ id: c.id, name: c.name, code: c.code, tierId: c.tierId, balance: c.balance }));
@@ -206,6 +230,13 @@ export function SaleDocForm({
 
   const client = effClients.find((c) => c.id === clientId);
   const effTier = tierId || client?.tierId || "";
+
+  // 3pack: free colis appear automatically as read-only rows (price 0). Derived
+  // from the purchased lines on every change; the server recomputes on save.
+  const t3 = useTranslations("threepack");
+  const tpRules = useThreePackRules(snap, online);
+  const gifts = useGifts(tpRules, effProducts, lines);
+  const giftLines = useMemo(() => giftBodyLines(gifts), [gifts]);
 
   function priceFor(p: DocProduct, unitId = ""): number {
     const base = (() => {
@@ -270,11 +301,18 @@ export function SaleDocForm({
           qty: l.qty,
           unitPrice: l.unitPrice === "" ? (effProducts.find((x) => x.id === l.productId) ? priceFor(effProducts.find((x) => x.id === l.productId)!, l.unitId) : 0) : Number(l.unitPrice),
           remise: l.remise,
-        })),
+        })).concat(giftLines.map((g) => ({ ...g, unitId: g.unitId ?? null }))),
         remise: docRemise,
         paid: paidNum,
         qrScanned,
         vanId: locationId,
+        // Validate the gift against the rules it was computed from (live rules
+        // may be newer than the snapshot), converting units with this form's products.
+        bonus: {
+          rules: tpRules,
+          colis: colisMap(effProducts),
+          baseQtyOf: (l) => lineBaseQty(effProducts, l),
+        },
       });
       if (!check.ok) {
         setError(check.error);
@@ -301,7 +339,7 @@ export function SaleDocForm({
             qty: l.qty,
             unitPrice: l.unitPrice === "" ? null : Number(l.unitPrice),
             remise: l.remise,
-          })),
+          })).concat(giftLines as never[]),
         };
         const res = await fetch(`/api/sales/${editingId}`, {
           method: "POST",
@@ -332,7 +370,7 @@ export function SaleDocForm({
                 qty: l.qty,
                 unitPrice: l.unitPrice === "" ? null : Number(l.unitPrice),
                 remise: l.remise,
-              })),
+              })).concat(giftLines as never[]),
             }
           : {
               clientId: clientId || null,
@@ -350,7 +388,7 @@ export function SaleDocForm({
                 qty: l.qty,
                 unitPrice: l.unitPrice === "" ? null : Number(l.unitPrice),
                 remise: l.remise,
-              })),
+              })).concat(giftLines as never[]),
             };
       const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(
         async (netErr: unknown) => {
@@ -533,14 +571,14 @@ export function SaleDocForm({
                       {stock && <div className="mt-0.5 truncate text-[11px] font-bold text-(--gold-text)">🏭 {labels.depotStock}: <span className="tabular-nums" dir="ltr">{stock}</span></div>}
                     </>
                   ) : (
-                    <select
+                    <ProductSelect
+                      products={pickerProducts}
+                      categories={pickerCategories}
                       value={l.productId}
-                      onChange={(e) => { const np = effProducts.find((x) => x.id === e.target.value); setLine(i, { productId: e.target.value, unitId: defUnit(np) }); }}
-                      className={inputC}
-                    >
-                      <option value="">{labels.product}</option>
-                      {effProducts.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
-                    </select>
+                      onChange={(id) => { const np = effProducts.find((x) => x.id === id); setLine(i, { productId: id, unitId: defUnit(np) }); }}
+                      placeholder={labels.product}
+                      title={labels.product}
+                    />
                   )}
                 </div>
               </div>
@@ -586,6 +624,17 @@ export function SaleDocForm({
             </div>
           );
         })}
+
+        {/* 3pack: automatic free colis (price 0, deducted from stock) */}
+        {gifts.map((g) => (
+          <GiftLineRow
+            key={`${g.ruleId}:${g.productId}`}
+            gift={g}
+            product={effProducts.find((x) => x.id === g.productId)}
+            freeLabel={t3("free")}
+            money={dzMoney(0)}
+          />
+        ))}
       </section>
 
       {/* ── summary (sticky) ── */}

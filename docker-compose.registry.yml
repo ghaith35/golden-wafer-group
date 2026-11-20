@@ -1,0 +1,67 @@
+# Production-only stack on server C: prebuilt GHCR images, NO source checkout.
+# Images are pushed by .github/workflows/docker-publish.yml on every push to master;
+# scripts/registry-deploy.sh (systemd timer, every 2 min) pulls + migrates + restarts.
+#
+# Required in .env (next to this file, chmod 600, never committed):
+#   POSTGRES_PASSWORD=<openssl rand -hex 16>
+#   JWT_SECRET=<openssl rand -hex 32>
+#   LOG_LEVEL=info
+#   GW_PORT=32517            # host port the Cloudflare tunnel route points at
+#   TUNNEL_TOKEN=<golden-wafer-group tunnel token>
+# GHCR auth (private images) lives in ~/.docker/config.json (docker login).
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: golden_wafer
+      POSTGRES_USER: gw
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gw -d golden_wafer"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: ghcr.io/ghaith35/golden-wafer-group/app:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://gw:${POSTGRES_PASSWORD}@db:5432/golden_wafer
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+    ports:
+      - "${GW_PORT:-32517}:3000"
+    volumes:
+      - uploads:/app/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # One-shot: apply pending migrations (idempotent, safe on every deploy).
+  migrate:
+    profiles: ["tools"]
+    image: ghcr.io/ghaith35/golden-wafer-group/migrate:latest
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://gw:${POSTGRES_PASSWORD}@db:5432/golden_wafer
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Cloudflare tunnel connector (the existing "golden-wafer-group" tunnel).
+  # Host network so the tunnel's route http://localhost:${GW_PORT} reaches the app.
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    network_mode: host
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
+
+volumes:
+  pgdata:
+  uploads:

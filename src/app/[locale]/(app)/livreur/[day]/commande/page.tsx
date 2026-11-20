@@ -110,7 +110,7 @@ export default async function LivreurCommandePage({
         request: t("request"), sendRequest: t("sendRequest"),
         orderSaved: t("orderSaved"), orderQueued: t("orderQueued"),
         notes: t("notes"), commandes: t("commandes"), offline: t("offline"),
-        errRemise: t("errRemise"), errQr: t("errQr"), errStock: t("errStock"),
+        errRemise: t("errRemise"), errQr: t("errQr"), errStock: t("errStock"), errBonus: t("errBonus"),
         errCashOnly: t("errCashOnly"), errDebtOff: t("errDebtOff"),
         errClientReq: t("errClientReq"), errCreditLimit: t("errCreditLimit"),
         errOverpaid: t("errOverpaid"), errSaveFailed: t("errSaveFailed"),

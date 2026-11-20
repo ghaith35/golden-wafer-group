@@ -42,6 +42,7 @@ CREATE TABLE "company_settings" (
     "ticketWidth" TEXT NOT NULL DEFAULT '80',
     "ticketLang" TEXT NOT NULL DEFAULT 'fr',
     "supplierFilterEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "threePackEnabled" BOOLEAN NOT NULL DEFAULT false,
     "workStartAt" TEXT,
     "maxDayHours" REAL DEFAULT 10,
     "remoteDomain" TEXT,
@@ -431,6 +432,8 @@ CREATE TABLE "sale_lines" (
     "remise" DECIMAL NOT NULL DEFAULT 0,
     "lineTotal" DECIMAL NOT NULL,
     "unitCost" DECIMAL NOT NULL DEFAULT 0,
+    "isBonus" BOOLEAN NOT NULL DEFAULT false,
+    "bonusRuleId" TEXT,
     CONSTRAINT "sale_lines_saleId_fkey" FOREIGN KEY ("saleId") REFERENCES "sales" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "sale_lines_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -831,6 +834,29 @@ CREATE TABLE "client_distances" (
     CONSTRAINT "client_distances_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "customers" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "three_pack_rules" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "companyId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "mode" TEXT NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "isArchived" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "three_pack_rules_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "three_pack_items" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "ruleId" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "colis" DECIMAL NOT NULL,
+    CONSTRAINT "three_pack_items_ruleId_fkey" FOREIGN KEY ("ruleId") REFERENCES "three_pack_rules" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "three_pack_items_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "company_settings_companyId_key" ON "company_settings"("companyId");
 
@@ -1079,3 +1105,12 @@ CREATE INDEX "client_distances_companyId_userId_idx" ON "client_distances"("comp
 
 -- CreateIndex
 CREATE UNIQUE INDEX "client_distances_companyId_userId_clientId_key" ON "client_distances"("companyId", "userId", "clientId");
+
+-- CreateIndex
+CREATE INDEX "three_pack_rules_companyId_idx" ON "three_pack_rules"("companyId");
+
+-- CreateIndex
+CREATE INDEX "three_pack_items_ruleId_idx" ON "three_pack_items"("ruleId");
+
+-- CreateIndex
+CREATE INDEX "three_pack_items_productId_idx" ON "three_pack_items"("productId");

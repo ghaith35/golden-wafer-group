@@ -11,6 +11,7 @@
 
 import type { OutboxRow } from "./offline-db";
 import type { VanSnapshot } from "./client";
+import { overClaimedBonus, type ColisInfo, type ThreePackRuleLite } from "@/lib/threepack/match";
 
 const EPS = 1e-9;
 
@@ -37,7 +38,7 @@ export function sortOutbox(ops: OutboxRow[]): OutboxRow[] {
     .map((x) => x.op);
 }
 
-type Priced = { productId: string; unitId?: string | null; qty: number; unitPrice?: number | null; remise?: number };
+type Priced = { productId: string; unitId?: string | null; qty: number; unitPrice?: number | null; remise?: number; bonusRuleId?: string | null };
 
 function factorOf(snap: VanSnapshot | null, productId: string, unitId: string | null | undefined): number {
   if (!unitId) return 1;
@@ -144,14 +145,36 @@ export function checkOfflineSale(args: {
   paid?: number | null;
   qrScanned?: boolean;
   vanId?: string | null;
+  /// 3pack: the EXACT rules + colis info the gift lines were computed from (the
+  /// form's live rules, which may be newer than the snapshot). Gift lines are
+  /// only cross-checked when given; without it they still count in the stock
+  /// and money checks, but there is no independent rule set to validate against.
+  bonus?: {
+    rules: ThreePackRuleLite[];
+    colis: Record<string, ColisInfo | undefined>;
+    /// A line's quantity in base units, from the SAME product data the form used.
+    baseQtyOf: (l: { productId: string; unitId?: string | null; qty: number }) => number;
+  };
 }): SaleCheck {
-  const { snap, ops, channel, clientId, lines, remise = 0, paid, qrScanned, vanId } = args;
+  const { snap, ops, channel, clientId, lines, remise = 0, paid, qrScanned, vanId, bonus } = args;
   const settings = snap?.settings;
 
   // All lines must be priced locally to reason about money/credit.
   const priced = lines.every((l) => l.unitPrice != null && Number.isFinite(Number(l.unitPrice)));
   const linesTotal = lines.reduce((s, l) => s + lineTotal(l), 0);
   const total = Math.max(0, linesTotal - remise);
+
+  // 3pack: a gift line must be earned by the purchases of the same sale (the
+  // server would reject it at sync with `bonus_not_earned`). Gift lines count
+  // in the stock checks below like any other line.
+  if (bonus && lines.some((l) => l.bonusRuleId)) {
+    const bad = overClaimedBonus(
+      bonus.rules,
+      lines.map((l) => ({ productId: l.productId, baseQty: bonus.baseQtyOf({ productId: l.productId, unitId: l.unitId, qty: Number(l.qty) }), isBonus: !!l.bonusRuleId, bonusRuleId: l.bonusRuleId })),
+      bonus.colis,
+    );
+    if (bad.length > 0) return { ok: false, error: "bonus_not_earned" };
+  }
 
   if (settings) {
     if (remise > 0 && !settings.remiseEnabled) return { ok: false, error: "remise_disabled" };
@@ -164,9 +187,12 @@ export function checkOfflineSale(args: {
     // Stock cap when oversell is not allowed.
     if (!settings.oversellAllowed) {
       const eff = effectiveStock(snap, ops, vanId);
-      for (const l of lines) {
-        const need = baseQtyOf(snap, l.productId, l.unitId, Number(l.qty));
-        if ((eff[l.productId] ?? 0) + EPS < need) return { ok: false, error: "insufficient_stock" };
+      // Sum per product: a 3pack gift is a second line of the same product, so
+      // checking lines one by one would let purchase + gift overdraw the van.
+      const need: Record<string, number> = {};
+      for (const l of lines) need[l.productId] = (need[l.productId] ?? 0) + baseQtyOf(snap, l.productId, l.unitId, Number(l.qty));
+      for (const [pid, n] of Object.entries(need)) {
+        if ((eff[pid] ?? 0) + EPS < n) return { ok: false, error: "insufficient_stock" };
       }
     }
 

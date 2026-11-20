@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ArrowDownUp, ArrowLeft, Check, ChevronDown, Minus, Plus, Printer, QrCode, Search, Share2, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -21,6 +22,7 @@ import { PdfViewer } from "@/components/sales/PdfViewer";
 import { printTicketNative } from "@/lib/print-ticket";
 
 import { checkOfflineSale, pendingEffects } from "@/lib/sync/offline-rules";
+import { GiftLineRow, colisMap, giftBodyLines, giftProductsFrom, lineBaseQty, useGifts, useThreePackRules } from "@/components/threepack/useThreePack";
 import type { OutboxRow } from "@/lib/sync/offline-db";
 
 import { ErrText } from "@/components/ui/ErrText";
@@ -290,6 +292,14 @@ export function VenteClient({
     }));
   })() : null;
   const effProducts = products.length > 0 ? products : (snapProds ?? []);
+
+  // 3pack: free colis appear on their own in the facture (read-only, price 0).
+  // Rules: live from the server when reachable, else the synced snapshot.
+  const t3 = useTranslations("threepack");
+  const tpRules = useThreePackRules(snap, true);
+  const giftProducts = useMemo(() => giftProductsFrom(products, snap?.products), [products, snap]);
+  const gifts = useGifts(tpRules, giftProducts, lines);
+  const giftLines = useMemo(() => giftBodyLines(gifts), [gifts]);
   const effCategories = categories.length > 0 ? categories : (snap?.categories ?? []);
   const snapStock = (() => {
     if (!snap) return null;
@@ -475,13 +485,19 @@ export function VenteClient({
         ops,
         channel: "VAN",
         clientId: client?.id ?? null,
-        lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })),
+        lines: [...lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })), ...giftLines],
         remise: 0,
         paid: paidNow,
         // Edit mode rewrites server-side (no QR rule there) — don't force a
         // rescan for a ticket that was already accepted.
         qrScanned: scanned || !!editingTicket,
         vanId,
+        // Validate the gift against the rules it was computed from.
+        bonus: {
+          rules: tpRules,
+          colis: colisMap(giftProducts),
+          baseQtyOf: (l) => lineBaseQty(giftProducts, l),
+        },
       });
       if (!check.ok) {
         setError(saleErrText(labels, check.error) ?? "failed");
@@ -509,7 +525,7 @@ export function VenteClient({
               tierId: client?.tierId ?? null,
               paid: paidNow,
               notes: editingTicket.notes,
-              lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })),
+              lines: [...lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })), ...giftLines],
             }),
           });
           const d = await res.json().catch(() => null);
@@ -534,7 +550,17 @@ export function VenteClient({
         baseQty: null as number | null,
         unitPrice: l.unitPrice,
         lineTotal: l.qty * l.unitPrice,
-      }));
+        bonus: false,
+      })).concat(
+        gifts.map((g) => ({
+          name: (effProducts.find((p) => p.id === g.productId)?.name) ?? products.find((p) => p.id === g.productId)?.name ?? "",
+          qty: g.colis,
+          baseQty: g.baseQty as number | null,
+          unitPrice: 0,
+          lineTotal: 0,
+          bonus: true,
+        })),
+      );
       const snapClient = client;
       const snapTotal = total;
       const snapPaid = paidNow;
@@ -552,7 +578,7 @@ export function VenteClient({
         qrScanned: scanned,
         ...(fix ? { saleLat: fix.lat, saleLng: fix.lng } : {}),
         paid: paidNow,
-        lines: lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })),
+        lines: [...lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })), ...giftLines],
       };
       try {
         const res = await fetch("/api/sales/tickets", {
@@ -587,12 +613,13 @@ export function VenteClient({
           location: d.location ? { name: d.location.name } : { name: vanName },
           seller: null,
           sellerPhone: null,
-          lines: (d.lines ?? []).map((l: { product?: { name?: string }; name?: string; qty: number | string; baseQty?: number | string | null; unitPrice: number | string; lineTotal: number | string }) => ({
+          lines: (d.lines ?? []).map((l: { product?: { name?: string }; name?: string; qty: number | string; baseQty?: number | string | null; unitPrice: number | string; lineTotal: number | string; isBonus?: boolean }) => ({
             name: l.product?.name ?? l.name ?? "",
             qty: l.qty,
             baseQty: l.baseQty ?? null,
             unitPrice: l.unitPrice,
             lineTotal: l.lineTotal,
+            bonus: !!l.isBonus,
           })),
         });
         setLines([]);
@@ -985,6 +1012,15 @@ export function VenteClient({
                 </div>
               );
             })}
+            {gifts.map((g) => (
+              <GiftLineRow
+                key={`${g.ruleId}:${g.productId}`}
+                gift={g}
+                product={giftProducts.find((x) => x.id === g.productId)}
+                freeLabel={t3("free")}
+                money={dzMoney(0)}
+              />
+            ))}
             {lines.length === 0 && <p className="text-center text-sm opacity-60">{labels.empty}</p>}
           </div>
           <div className="flex items-center justify-between rounded-xl bg-(--bg-sunken) px-3 py-2.5">

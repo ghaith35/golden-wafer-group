@@ -292,6 +292,18 @@ export type DocumentSequence = $Result.DefaultSelection<Prisma.$DocumentSequence
  * Written on each "actualiser" (and manual entry); read back on open.
  */
 export type ClientDistance = $Result.DefaultSelection<Prisma.$ClientDistancePayload>
+/**
+ * Model ThreePackRule
+ * SINGLE: buy X colis of P → Y colis of P free.
+ * PACK: buy A×a + B×b (+ …) → fixed free colis. Every multiple counts.
+ * Rules are deactivated, never hard-deleted (offline sales reference them).
+ */
+export type ThreePackRule = $Result.DefaultSelection<Prisma.$ThreePackRulePayload>
+/**
+ * Model ThreePackItem
+ * 
+ */
+export type ThreePackItem = $Result.DefaultSelection<Prisma.$ThreePackItemPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -923,6 +935,26 @@ export class PrismaClient<
     * ```
     */
   get clientDistance(): Prisma.ClientDistanceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.threePackRule`: Exposes CRUD operations for the **ThreePackRule** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ThreePackRules
+    * const threePackRules = await prisma.threePackRule.findMany()
+    * ```
+    */
+  get threePackRule(): Prisma.ThreePackRuleDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.threePackItem`: Exposes CRUD operations for the **ThreePackItem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ThreePackItems
+    * const threePackItems = await prisma.threePackItem.findMany()
+    * ```
+    */
+  get threePackItem(): Prisma.ThreePackItemDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1420,7 +1452,9 @@ export namespace Prisma {
     DailyClose: 'DailyClose',
     Deposit: 'Deposit',
     DocumentSequence: 'DocumentSequence',
-    ClientDistance: 'ClientDistance'
+    ClientDistance: 'ClientDistance',
+    ThreePackRule: 'ThreePackRule',
+    ThreePackItem: 'ThreePackItem'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1436,7 +1470,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance"
+      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5214,6 +5248,154 @@ export namespace Prisma {
           }
         }
       }
+      ThreePackRule: {
+        payload: Prisma.$ThreePackRulePayload<ExtArgs>
+        fields: Prisma.ThreePackRuleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ThreePackRuleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackRulePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ThreePackRuleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackRulePayload>
+          }
+          findFirst: {
+            args: Prisma.ThreePackRuleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackRulePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ThreePackRuleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackRulePayload>
+          }
+          findMany: {
+            args: Prisma.ThreePackRuleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackRulePayload>[]
+          }
+          create: {
+            args: Prisma.ThreePackRuleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackRulePayload>
+          }
+          createMany: {
+            args: Prisma.ThreePackRuleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ThreePackRuleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackRulePayload>[]
+          }
+          delete: {
+            args: Prisma.ThreePackRuleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackRulePayload>
+          }
+          update: {
+            args: Prisma.ThreePackRuleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackRulePayload>
+          }
+          deleteMany: {
+            args: Prisma.ThreePackRuleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ThreePackRuleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ThreePackRuleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackRulePayload>[]
+          }
+          upsert: {
+            args: Prisma.ThreePackRuleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackRulePayload>
+          }
+          aggregate: {
+            args: Prisma.ThreePackRuleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateThreePackRule>
+          }
+          groupBy: {
+            args: Prisma.ThreePackRuleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ThreePackRuleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ThreePackRuleCountArgs<ExtArgs>
+            result: $Utils.Optional<ThreePackRuleCountAggregateOutputType> | number
+          }
+        }
+      }
+      ThreePackItem: {
+        payload: Prisma.$ThreePackItemPayload<ExtArgs>
+        fields: Prisma.ThreePackItemFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ThreePackItemFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackItemPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ThreePackItemFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackItemPayload>
+          }
+          findFirst: {
+            args: Prisma.ThreePackItemFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackItemPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ThreePackItemFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackItemPayload>
+          }
+          findMany: {
+            args: Prisma.ThreePackItemFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackItemPayload>[]
+          }
+          create: {
+            args: Prisma.ThreePackItemCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackItemPayload>
+          }
+          createMany: {
+            args: Prisma.ThreePackItemCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ThreePackItemCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackItemPayload>[]
+          }
+          delete: {
+            args: Prisma.ThreePackItemDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackItemPayload>
+          }
+          update: {
+            args: Prisma.ThreePackItemUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackItemPayload>
+          }
+          deleteMany: {
+            args: Prisma.ThreePackItemDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ThreePackItemUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ThreePackItemUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackItemPayload>[]
+          }
+          upsert: {
+            args: Prisma.ThreePackItemUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ThreePackItemPayload>
+          }
+          aggregate: {
+            args: Prisma.ThreePackItemAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateThreePackItem>
+          }
+          groupBy: {
+            args: Prisma.ThreePackItemGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ThreePackItemGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ThreePackItemCountArgs<ExtArgs>
+            result: $Utils.Optional<ThreePackItemCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5388,6 +5570,8 @@ export namespace Prisma {
     deposit?: DepositOmit
     documentSequence?: DocumentSequenceOmit
     clientDistance?: ClientDistanceOmit
+    threePackRule?: ThreePackRuleOmit
+    threePackItem?: ThreePackItemOmit
   }
 
   /* Types for Logging */
@@ -5485,6 +5669,7 @@ export namespace Prisma {
     stockCounts: number
     stockLosses: number
     sales: number
+    threePackRules: number
     clientReturns: number
     tournees: number
     expenses: number
@@ -5514,6 +5699,7 @@ export namespace Prisma {
     stockCounts?: boolean | CompanyCountOutputTypeCountStockCountsArgs
     stockLosses?: boolean | CompanyCountOutputTypeCountStockLossesArgs
     sales?: boolean | CompanyCountOutputTypeCountSalesArgs
+    threePackRules?: boolean | CompanyCountOutputTypeCountThreePackRulesArgs
     clientReturns?: boolean | CompanyCountOutputTypeCountClientReturnsArgs
     tournees?: boolean | CompanyCountOutputTypeCountTourneesArgs
     expenses?: boolean | CompanyCountOutputTypeCountExpensesArgs
@@ -5653,6 +5839,13 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountSalesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SaleWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountThreePackRulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ThreePackRuleWhereInput
   }
 
   /**
@@ -6425,6 +6618,7 @@ export namespace Prisma {
     countLines: number
     lossLines: number
     saleLines: number
+    threePackItems: number
     clientReturnLines: number
   }
 
@@ -6439,6 +6633,7 @@ export namespace Prisma {
     countLines?: boolean | ProductCountOutputTypeCountCountLinesArgs
     lossLines?: boolean | ProductCountOutputTypeCountLossLinesArgs
     saleLines?: boolean | ProductCountOutputTypeCountSaleLinesArgs
+    threePackItems?: boolean | ProductCountOutputTypeCountThreePackItemsArgs
     clientReturnLines?: boolean | ProductCountOutputTypeCountClientReturnLinesArgs
   }
 
@@ -6521,6 +6716,13 @@ export namespace Prisma {
    */
   export type ProductCountOutputTypeCountSaleLinesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SaleLineWhereInput
+  }
+
+  /**
+   * ProductCountOutputType without action
+   */
+  export type ProductCountOutputTypeCountThreePackItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ThreePackItemWhereInput
   }
 
   /**
@@ -6790,6 +6992,37 @@ export namespace Prisma {
    */
   export type SupplierReturnCountOutputTypeCountLinesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SupplierReturnLineWhereInput
+  }
+
+
+  /**
+   * Count Type ThreePackRuleCountOutputType
+   */
+
+  export type ThreePackRuleCountOutputType = {
+    items: number
+  }
+
+  export type ThreePackRuleCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    items?: boolean | ThreePackRuleCountOutputTypeCountItemsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ThreePackRuleCountOutputType without action
+   */
+  export type ThreePackRuleCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRuleCountOutputType
+     */
+    select?: ThreePackRuleCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ThreePackRuleCountOutputType without action
+   */
+  export type ThreePackRuleCountOutputTypeCountItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ThreePackItemWhereInput
   }
 
 
@@ -7067,6 +7300,7 @@ export namespace Prisma {
     stockCounts?: boolean | Company$stockCountsArgs<ExtArgs>
     stockLosses?: boolean | Company$stockLossesArgs<ExtArgs>
     sales?: boolean | Company$salesArgs<ExtArgs>
+    threePackRules?: boolean | Company$threePackRulesArgs<ExtArgs>
     clientReturns?: boolean | Company$clientReturnsArgs<ExtArgs>
     tournees?: boolean | Company$tourneesArgs<ExtArgs>
     expenses?: boolean | Company$expensesArgs<ExtArgs>
@@ -7156,6 +7390,7 @@ export namespace Prisma {
     stockCounts?: boolean | Company$stockCountsArgs<ExtArgs>
     stockLosses?: boolean | Company$stockLossesArgs<ExtArgs>
     sales?: boolean | Company$salesArgs<ExtArgs>
+    threePackRules?: boolean | Company$threePackRulesArgs<ExtArgs>
     clientReturns?: boolean | Company$clientReturnsArgs<ExtArgs>
     tournees?: boolean | Company$tourneesArgs<ExtArgs>
     expenses?: boolean | Company$expensesArgs<ExtArgs>
@@ -7191,6 +7426,7 @@ export namespace Prisma {
       stockCounts: Prisma.$StockCountPayload<ExtArgs>[]
       stockLosses: Prisma.$StockLossPayload<ExtArgs>[]
       sales: Prisma.$SalePayload<ExtArgs>[]
+      threePackRules: Prisma.$ThreePackRulePayload<ExtArgs>[]
       clientReturns: Prisma.$ClientReturnPayload<ExtArgs>[]
       tournees: Prisma.$TourneePayload<ExtArgs>[]
       expenses: Prisma.$ExpensePayload<ExtArgs>[]
@@ -7636,6 +7872,7 @@ export namespace Prisma {
     stockCounts<T extends Company$stockCountsArgs<ExtArgs> = {}>(args?: Subset<T, Company$stockCountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StockCountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     stockLosses<T extends Company$stockLossesArgs<ExtArgs> = {}>(args?: Subset<T, Company$stockLossesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StockLossPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sales<T extends Company$salesArgs<ExtArgs> = {}>(args?: Subset<T, Company$salesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    threePackRules<T extends Company$threePackRulesArgs<ExtArgs> = {}>(args?: Subset<T, Company$threePackRulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     clientReturns<T extends Company$clientReturnsArgs<ExtArgs> = {}>(args?: Subset<T, Company$clientReturnsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tournees<T extends Company$tourneesArgs<ExtArgs> = {}>(args?: Subset<T, Company$tourneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     expenses<T extends Company$expensesArgs<ExtArgs> = {}>(args?: Subset<T, Company$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -8508,6 +8745,30 @@ export namespace Prisma {
   }
 
   /**
+   * Company.threePackRules
+   */
+  export type Company$threePackRulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleInclude<ExtArgs> | null
+    where?: ThreePackRuleWhereInput
+    orderBy?: ThreePackRuleOrderByWithRelationInput | ThreePackRuleOrderByWithRelationInput[]
+    cursor?: ThreePackRuleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ThreePackRuleScalarFieldEnum | ThreePackRuleScalarFieldEnum[]
+  }
+
+  /**
    * Company.clientReturns
    */
   export type Company$clientReturnsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8785,6 +9046,7 @@ export namespace Prisma {
     ticketWidth: string | null
     ticketLang: string | null
     supplierFilterEnabled: boolean | null
+    threePackEnabled: boolean | null
     workStartAt: string | null
     maxDayHours: number | null
     remoteDomain: string | null
@@ -8813,6 +9075,7 @@ export namespace Prisma {
     ticketWidth: string | null
     ticketLang: string | null
     supplierFilterEnabled: boolean | null
+    threePackEnabled: boolean | null
     workStartAt: string | null
     maxDayHours: number | null
     remoteDomain: string | null
@@ -8841,6 +9104,7 @@ export namespace Prisma {
     ticketWidth: number
     ticketLang: number
     supplierFilterEnabled: number
+    threePackEnabled: number
     workStartAt: number
     maxDayHours: number
     remoteDomain: number
@@ -8879,6 +9143,7 @@ export namespace Prisma {
     ticketWidth?: true
     ticketLang?: true
     supplierFilterEnabled?: true
+    threePackEnabled?: true
     workStartAt?: true
     maxDayHours?: true
     remoteDomain?: true
@@ -8907,6 +9172,7 @@ export namespace Prisma {
     ticketWidth?: true
     ticketLang?: true
     supplierFilterEnabled?: true
+    threePackEnabled?: true
     workStartAt?: true
     maxDayHours?: true
     remoteDomain?: true
@@ -8935,6 +9201,7 @@ export namespace Prisma {
     ticketWidth?: true
     ticketLang?: true
     supplierFilterEnabled?: true
+    threePackEnabled?: true
     workStartAt?: true
     maxDayHours?: true
     remoteDomain?: true
@@ -9050,6 +9317,7 @@ export namespace Prisma {
     ticketWidth: string
     ticketLang: string
     supplierFilterEnabled: boolean
+    threePackEnabled: boolean
     workStartAt: string | null
     maxDayHours: number | null
     remoteDomain: string | null
@@ -9097,6 +9365,7 @@ export namespace Prisma {
     ticketWidth?: boolean
     ticketLang?: boolean
     supplierFilterEnabled?: boolean
+    threePackEnabled?: boolean
     workStartAt?: boolean
     maxDayHours?: boolean
     remoteDomain?: boolean
@@ -9126,6 +9395,7 @@ export namespace Prisma {
     ticketWidth?: boolean
     ticketLang?: boolean
     supplierFilterEnabled?: boolean
+    threePackEnabled?: boolean
     workStartAt?: boolean
     maxDayHours?: boolean
     remoteDomain?: boolean
@@ -9155,6 +9425,7 @@ export namespace Prisma {
     ticketWidth?: boolean
     ticketLang?: boolean
     supplierFilterEnabled?: boolean
+    threePackEnabled?: boolean
     workStartAt?: boolean
     maxDayHours?: boolean
     remoteDomain?: boolean
@@ -9184,12 +9455,13 @@ export namespace Prisma {
     ticketWidth?: boolean
     ticketLang?: boolean
     supplierFilterEnabled?: boolean
+    threePackEnabled?: boolean
     workStartAt?: boolean
     maxDayHours?: boolean
     remoteDomain?: boolean
   }
 
-  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultLocale" | "currency" | "expiryEnabled" | "creditSalesEnabled" | "debtTrackingEnabled" | "remiseEnabled" | "depositsEnabled" | "multiDepotEnabled" | "costingMethod" | "facturePro" | "posEnabled" | "vanBindingMode" | "oversellAllowed" | "pieceSalesEnabled" | "transferConfirmRequired" | "gpsEnabled" | "qrStrictMode" | "ticketWidth" | "ticketLang" | "supplierFilterEnabled" | "workStartAt" | "maxDayHours" | "remoteDomain", ExtArgs["result"]["companySettings"]>
+  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultLocale" | "currency" | "expiryEnabled" | "creditSalesEnabled" | "debtTrackingEnabled" | "remiseEnabled" | "depositsEnabled" | "multiDepotEnabled" | "costingMethod" | "facturePro" | "posEnabled" | "vanBindingMode" | "oversellAllowed" | "pieceSalesEnabled" | "transferConfirmRequired" | "gpsEnabled" | "qrStrictMode" | "ticketWidth" | "ticketLang" | "supplierFilterEnabled" | "threePackEnabled" | "workStartAt" | "maxDayHours" | "remoteDomain", ExtArgs["result"]["companySettings"]>
   export type CompanySettingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }
@@ -9241,6 +9513,10 @@ export namespace Prisma {
        * Purchase picker: only the chosen supplier's products (default ON).
        */
       supplierFilterEnabled: boolean
+      /**
+       * 3pack: free-colis bonus rules (buy X get Y free). Admin-editable.
+       */
+      threePackEnabled: boolean
       /**
        * Expected départ time for vans ("HH:MM", null = no late flag).
        */
@@ -9701,6 +9977,7 @@ export namespace Prisma {
     readonly ticketWidth: FieldRef<"CompanySettings", 'String'>
     readonly ticketLang: FieldRef<"CompanySettings", 'String'>
     readonly supplierFilterEnabled: FieldRef<"CompanySettings", 'Boolean'>
+    readonly threePackEnabled: FieldRef<"CompanySettings", 'Boolean'>
     readonly workStartAt: FieldRef<"CompanySettings", 'String'>
     readonly maxDayHours: FieldRef<"CompanySettings", 'Float'>
     readonly remoteDomain: FieldRef<"CompanySettings", 'String'>
@@ -33434,6 +33711,7 @@ export namespace Prisma {
     countLines?: boolean | Product$countLinesArgs<ExtArgs>
     lossLines?: boolean | Product$lossLinesArgs<ExtArgs>
     saleLines?: boolean | Product$saleLinesArgs<ExtArgs>
+    threePackItems?: boolean | Product$threePackItemsArgs<ExtArgs>
     clientReturnLines?: boolean | Product$clientReturnLinesArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["product"]>
@@ -33531,6 +33809,7 @@ export namespace Prisma {
     countLines?: boolean | Product$countLinesArgs<ExtArgs>
     lossLines?: boolean | Product$lossLinesArgs<ExtArgs>
     saleLines?: boolean | Product$saleLinesArgs<ExtArgs>
+    threePackItems?: boolean | Product$threePackItemsArgs<ExtArgs>
     clientReturnLines?: boolean | Product$clientReturnLinesArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -33570,6 +33849,7 @@ export namespace Prisma {
       countLines: Prisma.$StockCountLinePayload<ExtArgs>[]
       lossLines: Prisma.$StockLossPayload<ExtArgs>[]
       saleLines: Prisma.$SaleLinePayload<ExtArgs>[]
+      threePackItems: Prisma.$ThreePackItemPayload<ExtArgs>[]
       clientReturnLines: Prisma.$ClientReturnLinePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -34008,6 +34288,7 @@ export namespace Prisma {
     countLines<T extends Product$countLinesArgs<ExtArgs> = {}>(args?: Subset<T, Product$countLinesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StockCountLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     lossLines<T extends Product$lossLinesArgs<ExtArgs> = {}>(args?: Subset<T, Product$lossLinesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StockLossPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     saleLines<T extends Product$saleLinesArgs<ExtArgs> = {}>(args?: Subset<T, Product$saleLinesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SaleLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    threePackItems<T extends Product$threePackItemsArgs<ExtArgs> = {}>(args?: Subset<T, Product$threePackItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     clientReturnLines<T extends Product$clientReturnLinesArgs<ExtArgs> = {}>(args?: Subset<T, Product$clientReturnLinesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientReturnLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -34787,6 +35068,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SaleLineScalarFieldEnum | SaleLineScalarFieldEnum[]
+  }
+
+  /**
+   * Product.threePackItems
+   */
+  export type Product$threePackItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemInclude<ExtArgs> | null
+    where?: ThreePackItemWhereInput
+    orderBy?: ThreePackItemOrderByWithRelationInput | ThreePackItemOrderByWithRelationInput[]
+    cursor?: ThreePackItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ThreePackItemScalarFieldEnum | ThreePackItemScalarFieldEnum[]
   }
 
   /**
@@ -39863,6 +40168,8 @@ export namespace Prisma {
     remise: Decimal | null
     lineTotal: Decimal | null
     unitCost: Decimal | null
+    isBonus: boolean | null
+    bonusRuleId: string | null
   }
 
   export type SaleLineMaxAggregateOutputType = {
@@ -39876,6 +40183,8 @@ export namespace Prisma {
     remise: Decimal | null
     lineTotal: Decimal | null
     unitCost: Decimal | null
+    isBonus: boolean | null
+    bonusRuleId: string | null
   }
 
   export type SaleLineCountAggregateOutputType = {
@@ -39889,6 +40198,8 @@ export namespace Prisma {
     remise: number
     lineTotal: number
     unitCost: number
+    isBonus: number
+    bonusRuleId: number
     _all: number
   }
 
@@ -39922,6 +40233,8 @@ export namespace Prisma {
     remise?: true
     lineTotal?: true
     unitCost?: true
+    isBonus?: true
+    bonusRuleId?: true
   }
 
   export type SaleLineMaxAggregateInputType = {
@@ -39935,6 +40248,8 @@ export namespace Prisma {
     remise?: true
     lineTotal?: true
     unitCost?: true
+    isBonus?: true
+    bonusRuleId?: true
   }
 
   export type SaleLineCountAggregateInputType = {
@@ -39948,6 +40263,8 @@ export namespace Prisma {
     remise?: true
     lineTotal?: true
     unitCost?: true
+    isBonus?: true
+    bonusRuleId?: true
     _all?: true
   }
 
@@ -40048,6 +40365,8 @@ export namespace Prisma {
     remise: Decimal
     lineTotal: Decimal
     unitCost: Decimal
+    isBonus: boolean
+    bonusRuleId: string | null
     _count: SaleLineCountAggregateOutputType | null
     _avg: SaleLineAvgAggregateOutputType | null
     _sum: SaleLineSumAggregateOutputType | null
@@ -40080,6 +40399,8 @@ export namespace Prisma {
     remise?: boolean
     lineTotal?: boolean
     unitCost?: boolean
+    isBonus?: boolean
+    bonusRuleId?: boolean
     sale?: boolean | SaleDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["saleLine"]>
@@ -40095,6 +40416,8 @@ export namespace Prisma {
     remise?: boolean
     lineTotal?: boolean
     unitCost?: boolean
+    isBonus?: boolean
+    bonusRuleId?: boolean
     sale?: boolean | SaleDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["saleLine"]>
@@ -40110,6 +40433,8 @@ export namespace Prisma {
     remise?: boolean
     lineTotal?: boolean
     unitCost?: boolean
+    isBonus?: boolean
+    bonusRuleId?: boolean
     sale?: boolean | SaleDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["saleLine"]>
@@ -40125,9 +40450,11 @@ export namespace Prisma {
     remise?: boolean
     lineTotal?: boolean
     unitCost?: boolean
+    isBonus?: boolean
+    bonusRuleId?: boolean
   }
 
-  export type SaleLineOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "saleId" | "productId" | "unitId" | "qty" | "baseQty" | "unitPrice" | "remise" | "lineTotal" | "unitCost", ExtArgs["result"]["saleLine"]>
+  export type SaleLineOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "saleId" | "productId" | "unitId" | "qty" | "baseQty" | "unitPrice" | "remise" | "lineTotal" | "unitCost" | "isBonus" | "bonusRuleId", ExtArgs["result"]["saleLine"]>
   export type SaleLineInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sale?: boolean | SaleDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -40161,6 +40488,11 @@ export namespace Prisma {
        * Snapshot COGS at delivery (for margin reports).
        */
       unitCost: Prisma.Decimal
+      /**
+       * 3pack gift line (price 0, stock still deducted).
+       */
+      isBonus: boolean
+      bonusRuleId: string | null
     }, ExtArgs["result"]["saleLine"]>
     composites: {}
   }
@@ -40596,6 +40928,8 @@ export namespace Prisma {
     readonly remise: FieldRef<"SaleLine", 'Decimal'>
     readonly lineTotal: FieldRef<"SaleLine", 'Decimal'>
     readonly unitCost: FieldRef<"SaleLine", 'Decimal'>
+    readonly isBonus: FieldRef<"SaleLine", 'Boolean'>
+    readonly bonusRuleId: FieldRef<"SaleLine", 'String'>
   }
     
 
@@ -69464,6 +69798,2233 @@ export namespace Prisma {
 
 
   /**
+   * Model ThreePackRule
+   */
+
+  export type AggregateThreePackRule = {
+    _count: ThreePackRuleCountAggregateOutputType | null
+    _min: ThreePackRuleMinAggregateOutputType | null
+    _max: ThreePackRuleMaxAggregateOutputType | null
+  }
+
+  export type ThreePackRuleMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    name: string | null
+    mode: string | null
+    isActive: boolean | null
+    isArchived: boolean | null
+    createdAt: Date | null
+  }
+
+  export type ThreePackRuleMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    name: string | null
+    mode: string | null
+    isActive: boolean | null
+    isArchived: boolean | null
+    createdAt: Date | null
+  }
+
+  export type ThreePackRuleCountAggregateOutputType = {
+    id: number
+    companyId: number
+    name: number
+    mode: number
+    isActive: number
+    isArchived: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ThreePackRuleMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    name?: true
+    mode?: true
+    isActive?: true
+    isArchived?: true
+    createdAt?: true
+  }
+
+  export type ThreePackRuleMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    name?: true
+    mode?: true
+    isActive?: true
+    isArchived?: true
+    createdAt?: true
+  }
+
+  export type ThreePackRuleCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    name?: true
+    mode?: true
+    isActive?: true
+    isArchived?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ThreePackRuleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ThreePackRule to aggregate.
+     */
+    where?: ThreePackRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ThreePackRules to fetch.
+     */
+    orderBy?: ThreePackRuleOrderByWithRelationInput | ThreePackRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ThreePackRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ThreePackRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ThreePackRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ThreePackRules
+    **/
+    _count?: true | ThreePackRuleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ThreePackRuleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ThreePackRuleMaxAggregateInputType
+  }
+
+  export type GetThreePackRuleAggregateType<T extends ThreePackRuleAggregateArgs> = {
+        [P in keyof T & keyof AggregateThreePackRule]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateThreePackRule[P]>
+      : GetScalarType<T[P], AggregateThreePackRule[P]>
+  }
+
+
+
+
+  export type ThreePackRuleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ThreePackRuleWhereInput
+    orderBy?: ThreePackRuleOrderByWithAggregationInput | ThreePackRuleOrderByWithAggregationInput[]
+    by: ThreePackRuleScalarFieldEnum[] | ThreePackRuleScalarFieldEnum
+    having?: ThreePackRuleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ThreePackRuleCountAggregateInputType | true
+    _min?: ThreePackRuleMinAggregateInputType
+    _max?: ThreePackRuleMaxAggregateInputType
+  }
+
+  export type ThreePackRuleGroupByOutputType = {
+    id: string
+    companyId: string
+    name: string
+    mode: string
+    isActive: boolean
+    isArchived: boolean
+    createdAt: Date
+    _count: ThreePackRuleCountAggregateOutputType | null
+    _min: ThreePackRuleMinAggregateOutputType | null
+    _max: ThreePackRuleMaxAggregateOutputType | null
+  }
+
+  type GetThreePackRuleGroupByPayload<T extends ThreePackRuleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ThreePackRuleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ThreePackRuleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ThreePackRuleGroupByOutputType[P]>
+            : GetScalarType<T[P], ThreePackRuleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ThreePackRuleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    name?: boolean
+    mode?: boolean
+    isActive?: boolean
+    isArchived?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    items?: boolean | ThreePackRule$itemsArgs<ExtArgs>
+    _count?: boolean | ThreePackRuleCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["threePackRule"]>
+
+  export type ThreePackRuleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    name?: boolean
+    mode?: boolean
+    isActive?: boolean
+    isArchived?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["threePackRule"]>
+
+  export type ThreePackRuleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    name?: boolean
+    mode?: boolean
+    isActive?: boolean
+    isArchived?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["threePackRule"]>
+
+  export type ThreePackRuleSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    name?: boolean
+    mode?: boolean
+    isActive?: boolean
+    isArchived?: boolean
+    createdAt?: boolean
+  }
+
+  export type ThreePackRuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "name" | "mode" | "isActive" | "isArchived" | "createdAt", ExtArgs["result"]["threePackRule"]>
+  export type ThreePackRuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    items?: boolean | ThreePackRule$itemsArgs<ExtArgs>
+    _count?: boolean | ThreePackRuleCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ThreePackRuleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type ThreePackRuleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+
+  export type $ThreePackRulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ThreePackRule"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      items: Prisma.$ThreePackItemPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      name: string
+      mode: string
+      isActive: boolean
+      /**
+       * Editing a rule's products/quantities archives it and creates a new rule,
+       * so an offline sale always validates against the exact rule the phone had.
+       */
+      isArchived: boolean
+      createdAt: Date
+    }, ExtArgs["result"]["threePackRule"]>
+    composites: {}
+  }
+
+  type ThreePackRuleGetPayload<S extends boolean | null | undefined | ThreePackRuleDefaultArgs> = $Result.GetResult<Prisma.$ThreePackRulePayload, S>
+
+  type ThreePackRuleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ThreePackRuleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ThreePackRuleCountAggregateInputType | true
+    }
+
+  export interface ThreePackRuleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ThreePackRule'], meta: { name: 'ThreePackRule' } }
+    /**
+     * Find zero or one ThreePackRule that matches the filter.
+     * @param {ThreePackRuleFindUniqueArgs} args - Arguments to find a ThreePackRule
+     * @example
+     * // Get one ThreePackRule
+     * const threePackRule = await prisma.threePackRule.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ThreePackRuleFindUniqueArgs>(args: SelectSubset<T, ThreePackRuleFindUniqueArgs<ExtArgs>>): Prisma__ThreePackRuleClient<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ThreePackRule that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ThreePackRuleFindUniqueOrThrowArgs} args - Arguments to find a ThreePackRule
+     * @example
+     * // Get one ThreePackRule
+     * const threePackRule = await prisma.threePackRule.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ThreePackRuleFindUniqueOrThrowArgs>(args: SelectSubset<T, ThreePackRuleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ThreePackRuleClient<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ThreePackRule that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackRuleFindFirstArgs} args - Arguments to find a ThreePackRule
+     * @example
+     * // Get one ThreePackRule
+     * const threePackRule = await prisma.threePackRule.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ThreePackRuleFindFirstArgs>(args?: SelectSubset<T, ThreePackRuleFindFirstArgs<ExtArgs>>): Prisma__ThreePackRuleClient<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ThreePackRule that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackRuleFindFirstOrThrowArgs} args - Arguments to find a ThreePackRule
+     * @example
+     * // Get one ThreePackRule
+     * const threePackRule = await prisma.threePackRule.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ThreePackRuleFindFirstOrThrowArgs>(args?: SelectSubset<T, ThreePackRuleFindFirstOrThrowArgs<ExtArgs>>): Prisma__ThreePackRuleClient<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ThreePackRules that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackRuleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ThreePackRules
+     * const threePackRules = await prisma.threePackRule.findMany()
+     * 
+     * // Get first 10 ThreePackRules
+     * const threePackRules = await prisma.threePackRule.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const threePackRuleWithIdOnly = await prisma.threePackRule.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ThreePackRuleFindManyArgs>(args?: SelectSubset<T, ThreePackRuleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ThreePackRule.
+     * @param {ThreePackRuleCreateArgs} args - Arguments to create a ThreePackRule.
+     * @example
+     * // Create one ThreePackRule
+     * const ThreePackRule = await prisma.threePackRule.create({
+     *   data: {
+     *     // ... data to create a ThreePackRule
+     *   }
+     * })
+     * 
+     */
+    create<T extends ThreePackRuleCreateArgs>(args: SelectSubset<T, ThreePackRuleCreateArgs<ExtArgs>>): Prisma__ThreePackRuleClient<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ThreePackRules.
+     * @param {ThreePackRuleCreateManyArgs} args - Arguments to create many ThreePackRules.
+     * @example
+     * // Create many ThreePackRules
+     * const threePackRule = await prisma.threePackRule.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ThreePackRuleCreateManyArgs>(args?: SelectSubset<T, ThreePackRuleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ThreePackRules and returns the data saved in the database.
+     * @param {ThreePackRuleCreateManyAndReturnArgs} args - Arguments to create many ThreePackRules.
+     * @example
+     * // Create many ThreePackRules
+     * const threePackRule = await prisma.threePackRule.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ThreePackRules and only return the `id`
+     * const threePackRuleWithIdOnly = await prisma.threePackRule.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ThreePackRuleCreateManyAndReturnArgs>(args?: SelectSubset<T, ThreePackRuleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ThreePackRule.
+     * @param {ThreePackRuleDeleteArgs} args - Arguments to delete one ThreePackRule.
+     * @example
+     * // Delete one ThreePackRule
+     * const ThreePackRule = await prisma.threePackRule.delete({
+     *   where: {
+     *     // ... filter to delete one ThreePackRule
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ThreePackRuleDeleteArgs>(args: SelectSubset<T, ThreePackRuleDeleteArgs<ExtArgs>>): Prisma__ThreePackRuleClient<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ThreePackRule.
+     * @param {ThreePackRuleUpdateArgs} args - Arguments to update one ThreePackRule.
+     * @example
+     * // Update one ThreePackRule
+     * const threePackRule = await prisma.threePackRule.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ThreePackRuleUpdateArgs>(args: SelectSubset<T, ThreePackRuleUpdateArgs<ExtArgs>>): Prisma__ThreePackRuleClient<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ThreePackRules.
+     * @param {ThreePackRuleDeleteManyArgs} args - Arguments to filter ThreePackRules to delete.
+     * @example
+     * // Delete a few ThreePackRules
+     * const { count } = await prisma.threePackRule.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ThreePackRuleDeleteManyArgs>(args?: SelectSubset<T, ThreePackRuleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ThreePackRules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackRuleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ThreePackRules
+     * const threePackRule = await prisma.threePackRule.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ThreePackRuleUpdateManyArgs>(args: SelectSubset<T, ThreePackRuleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ThreePackRules and returns the data updated in the database.
+     * @param {ThreePackRuleUpdateManyAndReturnArgs} args - Arguments to update many ThreePackRules.
+     * @example
+     * // Update many ThreePackRules
+     * const threePackRule = await prisma.threePackRule.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ThreePackRules and only return the `id`
+     * const threePackRuleWithIdOnly = await prisma.threePackRule.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ThreePackRuleUpdateManyAndReturnArgs>(args: SelectSubset<T, ThreePackRuleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ThreePackRule.
+     * @param {ThreePackRuleUpsertArgs} args - Arguments to update or create a ThreePackRule.
+     * @example
+     * // Update or create a ThreePackRule
+     * const threePackRule = await prisma.threePackRule.upsert({
+     *   create: {
+     *     // ... data to create a ThreePackRule
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ThreePackRule we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ThreePackRuleUpsertArgs>(args: SelectSubset<T, ThreePackRuleUpsertArgs<ExtArgs>>): Prisma__ThreePackRuleClient<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ThreePackRules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackRuleCountArgs} args - Arguments to filter ThreePackRules to count.
+     * @example
+     * // Count the number of ThreePackRules
+     * const count = await prisma.threePackRule.count({
+     *   where: {
+     *     // ... the filter for the ThreePackRules we want to count
+     *   }
+     * })
+    **/
+    count<T extends ThreePackRuleCountArgs>(
+      args?: Subset<T, ThreePackRuleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ThreePackRuleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ThreePackRule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackRuleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ThreePackRuleAggregateArgs>(args: Subset<T, ThreePackRuleAggregateArgs>): Prisma.PrismaPromise<GetThreePackRuleAggregateType<T>>
+
+    /**
+     * Group by ThreePackRule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackRuleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ThreePackRuleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ThreePackRuleGroupByArgs['orderBy'] }
+        : { orderBy?: ThreePackRuleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ThreePackRuleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetThreePackRuleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ThreePackRule model
+   */
+  readonly fields: ThreePackRuleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ThreePackRule.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ThreePackRuleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    items<T extends ThreePackRule$itemsArgs<ExtArgs> = {}>(args?: Subset<T, ThreePackRule$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ThreePackRule model
+   */
+  interface ThreePackRuleFieldRefs {
+    readonly id: FieldRef<"ThreePackRule", 'String'>
+    readonly companyId: FieldRef<"ThreePackRule", 'String'>
+    readonly name: FieldRef<"ThreePackRule", 'String'>
+    readonly mode: FieldRef<"ThreePackRule", 'String'>
+    readonly isActive: FieldRef<"ThreePackRule", 'Boolean'>
+    readonly isArchived: FieldRef<"ThreePackRule", 'Boolean'>
+    readonly createdAt: FieldRef<"ThreePackRule", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ThreePackRule findUnique
+   */
+  export type ThreePackRuleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which ThreePackRule to fetch.
+     */
+    where: ThreePackRuleWhereUniqueInput
+  }
+
+  /**
+   * ThreePackRule findUniqueOrThrow
+   */
+  export type ThreePackRuleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which ThreePackRule to fetch.
+     */
+    where: ThreePackRuleWhereUniqueInput
+  }
+
+  /**
+   * ThreePackRule findFirst
+   */
+  export type ThreePackRuleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which ThreePackRule to fetch.
+     */
+    where?: ThreePackRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ThreePackRules to fetch.
+     */
+    orderBy?: ThreePackRuleOrderByWithRelationInput | ThreePackRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ThreePackRules.
+     */
+    cursor?: ThreePackRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ThreePackRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ThreePackRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ThreePackRules.
+     */
+    distinct?: ThreePackRuleScalarFieldEnum | ThreePackRuleScalarFieldEnum[]
+  }
+
+  /**
+   * ThreePackRule findFirstOrThrow
+   */
+  export type ThreePackRuleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which ThreePackRule to fetch.
+     */
+    where?: ThreePackRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ThreePackRules to fetch.
+     */
+    orderBy?: ThreePackRuleOrderByWithRelationInput | ThreePackRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ThreePackRules.
+     */
+    cursor?: ThreePackRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ThreePackRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ThreePackRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ThreePackRules.
+     */
+    distinct?: ThreePackRuleScalarFieldEnum | ThreePackRuleScalarFieldEnum[]
+  }
+
+  /**
+   * ThreePackRule findMany
+   */
+  export type ThreePackRuleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which ThreePackRules to fetch.
+     */
+    where?: ThreePackRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ThreePackRules to fetch.
+     */
+    orderBy?: ThreePackRuleOrderByWithRelationInput | ThreePackRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ThreePackRules.
+     */
+    cursor?: ThreePackRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ThreePackRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ThreePackRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ThreePackRules.
+     */
+    distinct?: ThreePackRuleScalarFieldEnum | ThreePackRuleScalarFieldEnum[]
+  }
+
+  /**
+   * ThreePackRule create
+   */
+  export type ThreePackRuleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ThreePackRule.
+     */
+    data: XOR<ThreePackRuleCreateInput, ThreePackRuleUncheckedCreateInput>
+  }
+
+  /**
+   * ThreePackRule createMany
+   */
+  export type ThreePackRuleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ThreePackRules.
+     */
+    data: ThreePackRuleCreateManyInput | ThreePackRuleCreateManyInput[]
+  }
+
+  /**
+   * ThreePackRule createManyAndReturn
+   */
+  export type ThreePackRuleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * The data used to create many ThreePackRules.
+     */
+    data: ThreePackRuleCreateManyInput | ThreePackRuleCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ThreePackRule update
+   */
+  export type ThreePackRuleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ThreePackRule.
+     */
+    data: XOR<ThreePackRuleUpdateInput, ThreePackRuleUncheckedUpdateInput>
+    /**
+     * Choose, which ThreePackRule to update.
+     */
+    where: ThreePackRuleWhereUniqueInput
+  }
+
+  /**
+   * ThreePackRule updateMany
+   */
+  export type ThreePackRuleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ThreePackRules.
+     */
+    data: XOR<ThreePackRuleUpdateManyMutationInput, ThreePackRuleUncheckedUpdateManyInput>
+    /**
+     * Filter which ThreePackRules to update
+     */
+    where?: ThreePackRuleWhereInput
+    /**
+     * Limit how many ThreePackRules to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ThreePackRule updateManyAndReturn
+   */
+  export type ThreePackRuleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * The data used to update ThreePackRules.
+     */
+    data: XOR<ThreePackRuleUpdateManyMutationInput, ThreePackRuleUncheckedUpdateManyInput>
+    /**
+     * Filter which ThreePackRules to update
+     */
+    where?: ThreePackRuleWhereInput
+    /**
+     * Limit how many ThreePackRules to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ThreePackRule upsert
+   */
+  export type ThreePackRuleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ThreePackRule to update in case it exists.
+     */
+    where: ThreePackRuleWhereUniqueInput
+    /**
+     * In case the ThreePackRule found by the `where` argument doesn't exist, create a new ThreePackRule with this data.
+     */
+    create: XOR<ThreePackRuleCreateInput, ThreePackRuleUncheckedCreateInput>
+    /**
+     * In case the ThreePackRule was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ThreePackRuleUpdateInput, ThreePackRuleUncheckedUpdateInput>
+  }
+
+  /**
+   * ThreePackRule delete
+   */
+  export type ThreePackRuleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleInclude<ExtArgs> | null
+    /**
+     * Filter which ThreePackRule to delete.
+     */
+    where: ThreePackRuleWhereUniqueInput
+  }
+
+  /**
+   * ThreePackRule deleteMany
+   */
+  export type ThreePackRuleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ThreePackRules to delete
+     */
+    where?: ThreePackRuleWhereInput
+    /**
+     * Limit how many ThreePackRules to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ThreePackRule.items
+   */
+  export type ThreePackRule$itemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemInclude<ExtArgs> | null
+    where?: ThreePackItemWhereInput
+    orderBy?: ThreePackItemOrderByWithRelationInput | ThreePackItemOrderByWithRelationInput[]
+    cursor?: ThreePackItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ThreePackItemScalarFieldEnum | ThreePackItemScalarFieldEnum[]
+  }
+
+  /**
+   * ThreePackRule without action
+   */
+  export type ThreePackRuleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackRule
+     */
+    select?: ThreePackRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackRule
+     */
+    omit?: ThreePackRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackRuleInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ThreePackItem
+   */
+
+  export type AggregateThreePackItem = {
+    _count: ThreePackItemCountAggregateOutputType | null
+    _avg: ThreePackItemAvgAggregateOutputType | null
+    _sum: ThreePackItemSumAggregateOutputType | null
+    _min: ThreePackItemMinAggregateOutputType | null
+    _max: ThreePackItemMaxAggregateOutputType | null
+  }
+
+  export type ThreePackItemAvgAggregateOutputType = {
+    colis: Decimal | null
+  }
+
+  export type ThreePackItemSumAggregateOutputType = {
+    colis: Decimal | null
+  }
+
+  export type ThreePackItemMinAggregateOutputType = {
+    id: string | null
+    ruleId: string | null
+    role: string | null
+    productId: string | null
+    colis: Decimal | null
+  }
+
+  export type ThreePackItemMaxAggregateOutputType = {
+    id: string | null
+    ruleId: string | null
+    role: string | null
+    productId: string | null
+    colis: Decimal | null
+  }
+
+  export type ThreePackItemCountAggregateOutputType = {
+    id: number
+    ruleId: number
+    role: number
+    productId: number
+    colis: number
+    _all: number
+  }
+
+
+  export type ThreePackItemAvgAggregateInputType = {
+    colis?: true
+  }
+
+  export type ThreePackItemSumAggregateInputType = {
+    colis?: true
+  }
+
+  export type ThreePackItemMinAggregateInputType = {
+    id?: true
+    ruleId?: true
+    role?: true
+    productId?: true
+    colis?: true
+  }
+
+  export type ThreePackItemMaxAggregateInputType = {
+    id?: true
+    ruleId?: true
+    role?: true
+    productId?: true
+    colis?: true
+  }
+
+  export type ThreePackItemCountAggregateInputType = {
+    id?: true
+    ruleId?: true
+    role?: true
+    productId?: true
+    colis?: true
+    _all?: true
+  }
+
+  export type ThreePackItemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ThreePackItem to aggregate.
+     */
+    where?: ThreePackItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ThreePackItems to fetch.
+     */
+    orderBy?: ThreePackItemOrderByWithRelationInput | ThreePackItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ThreePackItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ThreePackItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ThreePackItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ThreePackItems
+    **/
+    _count?: true | ThreePackItemCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ThreePackItemAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ThreePackItemSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ThreePackItemMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ThreePackItemMaxAggregateInputType
+  }
+
+  export type GetThreePackItemAggregateType<T extends ThreePackItemAggregateArgs> = {
+        [P in keyof T & keyof AggregateThreePackItem]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateThreePackItem[P]>
+      : GetScalarType<T[P], AggregateThreePackItem[P]>
+  }
+
+
+
+
+  export type ThreePackItemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ThreePackItemWhereInput
+    orderBy?: ThreePackItemOrderByWithAggregationInput | ThreePackItemOrderByWithAggregationInput[]
+    by: ThreePackItemScalarFieldEnum[] | ThreePackItemScalarFieldEnum
+    having?: ThreePackItemScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ThreePackItemCountAggregateInputType | true
+    _avg?: ThreePackItemAvgAggregateInputType
+    _sum?: ThreePackItemSumAggregateInputType
+    _min?: ThreePackItemMinAggregateInputType
+    _max?: ThreePackItemMaxAggregateInputType
+  }
+
+  export type ThreePackItemGroupByOutputType = {
+    id: string
+    ruleId: string
+    role: string
+    productId: string
+    colis: Decimal
+    _count: ThreePackItemCountAggregateOutputType | null
+    _avg: ThreePackItemAvgAggregateOutputType | null
+    _sum: ThreePackItemSumAggregateOutputType | null
+    _min: ThreePackItemMinAggregateOutputType | null
+    _max: ThreePackItemMaxAggregateOutputType | null
+  }
+
+  type GetThreePackItemGroupByPayload<T extends ThreePackItemGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ThreePackItemGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ThreePackItemGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ThreePackItemGroupByOutputType[P]>
+            : GetScalarType<T[P], ThreePackItemGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ThreePackItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ruleId?: boolean
+    role?: boolean
+    productId?: boolean
+    colis?: boolean
+    rule?: boolean | ThreePackRuleDefaultArgs<ExtArgs>
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["threePackItem"]>
+
+  export type ThreePackItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ruleId?: boolean
+    role?: boolean
+    productId?: boolean
+    colis?: boolean
+    rule?: boolean | ThreePackRuleDefaultArgs<ExtArgs>
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["threePackItem"]>
+
+  export type ThreePackItemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ruleId?: boolean
+    role?: boolean
+    productId?: boolean
+    colis?: boolean
+    rule?: boolean | ThreePackRuleDefaultArgs<ExtArgs>
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["threePackItem"]>
+
+  export type ThreePackItemSelectScalar = {
+    id?: boolean
+    ruleId?: boolean
+    role?: boolean
+    productId?: boolean
+    colis?: boolean
+  }
+
+  export type ThreePackItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ruleId" | "role" | "productId" | "colis", ExtArgs["result"]["threePackItem"]>
+  export type ThreePackItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rule?: boolean | ThreePackRuleDefaultArgs<ExtArgs>
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+  export type ThreePackItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rule?: boolean | ThreePackRuleDefaultArgs<ExtArgs>
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+  export type ThreePackItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rule?: boolean | ThreePackRuleDefaultArgs<ExtArgs>
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+
+  export type $ThreePackItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ThreePackItem"
+    objects: {
+      rule: Prisma.$ThreePackRulePayload<ExtArgs>
+      product: Prisma.$ProductPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      ruleId: string
+      role: string
+      productId: string
+      /**
+       * Quantity in colis.
+       */
+      colis: Prisma.Decimal
+    }, ExtArgs["result"]["threePackItem"]>
+    composites: {}
+  }
+
+  type ThreePackItemGetPayload<S extends boolean | null | undefined | ThreePackItemDefaultArgs> = $Result.GetResult<Prisma.$ThreePackItemPayload, S>
+
+  type ThreePackItemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ThreePackItemFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ThreePackItemCountAggregateInputType | true
+    }
+
+  export interface ThreePackItemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ThreePackItem'], meta: { name: 'ThreePackItem' } }
+    /**
+     * Find zero or one ThreePackItem that matches the filter.
+     * @param {ThreePackItemFindUniqueArgs} args - Arguments to find a ThreePackItem
+     * @example
+     * // Get one ThreePackItem
+     * const threePackItem = await prisma.threePackItem.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ThreePackItemFindUniqueArgs>(args: SelectSubset<T, ThreePackItemFindUniqueArgs<ExtArgs>>): Prisma__ThreePackItemClient<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ThreePackItem that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ThreePackItemFindUniqueOrThrowArgs} args - Arguments to find a ThreePackItem
+     * @example
+     * // Get one ThreePackItem
+     * const threePackItem = await prisma.threePackItem.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ThreePackItemFindUniqueOrThrowArgs>(args: SelectSubset<T, ThreePackItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ThreePackItemClient<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ThreePackItem that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackItemFindFirstArgs} args - Arguments to find a ThreePackItem
+     * @example
+     * // Get one ThreePackItem
+     * const threePackItem = await prisma.threePackItem.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ThreePackItemFindFirstArgs>(args?: SelectSubset<T, ThreePackItemFindFirstArgs<ExtArgs>>): Prisma__ThreePackItemClient<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ThreePackItem that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackItemFindFirstOrThrowArgs} args - Arguments to find a ThreePackItem
+     * @example
+     * // Get one ThreePackItem
+     * const threePackItem = await prisma.threePackItem.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ThreePackItemFindFirstOrThrowArgs>(args?: SelectSubset<T, ThreePackItemFindFirstOrThrowArgs<ExtArgs>>): Prisma__ThreePackItemClient<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ThreePackItems that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackItemFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ThreePackItems
+     * const threePackItems = await prisma.threePackItem.findMany()
+     * 
+     * // Get first 10 ThreePackItems
+     * const threePackItems = await prisma.threePackItem.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const threePackItemWithIdOnly = await prisma.threePackItem.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ThreePackItemFindManyArgs>(args?: SelectSubset<T, ThreePackItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ThreePackItem.
+     * @param {ThreePackItemCreateArgs} args - Arguments to create a ThreePackItem.
+     * @example
+     * // Create one ThreePackItem
+     * const ThreePackItem = await prisma.threePackItem.create({
+     *   data: {
+     *     // ... data to create a ThreePackItem
+     *   }
+     * })
+     * 
+     */
+    create<T extends ThreePackItemCreateArgs>(args: SelectSubset<T, ThreePackItemCreateArgs<ExtArgs>>): Prisma__ThreePackItemClient<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ThreePackItems.
+     * @param {ThreePackItemCreateManyArgs} args - Arguments to create many ThreePackItems.
+     * @example
+     * // Create many ThreePackItems
+     * const threePackItem = await prisma.threePackItem.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ThreePackItemCreateManyArgs>(args?: SelectSubset<T, ThreePackItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ThreePackItems and returns the data saved in the database.
+     * @param {ThreePackItemCreateManyAndReturnArgs} args - Arguments to create many ThreePackItems.
+     * @example
+     * // Create many ThreePackItems
+     * const threePackItem = await prisma.threePackItem.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ThreePackItems and only return the `id`
+     * const threePackItemWithIdOnly = await prisma.threePackItem.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ThreePackItemCreateManyAndReturnArgs>(args?: SelectSubset<T, ThreePackItemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ThreePackItem.
+     * @param {ThreePackItemDeleteArgs} args - Arguments to delete one ThreePackItem.
+     * @example
+     * // Delete one ThreePackItem
+     * const ThreePackItem = await prisma.threePackItem.delete({
+     *   where: {
+     *     // ... filter to delete one ThreePackItem
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ThreePackItemDeleteArgs>(args: SelectSubset<T, ThreePackItemDeleteArgs<ExtArgs>>): Prisma__ThreePackItemClient<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ThreePackItem.
+     * @param {ThreePackItemUpdateArgs} args - Arguments to update one ThreePackItem.
+     * @example
+     * // Update one ThreePackItem
+     * const threePackItem = await prisma.threePackItem.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ThreePackItemUpdateArgs>(args: SelectSubset<T, ThreePackItemUpdateArgs<ExtArgs>>): Prisma__ThreePackItemClient<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ThreePackItems.
+     * @param {ThreePackItemDeleteManyArgs} args - Arguments to filter ThreePackItems to delete.
+     * @example
+     * // Delete a few ThreePackItems
+     * const { count } = await prisma.threePackItem.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ThreePackItemDeleteManyArgs>(args?: SelectSubset<T, ThreePackItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ThreePackItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackItemUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ThreePackItems
+     * const threePackItem = await prisma.threePackItem.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ThreePackItemUpdateManyArgs>(args: SelectSubset<T, ThreePackItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ThreePackItems and returns the data updated in the database.
+     * @param {ThreePackItemUpdateManyAndReturnArgs} args - Arguments to update many ThreePackItems.
+     * @example
+     * // Update many ThreePackItems
+     * const threePackItem = await prisma.threePackItem.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ThreePackItems and only return the `id`
+     * const threePackItemWithIdOnly = await prisma.threePackItem.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ThreePackItemUpdateManyAndReturnArgs>(args: SelectSubset<T, ThreePackItemUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ThreePackItem.
+     * @param {ThreePackItemUpsertArgs} args - Arguments to update or create a ThreePackItem.
+     * @example
+     * // Update or create a ThreePackItem
+     * const threePackItem = await prisma.threePackItem.upsert({
+     *   create: {
+     *     // ... data to create a ThreePackItem
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ThreePackItem we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ThreePackItemUpsertArgs>(args: SelectSubset<T, ThreePackItemUpsertArgs<ExtArgs>>): Prisma__ThreePackItemClient<$Result.GetResult<Prisma.$ThreePackItemPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ThreePackItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackItemCountArgs} args - Arguments to filter ThreePackItems to count.
+     * @example
+     * // Count the number of ThreePackItems
+     * const count = await prisma.threePackItem.count({
+     *   where: {
+     *     // ... the filter for the ThreePackItems we want to count
+     *   }
+     * })
+    **/
+    count<T extends ThreePackItemCountArgs>(
+      args?: Subset<T, ThreePackItemCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ThreePackItemCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ThreePackItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ThreePackItemAggregateArgs>(args: Subset<T, ThreePackItemAggregateArgs>): Prisma.PrismaPromise<GetThreePackItemAggregateType<T>>
+
+    /**
+     * Group by ThreePackItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ThreePackItemGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ThreePackItemGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ThreePackItemGroupByArgs['orderBy'] }
+        : { orderBy?: ThreePackItemGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ThreePackItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetThreePackItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ThreePackItem model
+   */
+  readonly fields: ThreePackItemFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ThreePackItem.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ThreePackItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    rule<T extends ThreePackRuleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ThreePackRuleDefaultArgs<ExtArgs>>): Prisma__ThreePackRuleClient<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    product<T extends ProductDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductDefaultArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ThreePackItem model
+   */
+  interface ThreePackItemFieldRefs {
+    readonly id: FieldRef<"ThreePackItem", 'String'>
+    readonly ruleId: FieldRef<"ThreePackItem", 'String'>
+    readonly role: FieldRef<"ThreePackItem", 'String'>
+    readonly productId: FieldRef<"ThreePackItem", 'String'>
+    readonly colis: FieldRef<"ThreePackItem", 'Decimal'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ThreePackItem findUnique
+   */
+  export type ThreePackItemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemInclude<ExtArgs> | null
+    /**
+     * Filter, which ThreePackItem to fetch.
+     */
+    where: ThreePackItemWhereUniqueInput
+  }
+
+  /**
+   * ThreePackItem findUniqueOrThrow
+   */
+  export type ThreePackItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemInclude<ExtArgs> | null
+    /**
+     * Filter, which ThreePackItem to fetch.
+     */
+    where: ThreePackItemWhereUniqueInput
+  }
+
+  /**
+   * ThreePackItem findFirst
+   */
+  export type ThreePackItemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemInclude<ExtArgs> | null
+    /**
+     * Filter, which ThreePackItem to fetch.
+     */
+    where?: ThreePackItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ThreePackItems to fetch.
+     */
+    orderBy?: ThreePackItemOrderByWithRelationInput | ThreePackItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ThreePackItems.
+     */
+    cursor?: ThreePackItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ThreePackItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ThreePackItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ThreePackItems.
+     */
+    distinct?: ThreePackItemScalarFieldEnum | ThreePackItemScalarFieldEnum[]
+  }
+
+  /**
+   * ThreePackItem findFirstOrThrow
+   */
+  export type ThreePackItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemInclude<ExtArgs> | null
+    /**
+     * Filter, which ThreePackItem to fetch.
+     */
+    where?: ThreePackItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ThreePackItems to fetch.
+     */
+    orderBy?: ThreePackItemOrderByWithRelationInput | ThreePackItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ThreePackItems.
+     */
+    cursor?: ThreePackItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ThreePackItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ThreePackItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ThreePackItems.
+     */
+    distinct?: ThreePackItemScalarFieldEnum | ThreePackItemScalarFieldEnum[]
+  }
+
+  /**
+   * ThreePackItem findMany
+   */
+  export type ThreePackItemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemInclude<ExtArgs> | null
+    /**
+     * Filter, which ThreePackItems to fetch.
+     */
+    where?: ThreePackItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ThreePackItems to fetch.
+     */
+    orderBy?: ThreePackItemOrderByWithRelationInput | ThreePackItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ThreePackItems.
+     */
+    cursor?: ThreePackItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ThreePackItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ThreePackItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ThreePackItems.
+     */
+    distinct?: ThreePackItemScalarFieldEnum | ThreePackItemScalarFieldEnum[]
+  }
+
+  /**
+   * ThreePackItem create
+   */
+  export type ThreePackItemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ThreePackItem.
+     */
+    data: XOR<ThreePackItemCreateInput, ThreePackItemUncheckedCreateInput>
+  }
+
+  /**
+   * ThreePackItem createMany
+   */
+  export type ThreePackItemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ThreePackItems.
+     */
+    data: ThreePackItemCreateManyInput | ThreePackItemCreateManyInput[]
+  }
+
+  /**
+   * ThreePackItem createManyAndReturn
+   */
+  export type ThreePackItemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * The data used to create many ThreePackItems.
+     */
+    data: ThreePackItemCreateManyInput | ThreePackItemCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ThreePackItem update
+   */
+  export type ThreePackItemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ThreePackItem.
+     */
+    data: XOR<ThreePackItemUpdateInput, ThreePackItemUncheckedUpdateInput>
+    /**
+     * Choose, which ThreePackItem to update.
+     */
+    where: ThreePackItemWhereUniqueInput
+  }
+
+  /**
+   * ThreePackItem updateMany
+   */
+  export type ThreePackItemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ThreePackItems.
+     */
+    data: XOR<ThreePackItemUpdateManyMutationInput, ThreePackItemUncheckedUpdateManyInput>
+    /**
+     * Filter which ThreePackItems to update
+     */
+    where?: ThreePackItemWhereInput
+    /**
+     * Limit how many ThreePackItems to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ThreePackItem updateManyAndReturn
+   */
+  export type ThreePackItemUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * The data used to update ThreePackItems.
+     */
+    data: XOR<ThreePackItemUpdateManyMutationInput, ThreePackItemUncheckedUpdateManyInput>
+    /**
+     * Filter which ThreePackItems to update
+     */
+    where?: ThreePackItemWhereInput
+    /**
+     * Limit how many ThreePackItems to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ThreePackItem upsert
+   */
+  export type ThreePackItemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ThreePackItem to update in case it exists.
+     */
+    where: ThreePackItemWhereUniqueInput
+    /**
+     * In case the ThreePackItem found by the `where` argument doesn't exist, create a new ThreePackItem with this data.
+     */
+    create: XOR<ThreePackItemCreateInput, ThreePackItemUncheckedCreateInput>
+    /**
+     * In case the ThreePackItem was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ThreePackItemUpdateInput, ThreePackItemUncheckedUpdateInput>
+  }
+
+  /**
+   * ThreePackItem delete
+   */
+  export type ThreePackItemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemInclude<ExtArgs> | null
+    /**
+     * Filter which ThreePackItem to delete.
+     */
+    where: ThreePackItemWhereUniqueInput
+  }
+
+  /**
+   * ThreePackItem deleteMany
+   */
+  export type ThreePackItemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ThreePackItems to delete
+     */
+    where?: ThreePackItemWhereInput
+    /**
+     * Limit how many ThreePackItems to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ThreePackItem without action
+   */
+  export type ThreePackItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ThreePackItem
+     */
+    select?: ThreePackItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ThreePackItem
+     */
+    omit?: ThreePackItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ThreePackItemInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -69519,6 +72080,7 @@ export namespace Prisma {
     ticketWidth: 'ticketWidth',
     ticketLang: 'ticketLang',
     supplierFilterEnabled: 'supplierFilterEnabled',
+    threePackEnabled: 'threePackEnabled',
     workStartAt: 'workStartAt',
     maxDayHours: 'maxDayHours',
     remoteDomain: 'remoteDomain'
@@ -69909,7 +72471,9 @@ export namespace Prisma {
     unitPrice: 'unitPrice',
     remise: 'remise',
     lineTotal: 'lineTotal',
-    unitCost: 'unitCost'
+    unitCost: 'unitCost',
+    isBonus: 'isBonus',
+    bonusRuleId: 'bonusRuleId'
   };
 
   export type SaleLineScalarFieldEnum = (typeof SaleLineScalarFieldEnum)[keyof typeof SaleLineScalarFieldEnum]
@@ -70312,6 +72876,30 @@ export namespace Prisma {
   export type ClientDistanceScalarFieldEnum = (typeof ClientDistanceScalarFieldEnum)[keyof typeof ClientDistanceScalarFieldEnum]
 
 
+  export const ThreePackRuleScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    name: 'name',
+    mode: 'mode',
+    isActive: 'isActive',
+    isArchived: 'isArchived',
+    createdAt: 'createdAt'
+  };
+
+  export type ThreePackRuleScalarFieldEnum = (typeof ThreePackRuleScalarFieldEnum)[keyof typeof ThreePackRuleScalarFieldEnum]
+
+
+  export const ThreePackItemScalarFieldEnum: {
+    id: 'id',
+    ruleId: 'ruleId',
+    role: 'role',
+    productId: 'productId',
+    colis: 'colis'
+  };
+
+  export type ThreePackItemScalarFieldEnum = (typeof ThreePackItemScalarFieldEnum)[keyof typeof ThreePackItemScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -70455,6 +73043,7 @@ export namespace Prisma {
     stockCounts?: StockCountListRelationFilter
     stockLosses?: StockLossListRelationFilter
     sales?: SaleListRelationFilter
+    threePackRules?: ThreePackRuleListRelationFilter
     clientReturns?: ClientReturnListRelationFilter
     tournees?: TourneeListRelationFilter
     expenses?: ExpenseListRelationFilter
@@ -70501,6 +73090,7 @@ export namespace Prisma {
     stockCounts?: StockCountOrderByRelationAggregateInput
     stockLosses?: StockLossOrderByRelationAggregateInput
     sales?: SaleOrderByRelationAggregateInput
+    threePackRules?: ThreePackRuleOrderByRelationAggregateInput
     clientReturns?: ClientReturnOrderByRelationAggregateInput
     tournees?: TourneeOrderByRelationAggregateInput
     expenses?: ExpenseOrderByRelationAggregateInput
@@ -70550,6 +73140,7 @@ export namespace Prisma {
     stockCounts?: StockCountListRelationFilter
     stockLosses?: StockLossListRelationFilter
     sales?: SaleListRelationFilter
+    threePackRules?: ThreePackRuleListRelationFilter
     clientReturns?: ClientReturnListRelationFilter
     tournees?: TourneeListRelationFilter
     expenses?: ExpenseListRelationFilter
@@ -70631,6 +73222,7 @@ export namespace Prisma {
     ticketWidth?: StringFilter<"CompanySettings"> | string
     ticketLang?: StringFilter<"CompanySettings"> | string
     supplierFilterEnabled?: BoolFilter<"CompanySettings"> | boolean
+    threePackEnabled?: BoolFilter<"CompanySettings"> | boolean
     workStartAt?: StringNullableFilter<"CompanySettings"> | string | null
     maxDayHours?: FloatNullableFilter<"CompanySettings"> | number | null
     remoteDomain?: StringNullableFilter<"CompanySettings"> | string | null
@@ -70660,6 +73252,7 @@ export namespace Prisma {
     ticketWidth?: SortOrder
     ticketLang?: SortOrder
     supplierFilterEnabled?: SortOrder
+    threePackEnabled?: SortOrder
     workStartAt?: SortOrderInput | SortOrder
     maxDayHours?: SortOrderInput | SortOrder
     remoteDomain?: SortOrderInput | SortOrder
@@ -70692,6 +73285,7 @@ export namespace Prisma {
     ticketWidth?: StringFilter<"CompanySettings"> | string
     ticketLang?: StringFilter<"CompanySettings"> | string
     supplierFilterEnabled?: BoolFilter<"CompanySettings"> | boolean
+    threePackEnabled?: BoolFilter<"CompanySettings"> | boolean
     workStartAt?: StringNullableFilter<"CompanySettings"> | string | null
     maxDayHours?: FloatNullableFilter<"CompanySettings"> | number | null
     remoteDomain?: StringNullableFilter<"CompanySettings"> | string | null
@@ -70721,6 +73315,7 @@ export namespace Prisma {
     ticketWidth?: SortOrder
     ticketLang?: SortOrder
     supplierFilterEnabled?: SortOrder
+    threePackEnabled?: SortOrder
     workStartAt?: SortOrderInput | SortOrder
     maxDayHours?: SortOrderInput | SortOrder
     remoteDomain?: SortOrderInput | SortOrder
@@ -70757,6 +73352,7 @@ export namespace Prisma {
     ticketWidth?: StringWithAggregatesFilter<"CompanySettings"> | string
     ticketLang?: StringWithAggregatesFilter<"CompanySettings"> | string
     supplierFilterEnabled?: BoolWithAggregatesFilter<"CompanySettings"> | boolean
+    threePackEnabled?: BoolWithAggregatesFilter<"CompanySettings"> | boolean
     workStartAt?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
     maxDayHours?: FloatNullableWithAggregatesFilter<"CompanySettings"> | number | null
     remoteDomain?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
@@ -72410,6 +75006,7 @@ export namespace Prisma {
     countLines?: StockCountLineListRelationFilter
     lossLines?: StockLossListRelationFilter
     saleLines?: SaleLineListRelationFilter
+    threePackItems?: ThreePackItemListRelationFilter
     clientReturnLines?: ClientReturnLineListRelationFilter
   }
 
@@ -72448,6 +75045,7 @@ export namespace Prisma {
     countLines?: StockCountLineOrderByRelationAggregateInput
     lossLines?: StockLossOrderByRelationAggregateInput
     saleLines?: SaleLineOrderByRelationAggregateInput
+    threePackItems?: ThreePackItemOrderByRelationAggregateInput
     clientReturnLines?: ClientReturnLineOrderByRelationAggregateInput
   }
 
@@ -72489,6 +75087,7 @@ export namespace Prisma {
     countLines?: StockCountLineListRelationFilter
     lossLines?: StockLossListRelationFilter
     saleLines?: SaleLineListRelationFilter
+    threePackItems?: ThreePackItemListRelationFilter
     clientReturnLines?: ClientReturnLineListRelationFilter
   }, "id">
 
@@ -72936,6 +75535,8 @@ export namespace Prisma {
     remise?: DecimalFilter<"SaleLine"> | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFilter<"SaleLine"> | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFilter<"SaleLine"> | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFilter<"SaleLine"> | boolean
+    bonusRuleId?: StringNullableFilter<"SaleLine"> | string | null
     sale?: XOR<SaleScalarRelationFilter, SaleWhereInput>
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }
@@ -72951,6 +75552,8 @@ export namespace Prisma {
     remise?: SortOrder
     lineTotal?: SortOrder
     unitCost?: SortOrder
+    isBonus?: SortOrder
+    bonusRuleId?: SortOrderInput | SortOrder
     sale?: SaleOrderByWithRelationInput
     product?: ProductOrderByWithRelationInput
   }
@@ -72969,6 +75572,8 @@ export namespace Prisma {
     remise?: DecimalFilter<"SaleLine"> | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFilter<"SaleLine"> | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFilter<"SaleLine"> | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFilter<"SaleLine"> | boolean
+    bonusRuleId?: StringNullableFilter<"SaleLine"> | string | null
     sale?: XOR<SaleScalarRelationFilter, SaleWhereInput>
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }, "id">
@@ -72984,6 +75589,8 @@ export namespace Prisma {
     remise?: SortOrder
     lineTotal?: SortOrder
     unitCost?: SortOrder
+    isBonus?: SortOrder
+    bonusRuleId?: SortOrderInput | SortOrder
     _count?: SaleLineCountOrderByAggregateInput
     _avg?: SaleLineAvgOrderByAggregateInput
     _max?: SaleLineMaxOrderByAggregateInput
@@ -73005,6 +75612,8 @@ export namespace Prisma {
     remise?: DecimalWithAggregatesFilter<"SaleLine"> | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalWithAggregatesFilter<"SaleLine"> | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalWithAggregatesFilter<"SaleLine"> | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolWithAggregatesFilter<"SaleLine"> | boolean
+    bonusRuleId?: StringNullableWithAggregatesFilter<"SaleLine"> | string | null
   }
 
   export type ClientReturnWhereInput = {
@@ -75135,6 +77744,134 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"ClientDistance"> | Date | string
   }
 
+  export type ThreePackRuleWhereInput = {
+    AND?: ThreePackRuleWhereInput | ThreePackRuleWhereInput[]
+    OR?: ThreePackRuleWhereInput[]
+    NOT?: ThreePackRuleWhereInput | ThreePackRuleWhereInput[]
+    id?: StringFilter<"ThreePackRule"> | string
+    companyId?: StringFilter<"ThreePackRule"> | string
+    name?: StringFilter<"ThreePackRule"> | string
+    mode?: StringFilter<"ThreePackRule"> | string
+    isActive?: BoolFilter<"ThreePackRule"> | boolean
+    isArchived?: BoolFilter<"ThreePackRule"> | boolean
+    createdAt?: DateTimeFilter<"ThreePackRule"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    items?: ThreePackItemListRelationFilter
+  }
+
+  export type ThreePackRuleOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    name?: SortOrder
+    mode?: SortOrder
+    isActive?: SortOrder
+    isArchived?: SortOrder
+    createdAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    items?: ThreePackItemOrderByRelationAggregateInput
+  }
+
+  export type ThreePackRuleWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ThreePackRuleWhereInput | ThreePackRuleWhereInput[]
+    OR?: ThreePackRuleWhereInput[]
+    NOT?: ThreePackRuleWhereInput | ThreePackRuleWhereInput[]
+    companyId?: StringFilter<"ThreePackRule"> | string
+    name?: StringFilter<"ThreePackRule"> | string
+    mode?: StringFilter<"ThreePackRule"> | string
+    isActive?: BoolFilter<"ThreePackRule"> | boolean
+    isArchived?: BoolFilter<"ThreePackRule"> | boolean
+    createdAt?: DateTimeFilter<"ThreePackRule"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    items?: ThreePackItemListRelationFilter
+  }, "id">
+
+  export type ThreePackRuleOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    name?: SortOrder
+    mode?: SortOrder
+    isActive?: SortOrder
+    isArchived?: SortOrder
+    createdAt?: SortOrder
+    _count?: ThreePackRuleCountOrderByAggregateInput
+    _max?: ThreePackRuleMaxOrderByAggregateInput
+    _min?: ThreePackRuleMinOrderByAggregateInput
+  }
+
+  export type ThreePackRuleScalarWhereWithAggregatesInput = {
+    AND?: ThreePackRuleScalarWhereWithAggregatesInput | ThreePackRuleScalarWhereWithAggregatesInput[]
+    OR?: ThreePackRuleScalarWhereWithAggregatesInput[]
+    NOT?: ThreePackRuleScalarWhereWithAggregatesInput | ThreePackRuleScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ThreePackRule"> | string
+    companyId?: StringWithAggregatesFilter<"ThreePackRule"> | string
+    name?: StringWithAggregatesFilter<"ThreePackRule"> | string
+    mode?: StringWithAggregatesFilter<"ThreePackRule"> | string
+    isActive?: BoolWithAggregatesFilter<"ThreePackRule"> | boolean
+    isArchived?: BoolWithAggregatesFilter<"ThreePackRule"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"ThreePackRule"> | Date | string
+  }
+
+  export type ThreePackItemWhereInput = {
+    AND?: ThreePackItemWhereInput | ThreePackItemWhereInput[]
+    OR?: ThreePackItemWhereInput[]
+    NOT?: ThreePackItemWhereInput | ThreePackItemWhereInput[]
+    id?: StringFilter<"ThreePackItem"> | string
+    ruleId?: StringFilter<"ThreePackItem"> | string
+    role?: StringFilter<"ThreePackItem"> | string
+    productId?: StringFilter<"ThreePackItem"> | string
+    colis?: DecimalFilter<"ThreePackItem"> | Decimal | DecimalJsLike | number | string
+    rule?: XOR<ThreePackRuleScalarRelationFilter, ThreePackRuleWhereInput>
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+  }
+
+  export type ThreePackItemOrderByWithRelationInput = {
+    id?: SortOrder
+    ruleId?: SortOrder
+    role?: SortOrder
+    productId?: SortOrder
+    colis?: SortOrder
+    rule?: ThreePackRuleOrderByWithRelationInput
+    product?: ProductOrderByWithRelationInput
+  }
+
+  export type ThreePackItemWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ThreePackItemWhereInput | ThreePackItemWhereInput[]
+    OR?: ThreePackItemWhereInput[]
+    NOT?: ThreePackItemWhereInput | ThreePackItemWhereInput[]
+    ruleId?: StringFilter<"ThreePackItem"> | string
+    role?: StringFilter<"ThreePackItem"> | string
+    productId?: StringFilter<"ThreePackItem"> | string
+    colis?: DecimalFilter<"ThreePackItem"> | Decimal | DecimalJsLike | number | string
+    rule?: XOR<ThreePackRuleScalarRelationFilter, ThreePackRuleWhereInput>
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+  }, "id">
+
+  export type ThreePackItemOrderByWithAggregationInput = {
+    id?: SortOrder
+    ruleId?: SortOrder
+    role?: SortOrder
+    productId?: SortOrder
+    colis?: SortOrder
+    _count?: ThreePackItemCountOrderByAggregateInput
+    _avg?: ThreePackItemAvgOrderByAggregateInput
+    _max?: ThreePackItemMaxOrderByAggregateInput
+    _min?: ThreePackItemMinOrderByAggregateInput
+    _sum?: ThreePackItemSumOrderByAggregateInput
+  }
+
+  export type ThreePackItemScalarWhereWithAggregatesInput = {
+    AND?: ThreePackItemScalarWhereWithAggregatesInput | ThreePackItemScalarWhereWithAggregatesInput[]
+    OR?: ThreePackItemScalarWhereWithAggregatesInput[]
+    NOT?: ThreePackItemScalarWhereWithAggregatesInput | ThreePackItemScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ThreePackItem"> | string
+    ruleId?: StringWithAggregatesFilter<"ThreePackItem"> | string
+    role?: StringWithAggregatesFilter<"ThreePackItem"> | string
+    productId?: StringWithAggregatesFilter<"ThreePackItem"> | string
+    colis?: DecimalWithAggregatesFilter<"ThreePackItem"> | Decimal | DecimalJsLike | number | string
+  }
+
   export type CompanyCreateInput = {
     id?: string
     name: string
@@ -75170,6 +77907,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -75216,6 +77954,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -75262,6 +78001,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -75308,6 +78048,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -75398,6 +78139,7 @@ export namespace Prisma {
     ticketWidth?: string
     ticketLang?: string
     supplierFilterEnabled?: boolean
+    threePackEnabled?: boolean
     workStartAt?: string | null
     maxDayHours?: number | null
     remoteDomain?: string | null
@@ -75427,6 +78169,7 @@ export namespace Prisma {
     ticketWidth?: string
     ticketLang?: string
     supplierFilterEnabled?: boolean
+    threePackEnabled?: boolean
     workStartAt?: string | null
     maxDayHours?: number | null
     remoteDomain?: string | null
@@ -75454,6 +78197,7 @@ export namespace Prisma {
     ticketWidth?: StringFieldUpdateOperationsInput | string
     ticketLang?: StringFieldUpdateOperationsInput | string
     supplierFilterEnabled?: BoolFieldUpdateOperationsInput | boolean
+    threePackEnabled?: BoolFieldUpdateOperationsInput | boolean
     workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
     maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -75483,6 +78227,7 @@ export namespace Prisma {
     ticketWidth?: StringFieldUpdateOperationsInput | string
     ticketLang?: StringFieldUpdateOperationsInput | string
     supplierFilterEnabled?: BoolFieldUpdateOperationsInput | boolean
+    threePackEnabled?: BoolFieldUpdateOperationsInput | boolean
     workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
     maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -75511,6 +78256,7 @@ export namespace Prisma {
     ticketWidth?: string
     ticketLang?: string
     supplierFilterEnabled?: boolean
+    threePackEnabled?: boolean
     workStartAt?: string | null
     maxDayHours?: number | null
     remoteDomain?: string | null
@@ -75538,6 +78284,7 @@ export namespace Prisma {
     ticketWidth?: StringFieldUpdateOperationsInput | string
     ticketLang?: StringFieldUpdateOperationsInput | string
     supplierFilterEnabled?: BoolFieldUpdateOperationsInput | boolean
+    threePackEnabled?: BoolFieldUpdateOperationsInput | boolean
     workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
     maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -75566,6 +78313,7 @@ export namespace Prisma {
     ticketWidth?: StringFieldUpdateOperationsInput | string
     ticketLang?: StringFieldUpdateOperationsInput | string
     supplierFilterEnabled?: BoolFieldUpdateOperationsInput | boolean
+    threePackEnabled?: BoolFieldUpdateOperationsInput | boolean
     workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
     maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -77319,6 +80067,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -77351,6 +80100,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -77383,6 +80133,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -77415,6 +80166,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -77869,6 +80621,8 @@ export namespace Prisma {
     remise?: Decimal | DecimalJsLike | number | string
     lineTotal: Decimal | DecimalJsLike | number | string
     unitCost?: Decimal | DecimalJsLike | number | string
+    isBonus?: boolean
+    bonusRuleId?: string | null
     sale: SaleCreateNestedOneWithoutLinesInput
     product: ProductCreateNestedOneWithoutSaleLinesInput
   }
@@ -77884,6 +80638,8 @@ export namespace Prisma {
     remise?: Decimal | DecimalJsLike | number | string
     lineTotal: Decimal | DecimalJsLike | number | string
     unitCost?: Decimal | DecimalJsLike | number | string
+    isBonus?: boolean
+    bonusRuleId?: string | null
   }
 
   export type SaleLineUpdateInput = {
@@ -77895,6 +80651,8 @@ export namespace Prisma {
     remise?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFieldUpdateOperationsInput | boolean
+    bonusRuleId?: NullableStringFieldUpdateOperationsInput | string | null
     sale?: SaleUpdateOneRequiredWithoutLinesNestedInput
     product?: ProductUpdateOneRequiredWithoutSaleLinesNestedInput
   }
@@ -77910,6 +80668,8 @@ export namespace Prisma {
     remise?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFieldUpdateOperationsInput | boolean
+    bonusRuleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SaleLineCreateManyInput = {
@@ -77923,6 +80683,8 @@ export namespace Prisma {
     remise?: Decimal | DecimalJsLike | number | string
     lineTotal: Decimal | DecimalJsLike | number | string
     unitCost?: Decimal | DecimalJsLike | number | string
+    isBonus?: boolean
+    bonusRuleId?: string | null
   }
 
   export type SaleLineUpdateManyMutationInput = {
@@ -77934,6 +80696,8 @@ export namespace Prisma {
     remise?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFieldUpdateOperationsInput | boolean
+    bonusRuleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SaleLineUncheckedUpdateManyInput = {
@@ -77947,6 +80711,8 @@ export namespace Prisma {
     remise?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFieldUpdateOperationsInput | boolean
+    bonusRuleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ClientReturnCreateInput = {
@@ -80221,6 +82987,133 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ThreePackRuleCreateInput = {
+    id?: string
+    name: string
+    mode: string
+    isActive?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutThreePackRulesInput
+    items?: ThreePackItemCreateNestedManyWithoutRuleInput
+  }
+
+  export type ThreePackRuleUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    name: string
+    mode: string
+    isActive?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    items?: ThreePackItemUncheckedCreateNestedManyWithoutRuleInput
+  }
+
+  export type ThreePackRuleUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutThreePackRulesNestedInput
+    items?: ThreePackItemUpdateManyWithoutRuleNestedInput
+  }
+
+  export type ThreePackRuleUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: ThreePackItemUncheckedUpdateManyWithoutRuleNestedInput
+  }
+
+  export type ThreePackRuleCreateManyInput = {
+    id?: string
+    companyId: string
+    name: string
+    mode: string
+    isActive?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+  }
+
+  export type ThreePackRuleUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ThreePackRuleUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ThreePackItemCreateInput = {
+    id?: string
+    role: string
+    colis: Decimal | DecimalJsLike | number | string
+    rule: ThreePackRuleCreateNestedOneWithoutItemsInput
+    product: ProductCreateNestedOneWithoutThreePackItemsInput
+  }
+
+  export type ThreePackItemUncheckedCreateInput = {
+    id?: string
+    ruleId: string
+    role: string
+    productId: string
+    colis: Decimal | DecimalJsLike | number | string
+  }
+
+  export type ThreePackItemUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    rule?: ThreePackRuleUpdateOneRequiredWithoutItemsNestedInput
+    product?: ProductUpdateOneRequiredWithoutThreePackItemsNestedInput
+  }
+
+  export type ThreePackItemUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ruleId?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type ThreePackItemCreateManyInput = {
+    id?: string
+    ruleId: string
+    role: string
+    productId: string
+    colis: Decimal | DecimalJsLike | number | string
+  }
+
+  export type ThreePackItemUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type ThreePackItemUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ruleId?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -80367,6 +83260,12 @@ export namespace Prisma {
     none?: SaleWhereInput
   }
 
+  export type ThreePackRuleListRelationFilter = {
+    every?: ThreePackRuleWhereInput
+    some?: ThreePackRuleWhereInput
+    none?: ThreePackRuleWhereInput
+  }
+
   export type ClientReturnListRelationFilter = {
     every?: ClientReturnWhereInput
     some?: ClientReturnWhereInput
@@ -80491,6 +83390,10 @@ export namespace Prisma {
   }
 
   export type SaleOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ThreePackRuleOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -80679,6 +83582,7 @@ export namespace Prisma {
     ticketWidth?: SortOrder
     ticketLang?: SortOrder
     supplierFilterEnabled?: SortOrder
+    threePackEnabled?: SortOrder
     workStartAt?: SortOrder
     maxDayHours?: SortOrder
     remoteDomain?: SortOrder
@@ -80711,6 +83615,7 @@ export namespace Prisma {
     ticketWidth?: SortOrder
     ticketLang?: SortOrder
     supplierFilterEnabled?: SortOrder
+    threePackEnabled?: SortOrder
     workStartAt?: SortOrder
     maxDayHours?: SortOrder
     remoteDomain?: SortOrder
@@ -80739,6 +83644,7 @@ export namespace Prisma {
     ticketWidth?: SortOrder
     ticketLang?: SortOrder
     supplierFilterEnabled?: SortOrder
+    threePackEnabled?: SortOrder
     workStartAt?: SortOrder
     maxDayHours?: SortOrder
     remoteDomain?: SortOrder
@@ -81961,6 +84867,12 @@ export namespace Prisma {
     none?: SaleLineWhereInput
   }
 
+  export type ThreePackItemListRelationFilter = {
+    every?: ThreePackItemWhereInput
+    some?: ThreePackItemWhereInput
+    none?: ThreePackItemWhereInput
+  }
+
   export type ClientReturnLineListRelationFilter = {
     every?: ClientReturnLineWhereInput
     some?: ClientReturnLineWhereInput
@@ -81980,6 +84892,10 @@ export namespace Prisma {
   }
 
   export type SaleLineOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ThreePackItemOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -82338,6 +85254,8 @@ export namespace Prisma {
     remise?: SortOrder
     lineTotal?: SortOrder
     unitCost?: SortOrder
+    isBonus?: SortOrder
+    bonusRuleId?: SortOrder
   }
 
   export type SaleLineAvgOrderByAggregateInput = {
@@ -82360,6 +85278,8 @@ export namespace Prisma {
     remise?: SortOrder
     lineTotal?: SortOrder
     unitCost?: SortOrder
+    isBonus?: SortOrder
+    bonusRuleId?: SortOrder
   }
 
   export type SaleLineMinOrderByAggregateInput = {
@@ -82373,6 +85293,8 @@ export namespace Prisma {
     remise?: SortOrder
     lineTotal?: SortOrder
     unitCost?: SortOrder
+    isBonus?: SortOrder
+    bonusRuleId?: SortOrder
   }
 
   export type SaleLineSumOrderByAggregateInput = {
@@ -83709,6 +86631,73 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type ThreePackRuleCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    name?: SortOrder
+    mode?: SortOrder
+    isActive?: SortOrder
+    isArchived?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ThreePackRuleMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    name?: SortOrder
+    mode?: SortOrder
+    isActive?: SortOrder
+    isArchived?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ThreePackRuleMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    name?: SortOrder
+    mode?: SortOrder
+    isActive?: SortOrder
+    isArchived?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ThreePackRuleScalarRelationFilter = {
+    is?: ThreePackRuleWhereInput
+    isNot?: ThreePackRuleWhereInput
+  }
+
+  export type ThreePackItemCountOrderByAggregateInput = {
+    id?: SortOrder
+    ruleId?: SortOrder
+    role?: SortOrder
+    productId?: SortOrder
+    colis?: SortOrder
+  }
+
+  export type ThreePackItemAvgOrderByAggregateInput = {
+    colis?: SortOrder
+  }
+
+  export type ThreePackItemMaxOrderByAggregateInput = {
+    id?: SortOrder
+    ruleId?: SortOrder
+    role?: SortOrder
+    productId?: SortOrder
+    colis?: SortOrder
+  }
+
+  export type ThreePackItemMinOrderByAggregateInput = {
+    id?: SortOrder
+    ruleId?: SortOrder
+    role?: SortOrder
+    productId?: SortOrder
+    colis?: SortOrder
+  }
+
+  export type ThreePackItemSumOrderByAggregateInput = {
+    colis?: SortOrder
+  }
+
   export type UserCreateNestedManyWithoutCompanyInput = {
     create?: XOR<UserCreateWithoutCompanyInput, UserUncheckedCreateWithoutCompanyInput> | UserCreateWithoutCompanyInput[] | UserUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserCreateOrConnectWithoutCompanyInput | UserCreateOrConnectWithoutCompanyInput[]
@@ -83832,6 +86821,13 @@ export namespace Prisma {
     connectOrCreate?: SaleCreateOrConnectWithoutCompanyInput | SaleCreateOrConnectWithoutCompanyInput[]
     createMany?: SaleCreateManyCompanyInputEnvelope
     connect?: SaleWhereUniqueInput | SaleWhereUniqueInput[]
+  }
+
+  export type ThreePackRuleCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<ThreePackRuleCreateWithoutCompanyInput, ThreePackRuleUncheckedCreateWithoutCompanyInput> | ThreePackRuleCreateWithoutCompanyInput[] | ThreePackRuleUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ThreePackRuleCreateOrConnectWithoutCompanyInput | ThreePackRuleCreateOrConnectWithoutCompanyInput[]
+    createMany?: ThreePackRuleCreateManyCompanyInputEnvelope
+    connect?: ThreePackRuleWhereUniqueInput | ThreePackRuleWhereUniqueInput[]
   }
 
   export type ClientReturnCreateNestedManyWithoutCompanyInput = {
@@ -84020,6 +87016,13 @@ export namespace Prisma {
     connectOrCreate?: SaleCreateOrConnectWithoutCompanyInput | SaleCreateOrConnectWithoutCompanyInput[]
     createMany?: SaleCreateManyCompanyInputEnvelope
     connect?: SaleWhereUniqueInput | SaleWhereUniqueInput[]
+  }
+
+  export type ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<ThreePackRuleCreateWithoutCompanyInput, ThreePackRuleUncheckedCreateWithoutCompanyInput> | ThreePackRuleCreateWithoutCompanyInput[] | ThreePackRuleUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ThreePackRuleCreateOrConnectWithoutCompanyInput | ThreePackRuleCreateOrConnectWithoutCompanyInput[]
+    createMany?: ThreePackRuleCreateManyCompanyInputEnvelope
+    connect?: ThreePackRuleWhereUniqueInput | ThreePackRuleWhereUniqueInput[]
   }
 
   export type ClientReturnUncheckedCreateNestedManyWithoutCompanyInput = {
@@ -84343,6 +87346,20 @@ export namespace Prisma {
     update?: SaleUpdateWithWhereUniqueWithoutCompanyInput | SaleUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: SaleUpdateManyWithWhereWithoutCompanyInput | SaleUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: SaleScalarWhereInput | SaleScalarWhereInput[]
+  }
+
+  export type ThreePackRuleUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<ThreePackRuleCreateWithoutCompanyInput, ThreePackRuleUncheckedCreateWithoutCompanyInput> | ThreePackRuleCreateWithoutCompanyInput[] | ThreePackRuleUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ThreePackRuleCreateOrConnectWithoutCompanyInput | ThreePackRuleCreateOrConnectWithoutCompanyInput[]
+    upsert?: ThreePackRuleUpsertWithWhereUniqueWithoutCompanyInput | ThreePackRuleUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: ThreePackRuleCreateManyCompanyInputEnvelope
+    set?: ThreePackRuleWhereUniqueInput | ThreePackRuleWhereUniqueInput[]
+    disconnect?: ThreePackRuleWhereUniqueInput | ThreePackRuleWhereUniqueInput[]
+    delete?: ThreePackRuleWhereUniqueInput | ThreePackRuleWhereUniqueInput[]
+    connect?: ThreePackRuleWhereUniqueInput | ThreePackRuleWhereUniqueInput[]
+    update?: ThreePackRuleUpdateWithWhereUniqueWithoutCompanyInput | ThreePackRuleUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: ThreePackRuleUpdateManyWithWhereWithoutCompanyInput | ThreePackRuleUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: ThreePackRuleScalarWhereInput | ThreePackRuleScalarWhereInput[]
   }
 
   export type ClientReturnUpdateManyWithoutCompanyNestedInput = {
@@ -84717,6 +87734,20 @@ export namespace Prisma {
     update?: SaleUpdateWithWhereUniqueWithoutCompanyInput | SaleUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: SaleUpdateManyWithWhereWithoutCompanyInput | SaleUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: SaleScalarWhereInput | SaleScalarWhereInput[]
+  }
+
+  export type ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<ThreePackRuleCreateWithoutCompanyInput, ThreePackRuleUncheckedCreateWithoutCompanyInput> | ThreePackRuleCreateWithoutCompanyInput[] | ThreePackRuleUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ThreePackRuleCreateOrConnectWithoutCompanyInput | ThreePackRuleCreateOrConnectWithoutCompanyInput[]
+    upsert?: ThreePackRuleUpsertWithWhereUniqueWithoutCompanyInput | ThreePackRuleUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: ThreePackRuleCreateManyCompanyInputEnvelope
+    set?: ThreePackRuleWhereUniqueInput | ThreePackRuleWhereUniqueInput[]
+    disconnect?: ThreePackRuleWhereUniqueInput | ThreePackRuleWhereUniqueInput[]
+    delete?: ThreePackRuleWhereUniqueInput | ThreePackRuleWhereUniqueInput[]
+    connect?: ThreePackRuleWhereUniqueInput | ThreePackRuleWhereUniqueInput[]
+    update?: ThreePackRuleUpdateWithWhereUniqueWithoutCompanyInput | ThreePackRuleUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: ThreePackRuleUpdateManyWithWhereWithoutCompanyInput | ThreePackRuleUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: ThreePackRuleScalarWhereInput | ThreePackRuleScalarWhereInput[]
   }
 
   export type ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput = {
@@ -87321,6 +90352,13 @@ export namespace Prisma {
     connect?: SaleLineWhereUniqueInput | SaleLineWhereUniqueInput[]
   }
 
+  export type ThreePackItemCreateNestedManyWithoutProductInput = {
+    create?: XOR<ThreePackItemCreateWithoutProductInput, ThreePackItemUncheckedCreateWithoutProductInput> | ThreePackItemCreateWithoutProductInput[] | ThreePackItemUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ThreePackItemCreateOrConnectWithoutProductInput | ThreePackItemCreateOrConnectWithoutProductInput[]
+    createMany?: ThreePackItemCreateManyProductInputEnvelope
+    connect?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+  }
+
   export type ClientReturnLineCreateNestedManyWithoutProductInput = {
     create?: XOR<ClientReturnLineCreateWithoutProductInput, ClientReturnLineUncheckedCreateWithoutProductInput> | ClientReturnLineCreateWithoutProductInput[] | ClientReturnLineUncheckedCreateWithoutProductInput[]
     connectOrCreate?: ClientReturnLineCreateOrConnectWithoutProductInput | ClientReturnLineCreateOrConnectWithoutProductInput[]
@@ -87396,6 +90434,13 @@ export namespace Prisma {
     connectOrCreate?: SaleLineCreateOrConnectWithoutProductInput | SaleLineCreateOrConnectWithoutProductInput[]
     createMany?: SaleLineCreateManyProductInputEnvelope
     connect?: SaleLineWhereUniqueInput | SaleLineWhereUniqueInput[]
+  }
+
+  export type ThreePackItemUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<ThreePackItemCreateWithoutProductInput, ThreePackItemUncheckedCreateWithoutProductInput> | ThreePackItemCreateWithoutProductInput[] | ThreePackItemUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ThreePackItemCreateOrConnectWithoutProductInput | ThreePackItemCreateOrConnectWithoutProductInput[]
+    createMany?: ThreePackItemCreateManyProductInputEnvelope
+    connect?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
   }
 
   export type ClientReturnLineUncheckedCreateNestedManyWithoutProductInput = {
@@ -87603,6 +90648,20 @@ export namespace Prisma {
     deleteMany?: SaleLineScalarWhereInput | SaleLineScalarWhereInput[]
   }
 
+  export type ThreePackItemUpdateManyWithoutProductNestedInput = {
+    create?: XOR<ThreePackItemCreateWithoutProductInput, ThreePackItemUncheckedCreateWithoutProductInput> | ThreePackItemCreateWithoutProductInput[] | ThreePackItemUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ThreePackItemCreateOrConnectWithoutProductInput | ThreePackItemCreateOrConnectWithoutProductInput[]
+    upsert?: ThreePackItemUpsertWithWhereUniqueWithoutProductInput | ThreePackItemUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: ThreePackItemCreateManyProductInputEnvelope
+    set?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    disconnect?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    delete?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    connect?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    update?: ThreePackItemUpdateWithWhereUniqueWithoutProductInput | ThreePackItemUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: ThreePackItemUpdateManyWithWhereWithoutProductInput | ThreePackItemUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: ThreePackItemScalarWhereInput | ThreePackItemScalarWhereInput[]
+  }
+
   export type ClientReturnLineUpdateManyWithoutProductNestedInput = {
     create?: XOR<ClientReturnLineCreateWithoutProductInput, ClientReturnLineUncheckedCreateWithoutProductInput> | ClientReturnLineCreateWithoutProductInput[] | ClientReturnLineUncheckedCreateWithoutProductInput[]
     connectOrCreate?: ClientReturnLineCreateOrConnectWithoutProductInput | ClientReturnLineCreateOrConnectWithoutProductInput[]
@@ -87755,6 +90814,20 @@ export namespace Prisma {
     update?: SaleLineUpdateWithWhereUniqueWithoutProductInput | SaleLineUpdateWithWhereUniqueWithoutProductInput[]
     updateMany?: SaleLineUpdateManyWithWhereWithoutProductInput | SaleLineUpdateManyWithWhereWithoutProductInput[]
     deleteMany?: SaleLineScalarWhereInput | SaleLineScalarWhereInput[]
+  }
+
+  export type ThreePackItemUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<ThreePackItemCreateWithoutProductInput, ThreePackItemUncheckedCreateWithoutProductInput> | ThreePackItemCreateWithoutProductInput[] | ThreePackItemUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ThreePackItemCreateOrConnectWithoutProductInput | ThreePackItemCreateOrConnectWithoutProductInput[]
+    upsert?: ThreePackItemUpsertWithWhereUniqueWithoutProductInput | ThreePackItemUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: ThreePackItemCreateManyProductInputEnvelope
+    set?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    disconnect?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    delete?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    connect?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    update?: ThreePackItemUpdateWithWhereUniqueWithoutProductInput | ThreePackItemUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: ThreePackItemUpdateManyWithWhereWithoutProductInput | ThreePackItemUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: ThreePackItemScalarWhereInput | ThreePackItemScalarWhereInput[]
   }
 
   export type ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput = {
@@ -89245,6 +92318,90 @@ export namespace Prisma {
     update?: XOR<XOR<CustomerUpdateToOneWithWhereWithoutDistancesInput, CustomerUpdateWithoutDistancesInput>, CustomerUncheckedUpdateWithoutDistancesInput>
   }
 
+  export type CompanyCreateNestedOneWithoutThreePackRulesInput = {
+    create?: XOR<CompanyCreateWithoutThreePackRulesInput, CompanyUncheckedCreateWithoutThreePackRulesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutThreePackRulesInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type ThreePackItemCreateNestedManyWithoutRuleInput = {
+    create?: XOR<ThreePackItemCreateWithoutRuleInput, ThreePackItemUncheckedCreateWithoutRuleInput> | ThreePackItemCreateWithoutRuleInput[] | ThreePackItemUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: ThreePackItemCreateOrConnectWithoutRuleInput | ThreePackItemCreateOrConnectWithoutRuleInput[]
+    createMany?: ThreePackItemCreateManyRuleInputEnvelope
+    connect?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+  }
+
+  export type ThreePackItemUncheckedCreateNestedManyWithoutRuleInput = {
+    create?: XOR<ThreePackItemCreateWithoutRuleInput, ThreePackItemUncheckedCreateWithoutRuleInput> | ThreePackItemCreateWithoutRuleInput[] | ThreePackItemUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: ThreePackItemCreateOrConnectWithoutRuleInput | ThreePackItemCreateOrConnectWithoutRuleInput[]
+    createMany?: ThreePackItemCreateManyRuleInputEnvelope
+    connect?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+  }
+
+  export type CompanyUpdateOneRequiredWithoutThreePackRulesNestedInput = {
+    create?: XOR<CompanyCreateWithoutThreePackRulesInput, CompanyUncheckedCreateWithoutThreePackRulesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutThreePackRulesInput
+    upsert?: CompanyUpsertWithoutThreePackRulesInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutThreePackRulesInput, CompanyUpdateWithoutThreePackRulesInput>, CompanyUncheckedUpdateWithoutThreePackRulesInput>
+  }
+
+  export type ThreePackItemUpdateManyWithoutRuleNestedInput = {
+    create?: XOR<ThreePackItemCreateWithoutRuleInput, ThreePackItemUncheckedCreateWithoutRuleInput> | ThreePackItemCreateWithoutRuleInput[] | ThreePackItemUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: ThreePackItemCreateOrConnectWithoutRuleInput | ThreePackItemCreateOrConnectWithoutRuleInput[]
+    upsert?: ThreePackItemUpsertWithWhereUniqueWithoutRuleInput | ThreePackItemUpsertWithWhereUniqueWithoutRuleInput[]
+    createMany?: ThreePackItemCreateManyRuleInputEnvelope
+    set?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    disconnect?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    delete?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    connect?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    update?: ThreePackItemUpdateWithWhereUniqueWithoutRuleInput | ThreePackItemUpdateWithWhereUniqueWithoutRuleInput[]
+    updateMany?: ThreePackItemUpdateManyWithWhereWithoutRuleInput | ThreePackItemUpdateManyWithWhereWithoutRuleInput[]
+    deleteMany?: ThreePackItemScalarWhereInput | ThreePackItemScalarWhereInput[]
+  }
+
+  export type ThreePackItemUncheckedUpdateManyWithoutRuleNestedInput = {
+    create?: XOR<ThreePackItemCreateWithoutRuleInput, ThreePackItemUncheckedCreateWithoutRuleInput> | ThreePackItemCreateWithoutRuleInput[] | ThreePackItemUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: ThreePackItemCreateOrConnectWithoutRuleInput | ThreePackItemCreateOrConnectWithoutRuleInput[]
+    upsert?: ThreePackItemUpsertWithWhereUniqueWithoutRuleInput | ThreePackItemUpsertWithWhereUniqueWithoutRuleInput[]
+    createMany?: ThreePackItemCreateManyRuleInputEnvelope
+    set?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    disconnect?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    delete?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    connect?: ThreePackItemWhereUniqueInput | ThreePackItemWhereUniqueInput[]
+    update?: ThreePackItemUpdateWithWhereUniqueWithoutRuleInput | ThreePackItemUpdateWithWhereUniqueWithoutRuleInput[]
+    updateMany?: ThreePackItemUpdateManyWithWhereWithoutRuleInput | ThreePackItemUpdateManyWithWhereWithoutRuleInput[]
+    deleteMany?: ThreePackItemScalarWhereInput | ThreePackItemScalarWhereInput[]
+  }
+
+  export type ThreePackRuleCreateNestedOneWithoutItemsInput = {
+    create?: XOR<ThreePackRuleCreateWithoutItemsInput, ThreePackRuleUncheckedCreateWithoutItemsInput>
+    connectOrCreate?: ThreePackRuleCreateOrConnectWithoutItemsInput
+    connect?: ThreePackRuleWhereUniqueInput
+  }
+
+  export type ProductCreateNestedOneWithoutThreePackItemsInput = {
+    create?: XOR<ProductCreateWithoutThreePackItemsInput, ProductUncheckedCreateWithoutThreePackItemsInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutThreePackItemsInput
+    connect?: ProductWhereUniqueInput
+  }
+
+  export type ThreePackRuleUpdateOneRequiredWithoutItemsNestedInput = {
+    create?: XOR<ThreePackRuleCreateWithoutItemsInput, ThreePackRuleUncheckedCreateWithoutItemsInput>
+    connectOrCreate?: ThreePackRuleCreateOrConnectWithoutItemsInput
+    upsert?: ThreePackRuleUpsertWithoutItemsInput
+    connect?: ThreePackRuleWhereUniqueInput
+    update?: XOR<XOR<ThreePackRuleUpdateToOneWithWhereWithoutItemsInput, ThreePackRuleUpdateWithoutItemsInput>, ThreePackRuleUncheckedUpdateWithoutItemsInput>
+  }
+
+  export type ProductUpdateOneRequiredWithoutThreePackItemsNestedInput = {
+    create?: XOR<ProductCreateWithoutThreePackItemsInput, ProductUncheckedCreateWithoutThreePackItemsInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutThreePackItemsInput
+    upsert?: ProductUpsertWithoutThreePackItemsInput
+    connect?: ProductWhereUniqueInput
+    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutThreePackItemsInput, ProductUpdateWithoutThreePackItemsInput>, ProductUncheckedUpdateWithoutThreePackItemsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -89814,6 +92971,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -89845,6 +93003,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -89904,6 +93063,7 @@ export namespace Prisma {
     ticketWidth?: string
     ticketLang?: string
     supplierFilterEnabled?: boolean
+    threePackEnabled?: boolean
     workStartAt?: string | null
     maxDayHours?: number | null
     remoteDomain?: string | null
@@ -89931,6 +93091,7 @@ export namespace Prisma {
     ticketWidth?: string
     ticketLang?: string
     supplierFilterEnabled?: boolean
+    threePackEnabled?: boolean
     workStartAt?: string | null
     maxDayHours?: number | null
     remoteDomain?: string | null
@@ -90362,6 +93523,35 @@ export namespace Prisma {
 
   export type SaleCreateManyCompanyInputEnvelope = {
     data: SaleCreateManyCompanyInput | SaleCreateManyCompanyInput[]
+  }
+
+  export type ThreePackRuleCreateWithoutCompanyInput = {
+    id?: string
+    name: string
+    mode: string
+    isActive?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    items?: ThreePackItemCreateNestedManyWithoutRuleInput
+  }
+
+  export type ThreePackRuleUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    name: string
+    mode: string
+    isActive?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    items?: ThreePackItemUncheckedCreateNestedManyWithoutRuleInput
+  }
+
+  export type ThreePackRuleCreateOrConnectWithoutCompanyInput = {
+    where: ThreePackRuleWhereUniqueInput
+    create: XOR<ThreePackRuleCreateWithoutCompanyInput, ThreePackRuleUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ThreePackRuleCreateManyCompanyInputEnvelope = {
+    data: ThreePackRuleCreateManyCompanyInput | ThreePackRuleCreateManyCompanyInput[]
   }
 
   export type ClientReturnCreateWithoutCompanyInput = {
@@ -90969,6 +94159,7 @@ export namespace Prisma {
     ticketWidth?: StringFieldUpdateOperationsInput | string
     ticketLang?: StringFieldUpdateOperationsInput | string
     supplierFilterEnabled?: BoolFieldUpdateOperationsInput | boolean
+    threePackEnabled?: BoolFieldUpdateOperationsInput | boolean
     workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
     maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90996,6 +94187,7 @@ export namespace Prisma {
     ticketWidth?: StringFieldUpdateOperationsInput | string
     ticketLang?: StringFieldUpdateOperationsInput | string
     supplierFilterEnabled?: BoolFieldUpdateOperationsInput | boolean
+    threePackEnabled?: BoolFieldUpdateOperationsInput | boolean
     workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
     maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -91360,6 +94552,35 @@ export namespace Prisma {
     opId?: StringNullableFilter<"Sale"> | string | null
   }
 
+  export type ThreePackRuleUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: ThreePackRuleWhereUniqueInput
+    update: XOR<ThreePackRuleUpdateWithoutCompanyInput, ThreePackRuleUncheckedUpdateWithoutCompanyInput>
+    create: XOR<ThreePackRuleCreateWithoutCompanyInput, ThreePackRuleUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ThreePackRuleUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: ThreePackRuleWhereUniqueInput
+    data: XOR<ThreePackRuleUpdateWithoutCompanyInput, ThreePackRuleUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type ThreePackRuleUpdateManyWithWhereWithoutCompanyInput = {
+    where: ThreePackRuleScalarWhereInput
+    data: XOR<ThreePackRuleUpdateManyMutationInput, ThreePackRuleUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type ThreePackRuleScalarWhereInput = {
+    AND?: ThreePackRuleScalarWhereInput | ThreePackRuleScalarWhereInput[]
+    OR?: ThreePackRuleScalarWhereInput[]
+    NOT?: ThreePackRuleScalarWhereInput | ThreePackRuleScalarWhereInput[]
+    id?: StringFilter<"ThreePackRule"> | string
+    companyId?: StringFilter<"ThreePackRule"> | string
+    name?: StringFilter<"ThreePackRule"> | string
+    mode?: StringFilter<"ThreePackRule"> | string
+    isActive?: BoolFilter<"ThreePackRule"> | boolean
+    isArchived?: BoolFilter<"ThreePackRule"> | boolean
+    createdAt?: DateTimeFilter<"ThreePackRule"> | Date | string
+  }
+
   export type ClientReturnUpsertWithWhereUniqueWithoutCompanyInput = {
     where: ClientReturnWhereUniqueInput
     update: XOR<ClientReturnUpdateWithoutCompanyInput, ClientReturnUncheckedUpdateWithoutCompanyInput>
@@ -91704,6 +94925,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -91749,6 +94971,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -91810,6 +95033,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -91855,6 +95079,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -91900,6 +95125,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -91945,6 +95171,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -91989,6 +95216,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -92020,6 +95248,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -92060,6 +95289,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -92091,6 +95321,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -92131,6 +95362,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -92162,6 +95394,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -92244,6 +95477,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -92289,6 +95523,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -92410,6 +95645,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -92455,6 +95691,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -92689,6 +95926,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -92734,6 +95972,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -92838,6 +96077,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -92883,6 +96123,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -92981,6 +96222,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -93026,6 +96268,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -93290,6 +96533,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -93335,6 +96579,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -93588,6 +96833,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -93633,6 +96879,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -93753,6 +97000,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -93798,6 +97046,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -94065,6 +97314,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -94110,6 +97360,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -94330,6 +97581,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -94375,6 +97627,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -94960,6 +98213,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -95005,6 +98259,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -95273,6 +98528,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -95318,6 +98574,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -95606,6 +98863,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -95651,6 +98909,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -95932,6 +99191,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -95963,6 +99223,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -96061,6 +99322,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -96092,6 +99354,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -96129,6 +99392,7 @@ export namespace Prisma {
     transfers?: TransferCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -96174,6 +99438,7 @@ export namespace Prisma {
     transfers?: TransferUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -96321,6 +99586,7 @@ export namespace Prisma {
     transfers?: TransferUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -96366,6 +99632,7 @@ export namespace Prisma {
     transfers?: TransferUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -96530,6 +99797,7 @@ export namespace Prisma {
     transferLines?: TransferLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -96561,6 +99829,7 @@ export namespace Prisma {
     transferLines?: TransferLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -96643,6 +99912,7 @@ export namespace Prisma {
     transferLines?: TransferLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -96674,6 +99944,7 @@ export namespace Prisma {
     transferLines?: TransferLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -96711,6 +99982,7 @@ export namespace Prisma {
     transfers?: TransferCreateNestedManyWithoutCompanyInput
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -96756,6 +100028,7 @@ export namespace Prisma {
     transfers?: TransferUncheckedCreateNestedManyWithoutCompanyInput
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -96863,6 +100136,7 @@ export namespace Prisma {
     transferLines?: TransferLineCreateNestedManyWithoutProductInput
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -96894,6 +100168,7 @@ export namespace Prisma {
     transferLines?: TransferLineUncheckedCreateNestedManyWithoutProductInput
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -96947,6 +100222,7 @@ export namespace Prisma {
     transfers?: TransferUpdateManyWithoutCompanyNestedInput
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -96992,6 +100268,7 @@ export namespace Prisma {
     transfers?: TransferUncheckedUpdateManyWithoutCompanyNestedInput
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -97111,6 +100388,7 @@ export namespace Prisma {
     transferLines?: TransferLineUpdateManyWithoutProductNestedInput
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -97142,6 +100420,7 @@ export namespace Prisma {
     transferLines?: TransferLineUncheckedUpdateManyWithoutProductNestedInput
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -97179,6 +100458,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -97224,6 +100504,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -97285,6 +100566,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -97330,6 +100612,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -97375,6 +100658,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -97420,6 +100704,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -97804,6 +101089,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -97849,6 +101135,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -98097,6 +101384,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -98142,6 +101430,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -98234,6 +101523,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -98265,6 +101555,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -98443,6 +101734,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -98488,6 +101780,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -98651,6 +101944,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -98682,6 +101976,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -98744,6 +102039,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -98789,6 +102085,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -99216,6 +102513,8 @@ export namespace Prisma {
     remise?: Decimal | DecimalJsLike | number | string
     lineTotal: Decimal | DecimalJsLike | number | string
     unitCost?: Decimal | DecimalJsLike | number | string
+    isBonus?: boolean
+    bonusRuleId?: string | null
     sale: SaleCreateNestedOneWithoutLinesInput
   }
 
@@ -99229,6 +102528,8 @@ export namespace Prisma {
     remise?: Decimal | DecimalJsLike | number | string
     lineTotal: Decimal | DecimalJsLike | number | string
     unitCost?: Decimal | DecimalJsLike | number | string
+    isBonus?: boolean
+    bonusRuleId?: string | null
   }
 
   export type SaleLineCreateOrConnectWithoutProductInput = {
@@ -99238,6 +102539,29 @@ export namespace Prisma {
 
   export type SaleLineCreateManyProductInputEnvelope = {
     data: SaleLineCreateManyProductInput | SaleLineCreateManyProductInput[]
+  }
+
+  export type ThreePackItemCreateWithoutProductInput = {
+    id?: string
+    role: string
+    colis: Decimal | DecimalJsLike | number | string
+    rule: ThreePackRuleCreateNestedOneWithoutItemsInput
+  }
+
+  export type ThreePackItemUncheckedCreateWithoutProductInput = {
+    id?: string
+    ruleId: string
+    role: string
+    colis: Decimal | DecimalJsLike | number | string
+  }
+
+  export type ThreePackItemCreateOrConnectWithoutProductInput = {
+    where: ThreePackItemWhereUniqueInput
+    create: XOR<ThreePackItemCreateWithoutProductInput, ThreePackItemUncheckedCreateWithoutProductInput>
+  }
+
+  export type ThreePackItemCreateManyProductInputEnvelope = {
+    data: ThreePackItemCreateManyProductInput | ThreePackItemCreateManyProductInput[]
   }
 
   export type ClientReturnLineCreateWithoutProductInput = {
@@ -99310,6 +102634,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -99355,6 +102680,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -99766,6 +103092,35 @@ export namespace Prisma {
     remise?: DecimalFilter<"SaleLine"> | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFilter<"SaleLine"> | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFilter<"SaleLine"> | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFilter<"SaleLine"> | boolean
+    bonusRuleId?: StringNullableFilter<"SaleLine"> | string | null
+  }
+
+  export type ThreePackItemUpsertWithWhereUniqueWithoutProductInput = {
+    where: ThreePackItemWhereUniqueInput
+    update: XOR<ThreePackItemUpdateWithoutProductInput, ThreePackItemUncheckedUpdateWithoutProductInput>
+    create: XOR<ThreePackItemCreateWithoutProductInput, ThreePackItemUncheckedCreateWithoutProductInput>
+  }
+
+  export type ThreePackItemUpdateWithWhereUniqueWithoutProductInput = {
+    where: ThreePackItemWhereUniqueInput
+    data: XOR<ThreePackItemUpdateWithoutProductInput, ThreePackItemUncheckedUpdateWithoutProductInput>
+  }
+
+  export type ThreePackItemUpdateManyWithWhereWithoutProductInput = {
+    where: ThreePackItemScalarWhereInput
+    data: XOR<ThreePackItemUpdateManyMutationInput, ThreePackItemUncheckedUpdateManyWithoutProductInput>
+  }
+
+  export type ThreePackItemScalarWhereInput = {
+    AND?: ThreePackItemScalarWhereInput | ThreePackItemScalarWhereInput[]
+    OR?: ThreePackItemScalarWhereInput[]
+    NOT?: ThreePackItemScalarWhereInput | ThreePackItemScalarWhereInput[]
+    id?: StringFilter<"ThreePackItem"> | string
+    ruleId?: StringFilter<"ThreePackItem"> | string
+    role?: StringFilter<"ThreePackItem"> | string
+    productId?: StringFilter<"ThreePackItem"> | string
+    colis?: DecimalFilter<"ThreePackItem"> | Decimal | DecimalJsLike | number | string
   }
 
   export type ClientReturnLineUpsertWithWhereUniqueWithoutProductInput = {
@@ -99824,6 +103179,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -99855,6 +103211,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -99902,6 +103259,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -99933,6 +103291,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -99964,6 +103323,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -99995,6 +103355,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -100073,6 +103434,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -100104,6 +103466,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -100172,6 +103535,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -100203,6 +103567,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -100277,6 +103642,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -100308,6 +103674,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -100378,6 +103745,7 @@ export namespace Prisma {
     transfers?: TransferCreateNestedManyWithoutCompanyInput
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -100423,6 +103791,7 @@ export namespace Prisma {
     transfers?: TransferUncheckedCreateNestedManyWithoutCompanyInput
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -100837,6 +104206,8 @@ export namespace Prisma {
     remise?: Decimal | DecimalJsLike | number | string
     lineTotal: Decimal | DecimalJsLike | number | string
     unitCost?: Decimal | DecimalJsLike | number | string
+    isBonus?: boolean
+    bonusRuleId?: string | null
     product: ProductCreateNestedOneWithoutSaleLinesInput
   }
 
@@ -100850,6 +104221,8 @@ export namespace Prisma {
     remise?: Decimal | DecimalJsLike | number | string
     lineTotal: Decimal | DecimalJsLike | number | string
     unitCost?: Decimal | DecimalJsLike | number | string
+    isBonus?: boolean
+    bonusRuleId?: string | null
   }
 
   export type SaleLineCreateOrConnectWithoutSaleInput = {
@@ -100947,6 +104320,7 @@ export namespace Prisma {
     transfers?: TransferUpdateManyWithoutCompanyNestedInput
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -100992,6 +104366,7 @@ export namespace Prisma {
     transfers?: TransferUncheckedUpdateManyWithoutCompanyNestedInput
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -101500,6 +104875,7 @@ export namespace Prisma {
     transferLines?: TransferLineCreateNestedManyWithoutProductInput
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -101531,6 +104907,7 @@ export namespace Prisma {
     transferLines?: TransferLineUncheckedCreateNestedManyWithoutProductInput
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -101653,6 +105030,7 @@ export namespace Prisma {
     transferLines?: TransferLineUpdateManyWithoutProductNestedInput
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -101684,6 +105062,7 @@ export namespace Prisma {
     transferLines?: TransferLineUncheckedUpdateManyWithoutProductNestedInput
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -101722,6 +105101,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -101767,6 +105147,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -102058,6 +105439,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -102103,6 +105485,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -102418,6 +105801,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutClientReturnLinesInput = {
@@ -102449,6 +105833,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutClientReturnLinesInput = {
@@ -102539,6 +105924,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutClientReturnLinesInput = {
@@ -102570,6 +105956,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type CompanyCreateWithoutTourneesInput = {
@@ -102607,6 +105994,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -102652,6 +106040,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -102905,6 +106294,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -102950,6 +106340,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -103699,6 +107090,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -103744,6 +107136,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -103942,6 +107335,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -103987,6 +107381,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -104164,6 +107559,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -104209,6 +107605,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -104299,6 +107696,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -104344,6 +107742,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -104423,6 +107822,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -104468,6 +107868,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -104687,6 +108088,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -104732,6 +108134,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -104907,6 +108310,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -104938,6 +108342,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -105061,6 +108466,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -105092,6 +108498,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -105166,6 +108573,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -105211,6 +108619,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -105255,6 +108664,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -105286,6 +108696,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -105480,6 +108891,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -105525,6 +108937,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -105575,6 +108988,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -105606,6 +109020,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -105802,6 +109217,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -105847,6 +109263,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -106015,6 +109432,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -106060,6 +109478,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -106240,6 +109659,7 @@ export namespace Prisma {
     countLines?: StockCountLineCreateNestedManyWithoutProductInput
     lossLines?: StockLossCreateNestedManyWithoutProductInput
     saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
   }
 
@@ -106271,6 +109691,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
     lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
     saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
     clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -106355,6 +109776,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -106386,6 +109808,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -106424,6 +109847,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -106469,6 +109893,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -106614,6 +110039,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -106659,6 +110085,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -106800,6 +110227,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -106845,6 +110273,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -107106,6 +110535,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -107151,6 +110581,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -107420,6 +110851,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -107465,6 +110897,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -107589,6 +111022,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -107634,6 +111068,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -107748,6 +111183,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -107793,6 +111229,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -107927,6 +111364,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -107972,6 +111410,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -108096,6 +111535,7 @@ export namespace Prisma {
     stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
@@ -108141,6 +111581,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
@@ -108316,6 +111757,7 @@ export namespace Prisma {
     stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
@@ -108361,6 +111803,7 @@ export namespace Prisma {
     stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
@@ -108495,6 +111938,445 @@ export namespace Prisma {
     tourneeStops?: TourneeStopUncheckedUpdateManyWithoutClientNestedInput
     versements?: VersementUncheckedUpdateManyWithoutClientNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutClientNestedInput
+  }
+
+  export type CompanyCreateWithoutThreePackRulesInput = {
+    id?: string
+    name: string
+    phone?: string | null
+    address?: string | null
+    email?: string | null
+    rc?: string | null
+    nif?: string | null
+    ai?: string | null
+    nis?: string | null
+    bankName?: string | null
+    rib?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    stampUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    stores?: StoreCreateNestedManyWithoutCompanyInput
+    customers?: CustomerCreateNestedManyWithoutCompanyInput
+    suppliers?: SupplierCreateNestedManyWithoutCompanyInput
+    products?: ProductCreateNestedManyWithoutCompanyInput
+    seasons?: SeasonCreateNestedManyWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    units?: UnitCreateNestedManyWithoutCompanyInput
+    priceTiers?: PriceTierCreateNestedManyWithoutCompanyInput
+    expenseTypes?: ExpenseTypeCreateNestedManyWithoutCompanyInput
+    secteurs?: SecteurCreateNestedManyWithoutCompanyInput
+    purchaseInvoices?: PurchaseInvoiceCreateNestedManyWithoutCompanyInput
+    supplierReturns?: SupplierReturnCreateNestedManyWithoutCompanyInput
+    stockBatches?: StockBatchCreateNestedManyWithoutCompanyInput
+    transfers?: TransferCreateNestedManyWithoutCompanyInput
+    stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
+    stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
+    sales?: SaleCreateNestedManyWithoutCompanyInput
+    clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    versements?: VersementCreateNestedManyWithoutCompanyInput
+    distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
+    deposits?: DepositCreateNestedManyWithoutCompanyInput
+    devices?: DeviceCreateNestedManyWithoutCompanyInput
+    syncOps?: SyncOpCreateNestedManyWithoutCompanyInput
+    dailyCloses?: DailyCloseCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutThreePackRulesInput = {
+    id?: string
+    name: string
+    phone?: string | null
+    address?: string | null
+    email?: string | null
+    rc?: string | null
+    nif?: string | null
+    ai?: string | null
+    nis?: string | null
+    bankName?: string | null
+    rib?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    stampUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    stores?: StoreUncheckedCreateNestedManyWithoutCompanyInput
+    customers?: CustomerUncheckedCreateNestedManyWithoutCompanyInput
+    suppliers?: SupplierUncheckedCreateNestedManyWithoutCompanyInput
+    products?: ProductUncheckedCreateNestedManyWithoutCompanyInput
+    seasons?: SeasonUncheckedCreateNestedManyWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    units?: UnitUncheckedCreateNestedManyWithoutCompanyInput
+    priceTiers?: PriceTierUncheckedCreateNestedManyWithoutCompanyInput
+    expenseTypes?: ExpenseTypeUncheckedCreateNestedManyWithoutCompanyInput
+    secteurs?: SecteurUncheckedCreateNestedManyWithoutCompanyInput
+    purchaseInvoices?: PurchaseInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    supplierReturns?: SupplierReturnUncheckedCreateNestedManyWithoutCompanyInput
+    stockBatches?: StockBatchUncheckedCreateNestedManyWithoutCompanyInput
+    transfers?: TransferUncheckedCreateNestedManyWithoutCompanyInput
+    stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
+    stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
+    sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
+    distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
+    deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutCompanyInput
+    syncOps?: SyncOpUncheckedCreateNestedManyWithoutCompanyInput
+    dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutThreePackRulesInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutThreePackRulesInput, CompanyUncheckedCreateWithoutThreePackRulesInput>
+  }
+
+  export type ThreePackItemCreateWithoutRuleInput = {
+    id?: string
+    role: string
+    colis: Decimal | DecimalJsLike | number | string
+    product: ProductCreateNestedOneWithoutThreePackItemsInput
+  }
+
+  export type ThreePackItemUncheckedCreateWithoutRuleInput = {
+    id?: string
+    role: string
+    productId: string
+    colis: Decimal | DecimalJsLike | number | string
+  }
+
+  export type ThreePackItemCreateOrConnectWithoutRuleInput = {
+    where: ThreePackItemWhereUniqueInput
+    create: XOR<ThreePackItemCreateWithoutRuleInput, ThreePackItemUncheckedCreateWithoutRuleInput>
+  }
+
+  export type ThreePackItemCreateManyRuleInputEnvelope = {
+    data: ThreePackItemCreateManyRuleInput | ThreePackItemCreateManyRuleInput[]
+  }
+
+  export type CompanyUpsertWithoutThreePackRulesInput = {
+    update: XOR<CompanyUpdateWithoutThreePackRulesInput, CompanyUncheckedUpdateWithoutThreePackRulesInput>
+    create: XOR<CompanyCreateWithoutThreePackRulesInput, CompanyUncheckedCreateWithoutThreePackRulesInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutThreePackRulesInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutThreePackRulesInput, CompanyUncheckedUpdateWithoutThreePackRulesInput>
+  }
+
+  export type CompanyUpdateWithoutThreePackRulesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stampUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    stores?: StoreUpdateManyWithoutCompanyNestedInput
+    customers?: CustomerUpdateManyWithoutCompanyNestedInput
+    suppliers?: SupplierUpdateManyWithoutCompanyNestedInput
+    products?: ProductUpdateManyWithoutCompanyNestedInput
+    seasons?: SeasonUpdateManyWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    units?: UnitUpdateManyWithoutCompanyNestedInput
+    priceTiers?: PriceTierUpdateManyWithoutCompanyNestedInput
+    expenseTypes?: ExpenseTypeUpdateManyWithoutCompanyNestedInput
+    secteurs?: SecteurUpdateManyWithoutCompanyNestedInput
+    purchaseInvoices?: PurchaseInvoiceUpdateManyWithoutCompanyNestedInput
+    supplierReturns?: SupplierReturnUpdateManyWithoutCompanyNestedInput
+    stockBatches?: StockBatchUpdateManyWithoutCompanyNestedInput
+    transfers?: TransferUpdateManyWithoutCompanyNestedInput
+    stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
+    stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
+    sales?: SaleUpdateManyWithoutCompanyNestedInput
+    clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    versements?: VersementUpdateManyWithoutCompanyNestedInput
+    distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
+    deposits?: DepositUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUpdateManyWithoutCompanyNestedInput
+    syncOps?: SyncOpUpdateManyWithoutCompanyNestedInput
+    dailyCloses?: DailyCloseUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutThreePackRulesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stampUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    stores?: StoreUncheckedUpdateManyWithoutCompanyNestedInput
+    customers?: CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+    suppliers?: SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+    products?: ProductUncheckedUpdateManyWithoutCompanyNestedInput
+    seasons?: SeasonUncheckedUpdateManyWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    units?: UnitUncheckedUpdateManyWithoutCompanyNestedInput
+    priceTiers?: PriceTierUncheckedUpdateManyWithoutCompanyNestedInput
+    expenseTypes?: ExpenseTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    secteurs?: SecteurUncheckedUpdateManyWithoutCompanyNestedInput
+    purchaseInvoices?: PurchaseInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    supplierReturns?: SupplierReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    stockBatches?: StockBatchUncheckedUpdateManyWithoutCompanyNestedInput
+    transfers?: TransferUncheckedUpdateManyWithoutCompanyNestedInput
+    stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
+    stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
+    sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
+    distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
+    deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutCompanyNestedInput
+    syncOps?: SyncOpUncheckedUpdateManyWithoutCompanyNestedInput
+    dailyCloses?: DailyCloseUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type ThreePackItemUpsertWithWhereUniqueWithoutRuleInput = {
+    where: ThreePackItemWhereUniqueInput
+    update: XOR<ThreePackItemUpdateWithoutRuleInput, ThreePackItemUncheckedUpdateWithoutRuleInput>
+    create: XOR<ThreePackItemCreateWithoutRuleInput, ThreePackItemUncheckedCreateWithoutRuleInput>
+  }
+
+  export type ThreePackItemUpdateWithWhereUniqueWithoutRuleInput = {
+    where: ThreePackItemWhereUniqueInput
+    data: XOR<ThreePackItemUpdateWithoutRuleInput, ThreePackItemUncheckedUpdateWithoutRuleInput>
+  }
+
+  export type ThreePackItemUpdateManyWithWhereWithoutRuleInput = {
+    where: ThreePackItemScalarWhereInput
+    data: XOR<ThreePackItemUpdateManyMutationInput, ThreePackItemUncheckedUpdateManyWithoutRuleInput>
+  }
+
+  export type ThreePackRuleCreateWithoutItemsInput = {
+    id?: string
+    name: string
+    mode: string
+    isActive?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutThreePackRulesInput
+  }
+
+  export type ThreePackRuleUncheckedCreateWithoutItemsInput = {
+    id?: string
+    companyId: string
+    name: string
+    mode: string
+    isActive?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
+  }
+
+  export type ThreePackRuleCreateOrConnectWithoutItemsInput = {
+    where: ThreePackRuleWhereUniqueInput
+    create: XOR<ThreePackRuleCreateWithoutItemsInput, ThreePackRuleUncheckedCreateWithoutItemsInput>
+  }
+
+  export type ProductCreateWithoutThreePackItemsInput = {
+    id?: string
+    name: string
+    reference?: string | null
+    barcode?: string | null
+    colisage?: string | null
+    salePrice?: Decimal | DecimalJsLike | number | string
+    costPrice?: Decimal | DecimalJsLike | number | string
+    stockQty?: Decimal | DecimalJsLike | number | string
+    minStock?: Decimal | DecimalJsLike | number | string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutProductsInput
+    category?: ProductCategoryCreateNestedOneWithoutProductsInput
+    supplier?: SupplierCreateNestedOneWithoutDefaultProductsInput
+    baseUnit?: UnitCreateNestedOneWithoutBaseForInput
+    saleUnit?: UnitCreateNestedOneWithoutSaleForInput
+    purchaseUnit?: UnitCreateNestedOneWithoutPurchaseForInput
+    images?: ProductImageCreateNestedManyWithoutProductInput
+    conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
+    tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    batches?: StockBatchCreateNestedManyWithoutProductInput
+    purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
+    returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
+    transferLines?: TransferLineCreateNestedManyWithoutProductInput
+    countLines?: StockCountLineCreateNestedManyWithoutProductInput
+    lossLines?: StockLossCreateNestedManyWithoutProductInput
+    saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductUncheckedCreateWithoutThreePackItemsInput = {
+    id?: string
+    companyId: string
+    categoryId?: string | null
+    supplierId?: string | null
+    name: string
+    reference?: string | null
+    barcode?: string | null
+    colisage?: string | null
+    baseUnitId?: string | null
+    saleUnitId?: string | null
+    purchaseUnitId?: string | null
+    salePrice?: Decimal | DecimalJsLike | number | string
+    costPrice?: Decimal | DecimalJsLike | number | string
+    stockQty?: Decimal | DecimalJsLike | number | string
+    minStock?: Decimal | DecimalJsLike | number | string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
+    conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
+    tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
+    purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
+    returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
+    transferLines?: TransferLineUncheckedCreateNestedManyWithoutProductInput
+    countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
+    lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
+    saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductCreateOrConnectWithoutThreePackItemsInput = {
+    where: ProductWhereUniqueInput
+    create: XOR<ProductCreateWithoutThreePackItemsInput, ProductUncheckedCreateWithoutThreePackItemsInput>
+  }
+
+  export type ThreePackRuleUpsertWithoutItemsInput = {
+    update: XOR<ThreePackRuleUpdateWithoutItemsInput, ThreePackRuleUncheckedUpdateWithoutItemsInput>
+    create: XOR<ThreePackRuleCreateWithoutItemsInput, ThreePackRuleUncheckedCreateWithoutItemsInput>
+    where?: ThreePackRuleWhereInput
+  }
+
+  export type ThreePackRuleUpdateToOneWithWhereWithoutItemsInput = {
+    where?: ThreePackRuleWhereInput
+    data: XOR<ThreePackRuleUpdateWithoutItemsInput, ThreePackRuleUncheckedUpdateWithoutItemsInput>
+  }
+
+  export type ThreePackRuleUpdateWithoutItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutThreePackRulesNestedInput
+  }
+
+  export type ThreePackRuleUncheckedUpdateWithoutItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductUpsertWithoutThreePackItemsInput = {
+    update: XOR<ProductUpdateWithoutThreePackItemsInput, ProductUncheckedUpdateWithoutThreePackItemsInput>
+    create: XOR<ProductCreateWithoutThreePackItemsInput, ProductUncheckedCreateWithoutThreePackItemsInput>
+    where?: ProductWhereInput
+  }
+
+  export type ProductUpdateToOneWithWhereWithoutThreePackItemsInput = {
+    where?: ProductWhereInput
+    data: XOR<ProductUpdateWithoutThreePackItemsInput, ProductUncheckedUpdateWithoutThreePackItemsInput>
+  }
+
+  export type ProductUpdateWithoutThreePackItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    barcode?: NullableStringFieldUpdateOperationsInput | string | null
+    colisage?: NullableStringFieldUpdateOperationsInput | string | null
+    salePrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    stockQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minStock?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutProductsNestedInput
+    category?: ProductCategoryUpdateOneWithoutProductsNestedInput
+    supplier?: SupplierUpdateOneWithoutDefaultProductsNestedInput
+    baseUnit?: UnitUpdateOneWithoutBaseForNestedInput
+    saleUnit?: UnitUpdateOneWithoutSaleForNestedInput
+    purchaseUnit?: UnitUpdateOneWithoutPurchaseForNestedInput
+    images?: ProductImageUpdateManyWithoutProductNestedInput
+    conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
+    tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    batches?: StockBatchUpdateManyWithoutProductNestedInput
+    purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
+    returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
+    transferLines?: TransferLineUpdateManyWithoutProductNestedInput
+    countLines?: StockCountLineUpdateManyWithoutProductNestedInput
+    lossLines?: StockLossUpdateManyWithoutProductNestedInput
+    saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductUncheckedUpdateWithoutThreePackItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    barcode?: NullableStringFieldUpdateOperationsInput | string | null
+    colisage?: NullableStringFieldUpdateOperationsInput | string | null
+    baseUnitId?: NullableStringFieldUpdateOperationsInput | string | null
+    saleUnitId?: NullableStringFieldUpdateOperationsInput | string | null
+    purchaseUnitId?: NullableStringFieldUpdateOperationsInput | string | null
+    salePrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    stockQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minStock?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
+    conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
+    tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
+    purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
+    returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
+    transferLines?: TransferLineUncheckedUpdateManyWithoutProductNestedInput
+    countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
+    lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
+    saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type UserCreateManyCompanyInput = {
@@ -108737,6 +112619,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+  }
+
+  export type ThreePackRuleCreateManyCompanyInput = {
+    id?: string
+    name: string
+    mode: string
+    isActive?: boolean
+    isArchived?: boolean
+    createdAt?: Date | string
   }
 
   export type ClientReturnCreateManyCompanyInput = {
@@ -109172,6 +113063,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -109203,6 +113095,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -109713,6 +113606,35 @@ export namespace Prisma {
     opId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type ThreePackRuleUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: ThreePackItemUpdateManyWithoutRuleNestedInput
+  }
+
+  export type ThreePackRuleUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: ThreePackItemUncheckedUpdateManyWithoutRuleNestedInput
+  }
+
+  export type ThreePackRuleUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ClientReturnUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     seasonId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110207,6 +114129,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -110238,6 +114161,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -110289,6 +114213,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -110320,6 +114245,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -110371,6 +114297,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -110402,6 +114329,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -113006,6 +116934,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -113037,6 +116966,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -113245,6 +117175,7 @@ export namespace Prisma {
     countLines?: StockCountLineUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
   }
 
@@ -113276,6 +117207,7 @@ export namespace Prisma {
     countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -113391,6 +117323,15 @@ export namespace Prisma {
     remise?: Decimal | DecimalJsLike | number | string
     lineTotal: Decimal | DecimalJsLike | number | string
     unitCost?: Decimal | DecimalJsLike | number | string
+    isBonus?: boolean
+    bonusRuleId?: string | null
+  }
+
+  export type ThreePackItemCreateManyProductInput = {
+    id?: string
+    ruleId: string
+    role: string
+    colis: Decimal | DecimalJsLike | number | string
   }
 
   export type ClientReturnLineCreateManyProductInput = {
@@ -113658,6 +117599,8 @@ export namespace Prisma {
     remise?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFieldUpdateOperationsInput | boolean
+    bonusRuleId?: NullableStringFieldUpdateOperationsInput | string | null
     sale?: SaleUpdateOneRequiredWithoutLinesNestedInput
   }
 
@@ -113671,6 +117614,8 @@ export namespace Prisma {
     remise?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFieldUpdateOperationsInput | boolean
+    bonusRuleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SaleLineUncheckedUpdateManyWithoutProductInput = {
@@ -113683,6 +117628,29 @@ export namespace Prisma {
     remise?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFieldUpdateOperationsInput | boolean
+    bonusRuleId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ThreePackItemUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    rule?: ThreePackRuleUpdateOneRequiredWithoutItemsNestedInput
+  }
+
+  export type ThreePackItemUncheckedUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ruleId?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type ThreePackItemUncheckedUpdateManyWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ruleId?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
   }
 
   export type ClientReturnLineUpdateWithoutProductInput = {
@@ -113748,6 +117716,8 @@ export namespace Prisma {
     remise?: Decimal | DecimalJsLike | number | string
     lineTotal: Decimal | DecimalJsLike | number | string
     unitCost?: Decimal | DecimalJsLike | number | string
+    isBonus?: boolean
+    bonusRuleId?: string | null
   }
 
   export type ClientReturnCreateManySaleInput = {
@@ -113867,6 +117837,8 @@ export namespace Prisma {
     remise?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFieldUpdateOperationsInput | boolean
+    bonusRuleId?: NullableStringFieldUpdateOperationsInput | string | null
     product?: ProductUpdateOneRequiredWithoutSaleLinesNestedInput
   }
 
@@ -113880,6 +117852,8 @@ export namespace Prisma {
     remise?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFieldUpdateOperationsInput | boolean
+    bonusRuleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SaleLineUncheckedUpdateManyWithoutSaleInput = {
@@ -113892,6 +117866,8 @@ export namespace Prisma {
     remise?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unitCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isBonus?: BoolFieldUpdateOperationsInput | boolean
+    bonusRuleId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ClientReturnUpdateWithoutSaleInput = {
@@ -114447,6 +118423,34 @@ export namespace Prisma {
     baseQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unitPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type ThreePackItemCreateManyRuleInput = {
+    id?: string
+    role: string
+    productId: string
+    colis: Decimal | DecimalJsLike | number | string
+  }
+
+  export type ThreePackItemUpdateWithoutRuleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    product?: ProductUpdateOneRequiredWithoutThreePackItemsNestedInput
+  }
+
+  export type ThreePackItemUncheckedUpdateWithoutRuleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type ThreePackItemUncheckedUpdateManyWithoutRuleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
   }
 
 

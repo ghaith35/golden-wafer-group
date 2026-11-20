@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FREE_LABEL } from "@/lib/threepack/labels";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FileText, Truck, Bus, CalendarClock, Check, CircleDollarSign, Layers, Package, Printer, Store, Wallet, Coins } from "lucide-react";
@@ -46,6 +47,8 @@ export type SaleDetail = {
     unitPrice: unknown;
     remise: unknown;
     lineTotal: unknown;
+    /// 3pack gift line (price 0).
+    isBonus?: boolean;
     product: {
       name: string;
       reference: string | null;
@@ -441,7 +444,7 @@ export function SaleActions({
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
-                      <span className="min-w-0 text-[13px] font-black leading-snug">{v.name}</span>
+                      <span className="min-w-0 text-[13px] font-black leading-snug">{v.name}{l.isBonus && <span className="ms-1.5 rounded-full bg-emerald-600 px-1.5 py-px text-[9px] font-black uppercase text-white">★ {FREE_LABEL[locale === "fr" || locale === "en" ? locale : "ar"]}</span>}</span>
                       <span className="shrink-0 text-[13px] font-black tabular-nums" dir="ltr">{dzMoney(v.lineTotal)}</span>
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] font-bold">
@@ -501,7 +504,7 @@ export function SaleActions({
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-base opacity-60">📦</div>
                         )}
                         <div className="min-w-0">
-                          <div className="truncate text-[13px] font-black">{v.name}</div>
+                          <div className="truncate text-[13px] font-black">{v.name}{l.isBonus && <span className="ms-1.5 rounded-full bg-emerald-600 px-1.5 py-px text-[9px] font-black uppercase text-white">★ {FREE_LABEL[locale === "fr" || locale === "en" ? locale : "ar"]}</span>}</div>
                           <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[10px] font-bold text-(--text-tertiary)">
                             <span className="rounded-md bg-(--brand-500)/12 px-1.5 py-0.5 font-black tabular-nums text-(--gold-text)" dir="ltr">×{v.qty} {v.uname}</span>
                             {v.ref && <span className="truncate font-mono" dir="ltr">{v.ref}</span>}
@@ -789,7 +792,8 @@ export function SaleActions({
               remise: Number(sale.remise ?? 0),
               paid: Number(sale.paid ?? 0),
               notes: sale.notes,
-              lines: sale.lines.map((l) => ({
+              // 3pack gift lines are derived from the purchases, never edited.
+              lines: sale.lines.filter((l) => !l.isBonus).map((l) => ({
                 productId: l.productId,
                 unitId: l.unitId,
                 qty: Number(l.qty),

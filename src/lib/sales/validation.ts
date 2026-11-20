@@ -7,6 +7,9 @@ export const saleLineSchema = z.object({
   /// If omitted, resolved from tier price (client tier or chosen tier) or salePrice.
   unitPrice: z.coerce.number().finite().min(0).nullish(),
   remise: z.coerce.number().finite().min(0).optional(),
+  /// 3pack gift line. Only the offline van phone sends it (the server computes
+  /// gifts itself for online sales and strips anything sent).
+  bonusRuleId: z.string().nullish(),
 });
 
 export const orderSchema = z.object({

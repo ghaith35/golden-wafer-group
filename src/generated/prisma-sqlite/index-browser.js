@@ -159,6 +159,7 @@ exports.Prisma.CompanySettingsScalarFieldEnum = {
   ticketWidth: 'ticketWidth',
   ticketLang: 'ticketLang',
   supplierFilterEnabled: 'supplierFilterEnabled',
+  threePackEnabled: 'threePackEnabled',
   workStartAt: 'workStartAt',
   maxDayHours: 'maxDayHours',
   remoteDomain: 'remoteDomain'
@@ -474,7 +475,9 @@ exports.Prisma.SaleLineScalarFieldEnum = {
   unitPrice: 'unitPrice',
   remise: 'remise',
   lineTotal: 'lineTotal',
-  unitCost: 'unitCost'
+  unitCost: 'unitCost',
+  isBonus: 'isBonus',
+  bonusRuleId: 'bonusRuleId'
 };
 
 exports.Prisma.ClientReturnScalarFieldEnum = {
@@ -802,6 +805,24 @@ exports.Prisma.ClientDistanceScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ThreePackRuleScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  name: 'name',
+  mode: 'mode',
+  isActive: 'isActive',
+  isArchived: 'isArchived',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ThreePackItemScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  role: 'role',
+  productId: 'productId',
+  colis: 'colis'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -880,7 +901,9 @@ exports.Prisma.ModelName = {
   DailyClose: 'DailyClose',
   Deposit: 'Deposit',
   DocumentSequence: 'DocumentSequence',
-  ClientDistance: 'ClientDistance'
+  ClientDistance: 'ClientDistance',
+  ThreePackRule: 'ThreePackRule',
+  ThreePackItem: 'ThreePackItem'
 };
 
 /**

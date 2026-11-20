@@ -1,4 +1,5 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { FREE_LABEL } from "@/lib/threepack/labels";
 import { redirect, notFound } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
@@ -81,7 +82,10 @@ export default async function SalePrintPage({ params }: { params: Promise<{ loca
         <tbody>
           {sale.lines.map((l) => (
             <tr key={l.id} className="border-b border-gray-300">
-              <td className="py-2">{l.product.name}</td>
+              <td className="py-2">
+                {l.product.name}
+                {l.isBonus && <span className="ms-2 rounded-full bg-emerald-700 px-2 py-px text-[10px] font-bold uppercase text-white">★ {FREE_LABEL[locale === "fr" || locale === "en" ? locale : "ar"]}</span>}
+              </td>
               <td className="py-2 text-end">{String(l.qty)}</td>
               <td className="py-2 text-end">{String(l.unitPrice)}</td>
               {Number(sale.remise) > 0 || sale.lines.some((x) => Number(x.remise) > 0) ? (

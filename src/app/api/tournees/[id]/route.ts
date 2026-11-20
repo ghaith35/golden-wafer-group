@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
-import { tourneeStopsSchema, stopUpdateSchema } from "@/lib/sales/validation";
+import { tourneeStopsSchema } from "@/lib/sales/validation";
 import { setStops, propagateStops, deleteSeries, closeTournee, reorderStops, startDay, finishDay, setTourneeTimes } from "@/lib/tournees/service";
 import { optimizeRoute } from "@/lib/routes/optimize";
 
@@ -98,4 +98,3 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   return NextResponse.json({ ok: true });
 }
 
-export { stopUpdateSchema };

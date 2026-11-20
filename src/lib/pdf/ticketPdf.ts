@@ -164,7 +164,7 @@ export async function buildTicketPdf(input: TicketPdfInput): Promise<Blob> {
     { content: money(l.lineTotal), styles: { halign: "right" as const } },
     { content: money(l.unitPrice), styles: { halign: "right" as const } },
     { content: String(l.qty ?? ""), styles: { halign: "right" as const } },
-    { content: T(String(l.name ?? "")), styles: { halign: "right" as const } },
+    { content: T(String(l.name ?? "") + (l.bonus ? (lang === "fr" ? " (Gratuit)" : " (مجاني)") : "")), styles: { halign: "right" as const } },
     { content: String(i + 1), styles: { halign: "center" as const } },
   ]);
   const footerCompany = T(company.name || "");

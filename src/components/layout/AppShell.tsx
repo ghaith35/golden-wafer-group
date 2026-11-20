@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Truck, Boxes, ShoppingCart, ShoppingBag, Wallet, BarChart3, Settings, Bus, Map, Route, Store, PanelLeftClose, PanelLeftOpen, Crosshair, Package, PackageCheck, Satellite, ClipboardList, ClipboardCheck, Smartphone, Clock, Banknote, Plus, ReceiptText, UserRound } from "lucide-react";
+import { LayoutDashboard, Users, Truck, Boxes, ShoppingCart, ShoppingBag, Wallet, BarChart3, Settings, Bus, Map, Route, Store, PanelLeftClose, PanelLeftOpen, Crosshair, Package, PackageCheck, Satellite, ClipboardList, ClipboardCheck, Smartphone, Clock, Banknote, Plus, ReceiptText, UserRound, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { recordCrumb, serverUnreachable, startReachabilityProbe } from "@/lib/sync/client";
 import { canSell } from "@/lib/staff-permissions";
@@ -20,7 +20,9 @@ import { useSavedDistances } from "@/lib/geo";
 
 const COLLAPSED_KEY = "distribuili-sidebar-collapsed";
 
-type Item = { key: string; href: string; Icon: typeof LayoutDashboard; adminOnly?: boolean };
+/// `flag`: the item only shows while that company setting is on (read from
+/// /api/settings/public). The page itself re-checks server-side.
+type Item = { key: string; href: string; Icon: typeof LayoutDashboard; adminOnly?: boolean; flag?: "threePack" };
 
 /// Sidebar groups, mirroring Khiata's sectioned nav.
 /// Staff (Vendeur/Livreur) see a reduced menu: dashboard, clients, sales,
@@ -40,6 +42,7 @@ const GROUPS: Array<{ label: string; items: Item[]; adminOnly?: boolean }> = [
       { key: "pos", href: "pos", Icon: Store, adminOnly: true },
       { key: "purchases", href: "purchases", Icon: ShoppingBag, adminOnly: true },
       { key: "inventory", href: "products", Icon: Boxes, adminOnly: true },
+      { key: "threepack", href: "threepack", Icon: Gift, adminOnly: true, flag: "threePack" },
     ],
   },
   {
@@ -220,11 +223,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // Global GPS feature flag (settings toggle). Defaults on; hidden once the
   // server says otherwise.
   const [gpsOn, setGpsOn] = useState(true);
+  // 3pack (free colis) sidebar section: off until the server says it is on.
+  const [threePackOn, setThreePackOn] = useState(false);
   useEffect(() => {
     fetch("/api/settings/public")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d && typeof d.gpsEnabled === "boolean") setGpsOn(d.gpsEnabled);
+        if (d && typeof d.threePackEnabled === "boolean") setThreePackOn(d.threePackEnabled);
       })
       .catch(() => {});
   }, []);
@@ -324,7 +330,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       }]
     : GROUPS.map((g) => ({
         ...g,
-        items: g.items.filter((i) => !isStaff || !i.adminOnly),
+        items: g.items.filter((i) => (!isStaff || !i.adminOnly) && (i.flag !== "threePack" || threePackOn)),
       }))
   ).filter((g) => (!isStaff || !g.adminOnly) && g.items.length > 0)
     // The van workspace (الشاحنة / بيع الشاحنة) is staff-only: admins manage

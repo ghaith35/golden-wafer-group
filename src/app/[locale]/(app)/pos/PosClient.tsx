@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Check, Minus, Package, Plus, ReceiptText, Search, ShoppingCart, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -9,6 +10,7 @@ import { Modal } from "@/components/ui/Modal";
 import { UnitQty, factorOf, baseNameOf, packBreakdown, priceForUnit, saleUnits, normFactor } from "@/components/products/UnitQty";
 import { ProductCardDetails } from "@/components/products/ProductCardDetails";
 import { cn } from "@/lib/utils";
+import { GiftLineRow, giftBodyLines, useGifts, useThreePackRules } from "@/components/threepack/useThreePack";
 
 import { ErrText } from "@/components/ui/ErrText";
 type Product = {
@@ -132,6 +134,11 @@ export function PosClient({
   }, []);
 
   const byId = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
+  // 3pack: free colis appear automatically in the cart (price 0, deducted from
+  // stock). The server recomputes them on save.
+  const t3 = useTranslations("threepack");
+  const tpRules = useThreePackRules(null, true);
+  const gifts = useGifts(tpRules, products, lines);
   const tierName = (id: string) => tiers.find((x) => x.id === id)?.name ?? id;
   const saleUnitName = (p: Product) => {
     const id = p.saleUnitId ?? p.baseUnitId ?? "";
@@ -274,7 +281,7 @@ export function PosClient({
             qty: l.qty,
             unitPrice: l.unitPrice === "" ? null : Number(l.unitPrice),
             remise: l.remise,
-          })),
+          })).concat(giftBodyLines(gifts) as never[]),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -575,6 +582,15 @@ export function PosClient({
                 </div>
               );
             })}
+            {gifts.map((g) => (
+              <GiftLineRow
+                key={`${g.ruleId}:${g.productId}`}
+                gift={g}
+                product={byId.get(g.productId)}
+                freeLabel={t3("free")}
+                money={`0 ${labels.currency}`}
+              />
+            ))}
           </div>
 
           {remiseEnabled && lines.length > 0 && (

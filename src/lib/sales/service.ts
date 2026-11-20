@@ -3,6 +3,7 @@ import { getOrCreateSettings } from "@/lib/settings/helpers";
 import { nextDocNumber, ensureSeasonFor } from "@/lib/docs/sequences";
 import { consumeStock, addStock, weightedCost } from "@/lib/inventory/stock";
 import { z } from "zod";
+import { applyThreePack } from "@/lib/threepack/service";
 import { orderSchema, ticketSchema, deliverSchema, clientReturnSchema } from "@/lib/sales/validation";
 
 type OrderInput = z.infer<typeof orderSchema>;
@@ -20,6 +21,9 @@ type PricedLine = {
   unitPrice: number;
   remise: number;
   lineTotal: number;
+  /// 3pack gift line (price 0, stock still deducted).
+  isBonus?: boolean;
+  bonusRuleId?: string | null;
 };
 
 /// Resolve lines: tier price (explicit → client tier → salePrice), conversions → baseQty.
@@ -27,7 +31,7 @@ async function priceLines(
   companyId: string,
   clientTierId: string | null,
   tierId: string | null,
-  lines: Array<{ productId: string; unitId?: string | null; qty: number; unitPrice?: number | null; remise?: number }>,
+  lines: Array<{ productId: string; unitId?: string | null; qty: number; unitPrice?: number | null; remise?: number; bonusRuleId?: string | null }>,
   allowRemise: boolean,
   allowPieces = true,
 ): Promise<{ priced: PricedLine[]; tierId: string | null }> {
@@ -73,8 +77,10 @@ async function priceLines(
     const tierPrice = tier ? p.tierPrices.find((x) => x.tierId === tier!.id) : null;
     // Stored prices are per base unit; scale to the chosen unit unless overridden.
     const basePrice = tierPrice ? Number(tierPrice.price) : Number(p.salePrice);
-    const unitPrice = l.unitPrice ?? basePrice * factor;
-    const remise = l.remise ?? 0;
+    // 3pack gift lines (only the offline phone sends them) are always free.
+    const isBonus = !!l.bonusRuleId;
+    const unitPrice = isBonus ? 0 : l.unitPrice ?? basePrice * factor;
+    const remise = isBonus ? 0 : l.remise ?? 0;
     if (remise > 0 && !allowRemise) throw Object.assign(new Error("remise_disabled"), { status: 400 });
     return {
       productId: l.productId,
@@ -84,6 +90,7 @@ async function priceLines(
       unitPrice,
       remise,
       lineTotal: Math.max(0, l.qty * unitPrice - remise),
+      ...(isBonus ? { isBonus: true, bonusRuleId: l.bonusRuleId ?? null } : {}),
     };
   });
   return { priced, tierId: tier?.id ?? null };
@@ -124,7 +131,9 @@ export async function createOrder(
   const client = await prisma.customer.findFirst({ where: { id: input.clientId, companyId } });
   if (!client || !client.isActive) throw Object.assign(new Error("bad_client"), { status: 400 });
 
-  const { priced, tierId } = await priceLines(companyId, client.tierId, input.tierId ?? null, input.lines, settings.remiseEnabled, settings.pieceSalesEnabled);
+  const { priced: priced0, tierId } = await priceLines(companyId, client.tierId, input.tierId ?? null, input.lines, settings.remiseEnabled, settings.pieceSalesEnabled);
+  // 3pack: portal orders never earn gifts; sync ops (opId) keep the phone's capped gifts.
+  const priced = await applyThreePack(companyId, opts?.portal ? { threePackEnabled: false } : settings, priced0, { fromSync: !!opts?.opId });
   const linesTotal = priced.reduce((s, l) => s + l.lineTotal, 0);
   const total = Math.max(0, linesTotal - (input.remise ?? 0));
   if ((input.remise ?? 0) > 0 && !settings.remiseEnabled) throw Object.assign(new Error("remise_disabled"), { status: 400 });
@@ -175,6 +184,8 @@ export async function createOrder(
             unitPrice: l.unitPrice,
             remise: l.remise,
             lineTotal: l.lineTotal,
+            isBonus: !!l.isBonus,
+            bonusRuleId: l.bonusRuleId ?? null,
           })),
         },
       },
@@ -194,7 +205,8 @@ export async function updateOrder(companyId: string, saleId: string, input: Orde
   const client = await prisma.customer.findFirst({ where: { id: input.clientId, companyId } });
   if (!client) throw Object.assign(new Error("bad_client"), { status: 400 });
   if ((input.remise ?? 0) > 0 && !settings.remiseEnabled) throw Object.assign(new Error("remise_disabled"), { status: 400 });
-  const { priced, tierId } = await priceLines(companyId, client.tierId, input.tierId ?? null, input.lines, settings.remiseEnabled, settings.pieceSalesEnabled);
+  const { priced: priced0, tierId } = await priceLines(companyId, client.tierId, input.tierId ?? null, input.lines, settings.remiseEnabled, settings.pieceSalesEnabled);
+  const priced = await applyThreePack(companyId, settings, priced0, { fromSync: false });
   const total = Math.max(0, priced.reduce((x, l) => x + l.lineTotal, 0) - (input.remise ?? 0));
   const paid = input.paid ?? Number(order.paid ?? 0);
   if (isOverpaid(paid, total)) throw Object.assign(new Error("overpaid"), { status: 400 });
@@ -213,6 +225,7 @@ export async function updateOrder(companyId: string, saleId: string, input: Orde
           create: priced.map((l) => ({
             productId: l.productId, unitId: l.unitId, qty: l.qty, baseQty: l.baseQty,
             unitPrice: l.unitPrice, remise: l.remise, lineTotal: l.lineTotal,
+            isBonus: !!l.isBonus, bonusRuleId: l.bonusRuleId ?? null,
           })),
         },
       },
@@ -343,6 +356,8 @@ export async function deliverOrder(companyId: string, saleId: string, locationId
             unitPrice: l.unitPrice,
             remise: l.remise,
             lineTotal: l.lineTotal,
+            isBonus: !!l.isBonus,
+            bonusRuleId: l.bonusRuleId ?? null,
             unitCost: costs[i] ?? 0,
           })),
         },
@@ -417,7 +432,9 @@ export async function createTicket(
     if (tournee && tournee.stops.length === 0) offList = true;
   }
 
-  const { priced, tierId } = await priceLines(companyId, client?.tierId ?? null, input.tierId ?? null, input.lines, settings.remiseEnabled, settings.pieceSalesEnabled);
+  const { priced: priced0, tierId } = await priceLines(companyId, client?.tierId ?? null, input.tierId ?? null, input.lines, settings.remiseEnabled, settings.pieceSalesEnabled);
+  // 3pack: gifts are added server-side (sync ops keep the phone's capped gifts).
+  const priced = await applyThreePack(companyId, settings, priced0, { fromSync: !!opts?.opId });
   const linesTotal = priced.reduce((s, l) => s + l.lineTotal, 0);
   const total = Math.max(0, linesTotal - (input.remise ?? 0));
   if ((input.remise ?? 0) > 0 && !settings.remiseEnabled) throw Object.assign(new Error("remise_disabled"), { status: 400 });
@@ -500,6 +517,8 @@ export async function createTicket(
             unitPrice: l.unitPrice,
             remise: l.remise,
             lineTotal: l.lineTotal,
+            isBonus: !!l.isBonus,
+            bonusRuleId: l.bonusRuleId ?? null,
             unitCost: costs[i] ?? 0,
           })),
         },
@@ -561,7 +580,8 @@ export async function updateTicket(
     : null;
   if (sale.clientId && (!client || !client.isActive)) throw Object.assign(new Error("bad_client"), { status: 400 });
 
-  const { priced, tierId } = await priceLines(companyId, client?.tierId ?? null, input.tierId ?? null, input.lines, settings.remiseEnabled, settings.pieceSalesEnabled);
+  const { priced: priced0, tierId } = await priceLines(companyId, client?.tierId ?? null, input.tierId ?? null, input.lines, settings.remiseEnabled, settings.pieceSalesEnabled);
+  const priced = await applyThreePack(companyId, settings, priced0, { fromSync: false });
   const linesTotal = priced.reduce((s, l) => s + l.lineTotal, 0);
   const total = Math.max(0, linesTotal - (input.remise ?? 0));
   if ((input.remise ?? 0) > 0 && !settings.remiseEnabled) throw Object.assign(new Error("remise_disabled"), { status: 400 });
@@ -659,6 +679,8 @@ export async function updateTicket(
             unitPrice: l.unitPrice,
             remise: l.remise,
             lineTotal: l.lineTotal,
+            isBonus: !!l.isBonus,
+            bonusRuleId: l.bonusRuleId ?? null,
             unitCost: costs[i] ?? 0,
           })),
         },
@@ -726,6 +748,8 @@ export async function createInvoice(companyId: string, deliveryId: string) {
             unitPrice: l.unitPrice,
             remise: l.remise,
             lineTotal: l.lineTotal,
+            isBonus: !!l.isBonus,
+            bonusRuleId: l.bonusRuleId ?? null,
             unitCost: l.unitCost,
           })),
         },

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
 import { ArrowLeft, Printer, Share2, Trash2, WifiOff, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -27,6 +28,8 @@ type Detail = {
   location: { id: string; name: string } | null;
   lines: Array<{
     id: string; productId: string; qty: unknown; baseQty: unknown; unitId: string | null; unitPrice: unknown; remise: unknown; lineTotal: unknown;
+    /// 3pack gift line.
+    isBonus?: boolean;
     product: { name: string } | null;
   }>;
 };
@@ -50,6 +53,7 @@ export function FacturesClient({
   ticketLang: "ar" | "fr";
 }) {
   const router = useRouter();
+  const t3 = useTranslations("threepack");
   const [rows, setRows] = useSyncedState(initial);
   const [unsynced, setUnsynced] = useState<Set<string>>(new Set());
   /// Tickets created offline (still in the outbox): shown first, openable,
@@ -124,6 +128,7 @@ export function FacturesClient({
         unitPrice: l.unitPrice,
         remise: 0,
         lineTotal: l.lineTotal,
+        isBonus: !!l.bonus,
         product: { name: l.name },
       })),
     };
@@ -217,6 +222,7 @@ export function FacturesClient({
         baseQty: l.baseQty as number | string | null,
         unitPrice: l.unitPrice as number | string,
         lineTotal: l.lineTotal as number | string,
+        bonus: !!l.isBonus,
       })),
     };
   }
@@ -436,7 +442,10 @@ export function FacturesClient({
             <div className="max-h-[calc(var(--vh)*0.4)] space-y-1.5 overflow-y-auto pe-0.5">
               {detail.lines.map((l, i) => (
                 <div key={l.id ?? i} className="flex items-center gap-2 rounded-xl bg-(--bg-sunken) px-3 py-2">
-                  <span className="min-w-0 flex-1 truncate text-sm font-bold">{l.product?.name ?? ""}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm font-bold">
+                    {l.product?.name ?? ""}
+                    {l.isBonus && <span className="ms-1.5 rounded-full bg-emerald-600 px-1.5 py-px text-[9px] font-black uppercase text-white">★ {t3("free")}</span>}
+                  </span>
                   <span className="shrink-0 text-[11px] tabular-nums opacity-60" dir="ltr">
                     {dzMoney(Number(l.qty))} × {dzMoney(Number(l.unitPrice))}
                   </span>
@@ -476,7 +485,7 @@ export function FacturesClient({
             clientId={detail.client?.id ?? null}
             locationId={detail.location?.id ?? ""}
             tierId={detail.tierId}
-            initialLines={detail.lines.map((l) => ({
+            initialLines={detail.lines.filter((l) => !l.isBonus).map((l) => ({
               productId: (l as { productId?: string }).productId ?? "",
               unitId: l.unitId,
               qty: Number(l.qty),

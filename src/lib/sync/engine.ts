@@ -10,6 +10,7 @@ import { declareTransfer } from "@/lib/inventory/service";
 import { updateStop } from "@/lib/tournees/service";
 import { ensureSeasonFor } from "@/lib/docs/sequences";
 import { z } from "zod";
+import { loadRules } from "@/lib/threepack/service";
 import { syncSchema } from "@/lib/sync/validation";
 import { getApkMeta, getMinNativeVersion, getWebBuildId, isForceWebUpdate } from "@/lib/update-feed";
 
@@ -785,6 +786,10 @@ export async function handleSync(input: SyncInput) {
 
   await prisma.device.update({ where: { id: device.id }, data: { lastSyncAt: new Date(), ...(vanId ? { locationId: vanId } : {}) } });
 
+  // 3pack: active rules ride the snapshot so the phone computes the gift offline
+  // (product colis units come from the snapshot's own conversions).
+  const threePackRules = settings.threePackEnabled ? await loadRules(companyId) : [];
+
   return {
     applied,
     serverTime: new Date().toISOString(),
@@ -807,7 +812,9 @@ export async function handleSync(input: SyncInput) {
         transferConfirmRequired: settings.transferConfirmRequired,
         pieceSalesEnabled: settings.pieceSalesEnabled,
         debtTrackingEnabled: settings.debtTrackingEnabled,
+        threePackEnabled: settings.threePackEnabled,
       },
+      threePack: { enabled: settings.threePackEnabled, rules: threePackRules },
       company: company
         ? {
             id: companyId,

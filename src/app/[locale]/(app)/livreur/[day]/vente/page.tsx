@@ -117,7 +117,8 @@ export default async function LivreurVentePage({
               id: editing.id,
               paid: Number(editing.paid ?? 0),
               notes: editing.notes,
-              lines: editing.lines.map((l) => ({
+              // 3pack gift lines are derived from the purchases, never edited.
+              lines: editing.lines.filter((l) => !l.isBonus).map((l) => ({
                 productId: l.productId,
                 unitId: l.unitId,
                 qty: Number(l.qty),
@@ -144,7 +145,7 @@ export default async function LivreurVentePage({
         backToDash: t("backToDash"), scan: t("scan"), camNeedHttps: t("camNeedHttps"),
         camDenied: t("camDenied"), camUnsupported: t("camUnsupported"), held: t("held"),
         ticketQueued: t("ticketQueued"), offline: t("offline"),
-        errRemise: t("errRemise"), errQr: t("errQr"), errStock: t("errStock"),
+        errRemise: t("errRemise"), errQr: t("errQr"), errStock: t("errStock"), errBonus: t("errBonus"),
         errCashOnly: t("errCashOnly"), errDebtOff: t("errDebtOff"),
         errClientReq: t("errClientReq"), errCreditLimit: t("errCreditLimit"),
         errOverpaid: t("errOverpaid"), errSaveFailed: t("errSaveFailed"),

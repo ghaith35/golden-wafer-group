@@ -1,4 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
+import { FREE_LABEL } from "@/lib/threepack/labels";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth/session";
@@ -97,7 +98,7 @@ export default async function BonRoutePage({
   const rows = sale.lines.map((l, i) => {
     const p = l.product;
     const unit = !l.unitId || l.unitId === p.baseUnitId ? p.baseUnit?.name ?? "" : p.conversions.find((c) => c.unitId === l.unitId)?.unit.name ?? p.baseUnit?.name ?? "";
-    return { n: i + 1, name: p.name, ref: p.reference ?? "", qty: Number(l.qty), unit, pu: Number(l.unitPrice), total: Number(l.lineTotal) };
+    return { n: i + 1, name: p.name, ref: p.reference ?? "", qty: Number(l.qty), unit, pu: Number(l.unitPrice), total: Number(l.lineTotal), bonus: l.isBonus };
   });
   const totals = computeDTotals(rows.map((r) => r.total), { remisePercent, timbrePercent, tvaPercent });
   const balance = sale.client ? Number(sale.client.balance ?? 0) : 0;
@@ -201,9 +202,9 @@ export default async function BonRoutePage({
             </thead>
             <tbody>
               {rows.map((r, i) => (
-                <tr key={r.n} className="bl-row" style={{ background: i % 2 ? "#fbf7ea" : "#fff", borderBottom: "1px solid #eee3c3" }}>
+                <tr key={r.n} className="bl-row" style={{ background: r.bonus ? "#eef8f0" : i % 2 ? "#fbf7ea" : "#fff", borderBottom: "1px solid #eee3c3" }}>
                   <td className="px-1.5 py-2 text-center font-bold text-neutral-500">{r.n}</td>
-                  <td className="px-2 py-2"><div className="text-[11px] font-black leading-tight">{r.name}</div>{r.ref && <div className="font-mono text-[8.5px] text-neutral-500" dir="ltr">{T.ref} {r.ref}</div>}</td>
+                  <td className="px-2 py-2"><div className="text-[11px] font-black leading-tight">{r.name}{r.bonus && <span className="ms-1.5 rounded-full px-1.5 py-px text-[8px] font-black uppercase" style={{ background: "#047857", color: "#fff" }}>★ {FREE_LABEL[lang]}</span>}</div>{r.ref && <div className="font-mono text-[8.5px] text-neutral-500" dir="ltr">{T.ref} {r.ref}</div>}</td>
                   <td className="px-1.5 py-2 text-center tabular-nums" dir="ltr"><b>{num(r.qty)}</b> <span className="text-[8px] text-neutral-500">{r.unit}</span></td>
                   <td className="px-1.5 py-2 text-end tabular-nums" dir="ltr">{money(r.pu)}</td>
                   <td className="px-1.5 py-2 text-end tabular-nums" dir="ltr">{money(totals.lines[i].tva)}</td>

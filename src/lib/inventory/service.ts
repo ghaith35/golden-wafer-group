@@ -126,8 +126,10 @@ export async function declareTransfer(
       await tx.product.update({ where: { id: p.id }, data: { stockQty: { decrement: l.qty } } });
     }
 
-    // Confirmation OFF = single-step: deliver straight to destination.
-    if (!settings.transferConfirmRequired) {
+    // Single-step: deliver straight to the destination when confirmation is OFF
+    // company-wide, or when an ADMIN makes the transfer (nobody else needs to
+    // approve the admin's own order). Drivers/vendeurs still wait for confirmation.
+    if (!settings.transferConfirmRequired || actor?.role === "Admin") {
       await deliverHolding(tx, {
         companyId,
         transferId: transfer.id,
