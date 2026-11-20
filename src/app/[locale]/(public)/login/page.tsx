@@ -16,7 +16,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
   // Password reset via activation key: desktop (EXE/DMG) installs only.
   const canReset = isLocalMode() && isDesktopUserAgent((await headers()).get("user-agent"));
   return (
-    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden">
+    <main className="gw-bleed relative flex min-h-dvh items-center justify-center overflow-hidden">
       {/* Drenched olive night — lighter core, near-black edges */}
       <div
         className="absolute inset-0"
@@ -32,7 +32,14 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
         }}
       />
 
-      <div className="relative z-10 w-full max-w-[400px] px-5 py-10 2xl:max-w-[430px]">
+      {/* gold glow behind the card: depth on the big-screen canvas */}
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70 blur-3xl"
+        aria-hidden="true"
+        style={{ background: "radial-gradient(closest-side, rgba(232,186,76,.20), transparent 72%)" }}
+      />
+
+      <div className="gw-zoom gw-rise relative z-10 w-full max-w-[400px] px-5 py-10 2xl:max-w-[430px]">
         {/* Brand header */}
         <div className="mb-7 text-center 2xl:mb-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
