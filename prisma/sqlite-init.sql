@@ -119,6 +119,18 @@ CREATE TABLE "users" (
 );
 
 -- CreateTable
+CREATE TABLE "user_areas" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "wilayaCode" INTEGER NOT NULL,
+    "secteurId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "user_areas_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "user_areas_wilayaCode_fkey" FOREIGN KEY ("wilayaCode") REFERENCES "Wilaya" ("code") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "user_areas_secteurId_fkey" FOREIGN KEY ("secteurId") REFERENCES "secteurs" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "refresh_tokens" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
@@ -880,6 +892,9 @@ CREATE UNIQUE INDEX "users_qrToken_key" ON "users"("qrToken");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_companyId_username_key" ON "users"("companyId", "username");
+
+-- CreateIndex
+CREATE INDEX "user_areas_userId_idx" ON "user_areas"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "refresh_tokens_tokenHash_key" ON "refresh_tokens"("tokenHash");

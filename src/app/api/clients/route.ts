@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { clientSchema, generatePortalSecret } from "@/lib/clients/validation";
 import { nextDocNumber } from "@/lib/docs/sequences";
+import { checkClientArea } from "@/lib/users/area-scope";
+import { loadAreaScope } from "@/lib/users/area-scope.server";
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -48,6 +50,14 @@ export async function POST(req: Request) {
   if (d.secteurId) {
     const sec = await prisma.secteur.findFirst({ where: { id: d.secteurId, companyId: session.companyId } });
     if (!sec) return NextResponse.json({ error: "bad_secteur" }, { status: 400 });
+  }
+  // Admin-assigned zones: a livreur / pré-vendeur with an assignment can only
+  // create clients inside it (no assignment = everything, admins unrestricted).
+  const scope = await loadAreaScope(session.userId, session.role);
+  if (scope) {
+    const secteurs = await prisma.secteur.findMany({ where: { companyId: session.companyId }, select: { id: true, wilayaCode: true } });
+    const area = checkClientArea(scope, d, secteurs);
+    if (!area.ok) return NextResponse.json({ error: area.error }, { status: 403 });
   }
 
   const secret = generatePortalSecret();

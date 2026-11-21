@@ -19,6 +19,7 @@ import { clientQrPayload } from "@/lib/clients/validation";
 import { dzMoney } from "@/lib/format";
 import { canSell } from "@/lib/staff-permissions";
 import { NewClient } from "./clients/new/NewClient";
+import type { AreaScope } from "@/lib/users/area-scope";
 import { cn } from "@/lib/utils";
 
 type Client = {
@@ -42,6 +43,7 @@ export function DayClients({
   companyId,
   refs,
   role,
+  areaScope,
   labels,
 }: {
   locale: string;
@@ -58,6 +60,8 @@ export function DayClients({
     tiers: Array<{ id: string; name: string }>;
   };
   role: string;
+  /// Admin-assigned zones for new clients (null = everything).
+  areaScope?: AreaScope | null;
   labels: Record<string, string>;
 }) {
   const router = useRouter();
@@ -602,6 +606,7 @@ export function DayClients({
           secteurs={refs.secteurs}
           tiers={refs.tiers}
           labels={labels}
+          areaScope={areaScope}
           embedded
           onCreated={() => void reloadPending()}
           onClose={() => setAdding(false)}

@@ -4,6 +4,8 @@ import crypto from "node:crypto";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/settings/helpers";
 import { userSchema } from "@/lib/users/validation";
+import { replaceUserAreas } from "@/lib/users/area-scope.server";
+import { scopeFromRows } from "@/lib/users/area-scope";
 
 export async function GET() {
   const auth = await requireAdmin();
@@ -14,10 +16,11 @@ export async function GET() {
       id: true, username: true, fullName: true, phone: true, role: true, isActive: true, createdAt: true,
       passwordView: true, qrToken: true,
       assignedVans: { select: { id: true, name: true, matricule: true } },
+      areas: { select: { wilayaCode: true, secteurId: true } },
     },
     orderBy: { fullName: "asc" },
   });
-  return NextResponse.json(rows);
+  return NextResponse.json(rows.map(({ areas, ...u }) => ({ ...u, areaScope: scopeFromRows(areas) })));
 }
 
 export async function POST(req: Request) {
@@ -55,12 +58,14 @@ export async function POST(req: Request) {
       if (d.vanId) {
         await tx.store.update({ where: { id: d.vanId }, data: { userId: user.id } });
       }
+      if (d.role !== "Admin" && d.areas) await replaceUserAreas(tx, auth.session.companyId, user.id, d.areas);
       return tx.user.findUniqueOrThrow({
         where: { id: user.id },
-        select: { id: true, username: true, fullName: true, phone: true, role: true, isActive: true, passwordView: true, qrToken: true, assignedVans: { select: { id: true, name: true } } },
+        select: { id: true, username: true, fullName: true, phone: true, role: true, isActive: true, passwordView: true, qrToken: true, assignedVans: { select: { id: true, name: true } }, areas: { select: { wilayaCode: true, secteurId: true } } },
       });
     });
-    return NextResponse.json(row, { status: 201 });
+    const { areas, ...out } = row;
+    return NextResponse.json({ ...out, areaScope: scopeFromRows(areas) }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "duplicate_username" }, { status: 409 });
   }

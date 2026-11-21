@@ -170,6 +170,7 @@ model Wilaya {
   secteurs  Secteur[]
   customers Customer[]
   suppliers Supplier[]
+  userAreas UserArea[]
 }
 
 /// Secteur inside a wilaya, per company (dispatch + tournées operate on these).
@@ -186,6 +187,7 @@ model Secteur {
   customers Customer[]
   suppliers Supplier[]
   tournees  Tournee[]
+  userAreas UserArea[]
 
   @@unique([companyId, wilayaCode, name])
   @@index([companyId, wilayaCode])
@@ -214,6 +216,7 @@ model User {
   updatedAt    DateTime @updatedAt
 
   distances ClientDistance[]
+  areas     UserArea[]
 
   assignedVans Store[]  @relation("AssignedVan")
   devices      Device[]
@@ -221,6 +224,23 @@ model User {
 
   @@unique([companyId, username])
   @@map("users")
+}
+
+/// Zones a Livreur / Pré-vendeur may create clients in (admin-assigned).
+/// No rows for a user = unrestricted (sees every wilaya and secteur).
+/// secteurId null = the whole wilaya; otherwise that single secteur only.
+model UserArea {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wilayaCode Int
+  wilaya     Wilaya   @relation(fields: [wilayaCode], references: [code], onDelete: Cascade)
+  secteurId  String?
+  secteur    Secteur? @relation(fields: [secteurId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@map("user_areas")
 }
 
 model RefreshToken {

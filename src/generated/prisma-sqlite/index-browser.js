@@ -222,6 +222,14 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.UserAreaScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  wilayaCode: 'wilayaCode',
+  secteurId: 'secteurId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.RefreshTokenScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -859,6 +867,7 @@ exports.Prisma.ModelName = {
   Wilaya: 'Wilaya',
   Secteur: 'Secteur',
   User: 'User',
+  UserArea: 'UserArea',
   RefreshToken: 'RefreshToken',
   SuperAdminUser: 'SuperAdminUser',
   SuperAdminAudit: 'SuperAdminAudit',

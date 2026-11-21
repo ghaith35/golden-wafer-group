@@ -13,6 +13,8 @@ import { z } from "zod";
 import { loadRules } from "@/lib/threepack/service";
 import { syncSchema } from "@/lib/sync/validation";
 import { getApkMeta, getMinNativeVersion, getWebBuildId, isForceWebUpdate } from "@/lib/update-feed";
+import { checkClientArea } from "@/lib/users/area-scope";
+import { loadAreaScope } from "@/lib/users/area-scope.server";
 
 type SyncInput = z.infer<typeof syncSchema>;
 type OpResult = { opId: string; ok: boolean; id?: string; error?: string; permanent?: boolean };
@@ -287,6 +289,17 @@ async function applyOp(
       if (d.secteurId) {
         const sec = await prisma.secteur.findFirst({ where: { id: d.secteurId, companyId } });
         if (!sec) throw Object.assign(new Error("bad_secteur"), { status: 400 });
+      }
+      // Admin-assigned zones apply to offline-created clients too: a stale
+      // phone cannot push a client outside the livreur's assignment.
+      {
+        const staffer = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
+        const scope = await loadAreaScope(userId, staffer?.role);
+        if (scope) {
+          const secteurs = await prisma.secteur.findMany({ where: { companyId }, select: { id: true, wilayaCode: true } });
+          const area = checkClientArea(scope, d, secteurs);
+          if (!area.ok) throw Object.assign(new Error(area.error), { status: 403 });
+        }
       }
       const secret = generatePortalSecret();
       const row = await prisma.$transaction(async (tx) => {
@@ -716,6 +729,10 @@ export async function handleSync(input: SyncInput) {
   // First sync seeds the whole offline catalog: products (+categories,
   // packs, tier prices, photos), clients, secteurs/wilayas, both stocks.
   // No silent caps — completeness matters more than payload size here.
+  // Admin-assigned zones (null = unrestricted) — the phone filters its
+  // new-client pickers with this, offline included.
+  const stafferRole = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
+  const areaScope = await loadAreaScope(userId, stafferRole?.role);
   const [products, units, tiers, categories, secteurs, wilayas, clients, batches, depotBatches, transfers, tournees, vans, assignedOrders, holds, company, webBuildId, apkMeta] = await Promise.all([
     prisma.product.findMany({
       where: { companyId, isActive: true },
@@ -845,6 +862,7 @@ export async function handleSync(input: SyncInput) {
       categories,
       secteurs,
       wilayas,
+      areaScope,
       clients: clients.map((c) => ({
         ...c,
         balance: Number(c.balance ?? 0),

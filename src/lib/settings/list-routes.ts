@@ -103,6 +103,13 @@ export async function createSecteur(req: Request) {
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const parsed = secteurSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return NextResponse.json({ error: "validation_error", issues: parsed.error.issues }, { status: 400 });
+  // Assigned zones: new secteurs only inside a wilaya assigned as a whole.
+  const { loadAreaScope } = await import("@/lib/users/area-scope.server");
+  const { canCreateSecteurIn } = await import("@/lib/users/area-scope");
+  const scope = await loadAreaScope(session.userId, session.role);
+  if (scope && !canCreateSecteurIn(scope, Number(parsed.data.wilayaCode))) {
+    return NextResponse.json({ error: "outside_area" }, { status: 403 });
+  }
   try {
     const row = await prisma.secteur.create({ data: { companyId: session.companyId, ...parsed.data } });
     return NextResponse.json(row, { status: 201 });

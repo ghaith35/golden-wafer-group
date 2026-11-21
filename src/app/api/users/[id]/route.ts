@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/settings/helpers";
 import { userPatchSchema } from "@/lib/users/validation";
+import { replaceUserAreas } from "@/lib/users/area-scope.server";
+import { scopeFromRows } from "@/lib/users/area-scope";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin();
@@ -41,12 +43,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       await tx.store.updateMany({ where: { userId: id }, data: { userId: null } });
       if (d.vanId) await tx.store.update({ where: { id: d.vanId }, data: { userId: id } });
     }
+    // Zones: undefined = untouched, null/empty = unrestricted, admins never scoped.
+    if (d.areas !== undefined) {
+      const role = d.role ?? existing.role;
+      await replaceUserAreas(tx, auth.session.companyId, id, role === "Admin" ? null : d.areas);
+    }
     return tx.user.findFirstOrThrow({
       where: { id },
-      select: { id: true, username: true, fullName: true, phone: true, role: true, isActive: true, passwordView: true, qrToken: true, assignedVans: { select: { id: true, name: true } } },
+      select: { id: true, username: true, fullName: true, phone: true, role: true, isActive: true, passwordView: true, qrToken: true, assignedVans: { select: { id: true, name: true } }, areas: { select: { wilayaCode: true, secteurId: true } } },
     });
   });
-  return NextResponse.json(row);
+  const { areas, ...out } = row;
+  return NextResponse.json({ ...out, areaScope: scopeFromRows(areas) });
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {

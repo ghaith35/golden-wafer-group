@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../../../_data";
 import { parseDay } from "../../../_days";
 import { NewClient } from "./NewClient";
+import { loadAreaScope } from "@/lib/users/area-scope.server";
 
 /// Livreur adds a client (online → API, offline → outbox sync).
 /// Same fields as the admin form: identity + wilaya/secteur/tier + GPS.
@@ -34,6 +35,8 @@ export default async function LivreurNewClientPage({
     }),
   ]);
 
+  const areaScope = await loadAreaScope(session.userId, session.role);
+
   return (
     <NewClient
       locale={locale}
@@ -42,6 +45,7 @@ export default async function LivreurNewClientPage({
       wilayas={JSON.parse(JSON.stringify(wilayas))}
       secteurs={JSON.parse(JSON.stringify(secteurs))}
       tiers={JSON.parse(JSON.stringify(tiers))}
+      areaScope={areaScope}
       labels={{
         newClient: t("newClient"), phoneOpt: t("phoneOpt"), addressOpt: t("addressOpt"),
         activityOpt: t("activityOpt"), wilayaOpt: t("wilayaOpt"), secteurOpt: t("secteurOpt"),
@@ -50,6 +54,7 @@ export default async function LivreurNewClientPage({
         qrReady: t("qrReady"), pendingSync: t("pendingSync"), another: t("another"),
         saveQr: t("saveQr"), qrSaved: t("qrSaved"), qrShared: t("qrShared"), qrSaveFail: t("qrSaveFail"),
         secteurOffline: t("secteurOffline"),
+        errOutsideArea: t("errOutsideArea"), errAreaRequired: t("errAreaRequired"),
       }}
     />
   );

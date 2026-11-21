@@ -791,7 +791,14 @@
     "roleVendeur": "Seller",
     "roleLivreur": "Driver",
     "roleAdmin": "Admin",
-    "driverBusy": "This driver is already linked to another van"
+    "driverBusy": "This driver is already linked to another van",
+    "areas": "Areas (wilayas & sectors)",
+    "areasAll": "Unrestricted: sees every wilaya and sector",
+    "areasHint": "Only sees the assigned wilayas and sectors when creating a client",
+    "areasClear": "Clear all",
+    "areasSearch": "Search a wilaya…",
+    "areasWhole": "All sectors",
+    "areasNoSecteurs": "No sectors in this wilaya"
   },
   "onboard": {
     "title": "Start with Golden Wafer",
@@ -1322,7 +1329,9 @@
     "gateEndM": "Goods requests are only available after you end your tour.",
     "gateEndBtn": "Back to my tour",
     "lockedHint": "Locked",
-    "errBonus": "Free colis not earned for this sale"
+    "errBonus": "Free colis not earned for this sale",
+    "errOutsideArea": "This wilaya or sector is outside your assigned areas",
+    "errAreaRequired": "Pick the wilaya and sector assigned to you"
   },
   "presence": {
     "title": "Attendance",

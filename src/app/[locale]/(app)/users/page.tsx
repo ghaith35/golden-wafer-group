@@ -19,10 +19,18 @@ export default async function UsersPage({ params }: { params: Promise<{ locale: 
     where: { companyId: session.companyId, kind: "VAN", isActive: true },
     orderBy: { name: "asc" },
   });
+  const [wilayas, secteurs] = await Promise.all([
+    prisma.wilaya.findMany({ orderBy: { code: "asc" } }),
+    prisma.secteur.findMany({ where: { companyId: session.companyId, isActive: true }, orderBy: { name: "asc" } }),
+  ]);
   return (
     <UsersClient
       locale={locale}
       vans={vans}
+      geo={{
+        wilayas: wilayas.map((w) => ({ code: w.code, nameFr: w.nameFr, nameAr: w.nameAr })),
+        secteurs: secteurs.map((x) => ({ id: x.id, name: x.name, wilayaCode: x.wilayaCode })),
+      }}
       allowedRoles={["Vendeur", "Livreur"]}
       allowDelete
       scope="staff"
@@ -38,6 +46,8 @@ export default async function UsersPage({ params }: { params: Promise<{ locale: 
         roleVendeur: t("roleVendeur"), roleLivreur: t("roleLivreur"), roleAdmin: t("roleAdmin"),
         firstAdd: t("firstAdd"), goAdmins: t("goAdmins"), goHref: `/${locale}/settings/admins`,
         all: t("all"), driverBusy: t("driverBusy"),
+        areas: t("areas"), areasAll: t("areasAll"), areasHint: t("areasHint"), areasClear: t("areasClear"),
+        areasSearch: t("areasSearch"), areasWhole: t("areasWhole"), areasNoSecteurs: t("areasNoSecteurs"),
       }}
     />
   );

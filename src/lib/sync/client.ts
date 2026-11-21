@@ -1,5 +1,6 @@
 "use client";
 
+import type { AreaScope } from "@/lib/users/area-scope";
 import { parseClientScan } from "@/lib/clients/qr";
 
 /// Sync runner + on-device database access for the van phone.
@@ -138,6 +139,8 @@ export type VanSnapshot = {
   categories: Array<{ id: string; name: string }>;
   secteurs: Array<{ id: string; name: string; wilayaCode: number }>;
   wilayas: Array<{ code: number; nameAr: string; nameFr: string }>;
+  /// Admin-assigned zones for this staffer; null/absent = unrestricted.
+  areaScope?: AreaScope | null;
   clients: SnapshotClient[];
   stock: Array<{ productId: string; qty: number }>;
   depotStock?: Array<{ productId: string; qty: number }>;
@@ -665,6 +668,8 @@ const SALE_ERR_KEYS: Record<string, string> = {
   bad_phone: "errBadPhone",
   duplicate_phone: "errDupPhone",
   duplicate_code: "errDupPhone",
+  outside_area: "errOutsideArea",
+  area_required: "errAreaRequired",
 };
 export function saleErrText(labels: Record<string, string>, code: string | null | undefined): string | null {
   if (!code) return null;

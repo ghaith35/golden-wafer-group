@@ -12,6 +12,7 @@ import { compareNatural } from "@/lib/sort";
 import QRCode from "qrcode";
 import { cn } from "@/lib/utils";
 import { useSyncedState } from "@/lib/data-sync";
+import { canCreateSecteurIn, checkClientArea, filterAreas, isRestricted, type AreaScope } from "@/lib/users/area-scope";
 
 import { ErrText } from "@/components/ui/ErrText";
 /// Livreur adds a client: online → POST /api/clients, offline → outbox.
@@ -32,6 +33,7 @@ export function NewClient({
   secteurs,
   tiers,
   labels,
+  areaScope,
   embedded = false,
   onCreated,
   onClose,
@@ -43,6 +45,8 @@ export function NewClient({
   secteurs: Array<{ id: string; name: string; wilayaCode: number }>;
   tiers: Array<{ id: string; name: string }>;
   labels: Record<string, string>;
+  /// Admin-assigned zones (server truth at render time); null/absent = everything.
+  areaScope?: AreaScope | null;
   embedded?: boolean;
   onCreated?: () => void;
   onClose?: () => void;
@@ -82,23 +86,40 @@ export function NewClient({
       setSecteurList((cur) => (cur.length ? cur : refs.secteurs));
     }).catch(() => {});
   }, [wilayas.length, secteurs.length]);
+  /// Zones from the last sync (works offline). It overrides the render-time
+  /// prop: the snapshot is what the server last confirmed for this phone.
+  const [snapScope, setSnapScope] = useState<AreaScope | null | undefined>(undefined);
+  useEffect(() => {
+    getVanSnapshot().then((s) => {
+      if (s && s.areaScope !== undefined) setSnapScope(s.areaScope);
+    }).catch(() => {});
+  }, []);
+  const scope = snapScope !== undefined ? snapScope : (areaScope ?? null);
+  const restricted = isRestricted(scope);
   /// Created account: QR shown immediately (offline or online).
   const [created, setCreated] = useState<{ code: string; name: string; qr: string; offline: boolean } | null>(null);
 
-  const secteurOpts = secteurList.filter((s) => !wilaya || s.wilayaCode === Number(wilaya));
-  const effWilayas = wilayas.length ? wilayas : (snapRefs?.wilayas ?? []);
+  const allWilayas = wilayas.length ? wilayas : (snapRefs?.wilayas ?? []);
+  // Assigned zones only (everything when the admin assigned nothing).
+  const zone = filterAreas(scope, allWilayas, secteurList);
+  const effWilayas = zone.wilayas;
+  // A single assigned wilaya / secteur is picked automatically.
+  const wilayaEff = wilaya || (restricted && zone.wilayas.length === 1 ? String(zone.wilayas[0].code) : "");
+  const secteurOpts = zone.secteurs.filter((s) => !wilayaEff || s.wilayaCode === Number(wilayaEff));
+  const secteurEff = secteur || (restricted && wilayaEff && secteurOpts.length === 1 ? secteurOpts[0].id : "");
+  const canAddSecteur = !!wilayaEff && canCreateSecteurIn(scope, Number(wilayaEff));
   const effTiers = tiers.length ? tiers : (snapRefs?.tiers ?? []);
 
   async function createSecteur() {
     const name = secteurName.trim();
-    if (!name || !wilaya) return;
+    if (!name || !wilayaEff || !canAddSecteur) return;
     setSecteurBusy(true);
     setError(null);
     try {
       const res = await fetch("/api/settings/secteurs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wilayaCode: Number(wilaya), name }),
+        body: JSON.stringify({ wilayaCode: Number(wilayaEff), name }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -161,6 +182,17 @@ export function NewClient({
     } catch {
       /* no snapshot yet → let the server decide */
     }
+    // Assigned zones: the same rule the server enforces — refuse BEFORE
+    // minting a QR the server would reject on sync.
+    if (restricted) {
+      const area = checkClientArea(scope, { wilayaCode: wilayaEff ? Number(wilayaEff) : null, secteurId: secteurEff || null }, secteurList);
+      if (!area.ok) {
+        setError(saleErrText(labels, area.error) ?? area.error);
+        setSaving(false);
+        savingRef.current = false;
+        return;
+      }
+    }
     // Mint the account code on the phone: unique per device (time+random),
     // honored by the server — the QR below is final, online or offline.
     const code = generateOfflineClientCode();
@@ -170,8 +202,8 @@ export function NewClient({
       ...(phone.trim() ? { phone: phone.trim() } : {}),
       ...(address.trim() ? { address: address.trim() } : {}),
       ...(activity.trim() ? { activityType: activity.trim() } : {}),
-      ...(wilaya ? { wilayaCode: Number(wilaya) } : {}),
-      ...(secteur ? { secteurId: secteur } : {}),
+      ...(wilayaEff ? { wilayaCode: Number(wilayaEff) } : {}),
+      ...(secteurEff ? { secteurId: secteurEff } : {}),
       ...(tier ? { tierId: tier } : {}),
       ...(() => {
         const g = gps ?? typedGps();
@@ -380,7 +412,7 @@ export function NewClient({
             <div>
               <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.wilayaOpt}</label>
               <select
-                value={wilaya}
+                value={wilayaEff}
                 onChange={(e) => { setWilaya(e.target.value); setSecteur(""); }}
                 className="h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)"
               >
@@ -394,7 +426,7 @@ export function NewClient({
               <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.secteurOpt}</label>
               <div className="flex gap-2">
                 <select
-                  value={secteur}
+                  value={secteurEff}
                   onChange={(e) => setSecteur(e.target.value)}
                   className="h-11 min-w-0 flex-1 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)"
                 >
@@ -406,7 +438,7 @@ export function NewClient({
                 <button
                   type="button"
                   onClick={() => { setShowSecteur((v) => !v); setSecteurName(""); }}
-                  disabled={!wilaya}
+                  disabled={!canAddSecteur}
                   aria-label="+"
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500) text-lg font-black text-(--brand-contrast) disabled:opacity-30"
                 >

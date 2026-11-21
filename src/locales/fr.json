@@ -791,7 +791,14 @@
     "roleVendeur": "Vendeur",
     "roleLivreur": "Livreur",
     "roleAdmin": "Admin",
-    "driverBusy": "Ce chauffeur est déjà lié à un autre camion"
+    "driverBusy": "Ce chauffeur est déjà lié à un autre camion",
+    "areas": "Zones (wilayas et secteurs)",
+    "areasAll": "Aucune restriction : voit toutes les wilayas et tous les secteurs",
+    "areasHint": "Ne voit que les wilayas et secteurs assignés à la création d'un client",
+    "areasClear": "Tout effacer",
+    "areasSearch": "Rechercher une wilaya…",
+    "areasWhole": "Tous les secteurs",
+    "areasNoSecteurs": "Aucun secteur dans cette wilaya"
   },
   "onboard": {
     "title": "Commencez avec Golden Wafer",
@@ -1322,7 +1329,9 @@
     "gateEndM": "Les demandes de marchandise ne sont possibles qu'après la fin de la tournée.",
     "gateEndBtn": "Retour à ma tournée",
     "lockedHint": "Verrouillé",
-    "errBonus": "Colis gratuits non mérités pour cette vente"
+    "errBonus": "Colis gratuits non mérités pour cette vente",
+    "errOutsideArea": "Cette wilaya ou ce secteur est hors de vos zones assignées",
+    "errAreaRequired": "Choisissez la wilaya et le secteur qui vous sont assignés"
   },
   "presence": {
     "title": "Pointage",

@@ -15,6 +15,7 @@ vi.mock("@/lib/db", () => ({
     productCategory: { findMany: vi.fn(async () => []) },
     secteur: { findMany: vi.fn(async () => []) },
     wilaya: { findMany: vi.fn(async () => []) },
+    userArea: { findMany: vi.fn(async () => []) },
     customer: { findMany: vi.fn(async () => []), findFirst: vi.fn(async () => null), update: vi.fn(async (a: any) => ({ id: a?.where?.id ?? "c1" })) },
     supplier: { findFirst: vi.fn(async () => null) },
     sale: { findMany: vi.fn(async () => []), findFirst: vi.fn(async () => null) },
@@ -414,3 +415,46 @@ describe("handleSync — phone with new data", () => {
     expect(declareTransfer).toHaveBeenCalled();
   });
 });
+
+describe("handleSync — admin-assigned zones", () => {
+  const secteursDb = [
+    { id: "s1", wilayaCode: 16 },
+    { id: "s3", wilayaCode: 31 },
+  ];
+  const clientOp = (payload: Record<string, unknown>, opId = "op-cl-0001") => ({
+    opId,
+    kind: "client",
+    payload: { name: "Epicerie", code: "CLT-OFF-0001", ...payload },
+  });
+
+  beforeEach(() => {
+    (prisma.secteur.findMany as any).mockResolvedValue(secteursDb);
+    (prisma.secteur.findFirst as any) = vi.fn(async (a: any) => secteursDb.find((x) => x.id === a?.where?.id) ?? null);
+  });
+
+  it("snapshot carries the assigned zones (null when unrestricted)", async () => {
+    (prisma.userArea.findMany as any).mockResolvedValue([{ wilayaCode: 16, secteurId: null }]);
+    const res = await handleSync({ deviceToken: TOKEN, ops: [] } as any);
+    expect((res as any).pulled.areaScope).toEqual({ wilayas: [16], secteurs: [] });
+
+    (prisma.userArea.findMany as any).mockResolvedValue([]);
+    const open = await handleSync({ deviceToken: TOKEN, ops: [] } as any);
+    expect((open as any).pulled.areaScope).toBeNull();
+  });
+
+  it("an offline-created client OUTSIDE the assignment is refused (permanent, 403)", async () => {
+    (prisma.userArea.findMany as any).mockResolvedValue([{ wilayaCode: 16, secteurId: null }]);
+    const res = await handleSync({
+      deviceToken: TOKEN,
+      ops: [clientOp({ wilayaCode: 31, secteurId: "s3" })],
+    } as any);
+    expect(res.applied[0]).toMatchObject({ opId: "op-cl-0001", ok: false, error: "outside_area", permanent: true });
+  });
+
+  it("a client without any wilaya is refused when the livreur is restricted", async () => {
+    (prisma.userArea.findMany as any).mockResolvedValue([{ wilayaCode: 16, secteurId: null }]);
+    const res = await handleSync({ deviceToken: TOKEN, ops: [clientOp({}, "op-cl-0002")] } as any);
+    expect(res.applied[0]).toMatchObject({ ok: false, error: "area_required", permanent: true });
+  });
+});
+

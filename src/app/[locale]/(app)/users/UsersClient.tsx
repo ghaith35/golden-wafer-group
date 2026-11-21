@@ -11,6 +11,8 @@ import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
 import { useDataVersion } from "@/lib/data-sync";
+import { AreaPicker, type AreaValue } from "./AreaPicker";
+import type { AreaScope } from "@/lib/users/area-scope";
 
 type User = {
   id: string;
@@ -22,6 +24,8 @@ type User = {
   passwordView: string | null;
   qrToken: string | null;
   assignedVans: Array<{ id: string; name: string }>;
+  /// Admin-assigned zones; null = unrestricted.
+  areaScope?: AreaScope | null;
 };
 
 const ROLES = ["Admin", "Vendeur", "Livreur"] as const;
@@ -33,12 +37,19 @@ export function staffQrPayload(username: string, token: string) {
   return JSON.stringify({ app: "distribuili", type: "staff-login", u: username, k: token });
 }
 
-type FormVal = { fullName: string; username: string; phone: string; password: string; role: string; vanId: string; isActive: boolean };
+type Geo = {
+  wilayas: Array<{ code: number; nameFr: string; nameAr: string }>;
+  secteurs: Array<{ id: string; name: string; wilayaCode: number }>;
+};
+
+type FormVal = { fullName: string; username: string; phone: string; password: string; role: string; vanId: string; isActive: boolean; areas: AreaValue };
 
 function UserForm({
   initial,
   roles,
   vans,
+  geo,
+  locale,
   labels,
   saving,
   error,
@@ -49,6 +60,8 @@ function UserForm({
   initial: FormVal;
   roles: readonly string[];
   vans: Array<{ id: string; name: string }>;
+  geo: Geo | null;
+  locale: string;
   labels: Record<string, string>;
   saving: boolean;
   error: string | null;
@@ -57,7 +70,7 @@ function UserForm({
   onClose: () => void;
 }) {
   const [v, setV] = useState(initial);
-  const set = (k: keyof FormVal, val: string | boolean) => setV((p) => ({ ...p, [k]: val }));
+  const set = (k: Exclude<keyof FormVal, "areas">, val: string | boolean) => setV((p) => ({ ...p, [k]: val }));
 
   return (
     <div className="grid gap-2">
@@ -101,6 +114,16 @@ function UserForm({
           ))}
         </select>
       </div>
+      {geo && v.role !== "Admin" && (
+        <AreaPicker
+          locale={locale}
+          wilayas={geo.wilayas}
+          secteurs={geo.secteurs}
+          value={v.areas}
+          onChange={(areas) => setV((p) => ({ ...p, areas }))}
+          labels={labels}
+        />
+      )}
       {!isNew && (
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={v.isActive} onChange={(e) => set("isActive", e.target.checked)} />
@@ -260,6 +283,7 @@ function UserCard({
 export function UsersClient({
   locale,
   vans,
+  geo = null,
   labels,
   allowedRoles = ROLES,
   allowDelete = true,
@@ -267,6 +291,8 @@ export function UsersClient({
 }: {
   locale: string;
   vans: Array<{ id: string; name: string }>;
+  /// Wilayas + secteurs for the zone picker (staff page only).
+  geo?: Geo | null;
   labels: Record<string, string>;
   /// Restrict the managed accounts, e.g. the staff page passes
   /// ["Vendeur", "Livreur"] so Admins are only managed in Settings.
@@ -337,6 +363,7 @@ export function UsersClient({
           phone: v.phone.trim() || null,
           role: v.role,
           vanId: v.role === "Admin" ? null : (v.vanId || null),
+          ...(geo && v.role !== "Admin" ? { areas: v.areas } : {}),
           ...(scope ? { scope } : {}),
         }),
       });
@@ -370,6 +397,7 @@ export function UsersClient({
           isActive: v.isActive,
           vanId: v.role === "Admin" ? null : (v.vanId || null),
           ...(v.password ? { password: v.password } : {}),
+          ...(geo && v.role !== "Admin" ? { areas: v.areas } : {}),
           ...(scope ? { scope } : {}),
         }),
       });
@@ -415,6 +443,7 @@ export function UsersClient({
     role: roles.includes("Vendeur") ? "Vendeur" : roles[0] ?? "Vendeur",
     vanId: "",
     isActive: true,
+    areas: { wilayas: [], secteurs: [] },
   };
 
   const counts = useMemo(() => {
@@ -524,6 +553,8 @@ export function UsersClient({
           initial={presetRole ? { ...emptyForm, role: presetRole } : emptyForm}
           roles={roles}
           vans={vans}
+          geo={geo}
+          locale={locale}
           labels={labels}
           saving={saving}
           error={error}
@@ -551,9 +582,12 @@ export function UsersClient({
               role: editing.role,
               vanId: editing.assignedVans[0]?.id ?? "",
               isActive: editing.isActive,
+              areas: editing.areaScope ?? { wilayas: [], secteurs: [] },
             }}
             roles={roles}
             vans={vans}
+            geo={geo}
+            locale={locale}
             labels={labels}
             saving={saving}
             error={error}

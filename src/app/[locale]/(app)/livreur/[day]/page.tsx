@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../_data";
 import { parseDay, sameDay } from "../_days";
 import { DayClients } from "./DayClients";
+import { loadAreaScope } from "@/lib/users/area-scope.server";
 
 /// Step 2 — Clients: ALL of the driver's clients (union of his OPEN
 /// tournées' stops, tagged by day) with a day-filter on top. Falls back to
@@ -78,6 +79,8 @@ export default async function LivreurDayPage({
     }),
   ]);
 
+  const areaScope = await loadAreaScope(session.userId, session.role);
+
   return (
     <DayClients
       locale={locale}
@@ -90,6 +93,7 @@ export default async function LivreurDayPage({
       companyId={session.companyId}
       refs={JSON.parse(JSON.stringify({ wilayas, secteurs, tiers }))}
       role={session.role}
+      areaScope={areaScope}
       labels={{
         clients: t("clients"), searchClient: t("searchClient"), empty: t("empty"),
         online: t("online"), offline: t("offline"),
@@ -105,6 +109,7 @@ export default async function LivreurDayPage({
         qrReady: t("qrReady"), pendingSync: t("pendingSync"), another: t("another"),
         saveQr: t("saveQr"), qrSaved: t("qrSaved"), qrShared: t("qrShared"), qrSaveFail: t("qrSaveFail"),
         secteurOffline: t("secteurOffline"),
+        errOutsideArea: t("errOutsideArea"), errAreaRequired: t("errAreaRequired"),
         collect: t("collect"), amount: t("amount"), syncFirst: t("syncFirst"),
         errSaveFailed: t("errSaveFailed"), queuedOk: t("queuedOk"),
         editClient: t("editClient"), clientUpdated: t("clientUpdated"),

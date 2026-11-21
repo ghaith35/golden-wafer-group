@@ -54,6 +54,13 @@ export type Secteur = $Result.DefaultSelection<Prisma.$SecteurPayload>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model UserArea
+ * Zones a Livreur / Pré-vendeur may create clients in (admin-assigned).
+ * No rows for a user = unrestricted (sees every wilaya and secteur).
+ * secteurId null = the whole wilaya; otherwise that single secteur only.
+ */
+export type UserArea = $Result.DefaultSelection<Prisma.$UserAreaPayload>
+/**
  * Model RefreshToken
  * 
  */
@@ -505,6 +512,16 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userArea`: Exposes CRUD operations for the **UserArea** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserAreas
+    * const userAreas = await prisma.userArea.findMany()
+    * ```
+    */
+  get userArea(): Prisma.UserAreaDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.refreshToken`: Exposes CRUD operations for the **RefreshToken** model.
@@ -1410,6 +1427,7 @@ export namespace Prisma {
     Wilaya: 'Wilaya',
     Secteur: 'Secteur',
     User: 'User',
+    UserArea: 'UserArea',
     RefreshToken: 'RefreshToken',
     SuperAdminUser: 'SuperAdminUser',
     SuperAdminAudit: 'SuperAdminAudit',
@@ -1470,7 +1488,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem"
+      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "userArea" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2063,6 +2081,80 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserArea: {
+        payload: Prisma.$UserAreaPayload<ExtArgs>
+        fields: Prisma.UserAreaFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserAreaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAreaPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserAreaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAreaPayload>
+          }
+          findFirst: {
+            args: Prisma.UserAreaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAreaPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserAreaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAreaPayload>
+          }
+          findMany: {
+            args: Prisma.UserAreaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAreaPayload>[]
+          }
+          create: {
+            args: Prisma.UserAreaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAreaPayload>
+          }
+          createMany: {
+            args: Prisma.UserAreaCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserAreaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAreaPayload>[]
+          }
+          delete: {
+            args: Prisma.UserAreaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAreaPayload>
+          }
+          update: {
+            args: Prisma.UserAreaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAreaPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserAreaDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserAreaUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserAreaUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAreaPayload>[]
+          }
+          upsert: {
+            args: Prisma.UserAreaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserAreaPayload>
+          }
+          aggregate: {
+            args: Prisma.UserAreaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserArea>
+          }
+          groupBy: {
+            args: Prisma.UserAreaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserAreaGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserAreaCountArgs<ExtArgs>
+            result: $Utils.Optional<UserAreaCountAggregateOutputType> | number
           }
         }
       }
@@ -5527,6 +5619,7 @@ export namespace Prisma {
     wilaya?: WilayaOmit
     secteur?: SecteurOmit
     user?: UserOmit
+    userArea?: UserAreaOmit
     refreshToken?: RefreshTokenOmit
     superAdminUser?: SuperAdminUserOmit
     superAdminAudit?: SuperAdminAuditOmit
@@ -6058,12 +6151,14 @@ export namespace Prisma {
     secteurs: number
     customers: number
     suppliers: number
+    userAreas: number
   }
 
   export type WilayaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     secteurs?: boolean | WilayaCountOutputTypeCountSecteursArgs
     customers?: boolean | WilayaCountOutputTypeCountCustomersArgs
     suppliers?: boolean | WilayaCountOutputTypeCountSuppliersArgs
+    userAreas?: boolean | WilayaCountOutputTypeCountUserAreasArgs
   }
 
   // Custom InputTypes
@@ -6098,6 +6193,13 @@ export namespace Prisma {
     where?: SupplierWhereInput
   }
 
+  /**
+   * WilayaCountOutputType without action
+   */
+  export type WilayaCountOutputTypeCountUserAreasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserAreaWhereInput
+  }
+
 
   /**
    * Count Type SecteurCountOutputType
@@ -6107,12 +6209,14 @@ export namespace Prisma {
     customers: number
     suppliers: number
     tournees: number
+    userAreas: number
   }
 
   export type SecteurCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     customers?: boolean | SecteurCountOutputTypeCountCustomersArgs
     suppliers?: boolean | SecteurCountOutputTypeCountSuppliersArgs
     tournees?: boolean | SecteurCountOutputTypeCountTourneesArgs
+    userAreas?: boolean | SecteurCountOutputTypeCountUserAreasArgs
   }
 
   // Custom InputTypes
@@ -6147,6 +6251,13 @@ export namespace Prisma {
     where?: TourneeWhereInput
   }
 
+  /**
+   * SecteurCountOutputType without action
+   */
+  export type SecteurCountOutputTypeCountUserAreasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserAreaWhereInput
+  }
+
 
   /**
    * Count Type UserCountOutputType
@@ -6154,6 +6265,7 @@ export namespace Prisma {
 
   export type UserCountOutputType = {
     distances: number
+    areas: number
     assignedVans: number
     devices: number
     createdSales: number
@@ -6161,6 +6273,7 @@ export namespace Prisma {
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     distances?: boolean | UserCountOutputTypeCountDistancesArgs
+    areas?: boolean | UserCountOutputTypeCountAreasArgs
     assignedVans?: boolean | UserCountOutputTypeCountAssignedVansArgs
     devices?: boolean | UserCountOutputTypeCountDevicesArgs
     createdSales?: boolean | UserCountOutputTypeCountCreatedSalesArgs
@@ -6182,6 +6295,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountDistancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ClientDistanceWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAreasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserAreaWhereInput
   }
 
   /**
@@ -14103,6 +14223,7 @@ export namespace Prisma {
     secteurs?: boolean | Wilaya$secteursArgs<ExtArgs>
     customers?: boolean | Wilaya$customersArgs<ExtArgs>
     suppliers?: boolean | Wilaya$suppliersArgs<ExtArgs>
+    userAreas?: boolean | Wilaya$userAreasArgs<ExtArgs>
     _count?: boolean | WilayaCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["wilaya"]>
 
@@ -14129,6 +14250,7 @@ export namespace Prisma {
     secteurs?: boolean | Wilaya$secteursArgs<ExtArgs>
     customers?: boolean | Wilaya$customersArgs<ExtArgs>
     suppliers?: boolean | Wilaya$suppliersArgs<ExtArgs>
+    userAreas?: boolean | Wilaya$userAreasArgs<ExtArgs>
     _count?: boolean | WilayaCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WilayaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -14140,6 +14262,7 @@ export namespace Prisma {
       secteurs: Prisma.$SecteurPayload<ExtArgs>[]
       customers: Prisma.$CustomerPayload<ExtArgs>[]
       suppliers: Prisma.$SupplierPayload<ExtArgs>[]
+      userAreas: Prisma.$UserAreaPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       code: number
@@ -14542,6 +14665,7 @@ export namespace Prisma {
     secteurs<T extends Wilaya$secteursArgs<ExtArgs> = {}>(args?: Subset<T, Wilaya$secteursArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SecteurPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customers<T extends Wilaya$customersArgs<ExtArgs> = {}>(args?: Subset<T, Wilaya$customersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     suppliers<T extends Wilaya$suppliersArgs<ExtArgs> = {}>(args?: Subset<T, Wilaya$suppliersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userAreas<T extends Wilaya$userAreasArgs<ExtArgs> = {}>(args?: Subset<T, Wilaya$userAreasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -15037,6 +15161,30 @@ export namespace Prisma {
   }
 
   /**
+   * Wilaya.userAreas
+   */
+  export type Wilaya$userAreasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
+    where?: UserAreaWhereInput
+    orderBy?: UserAreaOrderByWithRelationInput | UserAreaOrderByWithRelationInput[]
+    cursor?: UserAreaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserAreaScalarFieldEnum | UserAreaScalarFieldEnum[]
+  }
+
+  /**
    * Wilaya without action
    */
   export type WilayaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -15266,6 +15414,7 @@ export namespace Prisma {
     customers?: boolean | Secteur$customersArgs<ExtArgs>
     suppliers?: boolean | Secteur$suppliersArgs<ExtArgs>
     tournees?: boolean | Secteur$tourneesArgs<ExtArgs>
+    userAreas?: boolean | Secteur$userAreasArgs<ExtArgs>
     _count?: boolean | SecteurCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["secteur"]>
 
@@ -15307,6 +15456,7 @@ export namespace Prisma {
     customers?: boolean | Secteur$customersArgs<ExtArgs>
     suppliers?: boolean | Secteur$suppliersArgs<ExtArgs>
     tournees?: boolean | Secteur$tourneesArgs<ExtArgs>
+    userAreas?: boolean | Secteur$userAreasArgs<ExtArgs>
     _count?: boolean | SecteurCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type SecteurIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -15326,6 +15476,7 @@ export namespace Prisma {
       customers: Prisma.$CustomerPayload<ExtArgs>[]
       suppliers: Prisma.$SupplierPayload<ExtArgs>[]
       tournees: Prisma.$TourneePayload<ExtArgs>[]
+      userAreas: Prisma.$UserAreaPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -15733,6 +15884,7 @@ export namespace Prisma {
     customers<T extends Secteur$customersArgs<ExtArgs> = {}>(args?: Subset<T, Secteur$customersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     suppliers<T extends Secteur$suppliersArgs<ExtArgs> = {}>(args?: Subset<T, Secteur$suppliersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tournees<T extends Secteur$tourneesArgs<ExtArgs> = {}>(args?: Subset<T, Secteur$tourneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userAreas<T extends Secteur$userAreasArgs<ExtArgs> = {}>(args?: Subset<T, Secteur$userAreasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -16239,6 +16391,30 @@ export namespace Prisma {
   }
 
   /**
+   * Secteur.userAreas
+   */
+  export type Secteur$userAreasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
+    where?: UserAreaWhereInput
+    orderBy?: UserAreaOrderByWithRelationInput | UserAreaOrderByWithRelationInput[]
+    cursor?: UserAreaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserAreaScalarFieldEnum | UserAreaScalarFieldEnum[]
+  }
+
+  /**
    * Secteur without action
    */
   export type SecteurDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -16479,6 +16655,7 @@ export namespace Prisma {
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     distances?: boolean | User$distancesArgs<ExtArgs>
+    areas?: boolean | User$areasArgs<ExtArgs>
     assignedVans?: boolean | User$assignedVansArgs<ExtArgs>
     devices?: boolean | User$devicesArgs<ExtArgs>
     createdSales?: boolean | User$createdSalesArgs<ExtArgs>
@@ -16536,6 +16713,7 @@ export namespace Prisma {
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     distances?: boolean | User$distancesArgs<ExtArgs>
+    areas?: boolean | User$areasArgs<ExtArgs>
     assignedVans?: boolean | User$assignedVansArgs<ExtArgs>
     devices?: boolean | User$devicesArgs<ExtArgs>
     createdSales?: boolean | User$createdSalesArgs<ExtArgs>
@@ -16553,6 +16731,7 @@ export namespace Prisma {
     objects: {
       company: Prisma.$CompanyPayload<ExtArgs>
       distances: Prisma.$ClientDistancePayload<ExtArgs>[]
+      areas: Prisma.$UserAreaPayload<ExtArgs>[]
       assignedVans: Prisma.$StorePayload<ExtArgs>[]
       devices: Prisma.$DevicePayload<ExtArgs>[]
       createdSales: Prisma.$SalePayload<ExtArgs>[]
@@ -16978,6 +17157,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     distances<T extends User$distancesArgs<ExtArgs> = {}>(args?: Subset<T, User$distancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientDistancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    areas<T extends User$areasArgs<ExtArgs> = {}>(args?: Subset<T, User$areasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedVans<T extends User$assignedVansArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedVansArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     devices<T extends User$devicesArgs<ExtArgs> = {}>(args?: Subset<T, User$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     createdSales<T extends User$createdSalesArgs<ExtArgs> = {}>(args?: Subset<T, User$createdSalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -17445,6 +17625,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.areas
+   */
+  export type User$areasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
+    where?: UserAreaWhereInput
+    orderBy?: UserAreaOrderByWithRelationInput | UserAreaOrderByWithRelationInput[]
+    cursor?: UserAreaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserAreaScalarFieldEnum | UserAreaScalarFieldEnum[]
+  }
+
+  /**
    * User.assignedVans
    */
   export type User$assignedVansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -17532,6 +17736,1136 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserArea
+   */
+
+  export type AggregateUserArea = {
+    _count: UserAreaCountAggregateOutputType | null
+    _avg: UserAreaAvgAggregateOutputType | null
+    _sum: UserAreaSumAggregateOutputType | null
+    _min: UserAreaMinAggregateOutputType | null
+    _max: UserAreaMaxAggregateOutputType | null
+  }
+
+  export type UserAreaAvgAggregateOutputType = {
+    wilayaCode: number | null
+  }
+
+  export type UserAreaSumAggregateOutputType = {
+    wilayaCode: number | null
+  }
+
+  export type UserAreaMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    wilayaCode: number | null
+    secteurId: string | null
+    createdAt: Date | null
+  }
+
+  export type UserAreaMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    wilayaCode: number | null
+    secteurId: string | null
+    createdAt: Date | null
+  }
+
+  export type UserAreaCountAggregateOutputType = {
+    id: number
+    userId: number
+    wilayaCode: number
+    secteurId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type UserAreaAvgAggregateInputType = {
+    wilayaCode?: true
+  }
+
+  export type UserAreaSumAggregateInputType = {
+    wilayaCode?: true
+  }
+
+  export type UserAreaMinAggregateInputType = {
+    id?: true
+    userId?: true
+    wilayaCode?: true
+    secteurId?: true
+    createdAt?: true
+  }
+
+  export type UserAreaMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    wilayaCode?: true
+    secteurId?: true
+    createdAt?: true
+  }
+
+  export type UserAreaCountAggregateInputType = {
+    id?: true
+    userId?: true
+    wilayaCode?: true
+    secteurId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type UserAreaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserArea to aggregate.
+     */
+    where?: UserAreaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserAreas to fetch.
+     */
+    orderBy?: UserAreaOrderByWithRelationInput | UserAreaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserAreaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserAreas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserAreas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserAreas
+    **/
+    _count?: true | UserAreaCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserAreaAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserAreaSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserAreaMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserAreaMaxAggregateInputType
+  }
+
+  export type GetUserAreaAggregateType<T extends UserAreaAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserArea]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserArea[P]>
+      : GetScalarType<T[P], AggregateUserArea[P]>
+  }
+
+
+
+
+  export type UserAreaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserAreaWhereInput
+    orderBy?: UserAreaOrderByWithAggregationInput | UserAreaOrderByWithAggregationInput[]
+    by: UserAreaScalarFieldEnum[] | UserAreaScalarFieldEnum
+    having?: UserAreaScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserAreaCountAggregateInputType | true
+    _avg?: UserAreaAvgAggregateInputType
+    _sum?: UserAreaSumAggregateInputType
+    _min?: UserAreaMinAggregateInputType
+    _max?: UserAreaMaxAggregateInputType
+  }
+
+  export type UserAreaGroupByOutputType = {
+    id: string
+    userId: string
+    wilayaCode: number
+    secteurId: string | null
+    createdAt: Date
+    _count: UserAreaCountAggregateOutputType | null
+    _avg: UserAreaAvgAggregateOutputType | null
+    _sum: UserAreaSumAggregateOutputType | null
+    _min: UserAreaMinAggregateOutputType | null
+    _max: UserAreaMaxAggregateOutputType | null
+  }
+
+  type GetUserAreaGroupByPayload<T extends UserAreaGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserAreaGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserAreaGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserAreaGroupByOutputType[P]>
+            : GetScalarType<T[P], UserAreaGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserAreaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    wilayaCode?: boolean
+    secteurId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    wilaya?: boolean | WilayaDefaultArgs<ExtArgs>
+    secteur?: boolean | UserArea$secteurArgs<ExtArgs>
+  }, ExtArgs["result"]["userArea"]>
+
+  export type UserAreaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    wilayaCode?: boolean
+    secteurId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    wilaya?: boolean | WilayaDefaultArgs<ExtArgs>
+    secteur?: boolean | UserArea$secteurArgs<ExtArgs>
+  }, ExtArgs["result"]["userArea"]>
+
+  export type UserAreaSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    wilayaCode?: boolean
+    secteurId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    wilaya?: boolean | WilayaDefaultArgs<ExtArgs>
+    secteur?: boolean | UserArea$secteurArgs<ExtArgs>
+  }, ExtArgs["result"]["userArea"]>
+
+  export type UserAreaSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    wilayaCode?: boolean
+    secteurId?: boolean
+    createdAt?: boolean
+  }
+
+  export type UserAreaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "wilayaCode" | "secteurId" | "createdAt", ExtArgs["result"]["userArea"]>
+  export type UserAreaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    wilaya?: boolean | WilayaDefaultArgs<ExtArgs>
+    secteur?: boolean | UserArea$secteurArgs<ExtArgs>
+  }
+  export type UserAreaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    wilaya?: boolean | WilayaDefaultArgs<ExtArgs>
+    secteur?: boolean | UserArea$secteurArgs<ExtArgs>
+  }
+  export type UserAreaIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    wilaya?: boolean | WilayaDefaultArgs<ExtArgs>
+    secteur?: boolean | UserArea$secteurArgs<ExtArgs>
+  }
+
+  export type $UserAreaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserArea"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      wilaya: Prisma.$WilayaPayload<ExtArgs>
+      secteur: Prisma.$SecteurPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      wilayaCode: number
+      secteurId: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["userArea"]>
+    composites: {}
+  }
+
+  type UserAreaGetPayload<S extends boolean | null | undefined | UserAreaDefaultArgs> = $Result.GetResult<Prisma.$UserAreaPayload, S>
+
+  type UserAreaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserAreaFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserAreaCountAggregateInputType | true
+    }
+
+  export interface UserAreaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserArea'], meta: { name: 'UserArea' } }
+    /**
+     * Find zero or one UserArea that matches the filter.
+     * @param {UserAreaFindUniqueArgs} args - Arguments to find a UserArea
+     * @example
+     * // Get one UserArea
+     * const userArea = await prisma.userArea.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserAreaFindUniqueArgs>(args: SelectSubset<T, UserAreaFindUniqueArgs<ExtArgs>>): Prisma__UserAreaClient<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserArea that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserAreaFindUniqueOrThrowArgs} args - Arguments to find a UserArea
+     * @example
+     * // Get one UserArea
+     * const userArea = await prisma.userArea.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserAreaFindUniqueOrThrowArgs>(args: SelectSubset<T, UserAreaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserAreaClient<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserArea that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAreaFindFirstArgs} args - Arguments to find a UserArea
+     * @example
+     * // Get one UserArea
+     * const userArea = await prisma.userArea.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserAreaFindFirstArgs>(args?: SelectSubset<T, UserAreaFindFirstArgs<ExtArgs>>): Prisma__UserAreaClient<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserArea that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAreaFindFirstOrThrowArgs} args - Arguments to find a UserArea
+     * @example
+     * // Get one UserArea
+     * const userArea = await prisma.userArea.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserAreaFindFirstOrThrowArgs>(args?: SelectSubset<T, UserAreaFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserAreaClient<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserAreas that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAreaFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserAreas
+     * const userAreas = await prisma.userArea.findMany()
+     * 
+     * // Get first 10 UserAreas
+     * const userAreas = await prisma.userArea.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userAreaWithIdOnly = await prisma.userArea.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserAreaFindManyArgs>(args?: SelectSubset<T, UserAreaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserArea.
+     * @param {UserAreaCreateArgs} args - Arguments to create a UserArea.
+     * @example
+     * // Create one UserArea
+     * const UserArea = await prisma.userArea.create({
+     *   data: {
+     *     // ... data to create a UserArea
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserAreaCreateArgs>(args: SelectSubset<T, UserAreaCreateArgs<ExtArgs>>): Prisma__UserAreaClient<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserAreas.
+     * @param {UserAreaCreateManyArgs} args - Arguments to create many UserAreas.
+     * @example
+     * // Create many UserAreas
+     * const userArea = await prisma.userArea.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserAreaCreateManyArgs>(args?: SelectSubset<T, UserAreaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserAreas and returns the data saved in the database.
+     * @param {UserAreaCreateManyAndReturnArgs} args - Arguments to create many UserAreas.
+     * @example
+     * // Create many UserAreas
+     * const userArea = await prisma.userArea.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserAreas and only return the `id`
+     * const userAreaWithIdOnly = await prisma.userArea.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserAreaCreateManyAndReturnArgs>(args?: SelectSubset<T, UserAreaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserArea.
+     * @param {UserAreaDeleteArgs} args - Arguments to delete one UserArea.
+     * @example
+     * // Delete one UserArea
+     * const UserArea = await prisma.userArea.delete({
+     *   where: {
+     *     // ... filter to delete one UserArea
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserAreaDeleteArgs>(args: SelectSubset<T, UserAreaDeleteArgs<ExtArgs>>): Prisma__UserAreaClient<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserArea.
+     * @param {UserAreaUpdateArgs} args - Arguments to update one UserArea.
+     * @example
+     * // Update one UserArea
+     * const userArea = await prisma.userArea.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserAreaUpdateArgs>(args: SelectSubset<T, UserAreaUpdateArgs<ExtArgs>>): Prisma__UserAreaClient<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserAreas.
+     * @param {UserAreaDeleteManyArgs} args - Arguments to filter UserAreas to delete.
+     * @example
+     * // Delete a few UserAreas
+     * const { count } = await prisma.userArea.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserAreaDeleteManyArgs>(args?: SelectSubset<T, UserAreaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserAreas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAreaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserAreas
+     * const userArea = await prisma.userArea.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserAreaUpdateManyArgs>(args: SelectSubset<T, UserAreaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserAreas and returns the data updated in the database.
+     * @param {UserAreaUpdateManyAndReturnArgs} args - Arguments to update many UserAreas.
+     * @example
+     * // Update many UserAreas
+     * const userArea = await prisma.userArea.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserAreas and only return the `id`
+     * const userAreaWithIdOnly = await prisma.userArea.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserAreaUpdateManyAndReturnArgs>(args: SelectSubset<T, UserAreaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserArea.
+     * @param {UserAreaUpsertArgs} args - Arguments to update or create a UserArea.
+     * @example
+     * // Update or create a UserArea
+     * const userArea = await prisma.userArea.upsert({
+     *   create: {
+     *     // ... data to create a UserArea
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserArea we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserAreaUpsertArgs>(args: SelectSubset<T, UserAreaUpsertArgs<ExtArgs>>): Prisma__UserAreaClient<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserAreas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAreaCountArgs} args - Arguments to filter UserAreas to count.
+     * @example
+     * // Count the number of UserAreas
+     * const count = await prisma.userArea.count({
+     *   where: {
+     *     // ... the filter for the UserAreas we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserAreaCountArgs>(
+      args?: Subset<T, UserAreaCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserAreaCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserArea.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAreaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserAreaAggregateArgs>(args: Subset<T, UserAreaAggregateArgs>): Prisma.PrismaPromise<GetUserAreaAggregateType<T>>
+
+    /**
+     * Group by UserArea.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAreaGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserAreaGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserAreaGroupByArgs['orderBy'] }
+        : { orderBy?: UserAreaGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserAreaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserAreaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserArea model
+   */
+  readonly fields: UserAreaFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserArea.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserAreaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    wilaya<T extends WilayaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WilayaDefaultArgs<ExtArgs>>): Prisma__WilayaClient<$Result.GetResult<Prisma.$WilayaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    secteur<T extends UserArea$secteurArgs<ExtArgs> = {}>(args?: Subset<T, UserArea$secteurArgs<ExtArgs>>): Prisma__SecteurClient<$Result.GetResult<Prisma.$SecteurPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserArea model
+   */
+  interface UserAreaFieldRefs {
+    readonly id: FieldRef<"UserArea", 'String'>
+    readonly userId: FieldRef<"UserArea", 'String'>
+    readonly wilayaCode: FieldRef<"UserArea", 'Int'>
+    readonly secteurId: FieldRef<"UserArea", 'String'>
+    readonly createdAt: FieldRef<"UserArea", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserArea findUnique
+   */
+  export type UserAreaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
+    /**
+     * Filter, which UserArea to fetch.
+     */
+    where: UserAreaWhereUniqueInput
+  }
+
+  /**
+   * UserArea findUniqueOrThrow
+   */
+  export type UserAreaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
+    /**
+     * Filter, which UserArea to fetch.
+     */
+    where: UserAreaWhereUniqueInput
+  }
+
+  /**
+   * UserArea findFirst
+   */
+  export type UserAreaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
+    /**
+     * Filter, which UserArea to fetch.
+     */
+    where?: UserAreaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserAreas to fetch.
+     */
+    orderBy?: UserAreaOrderByWithRelationInput | UserAreaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserAreas.
+     */
+    cursor?: UserAreaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserAreas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserAreas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserAreas.
+     */
+    distinct?: UserAreaScalarFieldEnum | UserAreaScalarFieldEnum[]
+  }
+
+  /**
+   * UserArea findFirstOrThrow
+   */
+  export type UserAreaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
+    /**
+     * Filter, which UserArea to fetch.
+     */
+    where?: UserAreaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserAreas to fetch.
+     */
+    orderBy?: UserAreaOrderByWithRelationInput | UserAreaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserAreas.
+     */
+    cursor?: UserAreaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserAreas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserAreas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserAreas.
+     */
+    distinct?: UserAreaScalarFieldEnum | UserAreaScalarFieldEnum[]
+  }
+
+  /**
+   * UserArea findMany
+   */
+  export type UserAreaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
+    /**
+     * Filter, which UserAreas to fetch.
+     */
+    where?: UserAreaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserAreas to fetch.
+     */
+    orderBy?: UserAreaOrderByWithRelationInput | UserAreaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserAreas.
+     */
+    cursor?: UserAreaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserAreas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserAreas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserAreas.
+     */
+    distinct?: UserAreaScalarFieldEnum | UserAreaScalarFieldEnum[]
+  }
+
+  /**
+   * UserArea create
+   */
+  export type UserAreaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserArea.
+     */
+    data: XOR<UserAreaCreateInput, UserAreaUncheckedCreateInput>
+  }
+
+  /**
+   * UserArea createMany
+   */
+  export type UserAreaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserAreas.
+     */
+    data: UserAreaCreateManyInput | UserAreaCreateManyInput[]
+  }
+
+  /**
+   * UserArea createManyAndReturn
+   */
+  export type UserAreaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserAreas.
+     */
+    data: UserAreaCreateManyInput | UserAreaCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserArea update
+   */
+  export type UserAreaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserArea.
+     */
+    data: XOR<UserAreaUpdateInput, UserAreaUncheckedUpdateInput>
+    /**
+     * Choose, which UserArea to update.
+     */
+    where: UserAreaWhereUniqueInput
+  }
+
+  /**
+   * UserArea updateMany
+   */
+  export type UserAreaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserAreas.
+     */
+    data: XOR<UserAreaUpdateManyMutationInput, UserAreaUncheckedUpdateManyInput>
+    /**
+     * Filter which UserAreas to update
+     */
+    where?: UserAreaWhereInput
+    /**
+     * Limit how many UserAreas to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserArea updateManyAndReturn
+   */
+  export type UserAreaUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * The data used to update UserAreas.
+     */
+    data: XOR<UserAreaUpdateManyMutationInput, UserAreaUncheckedUpdateManyInput>
+    /**
+     * Filter which UserAreas to update
+     */
+    where?: UserAreaWhereInput
+    /**
+     * Limit how many UserAreas to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserArea upsert
+   */
+  export type UserAreaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserArea to update in case it exists.
+     */
+    where: UserAreaWhereUniqueInput
+    /**
+     * In case the UserArea found by the `where` argument doesn't exist, create a new UserArea with this data.
+     */
+    create: XOR<UserAreaCreateInput, UserAreaUncheckedCreateInput>
+    /**
+     * In case the UserArea was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserAreaUpdateInput, UserAreaUncheckedUpdateInput>
+  }
+
+  /**
+   * UserArea delete
+   */
+  export type UserAreaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
+    /**
+     * Filter which UserArea to delete.
+     */
+    where: UserAreaWhereUniqueInput
+  }
+
+  /**
+   * UserArea deleteMany
+   */
+  export type UserAreaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserAreas to delete
+     */
+    where?: UserAreaWhereInput
+    /**
+     * Limit how many UserAreas to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserArea.secteur
+   */
+  export type UserArea$secteurArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Secteur
+     */
+    select?: SecteurSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Secteur
+     */
+    omit?: SecteurOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SecteurInclude<ExtArgs> | null
+    where?: SecteurWhereInput
+  }
+
+  /**
+   * UserArea without action
+   */
+  export type UserAreaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserArea
+     */
+    select?: UserAreaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserArea
+     */
+    omit?: UserAreaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserAreaInclude<ExtArgs> | null
   }
 
 
@@ -72164,6 +73498,17 @@ export namespace Prisma {
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+  export const UserAreaScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    wilayaCode: 'wilayaCode',
+    secteurId: 'secteurId',
+    createdAt: 'createdAt'
+  };
+
+  export type UserAreaScalarFieldEnum = (typeof UserAreaScalarFieldEnum)[keyof typeof UserAreaScalarFieldEnum]
+
+
   export const RefreshTokenScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
@@ -73579,6 +74924,7 @@ export namespace Prisma {
     secteurs?: SecteurListRelationFilter
     customers?: CustomerListRelationFilter
     suppliers?: SupplierListRelationFilter
+    userAreas?: UserAreaListRelationFilter
   }
 
   export type WilayaOrderByWithRelationInput = {
@@ -73588,6 +74934,7 @@ export namespace Prisma {
     secteurs?: SecteurOrderByRelationAggregateInput
     customers?: CustomerOrderByRelationAggregateInput
     suppliers?: SupplierOrderByRelationAggregateInput
+    userAreas?: UserAreaOrderByRelationAggregateInput
   }
 
   export type WilayaWhereUniqueInput = Prisma.AtLeast<{
@@ -73600,6 +74947,7 @@ export namespace Prisma {
     secteurs?: SecteurListRelationFilter
     customers?: CustomerListRelationFilter
     suppliers?: SupplierListRelationFilter
+    userAreas?: UserAreaListRelationFilter
   }, "code">
 
   export type WilayaOrderByWithAggregationInput = {
@@ -73637,6 +74985,7 @@ export namespace Prisma {
     customers?: CustomerListRelationFilter
     suppliers?: SupplierListRelationFilter
     tournees?: TourneeListRelationFilter
+    userAreas?: UserAreaListRelationFilter
   }
 
   export type SecteurOrderByWithRelationInput = {
@@ -73651,6 +75000,7 @@ export namespace Prisma {
     customers?: CustomerOrderByRelationAggregateInput
     suppliers?: SupplierOrderByRelationAggregateInput
     tournees?: TourneeOrderByRelationAggregateInput
+    userAreas?: UserAreaOrderByRelationAggregateInput
   }
 
   export type SecteurWhereUniqueInput = Prisma.AtLeast<{
@@ -73669,6 +75019,7 @@ export namespace Prisma {
     customers?: CustomerListRelationFilter
     suppliers?: SupplierListRelationFilter
     tournees?: TourneeListRelationFilter
+    userAreas?: UserAreaListRelationFilter
   }, "id" | "companyId_wilayaCode_name">
 
   export type SecteurOrderByWithAggregationInput = {
@@ -73715,6 +75066,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     distances?: ClientDistanceListRelationFilter
+    areas?: UserAreaListRelationFilter
     assignedVans?: StoreListRelationFilter
     devices?: DeviceListRelationFilter
     createdSales?: SaleListRelationFilter
@@ -73735,6 +75087,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
     distances?: ClientDistanceOrderByRelationAggregateInput
+    areas?: UserAreaOrderByRelationAggregateInput
     assignedVans?: StoreOrderByRelationAggregateInput
     devices?: DeviceOrderByRelationAggregateInput
     createdSales?: SaleOrderByRelationAggregateInput
@@ -73759,6 +75112,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     distances?: ClientDistanceListRelationFilter
+    areas?: UserAreaListRelationFilter
     assignedVans?: StoreListRelationFilter
     devices?: DeviceListRelationFilter
     createdSales?: SaleListRelationFilter
@@ -73798,6 +75152,69 @@ export namespace Prisma {
     isActive?: BoolWithAggregatesFilter<"User"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+  }
+
+  export type UserAreaWhereInput = {
+    AND?: UserAreaWhereInput | UserAreaWhereInput[]
+    OR?: UserAreaWhereInput[]
+    NOT?: UserAreaWhereInput | UserAreaWhereInput[]
+    id?: StringFilter<"UserArea"> | string
+    userId?: StringFilter<"UserArea"> | string
+    wilayaCode?: IntFilter<"UserArea"> | number
+    secteurId?: StringNullableFilter<"UserArea"> | string | null
+    createdAt?: DateTimeFilter<"UserArea"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    wilaya?: XOR<WilayaScalarRelationFilter, WilayaWhereInput>
+    secteur?: XOR<SecteurNullableScalarRelationFilter, SecteurWhereInput> | null
+  }
+
+  export type UserAreaOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    wilayaCode?: SortOrder
+    secteurId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    wilaya?: WilayaOrderByWithRelationInput
+    secteur?: SecteurOrderByWithRelationInput
+  }
+
+  export type UserAreaWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: UserAreaWhereInput | UserAreaWhereInput[]
+    OR?: UserAreaWhereInput[]
+    NOT?: UserAreaWhereInput | UserAreaWhereInput[]
+    userId?: StringFilter<"UserArea"> | string
+    wilayaCode?: IntFilter<"UserArea"> | number
+    secteurId?: StringNullableFilter<"UserArea"> | string | null
+    createdAt?: DateTimeFilter<"UserArea"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    wilaya?: XOR<WilayaScalarRelationFilter, WilayaWhereInput>
+    secteur?: XOR<SecteurNullableScalarRelationFilter, SecteurWhereInput> | null
+  }, "id">
+
+  export type UserAreaOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    wilayaCode?: SortOrder
+    secteurId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: UserAreaCountOrderByAggregateInput
+    _avg?: UserAreaAvgOrderByAggregateInput
+    _max?: UserAreaMaxOrderByAggregateInput
+    _min?: UserAreaMinOrderByAggregateInput
+    _sum?: UserAreaSumOrderByAggregateInput
+  }
+
+  export type UserAreaScalarWhereWithAggregatesInput = {
+    AND?: UserAreaScalarWhereWithAggregatesInput | UserAreaScalarWhereWithAggregatesInput[]
+    OR?: UserAreaScalarWhereWithAggregatesInput[]
+    NOT?: UserAreaScalarWhereWithAggregatesInput | UserAreaScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserArea"> | string
+    userId?: StringWithAggregatesFilter<"UserArea"> | string
+    wilayaCode?: IntWithAggregatesFilter<"UserArea"> | number
+    secteurId?: StringNullableWithAggregatesFilter<"UserArea"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"UserArea"> | Date | string
   }
 
   export type RefreshTokenWhereInput = {
@@ -78544,6 +79961,7 @@ export namespace Prisma {
     secteurs?: SecteurCreateNestedManyWithoutWilayaInput
     customers?: CustomerCreateNestedManyWithoutWilayaInput
     suppliers?: SupplierCreateNestedManyWithoutWilayaInput
+    userAreas?: UserAreaCreateNestedManyWithoutWilayaInput
   }
 
   export type WilayaUncheckedCreateInput = {
@@ -78553,6 +79971,7 @@ export namespace Prisma {
     secteurs?: SecteurUncheckedCreateNestedManyWithoutWilayaInput
     customers?: CustomerUncheckedCreateNestedManyWithoutWilayaInput
     suppliers?: SupplierUncheckedCreateNestedManyWithoutWilayaInput
+    userAreas?: UserAreaUncheckedCreateNestedManyWithoutWilayaInput
   }
 
   export type WilayaUpdateInput = {
@@ -78562,6 +79981,7 @@ export namespace Prisma {
     secteurs?: SecteurUpdateManyWithoutWilayaNestedInput
     customers?: CustomerUpdateManyWithoutWilayaNestedInput
     suppliers?: SupplierUpdateManyWithoutWilayaNestedInput
+    userAreas?: UserAreaUpdateManyWithoutWilayaNestedInput
   }
 
   export type WilayaUncheckedUpdateInput = {
@@ -78571,6 +79991,7 @@ export namespace Prisma {
     secteurs?: SecteurUncheckedUpdateManyWithoutWilayaNestedInput
     customers?: CustomerUncheckedUpdateManyWithoutWilayaNestedInput
     suppliers?: SupplierUncheckedUpdateManyWithoutWilayaNestedInput
+    userAreas?: UserAreaUncheckedUpdateManyWithoutWilayaNestedInput
   }
 
   export type WilayaCreateManyInput = {
@@ -78601,6 +80022,7 @@ export namespace Prisma {
     customers?: CustomerCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierCreateNestedManyWithoutSecteurInput
     tournees?: TourneeCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurUncheckedCreateInput = {
@@ -78613,6 +80035,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurUpdateInput = {
@@ -78625,6 +80048,7 @@ export namespace Prisma {
     customers?: CustomerUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
   }
 
   export type SecteurUncheckedUpdateInput = {
@@ -78637,6 +80061,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
   export type SecteurCreateManyInput = {
@@ -78678,6 +80103,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
     distances?: ClientDistanceCreateNestedManyWithoutUserInput
+    areas?: UserAreaCreateNestedManyWithoutUserInput
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
@@ -78697,6 +80123,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
+    areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -78716,6 +80143,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
     distances?: ClientDistanceUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
@@ -78735,6 +80163,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -78782,6 +80211,59 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserAreaCreateInput = {
+    id?: string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutAreasInput
+    wilaya: WilayaCreateNestedOneWithoutUserAreasInput
+    secteur?: SecteurCreateNestedOneWithoutUserAreasInput
+  }
+
+  export type UserAreaUncheckedCreateInput = {
+    id?: string
+    userId: string
+    wilayaCode: number
+    secteurId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type UserAreaUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAreasNestedInput
+    wilaya?: WilayaUpdateOneRequiredWithoutUserAreasNestedInput
+    secteur?: SecteurUpdateOneWithoutUserAreasNestedInput
+  }
+
+  export type UserAreaUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    wilayaCode?: IntFieldUpdateOperationsInput | number
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserAreaCreateManyInput = {
+    id?: string
+    userId: string
+    wilayaCode: number
+    secteurId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type UserAreaUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserAreaUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    wilayaCode?: IntFieldUpdateOperationsInput | number
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RefreshTokenCreateInput = {
@@ -83837,6 +85319,16 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type UserAreaListRelationFilter = {
+    every?: UserAreaWhereInput
+    some?: UserAreaWhereInput
+    none?: UserAreaWhereInput
+  }
+
+  export type UserAreaOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type WilayaCountOrderByAggregateInput = {
     code?: SortOrder
     nameFr?: SortOrder
@@ -83957,6 +85449,48 @@ export namespace Prisma {
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type SecteurNullableScalarRelationFilter = {
+    is?: SecteurWhereInput | null
+    isNot?: SecteurWhereInput | null
+  }
+
+  export type UserAreaCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    wilayaCode?: SortOrder
+    secteurId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UserAreaAvgOrderByAggregateInput = {
+    wilayaCode?: SortOrder
+  }
+
+  export type UserAreaMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    wilayaCode?: SortOrder
+    secteurId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UserAreaMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    wilayaCode?: SortOrder
+    secteurId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UserAreaSumOrderByAggregateInput = {
+    wilayaCode?: SortOrder
   }
 
   export type RefreshTokenCountOrderByAggregateInput = {
@@ -84576,11 +86110,6 @@ export namespace Prisma {
   export type WilayaNullableScalarRelationFilter = {
     is?: WilayaWhereInput | null
     isNot?: WilayaWhereInput | null
-  }
-
-  export type SecteurNullableScalarRelationFilter = {
-    is?: SecteurWhereInput | null
-    isNot?: SecteurWhereInput | null
   }
 
   export type PriceTierNullableScalarRelationFilter = {
@@ -86551,11 +88080,6 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type UserScalarRelationFilter = {
-    is?: UserWhereInput
-    isNot?: UserWhereInput
-  }
-
   export type ClientDistanceCompanyIdUserIdClientIdCompoundUniqueInput = {
     companyId: string
     userId: string
@@ -88309,6 +89833,13 @@ export namespace Prisma {
     connect?: SupplierWhereUniqueInput | SupplierWhereUniqueInput[]
   }
 
+  export type UserAreaCreateNestedManyWithoutWilayaInput = {
+    create?: XOR<UserAreaCreateWithoutWilayaInput, UserAreaUncheckedCreateWithoutWilayaInput> | UserAreaCreateWithoutWilayaInput[] | UserAreaUncheckedCreateWithoutWilayaInput[]
+    connectOrCreate?: UserAreaCreateOrConnectWithoutWilayaInput | UserAreaCreateOrConnectWithoutWilayaInput[]
+    createMany?: UserAreaCreateManyWilayaInputEnvelope
+    connect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+  }
+
   export type SecteurUncheckedCreateNestedManyWithoutWilayaInput = {
     create?: XOR<SecteurCreateWithoutWilayaInput, SecteurUncheckedCreateWithoutWilayaInput> | SecteurCreateWithoutWilayaInput[] | SecteurUncheckedCreateWithoutWilayaInput[]
     connectOrCreate?: SecteurCreateOrConnectWithoutWilayaInput | SecteurCreateOrConnectWithoutWilayaInput[]
@@ -88328,6 +89859,13 @@ export namespace Prisma {
     connectOrCreate?: SupplierCreateOrConnectWithoutWilayaInput | SupplierCreateOrConnectWithoutWilayaInput[]
     createMany?: SupplierCreateManyWilayaInputEnvelope
     connect?: SupplierWhereUniqueInput | SupplierWhereUniqueInput[]
+  }
+
+  export type UserAreaUncheckedCreateNestedManyWithoutWilayaInput = {
+    create?: XOR<UserAreaCreateWithoutWilayaInput, UserAreaUncheckedCreateWithoutWilayaInput> | UserAreaCreateWithoutWilayaInput[] | UserAreaUncheckedCreateWithoutWilayaInput[]
+    connectOrCreate?: UserAreaCreateOrConnectWithoutWilayaInput | UserAreaCreateOrConnectWithoutWilayaInput[]
+    createMany?: UserAreaCreateManyWilayaInputEnvelope
+    connect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
   }
 
   export type SecteurUpdateManyWithoutWilayaNestedInput = {
@@ -88372,6 +89910,20 @@ export namespace Prisma {
     deleteMany?: SupplierScalarWhereInput | SupplierScalarWhereInput[]
   }
 
+  export type UserAreaUpdateManyWithoutWilayaNestedInput = {
+    create?: XOR<UserAreaCreateWithoutWilayaInput, UserAreaUncheckedCreateWithoutWilayaInput> | UserAreaCreateWithoutWilayaInput[] | UserAreaUncheckedCreateWithoutWilayaInput[]
+    connectOrCreate?: UserAreaCreateOrConnectWithoutWilayaInput | UserAreaCreateOrConnectWithoutWilayaInput[]
+    upsert?: UserAreaUpsertWithWhereUniqueWithoutWilayaInput | UserAreaUpsertWithWhereUniqueWithoutWilayaInput[]
+    createMany?: UserAreaCreateManyWilayaInputEnvelope
+    set?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    disconnect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    delete?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    connect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    update?: UserAreaUpdateWithWhereUniqueWithoutWilayaInput | UserAreaUpdateWithWhereUniqueWithoutWilayaInput[]
+    updateMany?: UserAreaUpdateManyWithWhereWithoutWilayaInput | UserAreaUpdateManyWithWhereWithoutWilayaInput[]
+    deleteMany?: UserAreaScalarWhereInput | UserAreaScalarWhereInput[]
+  }
+
   export type SecteurUncheckedUpdateManyWithoutWilayaNestedInput = {
     create?: XOR<SecteurCreateWithoutWilayaInput, SecteurUncheckedCreateWithoutWilayaInput> | SecteurCreateWithoutWilayaInput[] | SecteurUncheckedCreateWithoutWilayaInput[]
     connectOrCreate?: SecteurCreateOrConnectWithoutWilayaInput | SecteurCreateOrConnectWithoutWilayaInput[]
@@ -88414,6 +89966,20 @@ export namespace Prisma {
     deleteMany?: SupplierScalarWhereInput | SupplierScalarWhereInput[]
   }
 
+  export type UserAreaUncheckedUpdateManyWithoutWilayaNestedInput = {
+    create?: XOR<UserAreaCreateWithoutWilayaInput, UserAreaUncheckedCreateWithoutWilayaInput> | UserAreaCreateWithoutWilayaInput[] | UserAreaUncheckedCreateWithoutWilayaInput[]
+    connectOrCreate?: UserAreaCreateOrConnectWithoutWilayaInput | UserAreaCreateOrConnectWithoutWilayaInput[]
+    upsert?: UserAreaUpsertWithWhereUniqueWithoutWilayaInput | UserAreaUpsertWithWhereUniqueWithoutWilayaInput[]
+    createMany?: UserAreaCreateManyWilayaInputEnvelope
+    set?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    disconnect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    delete?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    connect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    update?: UserAreaUpdateWithWhereUniqueWithoutWilayaInput | UserAreaUpdateWithWhereUniqueWithoutWilayaInput[]
+    updateMany?: UserAreaUpdateManyWithWhereWithoutWilayaInput | UserAreaUpdateManyWithWhereWithoutWilayaInput[]
+    deleteMany?: UserAreaScalarWhereInput | UserAreaScalarWhereInput[]
+  }
+
   export type CompanyCreateNestedOneWithoutSecteursInput = {
     create?: XOR<CompanyCreateWithoutSecteursInput, CompanyUncheckedCreateWithoutSecteursInput>
     connectOrCreate?: CompanyCreateOrConnectWithoutSecteursInput
@@ -88447,6 +90013,13 @@ export namespace Prisma {
     connect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
   }
 
+  export type UserAreaCreateNestedManyWithoutSecteurInput = {
+    create?: XOR<UserAreaCreateWithoutSecteurInput, UserAreaUncheckedCreateWithoutSecteurInput> | UserAreaCreateWithoutSecteurInput[] | UserAreaUncheckedCreateWithoutSecteurInput[]
+    connectOrCreate?: UserAreaCreateOrConnectWithoutSecteurInput | UserAreaCreateOrConnectWithoutSecteurInput[]
+    createMany?: UserAreaCreateManySecteurInputEnvelope
+    connect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+  }
+
   export type CustomerUncheckedCreateNestedManyWithoutSecteurInput = {
     create?: XOR<CustomerCreateWithoutSecteurInput, CustomerUncheckedCreateWithoutSecteurInput> | CustomerCreateWithoutSecteurInput[] | CustomerUncheckedCreateWithoutSecteurInput[]
     connectOrCreate?: CustomerCreateOrConnectWithoutSecteurInput | CustomerCreateOrConnectWithoutSecteurInput[]
@@ -88466,6 +90039,13 @@ export namespace Prisma {
     connectOrCreate?: TourneeCreateOrConnectWithoutSecteurInput | TourneeCreateOrConnectWithoutSecteurInput[]
     createMany?: TourneeCreateManySecteurInputEnvelope
     connect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+  }
+
+  export type UserAreaUncheckedCreateNestedManyWithoutSecteurInput = {
+    create?: XOR<UserAreaCreateWithoutSecteurInput, UserAreaUncheckedCreateWithoutSecteurInput> | UserAreaCreateWithoutSecteurInput[] | UserAreaUncheckedCreateWithoutSecteurInput[]
+    connectOrCreate?: UserAreaCreateOrConnectWithoutSecteurInput | UserAreaCreateOrConnectWithoutSecteurInput[]
+    createMany?: UserAreaCreateManySecteurInputEnvelope
+    connect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
   }
 
   export type CompanyUpdateOneRequiredWithoutSecteursNestedInput = {
@@ -88526,6 +90106,20 @@ export namespace Prisma {
     deleteMany?: TourneeScalarWhereInput | TourneeScalarWhereInput[]
   }
 
+  export type UserAreaUpdateManyWithoutSecteurNestedInput = {
+    create?: XOR<UserAreaCreateWithoutSecteurInput, UserAreaUncheckedCreateWithoutSecteurInput> | UserAreaCreateWithoutSecteurInput[] | UserAreaUncheckedCreateWithoutSecteurInput[]
+    connectOrCreate?: UserAreaCreateOrConnectWithoutSecteurInput | UserAreaCreateOrConnectWithoutSecteurInput[]
+    upsert?: UserAreaUpsertWithWhereUniqueWithoutSecteurInput | UserAreaUpsertWithWhereUniqueWithoutSecteurInput[]
+    createMany?: UserAreaCreateManySecteurInputEnvelope
+    set?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    disconnect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    delete?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    connect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    update?: UserAreaUpdateWithWhereUniqueWithoutSecteurInput | UserAreaUpdateWithWhereUniqueWithoutSecteurInput[]
+    updateMany?: UserAreaUpdateManyWithWhereWithoutSecteurInput | UserAreaUpdateManyWithWhereWithoutSecteurInput[]
+    deleteMany?: UserAreaScalarWhereInput | UserAreaScalarWhereInput[]
+  }
+
   export type CustomerUncheckedUpdateManyWithoutSecteurNestedInput = {
     create?: XOR<CustomerCreateWithoutSecteurInput, CustomerUncheckedCreateWithoutSecteurInput> | CustomerCreateWithoutSecteurInput[] | CustomerUncheckedCreateWithoutSecteurInput[]
     connectOrCreate?: CustomerCreateOrConnectWithoutSecteurInput | CustomerCreateOrConnectWithoutSecteurInput[]
@@ -88568,6 +90162,20 @@ export namespace Prisma {
     deleteMany?: TourneeScalarWhereInput | TourneeScalarWhereInput[]
   }
 
+  export type UserAreaUncheckedUpdateManyWithoutSecteurNestedInput = {
+    create?: XOR<UserAreaCreateWithoutSecteurInput, UserAreaUncheckedCreateWithoutSecteurInput> | UserAreaCreateWithoutSecteurInput[] | UserAreaUncheckedCreateWithoutSecteurInput[]
+    connectOrCreate?: UserAreaCreateOrConnectWithoutSecteurInput | UserAreaCreateOrConnectWithoutSecteurInput[]
+    upsert?: UserAreaUpsertWithWhereUniqueWithoutSecteurInput | UserAreaUpsertWithWhereUniqueWithoutSecteurInput[]
+    createMany?: UserAreaCreateManySecteurInputEnvelope
+    set?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    disconnect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    delete?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    connect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    update?: UserAreaUpdateWithWhereUniqueWithoutSecteurInput | UserAreaUpdateWithWhereUniqueWithoutSecteurInput[]
+    updateMany?: UserAreaUpdateManyWithWhereWithoutSecteurInput | UserAreaUpdateManyWithWhereWithoutSecteurInput[]
+    deleteMany?: UserAreaScalarWhereInput | UserAreaScalarWhereInput[]
+  }
+
   export type CompanyCreateNestedOneWithoutUsersInput = {
     create?: XOR<CompanyCreateWithoutUsersInput, CompanyUncheckedCreateWithoutUsersInput>
     connectOrCreate?: CompanyCreateOrConnectWithoutUsersInput
@@ -88579,6 +90187,13 @@ export namespace Prisma {
     connectOrCreate?: ClientDistanceCreateOrConnectWithoutUserInput | ClientDistanceCreateOrConnectWithoutUserInput[]
     createMany?: ClientDistanceCreateManyUserInputEnvelope
     connect?: ClientDistanceWhereUniqueInput | ClientDistanceWhereUniqueInput[]
+  }
+
+  export type UserAreaCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserAreaCreateWithoutUserInput, UserAreaUncheckedCreateWithoutUserInput> | UserAreaCreateWithoutUserInput[] | UserAreaUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserAreaCreateOrConnectWithoutUserInput | UserAreaCreateOrConnectWithoutUserInput[]
+    createMany?: UserAreaCreateManyUserInputEnvelope
+    connect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
   }
 
   export type StoreCreateNestedManyWithoutUserInput = {
@@ -88607,6 +90222,13 @@ export namespace Prisma {
     connectOrCreate?: ClientDistanceCreateOrConnectWithoutUserInput | ClientDistanceCreateOrConnectWithoutUserInput[]
     createMany?: ClientDistanceCreateManyUserInputEnvelope
     connect?: ClientDistanceWhereUniqueInput | ClientDistanceWhereUniqueInput[]
+  }
+
+  export type UserAreaUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserAreaCreateWithoutUserInput, UserAreaUncheckedCreateWithoutUserInput> | UserAreaCreateWithoutUserInput[] | UserAreaUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserAreaCreateOrConnectWithoutUserInput | UserAreaCreateOrConnectWithoutUserInput[]
+    createMany?: UserAreaCreateManyUserInputEnvelope
+    connect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
   }
 
   export type StoreUncheckedCreateNestedManyWithoutUserInput = {
@@ -88650,6 +90272,20 @@ export namespace Prisma {
     update?: ClientDistanceUpdateWithWhereUniqueWithoutUserInput | ClientDistanceUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: ClientDistanceUpdateManyWithWhereWithoutUserInput | ClientDistanceUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: ClientDistanceScalarWhereInput | ClientDistanceScalarWhereInput[]
+  }
+
+  export type UserAreaUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserAreaCreateWithoutUserInput, UserAreaUncheckedCreateWithoutUserInput> | UserAreaCreateWithoutUserInput[] | UserAreaUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserAreaCreateOrConnectWithoutUserInput | UserAreaCreateOrConnectWithoutUserInput[]
+    upsert?: UserAreaUpsertWithWhereUniqueWithoutUserInput | UserAreaUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserAreaCreateManyUserInputEnvelope
+    set?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    disconnect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    delete?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    connect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    update?: UserAreaUpdateWithWhereUniqueWithoutUserInput | UserAreaUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserAreaUpdateManyWithWhereWithoutUserInput | UserAreaUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserAreaScalarWhereInput | UserAreaScalarWhereInput[]
   }
 
   export type StoreUpdateManyWithoutUserNestedInput = {
@@ -88708,6 +90344,20 @@ export namespace Prisma {
     deleteMany?: ClientDistanceScalarWhereInput | ClientDistanceScalarWhereInput[]
   }
 
+  export type UserAreaUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserAreaCreateWithoutUserInput, UserAreaUncheckedCreateWithoutUserInput> | UserAreaCreateWithoutUserInput[] | UserAreaUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserAreaCreateOrConnectWithoutUserInput | UserAreaCreateOrConnectWithoutUserInput[]
+    upsert?: UserAreaUpsertWithWhereUniqueWithoutUserInput | UserAreaUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserAreaCreateManyUserInputEnvelope
+    set?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    disconnect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    delete?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    connect?: UserAreaWhereUniqueInput | UserAreaWhereUniqueInput[]
+    update?: UserAreaUpdateWithWhereUniqueWithoutUserInput | UserAreaUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserAreaUpdateManyWithWhereWithoutUserInput | UserAreaUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserAreaScalarWhereInput | UserAreaScalarWhereInput[]
+  }
+
   export type StoreUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<StoreCreateWithoutUserInput, StoreUncheckedCreateWithoutUserInput> | StoreCreateWithoutUserInput[] | StoreUncheckedCreateWithoutUserInput[]
     connectOrCreate?: StoreCreateOrConnectWithoutUserInput | StoreCreateOrConnectWithoutUserInput[]
@@ -88748,6 +90398,50 @@ export namespace Prisma {
     update?: SaleUpdateWithWhereUniqueWithoutCreatedByInput | SaleUpdateWithWhereUniqueWithoutCreatedByInput[]
     updateMany?: SaleUpdateManyWithWhereWithoutCreatedByInput | SaleUpdateManyWithWhereWithoutCreatedByInput[]
     deleteMany?: SaleScalarWhereInput | SaleScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutAreasInput = {
+    create?: XOR<UserCreateWithoutAreasInput, UserUncheckedCreateWithoutAreasInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAreasInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type WilayaCreateNestedOneWithoutUserAreasInput = {
+    create?: XOR<WilayaCreateWithoutUserAreasInput, WilayaUncheckedCreateWithoutUserAreasInput>
+    connectOrCreate?: WilayaCreateOrConnectWithoutUserAreasInput
+    connect?: WilayaWhereUniqueInput
+  }
+
+  export type SecteurCreateNestedOneWithoutUserAreasInput = {
+    create?: XOR<SecteurCreateWithoutUserAreasInput, SecteurUncheckedCreateWithoutUserAreasInput>
+    connectOrCreate?: SecteurCreateOrConnectWithoutUserAreasInput
+    connect?: SecteurWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutAreasNestedInput = {
+    create?: XOR<UserCreateWithoutAreasInput, UserUncheckedCreateWithoutAreasInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAreasInput
+    upsert?: UserUpsertWithoutAreasInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAreasInput, UserUpdateWithoutAreasInput>, UserUncheckedUpdateWithoutAreasInput>
+  }
+
+  export type WilayaUpdateOneRequiredWithoutUserAreasNestedInput = {
+    create?: XOR<WilayaCreateWithoutUserAreasInput, WilayaUncheckedCreateWithoutUserAreasInput>
+    connectOrCreate?: WilayaCreateOrConnectWithoutUserAreasInput
+    upsert?: WilayaUpsertWithoutUserAreasInput
+    connect?: WilayaWhereUniqueInput
+    update?: XOR<XOR<WilayaUpdateToOneWithWhereWithoutUserAreasInput, WilayaUpdateWithoutUserAreasInput>, WilayaUncheckedUpdateWithoutUserAreasInput>
+  }
+
+  export type SecteurUpdateOneWithoutUserAreasNestedInput = {
+    create?: XOR<SecteurCreateWithoutUserAreasInput, SecteurUncheckedCreateWithoutUserAreasInput>
+    connectOrCreate?: SecteurCreateOrConnectWithoutUserAreasInput
+    upsert?: SecteurUpsertWithoutUserAreasInput
+    disconnect?: SecteurWhereInput | boolean
+    delete?: SecteurWhereInput | boolean
+    connect?: SecteurWhereUniqueInput
+    update?: XOR<XOR<SecteurUpdateToOneWithWhereWithoutUserAreasInput, SecteurUpdateWithoutUserAreasInput>, SecteurUncheckedUpdateWithoutUserAreasInput>
   }
 
   export type SuperAdminAuditCreateNestedManyWithoutAdminInput = {
@@ -92720,6 +94414,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceCreateNestedManyWithoutUserInput
+    areas?: UserAreaCreateNestedManyWithoutUserInput
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
@@ -92738,6 +94433,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
+    areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -93202,6 +94898,7 @@ export namespace Prisma {
     customers?: CustomerCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierCreateNestedManyWithoutSecteurInput
     tournees?: TourneeCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurUncheckedCreateWithoutCompanyInput = {
@@ -93213,6 +94910,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurCreateOrConnectWithoutCompanyInput = {
@@ -96305,6 +98003,7 @@ export namespace Prisma {
     customers?: CustomerCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierCreateNestedManyWithoutSecteurInput
     tournees?: TourneeCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurUncheckedCreateWithoutWilayaInput = {
@@ -96316,6 +98015,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurCreateOrConnectWithoutWilayaInput = {
@@ -96451,6 +98151,29 @@ export namespace Prisma {
     data: SupplierCreateManyWilayaInput | SupplierCreateManyWilayaInput[]
   }
 
+  export type UserAreaCreateWithoutWilayaInput = {
+    id?: string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutAreasInput
+    secteur?: SecteurCreateNestedOneWithoutUserAreasInput
+  }
+
+  export type UserAreaUncheckedCreateWithoutWilayaInput = {
+    id?: string
+    userId: string
+    secteurId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type UserAreaCreateOrConnectWithoutWilayaInput = {
+    where: UserAreaWhereUniqueInput
+    create: XOR<UserAreaCreateWithoutWilayaInput, UserAreaUncheckedCreateWithoutWilayaInput>
+  }
+
+  export type UserAreaCreateManyWilayaInputEnvelope = {
+    data: UserAreaCreateManyWilayaInput | UserAreaCreateManyWilayaInput[]
+  }
+
   export type SecteurUpsertWithWhereUniqueWithoutWilayaInput = {
     where: SecteurWhereUniqueInput
     update: XOR<SecteurUpdateWithoutWilayaInput, SecteurUncheckedUpdateWithoutWilayaInput>
@@ -96497,6 +98220,33 @@ export namespace Prisma {
   export type SupplierUpdateManyWithWhereWithoutWilayaInput = {
     where: SupplierScalarWhereInput
     data: XOR<SupplierUpdateManyMutationInput, SupplierUncheckedUpdateManyWithoutWilayaInput>
+  }
+
+  export type UserAreaUpsertWithWhereUniqueWithoutWilayaInput = {
+    where: UserAreaWhereUniqueInput
+    update: XOR<UserAreaUpdateWithoutWilayaInput, UserAreaUncheckedUpdateWithoutWilayaInput>
+    create: XOR<UserAreaCreateWithoutWilayaInput, UserAreaUncheckedCreateWithoutWilayaInput>
+  }
+
+  export type UserAreaUpdateWithWhereUniqueWithoutWilayaInput = {
+    where: UserAreaWhereUniqueInput
+    data: XOR<UserAreaUpdateWithoutWilayaInput, UserAreaUncheckedUpdateWithoutWilayaInput>
+  }
+
+  export type UserAreaUpdateManyWithWhereWithoutWilayaInput = {
+    where: UserAreaScalarWhereInput
+    data: XOR<UserAreaUpdateManyMutationInput, UserAreaUncheckedUpdateManyWithoutWilayaInput>
+  }
+
+  export type UserAreaScalarWhereInput = {
+    AND?: UserAreaScalarWhereInput | UserAreaScalarWhereInput[]
+    OR?: UserAreaScalarWhereInput[]
+    NOT?: UserAreaScalarWhereInput | UserAreaScalarWhereInput[]
+    id?: StringFilter<"UserArea"> | string
+    userId?: StringFilter<"UserArea"> | string
+    wilayaCode?: IntFilter<"UserArea"> | number
+    secteurId?: StringNullableFilter<"UserArea"> | string | null
+    createdAt?: DateTimeFilter<"UserArea"> | Date | string
   }
 
   export type CompanyCreateWithoutSecteursInput = {
@@ -96602,6 +98352,7 @@ export namespace Prisma {
     nameAr: string
     customers?: CustomerCreateNestedManyWithoutWilayaInput
     suppliers?: SupplierCreateNestedManyWithoutWilayaInput
+    userAreas?: UserAreaCreateNestedManyWithoutWilayaInput
   }
 
   export type WilayaUncheckedCreateWithoutSecteursInput = {
@@ -96610,6 +98361,7 @@ export namespace Prisma {
     nameAr: string
     customers?: CustomerUncheckedCreateNestedManyWithoutWilayaInput
     suppliers?: SupplierUncheckedCreateNestedManyWithoutWilayaInput
+    userAreas?: UserAreaUncheckedCreateNestedManyWithoutWilayaInput
   }
 
   export type WilayaCreateOrConnectWithoutSecteursInput = {
@@ -96788,6 +98540,29 @@ export namespace Prisma {
     data: TourneeCreateManySecteurInput | TourneeCreateManySecteurInput[]
   }
 
+  export type UserAreaCreateWithoutSecteurInput = {
+    id?: string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutAreasInput
+    wilaya: WilayaCreateNestedOneWithoutUserAreasInput
+  }
+
+  export type UserAreaUncheckedCreateWithoutSecteurInput = {
+    id?: string
+    userId: string
+    wilayaCode: number
+    createdAt?: Date | string
+  }
+
+  export type UserAreaCreateOrConnectWithoutSecteurInput = {
+    where: UserAreaWhereUniqueInput
+    create: XOR<UserAreaCreateWithoutSecteurInput, UserAreaUncheckedCreateWithoutSecteurInput>
+  }
+
+  export type UserAreaCreateManySecteurInputEnvelope = {
+    data: UserAreaCreateManySecteurInput | UserAreaCreateManySecteurInput[]
+  }
+
   export type CompanyUpsertWithoutSecteursInput = {
     update: XOR<CompanyUpdateWithoutSecteursInput, CompanyUncheckedUpdateWithoutSecteursInput>
     create: XOR<CompanyCreateWithoutSecteursInput, CompanyUncheckedCreateWithoutSecteursInput>
@@ -96908,6 +98683,7 @@ export namespace Prisma {
     nameAr?: StringFieldUpdateOperationsInput | string
     customers?: CustomerUpdateManyWithoutWilayaNestedInput
     suppliers?: SupplierUpdateManyWithoutWilayaNestedInput
+    userAreas?: UserAreaUpdateManyWithoutWilayaNestedInput
   }
 
   export type WilayaUncheckedUpdateWithoutSecteursInput = {
@@ -96916,6 +98692,7 @@ export namespace Prisma {
     nameAr?: StringFieldUpdateOperationsInput | string
     customers?: CustomerUncheckedUpdateManyWithoutWilayaNestedInput
     suppliers?: SupplierUncheckedUpdateManyWithoutWilayaNestedInput
+    userAreas?: UserAreaUncheckedUpdateManyWithoutWilayaNestedInput
   }
 
   export type CustomerUpsertWithWhereUniqueWithoutSecteurInput = {
@@ -96964,6 +98741,22 @@ export namespace Prisma {
   export type TourneeUpdateManyWithWhereWithoutSecteurInput = {
     where: TourneeScalarWhereInput
     data: XOR<TourneeUpdateManyMutationInput, TourneeUncheckedUpdateManyWithoutSecteurInput>
+  }
+
+  export type UserAreaUpsertWithWhereUniqueWithoutSecteurInput = {
+    where: UserAreaWhereUniqueInput
+    update: XOR<UserAreaUpdateWithoutSecteurInput, UserAreaUncheckedUpdateWithoutSecteurInput>
+    create: XOR<UserAreaCreateWithoutSecteurInput, UserAreaUncheckedCreateWithoutSecteurInput>
+  }
+
+  export type UserAreaUpdateWithWhereUniqueWithoutSecteurInput = {
+    where: UserAreaWhereUniqueInput
+    data: XOR<UserAreaUpdateWithoutSecteurInput, UserAreaUncheckedUpdateWithoutSecteurInput>
+  }
+
+  export type UserAreaUpdateManyWithWhereWithoutSecteurInput = {
+    where: UserAreaScalarWhereInput
+    data: XOR<UserAreaUpdateManyMutationInput, UserAreaUncheckedUpdateManyWithoutSecteurInput>
   }
 
   export type CompanyCreateWithoutUsersInput = {
@@ -97094,6 +98887,29 @@ export namespace Prisma {
 
   export type ClientDistanceCreateManyUserInputEnvelope = {
     data: ClientDistanceCreateManyUserInput | ClientDistanceCreateManyUserInput[]
+  }
+
+  export type UserAreaCreateWithoutUserInput = {
+    id?: string
+    createdAt?: Date | string
+    wilaya: WilayaCreateNestedOneWithoutUserAreasInput
+    secteur?: SecteurCreateNestedOneWithoutUserAreasInput
+  }
+
+  export type UserAreaUncheckedCreateWithoutUserInput = {
+    id?: string
+    wilayaCode: number
+    secteurId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type UserAreaCreateOrConnectWithoutUserInput = {
+    where: UserAreaWhereUniqueInput
+    create: XOR<UserAreaCreateWithoutUserInput, UserAreaUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserAreaCreateManyUserInputEnvelope = {
+    data: UserAreaCreateManyUserInput | UserAreaCreateManyUserInput[]
   }
 
   export type StoreCreateWithoutUserInput = {
@@ -97388,6 +99204,22 @@ export namespace Prisma {
     data: XOR<ClientDistanceUpdateManyMutationInput, ClientDistanceUncheckedUpdateManyWithoutUserInput>
   }
 
+  export type UserAreaUpsertWithWhereUniqueWithoutUserInput = {
+    where: UserAreaWhereUniqueInput
+    update: XOR<UserAreaUpdateWithoutUserInput, UserAreaUncheckedUpdateWithoutUserInput>
+    create: XOR<UserAreaCreateWithoutUserInput, UserAreaUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserAreaUpdateWithWhereUniqueWithoutUserInput = {
+    where: UserAreaWhereUniqueInput
+    data: XOR<UserAreaUpdateWithoutUserInput, UserAreaUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserAreaUpdateManyWithWhereWithoutUserInput = {
+    where: UserAreaScalarWhereInput
+    data: XOR<UserAreaUpdateManyMutationInput, UserAreaUncheckedUpdateManyWithoutUserInput>
+  }
+
   export type StoreUpsertWithWhereUniqueWithoutUserInput = {
     where: StoreWhereUniqueInput
     update: XOR<StoreUpdateWithoutUserInput, StoreUncheckedUpdateWithoutUserInput>
@@ -97434,6 +99266,214 @@ export namespace Prisma {
   export type SaleUpdateManyWithWhereWithoutCreatedByInput = {
     where: SaleScalarWhereInput
     data: XOR<SaleUpdateManyMutationInput, SaleUncheckedUpdateManyWithoutCreatedByInput>
+  }
+
+  export type UserCreateWithoutAreasInput = {
+    id?: string
+    username: string
+    passwordHash: string
+    phone?: string | null
+    passwordView?: string | null
+    qrToken?: string | null
+    fullName: string
+    role?: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutUsersInput
+    distances?: ClientDistanceCreateNestedManyWithoutUserInput
+    assignedVans?: StoreCreateNestedManyWithoutUserInput
+    devices?: DeviceCreateNestedManyWithoutUserInput
+    createdSales?: SaleCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserUncheckedCreateWithoutAreasInput = {
+    id?: string
+    companyId: string
+    username: string
+    passwordHash: string
+    phone?: string | null
+    passwordView?: string | null
+    qrToken?: string | null
+    fullName: string
+    role?: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
+    assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
+    createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserCreateOrConnectWithoutAreasInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAreasInput, UserUncheckedCreateWithoutAreasInput>
+  }
+
+  export type WilayaCreateWithoutUserAreasInput = {
+    code: number
+    nameFr: string
+    nameAr: string
+    secteurs?: SecteurCreateNestedManyWithoutWilayaInput
+    customers?: CustomerCreateNestedManyWithoutWilayaInput
+    suppliers?: SupplierCreateNestedManyWithoutWilayaInput
+  }
+
+  export type WilayaUncheckedCreateWithoutUserAreasInput = {
+    code: number
+    nameFr: string
+    nameAr: string
+    secteurs?: SecteurUncheckedCreateNestedManyWithoutWilayaInput
+    customers?: CustomerUncheckedCreateNestedManyWithoutWilayaInput
+    suppliers?: SupplierUncheckedCreateNestedManyWithoutWilayaInput
+  }
+
+  export type WilayaCreateOrConnectWithoutUserAreasInput = {
+    where: WilayaWhereUniqueInput
+    create: XOR<WilayaCreateWithoutUserAreasInput, WilayaUncheckedCreateWithoutUserAreasInput>
+  }
+
+  export type SecteurCreateWithoutUserAreasInput = {
+    id?: string
+    name: string
+    isActive?: boolean
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutSecteursInput
+    wilaya: WilayaCreateNestedOneWithoutSecteursInput
+    customers?: CustomerCreateNestedManyWithoutSecteurInput
+    suppliers?: SupplierCreateNestedManyWithoutSecteurInput
+    tournees?: TourneeCreateNestedManyWithoutSecteurInput
+  }
+
+  export type SecteurUncheckedCreateWithoutUserAreasInput = {
+    id?: string
+    companyId: string
+    wilayaCode: number
+    name: string
+    isActive?: boolean
+    createdAt?: Date | string
+    customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
+    suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
+    tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+  }
+
+  export type SecteurCreateOrConnectWithoutUserAreasInput = {
+    where: SecteurWhereUniqueInput
+    create: XOR<SecteurCreateWithoutUserAreasInput, SecteurUncheckedCreateWithoutUserAreasInput>
+  }
+
+  export type UserUpsertWithoutAreasInput = {
+    update: XOR<UserUpdateWithoutAreasInput, UserUncheckedUpdateWithoutAreasInput>
+    create: XOR<UserCreateWithoutAreasInput, UserUncheckedCreateWithoutAreasInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAreasInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAreasInput, UserUncheckedUpdateWithoutAreasInput>
+  }
+
+  export type UserUpdateWithoutAreasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordView?: NullableStringFieldUpdateOperationsInput | string | null
+    qrToken?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
+    distances?: ClientDistanceUpdateManyWithoutUserNestedInput
+    assignedVans?: StoreUpdateManyWithoutUserNestedInput
+    devices?: DeviceUpdateManyWithoutUserNestedInput
+    createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAreasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordView?: NullableStringFieldUpdateOperationsInput | string | null
+    qrToken?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
+    assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
+    createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type WilayaUpsertWithoutUserAreasInput = {
+    update: XOR<WilayaUpdateWithoutUserAreasInput, WilayaUncheckedUpdateWithoutUserAreasInput>
+    create: XOR<WilayaCreateWithoutUserAreasInput, WilayaUncheckedCreateWithoutUserAreasInput>
+    where?: WilayaWhereInput
+  }
+
+  export type WilayaUpdateToOneWithWhereWithoutUserAreasInput = {
+    where?: WilayaWhereInput
+    data: XOR<WilayaUpdateWithoutUserAreasInput, WilayaUncheckedUpdateWithoutUserAreasInput>
+  }
+
+  export type WilayaUpdateWithoutUserAreasInput = {
+    code?: IntFieldUpdateOperationsInput | number
+    nameFr?: StringFieldUpdateOperationsInput | string
+    nameAr?: StringFieldUpdateOperationsInput | string
+    secteurs?: SecteurUpdateManyWithoutWilayaNestedInput
+    customers?: CustomerUpdateManyWithoutWilayaNestedInput
+    suppliers?: SupplierUpdateManyWithoutWilayaNestedInput
+  }
+
+  export type WilayaUncheckedUpdateWithoutUserAreasInput = {
+    code?: IntFieldUpdateOperationsInput | number
+    nameFr?: StringFieldUpdateOperationsInput | string
+    nameAr?: StringFieldUpdateOperationsInput | string
+    secteurs?: SecteurUncheckedUpdateManyWithoutWilayaNestedInput
+    customers?: CustomerUncheckedUpdateManyWithoutWilayaNestedInput
+    suppliers?: SupplierUncheckedUpdateManyWithoutWilayaNestedInput
+  }
+
+  export type SecteurUpsertWithoutUserAreasInput = {
+    update: XOR<SecteurUpdateWithoutUserAreasInput, SecteurUncheckedUpdateWithoutUserAreasInput>
+    create: XOR<SecteurCreateWithoutUserAreasInput, SecteurUncheckedCreateWithoutUserAreasInput>
+    where?: SecteurWhereInput
+  }
+
+  export type SecteurUpdateToOneWithWhereWithoutUserAreasInput = {
+    where?: SecteurWhereInput
+    data: XOR<SecteurUpdateWithoutUserAreasInput, SecteurUncheckedUpdateWithoutUserAreasInput>
+  }
+
+  export type SecteurUpdateWithoutUserAreasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutSecteursNestedInput
+    wilaya?: WilayaUpdateOneRequiredWithoutSecteursNestedInput
+    customers?: CustomerUpdateManyWithoutSecteurNestedInput
+    suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
+    tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+  }
+
+  export type SecteurUncheckedUpdateWithoutUserAreasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    wilayaCode?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
+    suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
+    tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
   export type SuperAdminAuditCreateWithoutAdminInput = {
@@ -97658,6 +99698,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
     distances?: ClientDistanceCreateNestedManyWithoutUserInput
+    areas?: UserAreaCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
   }
@@ -97676,6 +99717,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
+    areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
   }
@@ -98296,6 +100338,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
     distances?: ClientDistanceUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
   }
@@ -98314,6 +100357,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
   }
@@ -100727,6 +102771,7 @@ export namespace Prisma {
     nameAr: string
     secteurs?: SecteurCreateNestedManyWithoutWilayaInput
     suppliers?: SupplierCreateNestedManyWithoutWilayaInput
+    userAreas?: UserAreaCreateNestedManyWithoutWilayaInput
   }
 
   export type WilayaUncheckedCreateWithoutCustomersInput = {
@@ -100735,6 +102780,7 @@ export namespace Prisma {
     nameAr: string
     secteurs?: SecteurUncheckedCreateNestedManyWithoutWilayaInput
     suppliers?: SupplierUncheckedCreateNestedManyWithoutWilayaInput
+    userAreas?: UserAreaUncheckedCreateNestedManyWithoutWilayaInput
   }
 
   export type WilayaCreateOrConnectWithoutCustomersInput = {
@@ -100751,6 +102797,7 @@ export namespace Prisma {
     wilaya: WilayaCreateNestedOneWithoutSecteursInput
     suppliers?: SupplierCreateNestedManyWithoutSecteurInput
     tournees?: TourneeCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurUncheckedCreateWithoutCustomersInput = {
@@ -100762,6 +102809,7 @@ export namespace Prisma {
     createdAt?: Date | string
     suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurCreateOrConnectWithoutCustomersInput = {
@@ -101164,6 +103212,7 @@ export namespace Prisma {
     nameAr?: StringFieldUpdateOperationsInput | string
     secteurs?: SecteurUpdateManyWithoutWilayaNestedInput
     suppliers?: SupplierUpdateManyWithoutWilayaNestedInput
+    userAreas?: UserAreaUpdateManyWithoutWilayaNestedInput
   }
 
   export type WilayaUncheckedUpdateWithoutCustomersInput = {
@@ -101172,6 +103221,7 @@ export namespace Prisma {
     nameAr?: StringFieldUpdateOperationsInput | string
     secteurs?: SecteurUncheckedUpdateManyWithoutWilayaNestedInput
     suppliers?: SupplierUncheckedUpdateManyWithoutWilayaNestedInput
+    userAreas?: UserAreaUncheckedUpdateManyWithoutWilayaNestedInput
   }
 
   export type SecteurUpsertWithoutCustomersInput = {
@@ -101194,6 +103244,7 @@ export namespace Prisma {
     wilaya?: WilayaUpdateOneRequiredWithoutSecteursNestedInput
     suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
   }
 
   export type SecteurUncheckedUpdateWithoutCustomersInput = {
@@ -101205,6 +103256,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
   export type PriceTierUpsertWithoutCustomersInput = {
@@ -101453,6 +103505,7 @@ export namespace Prisma {
     nameAr: string
     secteurs?: SecteurCreateNestedManyWithoutWilayaInput
     customers?: CustomerCreateNestedManyWithoutWilayaInput
+    userAreas?: UserAreaCreateNestedManyWithoutWilayaInput
   }
 
   export type WilayaUncheckedCreateWithoutSuppliersInput = {
@@ -101461,6 +103514,7 @@ export namespace Prisma {
     nameAr: string
     secteurs?: SecteurUncheckedCreateNestedManyWithoutWilayaInput
     customers?: CustomerUncheckedCreateNestedManyWithoutWilayaInput
+    userAreas?: UserAreaUncheckedCreateNestedManyWithoutWilayaInput
   }
 
   export type WilayaCreateOrConnectWithoutSuppliersInput = {
@@ -101477,6 +103531,7 @@ export namespace Prisma {
     wilaya: WilayaCreateNestedOneWithoutSecteursInput
     customers?: CustomerCreateNestedManyWithoutSecteurInput
     tournees?: TourneeCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurUncheckedCreateWithoutSuppliersInput = {
@@ -101488,6 +103543,7 @@ export namespace Prisma {
     createdAt?: Date | string
     customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurCreateOrConnectWithoutSuppliersInput = {
@@ -101809,6 +103865,7 @@ export namespace Prisma {
     nameAr?: StringFieldUpdateOperationsInput | string
     secteurs?: SecteurUpdateManyWithoutWilayaNestedInput
     customers?: CustomerUpdateManyWithoutWilayaNestedInput
+    userAreas?: UserAreaUpdateManyWithoutWilayaNestedInput
   }
 
   export type WilayaUncheckedUpdateWithoutSuppliersInput = {
@@ -101817,6 +103874,7 @@ export namespace Prisma {
     nameAr?: StringFieldUpdateOperationsInput | string
     secteurs?: SecteurUncheckedUpdateManyWithoutWilayaNestedInput
     customers?: CustomerUncheckedUpdateManyWithoutWilayaNestedInput
+    userAreas?: UserAreaUncheckedUpdateManyWithoutWilayaNestedInput
   }
 
   export type SecteurUpsertWithoutSuppliersInput = {
@@ -101839,6 +103897,7 @@ export namespace Prisma {
     wilaya?: WilayaUpdateOneRequiredWithoutSecteursNestedInput
     customers?: CustomerUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
   }
 
   export type SecteurUncheckedUpdateWithoutSuppliersInput = {
@@ -101850,6 +103909,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
   export type ProductUpsertWithWhereUniqueWithoutSupplierInput = {
@@ -103985,6 +106045,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
     distances?: ClientDistanceCreateNestedManyWithoutUserInput
+    areas?: UserAreaCreateNestedManyWithoutUserInput
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
   }
@@ -104003,6 +106064,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
+    areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
   }
@@ -104584,6 +106646,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
     distances?: ClientDistanceUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
   }
@@ -104602,6 +106665,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -106128,6 +108192,7 @@ export namespace Prisma {
     wilaya: WilayaCreateNestedOneWithoutSecteursInput
     customers?: CustomerCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurUncheckedCreateWithoutTourneesInput = {
@@ -106139,6 +108204,7 @@ export namespace Prisma {
     createdAt?: Date | string
     customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurCreateOrConnectWithoutTourneesInput = {
@@ -106440,6 +108506,7 @@ export namespace Prisma {
     wilaya?: WilayaUpdateOneRequiredWithoutSecteursNestedInput
     customers?: CustomerUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
   }
 
   export type SecteurUncheckedUpdateWithoutTourneesInput = {
@@ -106451,6 +108518,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
   export type TourneeStopUpsertWithWhereUniqueWithoutTourneeInput = {
@@ -107229,6 +109297,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
     distances?: ClientDistanceCreateNestedManyWithoutUserInput
+    areas?: UserAreaCreateNestedManyWithoutUserInput
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
   }
@@ -107247,6 +109316,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
+    areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
   }
@@ -107486,6 +109556,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
     distances?: ClientDistanceUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
   }
@@ -107504,6 +109575,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
   }
@@ -111610,6 +113682,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
+    areas?: UserAreaCreateNestedManyWithoutUserInput
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
@@ -111628,6 +113701,7 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -111838,6 +113912,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
+    areas?: UserAreaUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
@@ -111856,6 +113931,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -112773,6 +114849,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
@@ -112791,6 +114868,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -113240,6 +115318,7 @@ export namespace Prisma {
     customers?: CustomerUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
   }
 
   export type SecteurUncheckedUpdateWithoutCompanyInput = {
@@ -113251,6 +115330,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
   export type SecteurUncheckedUpdateManyWithoutCompanyInput = {
@@ -114758,6 +116838,13 @@ export namespace Prisma {
     notes?: string | null
   }
 
+  export type UserAreaCreateManyWilayaInput = {
+    id?: string
+    userId: string
+    secteurId?: string | null
+    createdAt?: Date | string
+  }
+
   export type SecteurUpdateWithoutWilayaInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -114767,6 +116854,7 @@ export namespace Prisma {
     customers?: CustomerUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
   }
 
   export type SecteurUncheckedUpdateWithoutWilayaInput = {
@@ -114778,6 +116866,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
   export type SecteurUncheckedUpdateManyWithoutWilayaInput = {
@@ -114937,6 +117026,27 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type UserAreaUpdateWithoutWilayaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAreasNestedInput
+    secteur?: SecteurUpdateOneWithoutUserAreasNestedInput
+  }
+
+  export type UserAreaUncheckedUpdateWithoutWilayaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserAreaUncheckedUpdateManyWithoutWilayaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type CustomerCreateManySecteurInput = {
     id?: string
     companyId: string
@@ -114994,6 +117104,13 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    createdAt?: Date | string
+  }
+
+  export type UserAreaCreateManySecteurInput = {
+    id?: string
+    userId: string
+    wilayaCode: number
     createdAt?: Date | string
   }
 
@@ -115201,6 +117318,27 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type UserAreaUpdateWithoutSecteurInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAreasNestedInput
+    wilaya?: WilayaUpdateOneRequiredWithoutUserAreasNestedInput
+  }
+
+  export type UserAreaUncheckedUpdateWithoutSecteurInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    wilayaCode?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserAreaUncheckedUpdateManyWithoutSecteurInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    wilayaCode?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ClientDistanceCreateManyUserInput = {
     id?: string
     companyId: string
@@ -115211,6 +117349,13 @@ export namespace Prisma {
     atLng: number
     source?: string
     updatedAt?: Date | string
+  }
+
+  export type UserAreaCreateManyUserInput = {
+    id?: string
+    wilayaCode: number
+    secteurId?: string | null
+    createdAt?: Date | string
   }
 
   export type StoreCreateManyUserInput = {
@@ -115305,6 +117450,27 @@ export namespace Prisma {
     atLng?: FloatFieldUpdateOperationsInput | number
     source?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserAreaUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    wilaya?: WilayaUpdateOneRequiredWithoutUserAreasNestedInput
+    secteur?: SecteurUpdateOneWithoutUserAreasNestedInput
+  }
+
+  export type UserAreaUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    wilayaCode?: IntFieldUpdateOperationsInput | number
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserAreaUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    wilayaCode?: IntFieldUpdateOperationsInput | number
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StoreUpdateWithoutUserInput = {
