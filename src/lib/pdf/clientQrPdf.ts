@@ -133,18 +133,25 @@ export async function buildQrLabelsPdf(input: QrLabelsPdfInput): Promise<Blob> {
       const pcy = qy + qrSize / 2;
       doc.setFillColor(255, 255, 255);
       doc.circle(pcx, pcy, plate / 2 + 0.8 * k, "F");
-      doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.5 * k);
-      doc.circle(pcx, pcy, plate / 2, "S");
-      const box = plate * 0.9;
+      // Cover the circle (short side = diameter), then clip to the circle so
+      // the square image's corners/background never show outside the medallion.
       const ratio = logoDim.w / logoDim.h;
-      const lw = ratio >= 1 ? box : box * ratio;
-      const lh = ratio >= 1 ? box / ratio : box;
+      const lw = ratio >= 1 ? plate * ratio : plate;
+      const lh = ratio >= 1 ? plate : plate / ratio;
+      doc.saveGraphicsState();
+      doc.circle(pcx, pcy, plate / 2, null);
+      doc.clip();
+      doc.discardPath();
       try {
         doc.addImage(logo.data, logo.format, pcx - lw / 2, pcy - lh / 2, lw, lh);
       } catch {
         /* ignore */
       }
+      doc.restoreGraphicsState();
+      // Ring on top, drawn after the clip so it stays crisp.
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.5 * k);
+      doc.circle(pcx, pcy, plate / 2, "S");
     }
 
     // ── Client name (one line, shrunk to fit) ──
