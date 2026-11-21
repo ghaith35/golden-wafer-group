@@ -32,12 +32,16 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
 
       {/* Subtle plus-pattern texture */}
       <div
-        className="absolute inset-0 opacity-[0.05]"
+        aria-hidden="true"
+        className="absolute inset-0"
         style={{
           position: "absolute",
           inset: 0,
-          opacity: 0.05,
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0h-2v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          zIndex: 0,
+          pointerEvents: "none",
+          // The faintness is baked into the image (fill-opacity .05) instead of
+          // an opacity rule: it can never be lost to a late/stale stylesheet.
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0h-2v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           backgroundSize: "56px 56px",
         }}
       />
@@ -49,7 +53,8 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
         style={{ background: "radial-gradient(closest-side, rgba(232,186,76,.20), transparent 72%)" }}
       />
 
-      <div className="gw-zoom gw-rise relative z-10 w-full max-w-[400px] px-5 py-10 2xl:max-w-[430px]">
+      <div className="gw-zoom gw-rise relative z-10 w-full max-w-[400px] px-5 py-10 2xl:max-w-[430px]"
+        style={{ position: "relative", zIndex: 10 }}>
         {/* Brand header */}
         <div className="mb-7 text-center 2xl:mb-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
