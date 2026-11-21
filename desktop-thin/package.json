@@ -1,7 +1,7 @@
 {
   "name": "golden-wafer-group-desktop",
   "productName": "Golden Wafer Group",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Golden Wafer Group - desktop client (opens golden-wafer-group.khiatadz.com)",
   "author": "Golden Wafer Group",
   "main": "main.js",
@@ -10,7 +10,7 @@
     "productName": "Golden Wafer Group",
     "npmRebuild": false,
     "electronVersion": "42.11.8",
-    "files": ["main.js", "offline.html", "build/icon.*", "package.json"],
+    "files": ["main.js", "preload.js", "offline.html", "build/icon.*", "package.json"],
     "directories": { "output": "dist" },
     "mac": { "target": [{ "target": "dmg", "arch": ["arm64"] }], "icon": "build/icon.icns", "category": "public.app-category.business" },
     "dmg": { "artifactName": "Golden-Wafer-Group-${version}-${arch}.dmg" },
