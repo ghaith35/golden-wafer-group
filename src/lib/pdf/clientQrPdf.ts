@@ -26,7 +26,7 @@ export type QrLabelsPdfInput = {
   widthMm: 60 | 80 | 100;
 };
 
-const QR_LOGO_URL = "/icons/qr-logo.png";
+const QR_LOGO_URL = "/icons/qr-logo-v2.png";
 
 function imageSize(src: string): Promise<{ w: number; h: number } | null> {
   return new Promise((resolve) => {
