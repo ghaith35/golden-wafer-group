@@ -793,7 +793,7 @@
     "roleAdmin": "Admin",
     "driverBusy": "This driver is already linked to another van",
     "areas": "Areas (wilayas & sectors)",
-    "areasAll": "Unrestricted: sees every wilaya and sector",
+    "areasAll": "Not set manually: follows the sectors of his van's tournées (last 4 weeks + upcoming); with no tournée he sees everything",
     "areasHint": "Only sees the assigned wilayas and sectors when creating a client",
     "areasClear": "Clear all",
     "areasSearch": "Search a wilaya…",

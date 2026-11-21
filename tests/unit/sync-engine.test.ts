@@ -456,5 +456,25 @@ describe("handleSync — admin-assigned zones", () => {
     const res = await handleSync({ deviceToken: TOKEN, ops: [clientOp({}, "op-cl-0002")] } as any);
     expect(res.applied[0]).toMatchObject({ ok: false, error: "area_required", permanent: true });
   });
+
+  it("no manual zones: the van's tournée sectors become the assignment", async () => {
+    (prisma.userArea.findMany as any).mockResolvedValue([]);
+    (prisma.store.findMany as any).mockResolvedValueOnce([{ id: "van1" }]);
+    (prisma.tournee.findMany as any).mockResolvedValueOnce([
+      { secteur: { id: "s1", wilayaCode: 16 } },
+      { secteur: { id: "s1", wilayaCode: 16 } },
+      { secteur: null },
+    ]);
+    const res = await handleSync({ deviceToken: TOKEN, ops: [] } as any);
+    expect((res as any).pulled.areaScope).toEqual({ wilayas: [], secteurs: ["s1"] });
+  });
+
+  it("manual zones override the tournée sectors", async () => {
+    (prisma.userArea.findMany as any).mockResolvedValue([{ wilayaCode: 31, secteurId: null }]);
+    (prisma.store.findMany as any).mockResolvedValueOnce([{ id: "van1" }]);
+    const res = await handleSync({ deviceToken: TOKEN, ops: [] } as any);
+    expect((res as any).pulled.areaScope).toEqual({ wilayas: [31], secteurs: [] });
+    expect(prisma.tournee.findMany).not.toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ secteurId: { not: null } }) }));
+  });
 });
 

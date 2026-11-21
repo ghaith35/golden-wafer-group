@@ -793,7 +793,7 @@
     "roleAdmin": "Admin",
     "driverBusy": "Ce chauffeur est déjà lié à un autre camion",
     "areas": "Zones (wilayas et secteurs)",
-    "areasAll": "Aucune restriction : voit toutes les wilayas et tous les secteurs",
+    "areasAll": "Non définies à la main : suit les secteurs des tournées de son véhicule (4 dernières semaines + à venir) ; sans tournée, voit tout",
     "areasHint": "Ne voit que les wilayas et secteurs assignés à la création d'un client",
     "areasClear": "Tout effacer",
     "areasSearch": "Rechercher une wilaya…",
