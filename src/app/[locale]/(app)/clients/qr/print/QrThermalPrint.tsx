@@ -7,7 +7,7 @@ import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/lib/utils";
 import { qrLabelsPdfUrl } from "@/lib/pdf/clientQrPdf";
 
-type Label = { id: string; code: string; name: string; phone: string | null; dataUrl: string };
+type Label = { id: string; code: string; name: string; phone: string | null; payload?: string; dataUrl: string };
 type Company = { name: string; phone: string | null; logoUrl: string | null };
 
 /// Thermal-printer QR strip: one label under the other (58/80mm rolls).
@@ -21,7 +21,7 @@ export function QrThermalPrint({
   company: Company | null;
   ui: Record<string, string>;
 }) {
-  const [width, setWidth] = useState<58 | 80>(80);
+  const [width, setWidth] = useState<60 | 80 | 100>(80);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [fileName, setFileName] = useState("qr-labels.pdf");
@@ -38,10 +38,10 @@ export function QrThermalPrint({
       if (pdfUrl) URL.revokeObjectURL(pdfUrl);
       const url = await qrLabelsPdfUrl({
         company: { name: company?.name ?? "", phone: company?.phone ?? null, logoUrl: company?.logoUrl ?? null },
-        labels: labels.map((l) => ({ id: l.id, code: l.code, name: l.name, dataUrl: l.dataUrl })),
+        labels: labels.map((l) => ({ id: l.id, code: l.code, name: l.name, phone: l.phone, payload: l.payload, dataUrl: l.dataUrl })),
         widthMm: width,
       });
-      setFileName(`qr-labels-${width}mm-${labels.length}.pdf`);
+      setFileName(`qr-labels-${width}x${width}-${labels.length}.pdf`);
       setPdfUrl(url);
     } finally {
       setPdfBusy(false);
@@ -61,7 +61,7 @@ export function QrThermalPrint({
         </h1>
         <div className="flex gap-2">
           <div className="flex gap-1.5">
-            {([58, 80] as const).map((w) => (
+            {([60, 80, 100] as const).map((w) => (
               <button
                 key={w}
                 type="button"
@@ -71,7 +71,7 @@ export function QrThermalPrint({
                   width === w ? "bg-(--brand-500)/15 text-(--brand-600)" : "bg-(--bg-sunken) opacity-60 hover:opacity-100"
                 )}
               >
-                {w}mm
+                {w}×{w}
               </button>
             ))}
           </div>
@@ -117,7 +117,7 @@ export function QrThermalPrint({
       <style>{`@media print {
         .no-print { display: none !important; }
         body { background: #fff !important; }
-        @page { size: ${width}mm auto; margin: 2mm; }
+        @page { size: ${width}mm ${width}mm; margin: 0; }
         .thermal-strip { max-width: none !important; }
         .thermal-label { break-inside: avoid !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       }`}</style>
