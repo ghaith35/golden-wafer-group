@@ -43,6 +43,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             __html: `(function(){try{var m=localStorage.getItem('distribuili-theme')||'light';if(m==='dark'||(m==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`,
           }}
         />
+        {/* Saved interface zoom must also be applied before the first paint —
+            otherwise every refresh renders at 100% and then jumps to the
+            chosen zoom (visible de-zoom/re-zoom). Mirrors apply() in
+            src/lib/ui-zoom.ts for the CSS-zoom path (web / APK); the desktop
+            shell's native-zoom bridge is left to UiZoomBoot. */}
+        <script
+          id="zoom-init"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{if(window.distribuili&&window.distribuili.setZoom)return;var r=localStorage.getItem('dili_ui_zoom');if(r===null)return;var n=Math.min(150,Math.max(70,Math.round(Number(r)/10)*10));if(!isFinite(n)||n===100)return;var d=document.documentElement;d.style.zoom=String(n/100);d.setAttribute('data-ui-zoom',String(n));d.style.setProperty('--ui-zoom',String(n/100))}catch(e){}})()`,
+          }}
+        />
       </head>
       {/* suppressHydrationWarning: browser extensions sometimes add their own
           attributes to <body> before React hydrates. */}
