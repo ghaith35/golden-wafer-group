@@ -22,9 +22,9 @@ export async function POST(req: Request) {
   if (!ALLOWED.has(file.type)) return NextResponse.json({ error: "bad_type" }, { status: 400 });
   if (file.size > MAX_BYTES) return NextResponse.json({ error: "too_large" }, { status: 400 });
 
-  // Optional subfolder (products | vans). Defaults to products for compat.
+  // Optional subfolder (products | vans | invoices). Defaults to products for compat.
   const dirName = form?.get("dir");
-  const sub = dirName === "vans" ? "vans" : "products";
+  const sub = dirName === "vans" ? "vans" : dirName === "invoices" ? "invoices" : "products";
 
   const ext = ALLOWED.get(file.type) ?? extname(file.name);
   const name = `${randomBytes(12).toString("hex")}${ext}`;

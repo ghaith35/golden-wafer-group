@@ -114,6 +114,8 @@ export default async function PurchasesPage({ params }: { params: Promise<{ loca
         bulkAdd: t("bulkAdd"), selectAll: t("selectAll"), addSelected: t("addSelected"),
         currency: formData.settings.currency === "DZD" ? "DA" : formData.settings.currency,
         phone: ts("phone"),
+        factoryInvoice: t("factoryInvoice"), attachFactoryInvoice: t("attachFactoryInvoice"),
+        changeImage: t("changeImage"), removeImage: t("removeImage"), imageFailed: t("imageFailed"), optional: t("optional"),
       }}
       labels={{
         title: t("title"), returns: t("returns"), neW: t("new"), empty: t("empty"),

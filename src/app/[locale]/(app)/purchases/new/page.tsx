@@ -61,6 +61,8 @@ export default async function NewPurchasePage({ params }: { params: Promise<{ lo
         bulkAdd: t("bulkAdd"), selectAll: t("selectAll"), addSelected: t("addSelected"),
           currency: d.settings.currency === "DZD" ? "DA" : d.settings.currency,
           phone: ts("phone"),
+        factoryInvoice: t("factoryInvoice"), attachFactoryInvoice: t("attachFactoryInvoice"),
+        changeImage: t("changeImage"), removeImage: t("removeImage"), imageFailed: t("imageFailed"), optional: t("optional"),
         }}
       />
     </div>

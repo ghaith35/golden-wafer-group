@@ -1104,6 +1104,8 @@ model PurchaseInvoice {
   /// Paid so far via invoice payments (versements linked below).
   paid       Decimal  @default(0) @db.Decimal(14, 2)
   notes      String?
+  /// Optional photo of the supplier's paper invoice (stored as WebP).
+  invoiceImageUrl String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

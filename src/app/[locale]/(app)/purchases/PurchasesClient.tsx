@@ -39,6 +39,7 @@ type Detail = {
   paid: number;
   remise: number;
   notes: string | null;
+  invoiceImageUrl: string | null;
   supplier: { id: string; name: string };
   lines: Array<{
     id: string;
@@ -163,6 +164,7 @@ export function PurchasesClient({
         paid: Number(d.paid ?? 0),
         remise: Number(d.remise ?? 0),
         notes: d.notes,
+        invoiceImageUrl: d.invoiceImageUrl ?? null,
         supplier: d.supplier,
         lines: d.lines,
       });
@@ -192,6 +194,7 @@ export function PurchasesClient({
         date: d.date,
         remise: Number(d.remise ?? 0),
         notes: d.notes ?? null,
+        invoiceImageUrl: d.invoiceImageUrl ?? null,
         lines: (d.lines ?? []).map((x: { productId: string; unitId: string | null; qty: unknown; freeQty: unknown; unitPrice: unknown; remise: unknown; expiryDate: string | null }) => ({
           productId: x.productId,
           unitId: x.unitId,
@@ -364,6 +367,17 @@ export function PurchasesClient({
                       {detail.notes ? ` · ${detail.notes}` : ""}
                     </div>
                   </div>
+                  {detail.invoiceImageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setZoom({ src: detail.invoiceImageUrl as string, name: `${labels.number} ${detail.number}` })}
+                      className="group inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-brand ps-1.5 pe-4 text-sm font-black text-white shadow-md transition-transform active:scale-95"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={detail.invoiceImageUrl} alt="" className="h-8 w-8 rounded-lg border border-white/50 bg-white object-cover" />
+                      {formLabels.factoryInvoice}
+                    </button>
+                  )}
                   <RowActions
                     onEdit={() => selected && openEdit(selected)}
                     onDelete={() => selected && setDeleting(selected)}

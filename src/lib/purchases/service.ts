@@ -82,6 +82,7 @@ export async function createPurchase(companyId: string, input: PurchaseInput) {
         remise: input.remise ?? 0,
         total,
         notes: input.notes ?? null,
+        invoiceImageUrl: input.invoiceImageUrl ?? null,
       },
     });
 
@@ -358,6 +359,7 @@ export async function updatePurchase(companyId: string, id: string, input: Purch
         remise: input.remise ?? 0,
         total,
         notes: input.notes ?? null,
+        invoiceImageUrl: input.invoiceImageUrl ?? null,
       },
     });
 

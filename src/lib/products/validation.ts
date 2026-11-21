@@ -58,6 +58,8 @@ export const purchaseSchema = z.object({
   /// Amount handed to the supplier with this invoice (versé).
   paid: z.coerce.number().finite().min(0).optional(),
   notes: z.string().max(500).nullish(),
+  /// Optional photo of the supplier's invoice (/uploads/invoices/<hex>.webp).
+  invoiceImageUrl: z.string().regex(/^\/uploads\/invoices\/[a-f0-9]{16,64}\.webp$/).nullish(),
   lines: z.array(purchaseLineSchema).min(1).max(200),
 });
 

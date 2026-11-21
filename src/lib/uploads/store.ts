@@ -8,7 +8,7 @@
 import { join, basename, sep } from "node:path";
 import { existsSync, readdirSync, statSync } from "node:fs";
 
-export const UPLOAD_SUBS = ["products", "vans"] as const;
+export const UPLOAD_SUBS = ["products", "vans", "invoices"] as const;
 
 /// Writable persistent root. Desktop shell sets DISTRIBUILI_USERDATA;
 /// anywhere else (dev / docker) fall back to the legacy public/ tree.

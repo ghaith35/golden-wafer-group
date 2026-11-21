@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ListChecks, Plus } from "lucide-react";
+import { ImagePlus, ListChecks, Plus } from "lucide-react";
+import { imageToWebp } from "@/lib/images/toWebp";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
@@ -64,6 +65,7 @@ export type PurchaseInitial = {
   date?: string | null;
   remise?: number | null;
   notes?: string | null;
+  invoiceImageUrl?: string | null;
   lines: PurchaseInitialLine[];
 };
 
@@ -154,6 +156,29 @@ export function PurchaseForm({
   const [date, setDate] = useState(() => (initial?.date ? String(initial.date).slice(0, 10) : new Date().toISOString().slice(0, 10)));
   const [invoiceRemise, setInvoiceRemise] = useState(initial?.remise ?? 0);
   const [notes, setNotes] = useState(initial?.notes ?? "");
+  /// Optional photo of the supplier's paper invoice (converted to WebP).
+  const [invoiceImage, setInvoiceImage] = useState<string | null>(initial?.invoiceImageUrl ?? null);
+  const [imgBusy, setImgBusy] = useState(false);
+  const [imgErr, setImgErr] = useState(false);
+
+  async function pickInvoiceImage(f: File | undefined) {
+    if (!f) return;
+    setImgBusy(true);
+    setImgErr(false);
+    try {
+      const webp = await imageToWebp(f);
+      const form = new FormData();
+      form.append("file", webp);
+      form.append("dir", "invoices");
+      const res = await fetch("/api/uploads", { method: "POST", body: form });
+      if (!res.ok) throw new Error("upload_failed");
+      setInvoiceImage((await res.json()).url as string);
+    } catch {
+      setImgErr(true);
+    } finally {
+      setImgBusy(false);
+    }
+  }
   /// Amount handed to the supplier with this invoice (create only).
   /// Defaults to pay-all and follows the total until typed manually.
   const [paid, setPaid] = useState<number | "">("");
@@ -423,6 +448,7 @@ export function PurchaseForm({
           date,
           remise: invoiceRemise,
           notes: notes || null,
+          invoiceImageUrl: invoiceImage,
           ...(editingId ? {} : { paid: paidNum }),
           lines: valid.map((l) => ({
             productId: l.productId,
@@ -657,6 +683,36 @@ export function PurchaseForm({
         <div>
           <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.notes}</label>
           <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </div>
+        <div className="mt-2">
+          <label className="mb-1 block text-xs font-bold uppercase opacity-60">
+            {labels.factoryInvoice} <span className="font-medium normal-case opacity-70">({labels.optional})</span>
+          </label>
+          {invoiceImage ? (
+            <div className="flex items-center gap-3 rounded-xl border border-(--border-default) bg-(--bg-sunken) p-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={invoiceImage} alt="" className="h-20 w-16 rounded-lg border border-(--border-default) bg-white object-cover" />
+              <div className="flex flex-1 flex-wrap gap-2">
+                <label className="inline-flex h-9 cursor-pointer items-center rounded-lg bg-(--bg-surface) px-3 text-xs font-bold">
+                  <input type="file" accept="image/*" className="hidden" disabled={imgBusy}
+                    onChange={(e) => { void pickInvoiceImage(e.target.files?.[0]); e.target.value = ""; }} />
+                  {imgBusy ? "…" : labels.changeImage}
+                </label>
+                <button type="button" onClick={() => setInvoiceImage(null)}
+                  className="inline-flex h-9 items-center rounded-lg px-3 text-xs font-bold text-red-500">
+                  {labels.removeImage}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <label className={"flex h-14 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-(--border-default) text-sm font-bold opacity-80 hover:opacity-100" + (imgBusy ? " pointer-events-none opacity-50" : "")}>
+              <input type="file" accept="image/*" className="hidden" disabled={imgBusy}
+                onChange={(e) => { void pickInvoiceImage(e.target.files?.[0]); e.target.value = ""; }} />
+              <ImagePlus size={18} />
+              {imgBusy ? "…" : labels.attachFactoryInvoice}
+            </label>
+          )}
+          {imgErr && <p className="mt-1 text-xs font-semibold text-red-500">{labels.imageFailed}</p>}
         </div>
         {!editingId && (
           <div className="mt-2">
