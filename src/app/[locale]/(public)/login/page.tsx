@@ -16,17 +16,27 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
   // Password reset via activation key: desktop (EXE/DMG) installs only.
   const canReset = isLocalMode() && isDesktopUserAgent((await headers()).get("user-agent"));
   return (
-    <main className="gw-bleed relative flex min-h-dvh items-center justify-center overflow-hidden">
+    <main
+      className="gw-bleed relative flex min-h-dvh items-center justify-center overflow-hidden"
+      // Always dark, light or dark theme: painted inline so it never depends on
+      // the stylesheet having loaded (a refresh used to flash the white page).
+      style={{ background: "#030303", colorScheme: "dark" }}
+    >
+      {/* The page behind <main> is dark too — no white flash while styles load. */}
+      <style>{"html,body{background:#030303!important}"}</style>
       {/* Drenched olive night — lighter core, near-black edges */}
       <div
         className="absolute inset-0"
-        style={{ background: "radial-gradient(120% 90% at 50% 18%, #1a1408 0%, #0b0b0c 48%, #030303 100%)" }}
+        style={{ position: "absolute", inset: 0, background: "radial-gradient(120% 90% at 50% 18%, #1a1408 0%, #0b0b0c 48%, #030303 100%)" }}
       />
 
       {/* Subtle plus-pattern texture */}
       <div
         className="absolute inset-0 opacity-[0.05]"
         style={{
+          position: "absolute",
+          inset: 0,
+          opacity: 0.05,
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0h-2v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           backgroundSize: "56px 56px",
         }}
