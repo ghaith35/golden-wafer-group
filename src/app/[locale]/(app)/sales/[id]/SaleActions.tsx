@@ -19,6 +19,7 @@ import { dz, dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { ErrText } from "@/components/ui/ErrText";
+import { ClientName } from "@/components/clients/ClientName";
 export type SaleDetail = {
   id: string;
   kind: string;
@@ -368,7 +369,7 @@ export function SaleActions({
                   </Button>
                 )}
               </div>
-              <div className="mt-1.5 truncate text-lg font-black leading-tight sm:text-xl">{sale.client ? sale.client.name : labels.walkin}</div>
+              <div className="mt-1.5 flex min-w-0 text-lg font-black leading-tight sm:text-xl"><ClientName name={sale.client?.name} fallback={labels.walkin} lat={sale.client?.gpsLat} lng={sale.client?.gpsLng} /></div>
               <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] font-bold text-(--text-secondary)">
                 {sale.client && <span className="font-mono" dir="ltr">{sale.client.code}</span>}
                 {sale.location && (

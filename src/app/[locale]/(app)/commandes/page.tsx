@@ -35,7 +35,7 @@ export default async function CommandesPage({
     prisma.sale.findMany({
       where: { companyId: session.companyId, kind: "ORDER", date: { gte: rangeStart, lt: rangeEnd } },
       include: {
-        client: { select: { name: true, code: true } },
+        client: { select: { name: true, code: true, gpsLat: true, gpsLng: true } },
         location: { select: { id: true, name: true, kind: true } },
         createdBy: { select: { id: true, fullName: true, username: true } },
         _count: { select: { lines: true } },

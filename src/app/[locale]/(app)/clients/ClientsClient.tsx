@@ -14,6 +14,8 @@ import { QrPrintWizard } from "./qr/print/QrPrintWizard";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useSyncedState } from "@/lib/data-sync";
+import { ClientName } from "@/components/clients/ClientName";
+import { matchClient } from "@/lib/clients/display";
 
 import { ErrText } from "@/components/ui/ErrText";
 type Row = {
@@ -26,6 +28,8 @@ type Row = {
   tier: { name: string } | null;
   secteur: { name: string } | null;
   wilaya: { code: number; nameAr: string } | null;
+  gpsLat?: number | string | null;
+  gpsLng?: number | string | null;
 };
 
 const EMPTY: ClientData = {
@@ -110,7 +114,7 @@ export function ClientsClient({
   const filtered = rows.filter(
     (c) =>
       (!sec || c.secteur?.name === secteurs.find((s) => s.id === sec)?.name) &&
-      (!q || c.name.includes(q) || c.code.includes(q) || (c.phone ?? "").includes(q))
+      matchClient(q, c)
   );
 
   const secCounts = useMemo(() => {
@@ -291,8 +295,9 @@ export function ClientsClient({
                   {c.name.trim().charAt(0)}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-bold">
-                    {c.name} <span className="font-mono text-[11px] opacity-50" dir="ltr">{c.code}</span>
+                  <div className="flex min-w-0 items-center gap-1.5 text-sm font-bold">
+                    <ClientName name={c.name} lat={c.gpsLat} lng={c.gpsLng} />
+                    <span className="shrink-0 font-mono text-[11px] opacity-50" dir="ltr">{c.code}</span>
                   </div>
                   <div className="truncate text-[11px] opacity-60">
                     <bdi dir="ltr">{c.phone}</bdi>

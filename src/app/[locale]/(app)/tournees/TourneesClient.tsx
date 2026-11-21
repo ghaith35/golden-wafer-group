@@ -1,5 +1,6 @@
 "use client";
 
+import { ClientName } from "@/components/clients/ClientName";
 import { useEffect, useMemo, useState } from "react";
 import { Plus, CalendarCheck, CalendarDays, Pencil, Trash2, Crosshair, Route } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -46,7 +47,7 @@ type DayDetail = {
     total: unknown; clientId: string;
     client: { id: string; name: string; code: string; phone: string | null; gpsLat: number | null; gpsLng: number | null };
   }>;
-  sales: Array<{ id: string; number: string; total: unknown; client: { name: string } | null }>;
+  sales: Array<{ id: string; number: string; total: unknown; client: { name: string; gpsLat?: number | string | null; gpsLng?: number | string | null } | null }>;
 };
 
 /// Calendar day key → a Date at noon UTC (safe to format with timeZone "UTC").
@@ -642,7 +643,7 @@ function StopEditor({
                   className="h-4 w-4 shrink-0 accent-(--brand-500)"
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold leading-tight">{c.name}</span>
+                  <span className="block text-sm font-semibold leading-tight"><ClientName name={c.name} lat={c.gpsLat} lng={c.gpsLng} /></span>
                   <span className="block font-mono text-[11px] opacity-50" dir="ltr">
                     {c.code}{meta ? <span className="font-bold text-sky-600"> · {meta}</span> : ""}
                   </span>

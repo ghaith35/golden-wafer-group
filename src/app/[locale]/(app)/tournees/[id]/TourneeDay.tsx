@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { useLivePosition, formatDist, formatTime } from "@/lib/geo";
 import { dzMoney } from "@/lib/format";
+import { ClientName } from "@/components/clients/ClientName";
 import { Crosshair, Navigation } from "lucide-react";
 
 export type Stop = {
@@ -27,7 +28,7 @@ export function TourneeDay({
   locationId: string;
   isOpen: boolean;
   stops: Stop[];
-  sales: Array<{ id: string; number: string; total: unknown; client: { name: string } | null }>;
+  sales: Array<{ id: string; number: string; total: unknown; client: { name: string; gpsLat?: number | string | null; gpsLng?: number | string | null } | null }>;
   labels: Record<string, string>;
   /// Refresh parent (board reload / page refresh) after any mutation.
   onChanged?: () => void;
@@ -71,7 +72,7 @@ export function TourneeDay({
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-bold">
                   <span className="me-1 rounded bg-(--bg-sunken) px-1.5 font-mono">{i + 1}</span>
-                  {s.client.name} <span className="font-mono text-xs opacity-50" dir="ltr">{s.client.code}</span>
+                  <ClientName name={s.client.name} map={false} className="inline" /> <span className="font-mono text-xs opacity-50" dir="ltr">{s.client.code}</span>
                 </div>
                 {s.client.phone && <div className="text-xs opacity-60" dir="ltr">📞 <bdi>{s.client.phone}</bdi></div>}
                 <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
@@ -99,7 +100,7 @@ export function TourneeDay({
           <div className="mb-1 text-sm font-bold">{labels.sales ?? "Ventes"}</div>
           {sales.map((x) => (
             <Link key={x.id} href={`/${locale}/sales/${x.id}`} className="flex justify-between py-1 text-sm">
-              <span className="min-w-0"><bdi dir="ltr">{x.number}</bdi> · <bdi dir="auto">{x.client?.name}</bdi></span>
+              <span className="min-w-0"><bdi dir="ltr">{x.number}</bdi> · <ClientName name={x.client?.name} lat={x.client?.gpsLat} lng={x.client?.gpsLng} /></span>
               <span className="shrink-0 font-black">{dzMoney(Number(x.total))}</span>
             </Link>
           ))}

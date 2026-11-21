@@ -11,17 +11,19 @@ import { cn } from "@/lib/utils";
 import { useDataVersion } from "@/lib/data-sync";
 
 import { ErrText } from "@/components/ui/ErrText";
+import { ClientName } from "@/components/clients/ClientName";
+import { matchClient, normSearch } from "@/lib/clients/display";
 type V = {
   id: string;
   kind: string;
   amount: unknown;
   date: string;
   notes: string | null;
-  client: { name: string; code: string } | null;
+  client: { name: string; code: string; gpsLat?: number | string | null; gpsLng?: number | string | null } | null;
   supplier: { name: string } | null;
   transfer: { number: string } | null;
 };
-type D = { id: string; amount: unknown; date: string; client: { name: string; code: string } };
+type D = { id: string; amount: unknown; date: string; client: { name: string; code: string; gpsLat?: number | string | null; gpsLng?: number | string | null } };
 
 const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)";
 
@@ -170,7 +172,7 @@ export function CashClient({
       rows.filter(
         (r) =>
           (!q ||
-            partyName(r).includes(q) ||
+            normSearch(partyName(r)).includes(normSearch(q)) ||
             (r.client?.code ?? "").includes(q))
       ),
     [rows, q]
@@ -178,7 +180,7 @@ export function CashClient({
   const filteredD = useMemo(
     () =>
       deps.filter(
-        (x) => !q || x.client.name.includes(q) || x.client.code.includes(q)
+        (x) => !q || matchClient(q, x.client)
       ),
     [deps, q]
   );
@@ -268,7 +270,13 @@ export function CashClient({
                 {r.kind === "CLIENT_PAYMENT" ? <ArrowDownToLine size={18} /> : r.kind === "SUPPLIER_PAYMENT" ? <ArrowUpFromLine size={18} /> : <HandCoins size={18} />}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-bold">{partyName(r) || "—"}</div>
+                <div className="flex min-w-0 text-sm font-bold">
+                  {r.kind === "CLIENT_PAYMENT" && r.client ? (
+                    <ClientName name={r.client.name} lat={r.client.gpsLat} lng={r.client.gpsLng} />
+                  ) : (
+                    <span className="truncate">{partyName(r) || "—"}</span>
+                  )}
+                </div>
                 <div className="truncate text-xs opacity-60">
                   {r.kind === "CLIENT_PAYMENT" && r.client ? (
                     <span className="font-mono">{r.client.code} · </span>
@@ -294,7 +302,7 @@ export function CashClient({
                 <HandCoins size={18} />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-bold">{x.client.name}</div>
+                <div className="flex min-w-0 text-sm font-bold"><ClientName name={x.client.name} lat={x.client.gpsLat} lng={x.client.gpsLng} /></div>
                 <div className="truncate text-xs opacity-60">
                   <span className="font-mono">{x.client.code} · </span>
                   {fmtDate(x.date, locale)}

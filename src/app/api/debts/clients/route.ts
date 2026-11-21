@@ -30,7 +30,7 @@ export async function GET(req: Request) {
         : {}),
     },
     select: {
-      id: true, code: true, name: true, phone: true, balance: true, creditLimit: true,
+      id: true, code: true, name: true, phone: true, gpsLat: true, gpsLng: true, balance: true, creditLimit: true,
       sales: {
         where: { kind: { in: [...OPEN_KINDS] as never[] }, status: { in: [...OPEN_STATUS] as never[] } },
         select: { id: true, number: true, kind: true, total: true, paid: true, date: true },
@@ -59,6 +59,8 @@ export async function GET(req: Request) {
         id: c.id,
         code: c.code,
         name: c.name,
+        gpsLat: c.gpsLat == null ? null : Number(c.gpsLat),
+        gpsLng: c.gpsLng == null ? null : Number(c.gpsLng),
         phone: c.phone ?? "",
         total,
         paid,

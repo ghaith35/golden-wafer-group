@@ -1,5 +1,6 @@
 "use client";
 
+import { ClientName } from "@/components/clients/ClientName";
 import { Fragment, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -22,7 +23,7 @@ import { useSyncedState } from "@/lib/data-sync";
 import { ErrText } from "@/components/ui/ErrText";
 type Row = {
   id: string; number: string; status: string; total: unknown; paid: unknown; date: unknown;
-  client: { id: string; name: string; code: string } | null;
+  client: { id: string; name: string; code: string; gpsLat?: number | string | null; gpsLng?: number | string | null } | null;
   _count: { lines: number };
 };
 
@@ -30,7 +31,7 @@ type Detail = {
   id: string; number: string; status: string;
   total: unknown; paid: unknown;
   date: unknown;
-  client: { id: string; name: string; code: string; phone: string | null } | null;
+  client: { id: string; name: string; code: string; phone: string | null; gpsLat?: number | string | null; gpsLng?: number | string | null } | null;
   location: { id: string; name: string } | null;
   lines: Array<{
     id: string; qty: unknown; baseQty: unknown; unitPrice: unknown; lineTotal: unknown;
@@ -518,8 +519,9 @@ export function VanOrdersClient({
         className="flex min-w-0 flex-1 items-center gap-2 text-start"
       >
         <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-black">
-            {r.status === "CONFIRMED" ? "📦 " : r.status === "DELIVERED" ? "✓ " : ""}{r.number} · {r.client?.name ?? "—"}
+          <div className="flex min-w-0 items-center gap-1 text-sm font-black">
+            <span className="shrink-0">{r.status === "CONFIRMED" ? "📦 " : r.status === "DELIVERED" ? "✓ " : ""}{r.number} ·</span>
+            <ClientName name={r.client?.name} lat={r.client?.gpsLat} lng={r.client?.gpsLng} />
             {(queuedIds.includes(r.id) || r.id.startsWith("pending:")) && <UnsyncedBadge className="ms-1 px-1.5" />}
           </div>
           <div className="mt-0.5 flex items-center gap-1 text-[11px] opacity-60">
@@ -646,7 +648,7 @@ export function VanOrdersClient({
             </div>
             {detail.client && (
               <div className="rounded-xl bg-(--bg-sunken) px-3 py-2 text-sm">
-                <div className="font-black">{detail.client.name}</div>
+                <div className="flex font-black"><ClientName name={detail.client.name} lat={detail.client.gpsLat} lng={detail.client.gpsLng} /></div>
                 <div className="font-mono text-[11px] opacity-60" dir="ltr">
                   {detail.client.code}{detail.client.phone ? ` · ${detail.client.phone}` : ""}
                 </div>

@@ -20,7 +20,7 @@ export default async function TourneeDetailPage({ params }: { params: Promise<{ 
       location: true,
       secteur: true,
       stops: { include: { client: true }, orderBy: { position: "asc" } },
-      sales: { include: { client: { select: { name: true } } } },
+      sales: { include: { client: { select: { name: true, gpsLat: true, gpsLng: true } } } },
     },
   });
   if (!row) notFound();

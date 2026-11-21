@@ -33,7 +33,7 @@ export default async function LivreurFacturesPage({
 
   const rows = await prisma.sale.findMany({
     where: { companyId: session.companyId, locationId: van.id, kind: "TICKET" },
-    include: { client: { select: { name: true } } },
+    include: { client: { select: { name: true, gpsLat: true, gpsLng: true } } },
     orderBy: { createdAt: "desc" },
     take: 100,
   });

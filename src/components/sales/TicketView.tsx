@@ -165,7 +165,7 @@ export function TicketView({
         )}
         {ticket.client && (
           <div className="mt-1.5 rounded-lg border-2 border-black p-1.5 text-xs">
-            <div className="text-sm font-black leading-tight">{labels.client}: {ticket.client.name}</div>
+            <div className="text-sm font-black leading-tight">{labels.client}: <bdi dir="auto">{ticket.client.name}</bdi></div>
             <div className="font-bold opacity-70" dir="ltr">{ticket.client.code ?? ""}{ticket.client.phone ? ` · ${ticket.client.phone}` : ""}</div>
             {ticket.client.tierName && <div className="font-bold opacity-70">{ticket.client.tierName}</div>}
           </div>

@@ -113,6 +113,7 @@ CREATE TABLE "users" (
     "fullName" TEXT NOT NULL,
     "role" TEXT NOT NULL DEFAULT 'Vendeur',
     "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "canChooseDay" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "users_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE
@@ -664,6 +665,7 @@ CREATE TABLE "purchase_invoices" (
     "total" DECIMAL NOT NULL DEFAULT 0,
     "paid" DECIMAL NOT NULL DEFAULT 0,
     "notes" TEXT,
+    "invoiceImageUrl" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "purchase_invoices_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,

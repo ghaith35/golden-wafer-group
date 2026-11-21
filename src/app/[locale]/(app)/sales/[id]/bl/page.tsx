@@ -190,7 +190,7 @@ export default async function DeliveryNotePage({
           <section className="grid grid-cols-[1.25fr_1fr_auto] gap-3.5">
             <div className="rounded-xl border p-3.5" style={{ borderColor: "#e6d6a6", background: "linear-gradient(180deg,#fffaf0,#ffffff)" }}>
               <div className="mb-1.5 text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: GOLD }}>{T.client}</div>
-              <div className="text-[15px] font-black leading-tight">{sale.client ? sale.client.name : "—"}</div>
+              <div className="text-[15px] font-black leading-tight"><bdi dir="auto">{sale.client ? sale.client.name : "—"}</bdi></div>
               {sale.client ? (
                 <div className="mt-1.5 space-y-0.5 text-[10.5px] text-neutral-700">
                   <div><span className="text-neutral-500">{T.code}:</span> <b className="font-mono" dir="ltr">{sale.client.code}</b></div>

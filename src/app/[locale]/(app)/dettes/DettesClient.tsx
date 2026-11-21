@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ClientName } from "@/components/clients/ClientName";
 import { useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { HandCoins, History, Wallet } from "lucide-react";
@@ -21,6 +22,8 @@ type Row = {
   code: string;
   name: string;
   phone: string;
+  gpsLat?: number | null;
+  gpsLng?: number | null;
   total: number;
   paid: number;
   balance: number;
@@ -201,7 +204,7 @@ export function DettesClient({ labels }: { labels: Record<string, string> }) {
           <div key={r.id} className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5">
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-black">{r.name}</div>
+                <div className="flex min-w-0 text-sm font-black"><ClientName name={r.name} lat={r.gpsLat} lng={r.gpsLng} /></div>
                 <div className="truncate font-mono text-[11px] opacity-50" dir="ltr">
                   {r.code}{r.phone ? ` · ${r.phone}` : ""}
                 </div>

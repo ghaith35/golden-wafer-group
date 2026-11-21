@@ -19,7 +19,7 @@ export async function GET(req: Request) {
       ...(supplierId ? { supplierId } : {}),
     },
     include: {
-      client: { select: { id: true, name: true, code: true } },
+      client: { select: { id: true, name: true, code: true, gpsLat: true, gpsLng: true } },
       supplier: { select: { id: true, name: true } },
       transfer: { select: { id: true, number: true } },
     },

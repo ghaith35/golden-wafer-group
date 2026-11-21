@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 import { useSyncedState } from "@/lib/data-sync";
 import { useCountUp } from "@/components/dashboard/charts";
 import { Avatar } from "@/components/ui/Avatar";
+import { ClientName } from "@/components/clients/ClientName";
+import { matchClient } from "@/lib/clients/display";
 
 type Row = {
   id: string;
@@ -28,7 +30,7 @@ type Row = {
   date: unknown;
   isPortal: boolean;
   offList: boolean;
-  client: { name: string; code: string } | null;
+  client: { name: string; code: string; gpsLat?: number | string | null; gpsLng?: number | string | null } | null;
   location: { id: string; name: string; matricule: string | null; kind: string } | null;
 };
 
@@ -189,8 +191,7 @@ export function SalesClient({
         if (!needle) return true;
         return (
           r.number.toLowerCase().includes(needle) ||
-          (r.client?.name ?? "").toLowerCase().includes(needle) ||
-          (r.client?.code ?? "").toLowerCase().includes(needle) ||
+          matchClient(q, r.client ?? {}) ||
           (r.location?.name ?? "").toLowerCase().includes(needle)
         );
       })
@@ -540,7 +541,7 @@ export function SalesClient({
                           <Avatar name={name} size="sm" walkin={!r.client} />
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="min-w-0 truncate text-[13px] font-black">{name}</span>
+                              <span className="min-w-0 flex-1 text-[13px] font-black"><ClientName name={r.client?.name} fallback={labels.walkin} lat={r.client?.gpsLat} lng={r.client?.gpsLng} /></span>
                               <span className="shrink-0 text-[13px] font-black tabular-nums" dir="ltr">{dzMoney(total)}</span>
                             </div>
                             <div className="mt-0.5 flex items-center justify-between gap-2 text-[10.5px] font-bold text-(--text-tertiary)">

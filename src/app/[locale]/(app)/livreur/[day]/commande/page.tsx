@@ -31,7 +31,7 @@ export default async function LivreurCommandePage({
     sp.client
       ? prisma.customer.findFirst({
           where: { id: sp.client, companyId: session.companyId },
-          select: { id: true, name: true, code: true, phone: true, tierId: true, balance: true },
+          select: { id: true, name: true, code: true, phone: true, gpsLat: true, gpsLng: true, tierId: true, balance: true },
         })
       : null,
     prisma.product.findMany({

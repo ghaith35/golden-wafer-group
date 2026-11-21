@@ -62,7 +62,7 @@ export default async function SalesPage({
         date: { gte: rangeStart, lt: rangeEnd },
       },
       include: {
-        client: { select: { name: true, code: true } },
+        client: { select: { name: true, code: true, gpsLat: true, gpsLng: true } },
         location: { select: { id: true, name: true, matricule: true, kind: true } },
       },
       orderBy: { date: "desc" },

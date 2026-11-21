@@ -34,7 +34,7 @@ export default async function LivreurVentePage({
     sp.client
       ? prisma.customer.findFirst({
           where: { id: sp.client, companyId: session.companyId },
-          select: { id: true, name: true, code: true, phone: true, tierId: true, balance: true },
+          select: { id: true, name: true, code: true, phone: true, gpsLat: true, gpsLng: true, tierId: true, balance: true },
         })
       : null,
     prisma.product.findMany({
@@ -81,7 +81,7 @@ export default async function LivreurVentePage({
     ? await prisma.sale.findFirst({
         where: { id: sp.edit, companyId: session.companyId, kind: "TICKET", locationId: van.id, status: { not: "CANCELLED" } },
         include: {
-          client: { select: { id: true, name: true, code: true, phone: true, tierId: true, balance: true } },
+          client: { select: { id: true, name: true, code: true, phone: true, gpsLat: true, gpsLng: true, tierId: true, balance: true } },
           lines: true,
         },
       })

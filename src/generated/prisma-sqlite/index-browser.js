@@ -218,6 +218,7 @@ exports.Prisma.UserScalarFieldEnum = {
   fullName: 'fullName',
   role: 'role',
   isActive: 'isActive',
+  canChooseDay: 'canChooseDay',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -670,6 +671,7 @@ exports.Prisma.PurchaseInvoiceScalarFieldEnum = {
   total: 'total',
   paid: 'paid',
   notes: 'notes',
+  invoiceImageUrl: 'invoiceImageUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

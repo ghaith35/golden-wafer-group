@@ -1,5 +1,6 @@
 "use client";
 
+import { matchClient } from "@/lib/clients/display";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -268,7 +269,7 @@ export function SaleDocForm({
   }
 
   const shownClients = clientQ
-    ? effClients.filter((c) => c.name.includes(clientQ) || c.code.includes(clientQ)).slice(0, 30)
+    ? effClients.filter((c) => matchClient(clientQ, c)).slice(0, 30)
     : effClients.slice(0, 30);
 
   async function submit() {

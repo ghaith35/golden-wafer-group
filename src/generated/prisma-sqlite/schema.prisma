@@ -212,6 +212,9 @@ model User {
   fullName     String
   role         String   @default("Vendeur")
   isActive     Boolean  @default(true)
+  /// Livreur / Vendeur may pick the journée day. false (default) = locked to
+  /// today's tour only (admin toggles it in Settings > day access).
+  canChooseDay Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -1006,22 +1009,24 @@ model SyncOp {
 // ─── Purchases ───────────────────────────────────────────────────────────────
 
 model PurchaseInvoice {
-  id         String   @id @default(cuid())
-  companyId  String
-  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  seasonId   String?
-  supplierId String
-  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Restrict)
-  number     String
-  date       DateTime @default(now())
+  id              String   @id @default(cuid())
+  companyId       String
+  company         Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  seasonId        String?
+  supplierId      String
+  supplier        Supplier @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  number          String
+  date            DateTime @default(now())
   /// Invoice-level remise (amount). Line remises live on lines.
-  remise     Decimal  @default(0)
-  total      Decimal  @default(0)
+  remise          Decimal  @default(0)
+  total           Decimal  @default(0)
   /// Paid so far via invoice payments (versements linked below).
-  paid       Decimal  @default(0)
-  notes      String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  paid            Decimal  @default(0)
+  notes           String?
+  /// Optional photo of the supplier's paper invoice (stored as WebP).
+  invoiceImageUrl String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   lines    PurchaseLine[]
   returns  SupplierReturn[]

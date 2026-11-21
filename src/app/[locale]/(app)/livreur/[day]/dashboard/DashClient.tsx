@@ -1,5 +1,6 @@
 "use client";
 
+import { ClientName } from "@/components/clients/ClientName";
 import { useEffect, useState } from "react";
 import { ApkOnly } from "@/components/layout/ApkOnly";
 import { useRouter } from "next/navigation";
@@ -37,7 +38,7 @@ export function DashClient({
   day: string;
   vanId: string;
   vanName: string;
-  client: { id: string; name: string; code: string; phone: string | null; balance: unknown } | null;
+  client: { id: string; name: string; code: string; phone: string | null; gpsLat?: number | string | null; gpsLng?: number | string | null; balance: unknown } | null;
   dayCount: number;
   dayTotal: number;
   readyCount: number;
@@ -305,7 +306,7 @@ export function DashClient({
             <UserRound size={19} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-base font-black">{effClient.name}{effClient.id.startsWith("pending:") ? " ⏳" : ""}</div>
+            <div className="flex min-w-0 items-center gap-1 text-base font-black"><ClientName name={effClient.name} lat={(effClient as { gpsLat?: number | string | null }).gpsLat} lng={(effClient as { gpsLng?: number | string | null }).gpsLng} />{effClient.id.startsWith("pending:") ? <span className="shrink-0">⏳</span> : null}</div>
             <div className="truncate font-mono text-[11px] opacity-60" dir="ltr">{effClient.code}</div>
           </div>
           <button

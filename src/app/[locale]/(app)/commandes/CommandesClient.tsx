@@ -15,6 +15,8 @@ import { compareNatural } from "@/lib/sort";
 import { getUnsyncedDocKeys } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
 import { useSyncedState } from "@/lib/data-sync";
+import { ClientName } from "@/components/clients/ClientName";
+import { matchClient } from "@/lib/clients/display";
 
 type Row = {
   id: string;
@@ -23,7 +25,7 @@ type Row = {
   total: unknown;
   date: unknown;
   channel: string;
-  client: { name: string; code: string } | null;
+  client: { name: string; code: string; gpsLat?: number | string | null; gpsLng?: number | string | null } | null;
   location: { id: string; name: string; kind: string } | null;
   createdBy: { id: string; fullName: string; username: string } | null;
   _count: { lines: number };
@@ -119,7 +121,7 @@ export function CommandesClient({
     (r) =>
       (!fStatus || r.status === fStatus) &&
       (!fVan || r.location?.id === fVan) &&
-      (!q || r.number.includes(q) || (r.client?.name ?? "").includes(q))
+      (!q || r.number.includes(q) || matchClient(q, r.client ?? {}))
   );
 
   async function select(id: string) {
@@ -274,8 +276,9 @@ export function CommandesClient({
                 )}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="min-w-0 flex-1 truncate text-[13px] font-bold">
-                    {r.number} · {r.client?.name ?? "—"}
+                  <span className="flex min-w-0 flex-1 items-center gap-1 text-[13px] font-bold">
+                    <span className="shrink-0">{r.number} ·</span>
+                    <ClientName name={r.client?.name} lat={r.client?.gpsLat} lng={r.client?.gpsLng} />
                   </span>
                   <span className="shrink-0 text-[13px] font-black tabular-nums" dir="ltr">{num(Number(r.total))}</span>
                 </div>

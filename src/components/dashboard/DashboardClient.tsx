@@ -13,6 +13,7 @@ import { dz, dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Agg, DashboardData, Period } from "@/lib/dashboard/stats";
 import { MiniBars, TrendChart, compactNum, useCountUp } from "./charts";
+import { ClientName } from "@/components/clients/ClientName";
 
 const ICONS: Record<string, LucideIcon> = { Store, ShoppingCart, Users, Boxes, ArrowLeftRight, Wallet, NotebookPen, BarChart3 };
 
@@ -122,7 +123,7 @@ function Bar({ pct, className }: { pct: number; className?: string }) {
 }
 
 
-type RankItem = { id: string; name: string; sub?: string; value: number; valueLabel: string; profit: number; count?: number; qtyLabel?: string };
+type RankItem = { id: string; name: string; client?: boolean; lat?: number | null; lng?: number | null; sub?: string; value: number; valueLabel: string; profit: number; count?: number; qtyLabel?: string };
 
 function RankList({ items, max, fit, t, green }: { items: RankItem[]; max: number; fit: boolean; t: (k: string) => string; green?: boolean }) {
   const money = dzMoney;
@@ -133,7 +134,7 @@ function RankList({ items, max, fit, t, green }: { items: RankItem[]; max: numbe
           <div className="flex items-center gap-2">
             <Rank i={i} small={fit} />
             <span className={cn("min-w-0 flex-1 truncate font-black", fit ? "text-[12px]" : "text-[13px]")}>
-              {it.name}
+              {it.client ? <ClientName name={it.name} lat={it.lat} lng={it.lng} /> : it.name}
               {it.sub && <span className="ms-1.5 text-[10px] font-bold text-(--text-tertiary)" dir="ltr">{it.sub}</span>}
             </span>
             {fit && <span className="shrink-0 text-[10px] font-black tabular-nums text-(--semantic-success)">{compactNum(it.profit)}</span>}
@@ -227,7 +228,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
 
   const productItems: RankItem[] = products.map((p) => ({ id: p.id, name: p.name, value: p[prodMetric], valueLabel: prodMetric === "qty" ? qty(p.qty) : compactOrFull(p[prodMetric], fit), profit: p.profit, qtyLabel: `${qty(p.qty)} ${t("units")}` }));
   const vanItems: RankItem[] = vans.map((v) => ({ id: v.id, name: v.name, sub: v.matricule, value: v.revenue, valueLabel: compactOrFull(v.revenue, fit), profit: v.profit, count: v.count }));
-  const clientItems: RankItem[] = clients.map((c) => ({ id: c.id, name: c.name, value: c.revenue, valueLabel: compactOrFull(c.revenue, fit), profit: c.profit, count: c.count }));
+  const clientItems: RankItem[] = clients.map((c) => ({ id: c.id, name: c.name, client: true, lat: c.gpsLat, lng: c.gpsLng, value: c.revenue, valueLabel: compactOrFull(c.revenue, fit), profit: c.profit, count: c.count }));
 
   /* ── reusable blocks ── */
   const periodCard = (p: Period) => {
@@ -390,7 +391,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
                 {v.periods[period][k].slice(0, fit ? 3 : 5).map((x, i) => (
                   <li key={x.id} className="flex items-center gap-1.5 text-[11px] font-bold">
                     <Rank i={i} />
-                    <span className="min-w-0 flex-1 truncate">{x.name}</span>
+                    <span className="min-w-0 flex-1 truncate">{k === "clients" ? <ClientName name={x.name} lat={(x as { gpsLat?: number | null }).gpsLat} lng={(x as { gpsLng?: number | null }).gpsLng} /> : x.name}</span>
                     <span className="shrink-0 text-end font-black tabular-nums">{compactNum(x.revenue)}</span>
                   </li>
                 ))}

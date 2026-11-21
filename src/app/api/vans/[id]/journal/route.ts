@@ -41,7 +41,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     prisma.sale.findMany({
       where: { companyId: cid, locationId: id, date: { gte: start, lt: end }, status: { notIn: ["DRAFT", "CANCELLED"] } },
       include: {
-        client: { select: { name: true } },
+        client: { select: { name: true, gpsLat: true, gpsLng: true } },
         lines: { include: { product: productSelect } },
       },
       orderBy: { date: "asc" },
@@ -49,7 +49,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     prisma.clientReturn.findMany({
       where: { companyId: cid, locationId: id, date: { gte: start, lt: end } },
       include: {
-        client: { select: { name: true } },
+        client: { select: { name: true, gpsLat: true, gpsLng: true } },
         lines: { include: { product: productSelect } },
       },
       orderBy: { date: "asc" },

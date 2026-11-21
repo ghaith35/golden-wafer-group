@@ -1,4 +1,5 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { ClientName } from "@/components/clients/ClientName";
 import { redirect, notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { getSession } from "@/lib/auth/session";
@@ -85,7 +86,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ l
     <div className="mx-auto w-full max-w-2xl space-y-4 p-5 md:p-6 lg:max-w-4xl xl:max-w-5xl">
       <BackButton fallback={`/${locale}/clients`} />
       <h1 className="text-xl font-bold">
-        {client.name} <span className="font-mono text-sm opacity-50">{client.code}</span>
+        <ClientName name={client.name} lat={client.gpsLat} lng={client.gpsLng} className="inline" /> <span className="font-mono text-sm opacity-50">{client.code}</span>
       </h1>
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>

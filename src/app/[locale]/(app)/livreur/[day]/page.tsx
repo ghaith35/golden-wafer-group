@@ -3,13 +3,12 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../_data";
-import { parseDay, sameDay } from "../_days";
+import { parseDay } from "../_days";
 import { DayClients } from "./DayClients";
 import { loadAreaScope } from "@/lib/users/area-scope.server";
 
-/// Step 2 — Clients: ALL of the driver's clients (union of his OPEN
-/// tournées' stops, tagged by day) with a day-filter on top. Falls back to
-/// every active client when nothing is planned yet.
+/// Step 2 — Clients of THIS day only: the day's tour stops and its sector.
+/// Nothing from other days; no tour planned = empty list ("no tournée").
 export default async function LivreurDayPage({
   params,
 }: {
@@ -27,44 +26,27 @@ export default async function LivreurDayPage({
   if (!van) redirect(`/${locale}/livreur`);
 
   const sel = { id: true, name: true, code: true, legacyQr: true, phone: true, tierId: true, balance: true, gpsLat: true, gpsLng: true };
-  const tournees = await prisma.tournee.findMany({
-    where: { companyId: session.companyId, locationId: van.id, status: "OPEN" },
+  // Only THIS day's tour: its sector and its planned clients. Other days'
+  // stops (and "every client" fallbacks) are never loaded.
+  const dayStart = new Date(date);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(date);
+  dayEnd.setHours(23, 59, 59, 999);
+  const tour = await prisma.tournee.findFirst({
+    where: { companyId: session.companyId, locationId: van.id, date: { gte: dayStart, lte: dayEnd } },
     include: {
+      secteur: { select: { name: true } },
       stops: {
         include: { client: { select: sel } },
         orderBy: { position: "asc" },
       },
     },
-    orderBy: { date: "asc" },
+    orderBy: { createdAt: "desc" },
   });
-  const tour = tournees.find((x) => sameDay(new Date(x.date), date)) ?? null;
-
-  // Union of planned stops across open days, tagged with their day slug.
-  const byId = new Map<string, { client: Record<string, unknown>; days: string[] }>();
+  const clients = (tour?.stops ?? [])
+    .filter((s) => s.client)
+    .map((s) => ({ ...(s.client as unknown as Record<string, unknown>), days: [day] }));
   const daySlugs: string[] = [];
-  for (const tr of tournees) {
-    const slug = `${new Date(tr.date).getFullYear()}-${new Date(tr.date).getMonth() + 1}-${new Date(tr.date).getDate()}`;
-    if (!daySlugs.includes(slug)) daySlugs.push(slug);
-    for (const s of tr.stops) {
-      if (!s.client) continue;
-      const row = byId.get(s.client.id);
-      if (row) {
-        if (!row.days.includes(slug)) row.days.push(slug);
-      } else {
-        byId.set(s.client.id, { client: s.client as unknown as Record<string, unknown>, days: [slug] });
-      }
-    }
-  }
-  let clients = [...byId.values()].map((r) => ({ ...r.client, days: r.days }));
-  if (!clients.length) {
-    const all = await prisma.customer.findMany({
-      where: { companyId: session.companyId, isActive: true },
-      select: sel,
-      orderBy: { name: "asc" },
-      take: 500,
-    });
-    clients = all.map((c) => ({ ...c, days: [] as string[] }));
-  }
 
   // Reference lists for the embedded new-client popup (same as /clients/new).
   const [wilayas, secteurs, tiers] = await Promise.all([
@@ -89,6 +71,7 @@ export default async function LivreurDayPage({
       hasTournee={!!tour}
       hasStarted={!!tour?.startedAt}
       days={daySlugs}
+      sectorName={tour?.secteur?.name ?? null}
       clients={JSON.parse(JSON.stringify(clients))}
       companyId={session.companyId}
       refs={JSON.parse(JSON.stringify({ wilayas, secteurs, tiers }))}

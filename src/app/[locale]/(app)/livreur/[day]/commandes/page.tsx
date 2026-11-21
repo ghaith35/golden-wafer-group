@@ -42,7 +42,7 @@ export default async function LivreurOrdersPage({
       status: readyOnly ? "CONFIRMED" : { in: ["DRAFT", "CONFIRMED"] },
     },
     include: {
-      client: { select: { id: true, name: true, code: true } },
+      client: { select: { id: true, name: true, code: true, gpsLat: true, gpsLng: true } },
       _count: { select: { lines: true } },
     },
     orderBy: { createdAt: "desc" },
@@ -53,7 +53,7 @@ export default async function LivreurOrdersPage({
   const doneRows = readyOnly ? [] : await prisma.sale.findMany({
     where: { ...whereBase, status: "DELIVERED" },
     include: {
-      client: { select: { id: true, name: true, code: true } },
+      client: { select: { id: true, name: true, code: true, gpsLat: true, gpsLng: true } },
       _count: { select: { lines: true } },
     },
     orderBy: { createdAt: "desc" },

@@ -38,7 +38,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
         where: { companyId, kind: { in: KINDS }, status: "DELIVERED", date: { gte: since } },
         select: {
           id: true, number: true, date: true, total: true, paid: true, channel: true, locationId: true, clientId: true,
-          client: { select: { name: true } },
+          client: { select: { name: true, gpsLat: true, gpsLng: true } },
           lines: { select: { productId: true, baseQty: true, lineTotal: true, unitCost: true, product: { select: { name: true } } } },
         },
         orderBy: { date: "desc" },

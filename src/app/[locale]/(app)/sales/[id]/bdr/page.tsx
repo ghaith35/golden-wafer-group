@@ -171,7 +171,7 @@ export default async function BonRoutePage({
           <section className="mt-4 flex gap-3.5">
             <div className="flex-[11] rounded-xl border p-3.5" style={{ borderColor: "#e6d6a6", background: "linear-gradient(180deg,#fffaf0,#ffffff)" }}>
               <div className="mb-1.5 text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: GOLD }}>{T.for}</div>
-              <div className="text-[15px] font-black leading-tight">{sale.client?.name ?? "—"}</div>
+              <div className="text-[15px] font-black leading-tight"><bdi dir="auto">{sale.client?.name ?? "—"}</bdi></div>
               <div className="mt-1.5 space-y-0.5 text-[10.5px] text-neutral-700">
                 <div><span className="text-neutral-500">{T.phone}:</span> <b dir="ltr">{sale.client?.phone ?? "—"}</b></div>
                 <div><span className="text-neutral-500">{T.address}:</span> <b>{[sale.client?.address, lang === "ar" ? sale.client?.wilaya?.nameAr : sale.client?.wilaya?.nameFr].filter(Boolean).join(" — ") || "—"}</b></div>

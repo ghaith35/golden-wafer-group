@@ -153,6 +153,7 @@
     "mQty": "Qté"
   },
   "common": {
+    "openMap": "Ouvrir dans Google Maps",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "search": "Rechercher",
@@ -654,6 +655,12 @@
     "transferConfirmHint": "Le camion confirme, sinon livraison auto",
     "qrStrictMode": "QR strict",
     "qrHint": "Bloquer vente sans scan QR client",
+    "dayAccessList": "Employés",
+    "dayAccessHint": "Activé : l'employé choisit le jour. Désactivé : seule la tournée d'aujourd'hui s'ouvre, avec son secteur et ses clients.",
+    "dayAccessFree": "Choisit le jour librement",
+    "dayAccessLocked": "Limité au jour actuel",
+    "dayAccessEmpty": "Aucun livreur ni vendeur",
+    "dayAccessError": "Échec de l'enregistrement",
     "sections": {
       "general": "Général",
       "generalDesc": "Coûts et affectation des camions",
@@ -663,6 +670,8 @@
       "catalogDesc": "Unités, grilles tarifaires et types de dépenses",
       "sectors": "Secteurs",
       "sectorsDesc": "Secteurs de distribution par wilaya",
+      "dayAccess": "Choix du jour",
+      "dayAccessDesc": "Qui choisit le jour de la tournée et qui est limité au jour actuel",
       "journal": "Journal",
       "journalDesc": "Registre des ventes et paiements",
       "company": "Entreprise",

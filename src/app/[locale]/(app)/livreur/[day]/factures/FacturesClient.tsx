@@ -1,5 +1,6 @@
 "use client";
 
+import { ClientName } from "@/components/clients/ClientName";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -17,14 +18,14 @@ import { dzMoney, fmtDT } from "@/lib/format";
 import { useSyncedState } from "@/lib/data-sync";
 
 import { ErrText } from "@/components/ui/ErrText";
-type Row = { id: string; number: string; total: unknown; date: unknown; client: { name: string } | null };
+type Row = { id: string; number: string; total: unknown; date: unknown; client: { name: string; gpsLat?: number | string | null; gpsLng?: number | string | null } | null };
 
 type Detail = {
   id: string; number: string; status: string;
   total: unknown; paid: unknown; remise: unknown;
   notes: string | null; tierId: string | null;
   date: unknown;
-  client: { id: string; name: string; code: string; phone: string | null } | null;
+  client: { id: string; name: string; code: string; phone: string | null; gpsLat?: number | string | null; gpsLng?: number | string | null } | null;
   location: { id: string; name: string } | null;
   lines: Array<{
     id: string; productId: string; qty: unknown; baseQty: unknown; unitId: string | null; unitPrice: unknown; remise: unknown; lineTotal: unknown;
@@ -347,7 +348,7 @@ export function FacturesClient({
           return (
             <div key={pr.id} className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-(--bg-overlay) p-2.5">
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-bold">… · {doc.clientName ?? ""}</div>
+                <div className="flex min-w-0 items-center gap-1 text-sm font-bold"><span className="shrink-0">… ·</span><ClientName name={doc.clientName} map={false} /></div>
                 <div className="flex items-center gap-1.5 text-[11px] opacity-60">
                   <span>{fmtDT(pr.date as string, locale)} · <b className="tabular-nums">{dzMoney(Number(pr.total))}</b></span>
                   <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-1.5 py-px text-[10px] font-black opacity-100">
@@ -383,7 +384,7 @@ export function FacturesClient({
         {rows.map((t) => (
           <div key={t.id} className="flex items-center gap-2 rounded-xl border border-(--border-default) bg-(--bg-overlay) p-2.5">
             <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-bold">{t.number} · {t.client?.name ?? ""}</div>
+              <div className="flex min-w-0 items-center gap-1 text-sm font-bold"><span className="shrink-0">{t.number} ·</span><ClientName name={t.client?.name} lat={t.client?.gpsLat} lng={t.client?.gpsLng} /></div>
               <div className="flex items-center gap-1.5 text-[11px] opacity-60">
                 <span>{fmtDT(t.date as string, locale)} · <b className="tabular-nums">{dzMoney(Number(t.total))}</b></span>
                 {unsynced.has(t.id) && (

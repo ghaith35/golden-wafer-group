@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan } from "./_data";
 import { daySlug } from "./_days";
+import { canChooseDay } from "@/lib/livreur/day-access";
 import { DaysClient } from "./DaysClient";
 
 /// Step 1 — Journée: pick a weekday, then go to its clients.
@@ -31,8 +32,8 @@ export default async function LivreurDaysPage({ params }: { params: Promise<{ lo
     });
     if (open) redirect(`/${locale}/livreur/${daySlug(new Date(open.date))}/dashboard`);
     // Tour workflow: the START screen is the first thing the driver sees.
-    // (Admins keep the plain day list.)
-    if (session.role !== "Admin") {
+    // (Admins and employees allowed to choose the day keep the plain day list.)
+    if (session.role !== "Admin" && !(await canChooseDay(session))) {
       const now = new Date();
       const today = daySlug(now);
       const dayStart = new Date(now);

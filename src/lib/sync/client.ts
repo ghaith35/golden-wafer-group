@@ -413,14 +413,15 @@ export function tryOfflineQrUnlock(
 
 /// Resolve a scan against the server, or against the last confirmed snapshot
 /// during an outage. A queued alias starts resolving after the server accepts it.
-export async function findScannedClient(text: string, companyId: string) {
+/// `day` (journée slug) restricts the online lookup to that day's tour clients.
+export async function findScannedClient(text: string, companyId: string, day?: string) {
   const match = parseClientScan(text, companyId);
   if (!match) return null;
   try {
     const res = await fetch("/api/clients/qr-lookup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ qr: text }),
+      body: JSON.stringify({ qr: text, day }),
     });
     if (res.status >= 500) throw new Error("server_unreachable");
     if (!res.ok) return null;

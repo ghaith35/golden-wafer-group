@@ -12,7 +12,7 @@ export async function GET() {
   if (!settings.depositsEnabled) return NextResponse.json({ error: "deposits_disabled" }, { status: 400 });
   const rows = await prisma.deposit.findMany({
     where: { companyId: session.companyId },
-    include: { client: { select: { id: true, name: true, code: true } } },
+    include: { client: { select: { id: true, name: true, code: true, gpsLat: true, gpsLng: true } } },
     orderBy: { date: "desc" },
     take: 300,
   });

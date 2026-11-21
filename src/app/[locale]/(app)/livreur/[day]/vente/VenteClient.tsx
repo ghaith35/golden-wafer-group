@@ -1,5 +1,7 @@
 "use client";
 
+import { matchClient } from "@/lib/clients/display";
+import { ClientName } from "@/components/clients/ClientName";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -28,7 +30,7 @@ import { GiftLineRow, colisMap, giftBodyLines, giftProductsFrom, lineBaseQty, us
 import type { OutboxRow } from "@/lib/sync/offline-db";
 
 import { ErrText } from "@/components/ui/ErrText";
-type Client = { id: string; name: string; code: string; phone: string | null; tierId: string | null; balance: unknown };
+type Client = { id: string; name: string; code: string; phone: string | null; gpsLat?: number | string | null; gpsLng?: number | string | null; tierId: string | null; balance: unknown };
 type Prod = {
   id: string; name: string; reference: string | null;
   salePrice: unknown; baseUnitId: string | null;
@@ -272,7 +274,7 @@ export function VenteClient({
             pend = (await getPendingClients()).map((p) => ({ id: `pending:${p.opId}`, name: p.name, code: p.code, phone: p.phone, tierId: p.tierId, balance: 0 }));
           } catch { /* ignore */ }
           const all = [...pend, ...pool];
-          const hit = q ? all.filter((c) => c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)) : all;
+          const hit = clientQ.trim() ? all.filter((c) => matchClient(clientQ, c)) : all;
           if (!dead) setClientHits(hit.slice(0, 100));
         });
     }, q ? 250 : 0);
@@ -342,7 +344,7 @@ export function VenteClient({
     if (scanning.current) return;
     scanning.current = true;
     try {
-      const hit = await findScannedClient(text, companyId);
+      const hit = await findScannedClient(text, companyId, day);
       if (!hit) {
         setScanError(!snap && serverUnreachable() ? (labels.syncFirst ?? labels.qrNotFound ?? "not_found") : (labels.qrNotFound ?? "not_found"));
         return;
@@ -763,7 +765,7 @@ export function VenteClient({
         >
           <QrCode size={17} className="shrink-0 text-(--brand-600)" />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-black">{client ? client.name : labels.scanTitle}</span>
+            <span className="block text-sm font-black">{client ? <ClientName name={client.name} lat={client.gpsLat} lng={client.gpsLng} /> : <span className="block truncate">{labels.scanTitle}</span>}</span>
             <span className="block truncate font-mono text-[11px] opacity-60" dir="ltr">{client?.code ?? labels.scanHint}</span>
           </span>
         </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { matchClient } from "@/lib/clients/display";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -221,7 +222,7 @@ export function PosClient({
   const shownClients = useMemo(() => {
     const needle = clientQ.trim();
     if (!needle) return clients.slice(0, 30);
-    return clients.filter((c) => c.name.includes(needle) || c.code.includes(needle)).slice(0, 30);
+    return clients.filter((c) => matchClient(needle, c)).slice(0, 30);
   }, [clients, clientQ]);
 
   const totals = useMemo(() => {

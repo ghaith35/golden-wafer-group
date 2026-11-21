@@ -63,7 +63,7 @@ export default async function SalePrintPage({ params }: { params: Promise<{ loca
 
       {sale.client && (
         <div className="mb-4 text-sm">
-          <b>{PT.client}:</b> {sale.client.name} <span className="font-mono">({sale.client.code})</span>
+          <b>{PT.client}:</b> <bdi dir="auto">{sale.client.name}</bdi> <span className="font-mono">({sale.client.code})</span>
           {sale.client.phone ? ` · ${sale.client.phone}` : ""}
           {sale.client.address ? ` · ${sale.client.address}` : ""}
         </div>

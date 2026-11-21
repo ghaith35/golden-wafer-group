@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { MapPin, ChevronRight, ChevronLeft, Route } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
+import { ClientName } from "@/components/clients/ClientName";
+import { matchClient } from "@/lib/clients/display";
 import dynamic from "next/dynamic";
 import type { MapStop } from "@/components/map/TourneeMap";
 
@@ -75,7 +77,7 @@ export function CarteClient({
       rows = rows.filter((c) => c.secteur?.name === name);
     }
     if (mode === "client" && q) {
-      rows = rows.filter((c) => c.name.includes(q) || c.code.includes(q) || (c.phone ?? "").includes(q));
+      rows = rows.filter((c) => matchClient(q, c));
     }
     return rows;
   }, [initial, mode, q, zoneWilaya, zoneSecteur, secteurs]);
@@ -201,7 +203,7 @@ export function CarteClient({
             >
               <MapPin size={16} className={cn("shrink-0", selected?.id === c.id ? "text-(--brand-600)" : "opacity-50")} />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-bold">{c.name}</span>
+                <span className="block text-sm font-bold"><ClientName name={c.name} lat={c.gpsLat} lng={c.gpsLng} /></span>
                 <span className="block truncate text-xs opacity-60">
                   {c.code} {c.wilaya ? `· ${c.wilaya.code} ${c.wilaya.nameAr}` : ""} {c.secteur ? `· ${c.secteur.name}` : ""}
                 </span>

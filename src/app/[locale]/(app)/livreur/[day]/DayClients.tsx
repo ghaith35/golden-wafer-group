@@ -21,6 +21,8 @@ import { canSell } from "@/lib/staff-permissions";
 import { NewClient } from "./clients/new/NewClient";
 import type { AreaScope } from "@/lib/users/area-scope";
 import { cn } from "@/lib/utils";
+import { ClientName } from "@/components/clients/ClientName";
+import { matchClient } from "@/lib/clients/display";
 
 type Client = {
   id: string; name: string; code: string; phone: string | null;
@@ -29,8 +31,7 @@ type Client = {
   days: string[];
 };
 
-/// Step 2 — ALL of the driver's clients (his tournées' stops unioned) with
-/// a day-filter on top. Back goes to the journée start page (clock) — never
+/// Step 2 — this day's clients only (the day's tour stops + its sector). Back goes to the journée start page (clock) — never
 /// out of the journée flow.
 export function DayClients({
   locale,
@@ -39,6 +40,7 @@ export function DayClients({
   hasTournee,
   hasStarted,
   days,
+  sectorName,
   clients,
   companyId,
   refs,
@@ -52,6 +54,8 @@ export function DayClients({
   hasTournee: boolean;
   hasStarted: boolean;
   days: string[];
+  /// Sector of this day's tour (null = none set).
+  sectorName?: string | null;
   clients: Client[];
   companyId: string;
   refs: {
@@ -444,7 +448,7 @@ export function DayClients({
   const list = [...effClients, ...pending.filter((p) => !clients.some((c) => c.code === p.code))].filter(
     (c) =>
       (!dayFilter || (c.days ?? []).includes(dayFilter)) &&
-      (!q || c.name.includes(q) || c.code.includes(q))
+      (!q || matchClient(q, c))
   );
 
   const mapsUrl = (c: Client) => {
@@ -468,7 +472,7 @@ export function DayClients({
         </button>
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-black">{labels.clients} ({list.length})</h1>
-          <p className="truncate text-xs opacity-60">{vanName}</p>
+          <p className="truncate text-xs opacity-60">{vanName}{sectorName ? ` · ${sectorName}` : ""}</p>
         </div>
         <ApkOnly><OnlineBadge onlineLabel={labels.online ?? "online"} offlineLabel={labels.offline ?? "offline"} /></ApkOnly>
         {!hasStarted && (
@@ -561,8 +565,8 @@ export function DayClients({
                   {c.name.trim().charAt(0)}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-black">
-                    {c.name}
+                  <span className="flex min-w-0 items-center text-sm font-black">
+                    <ClientName name={c.name} map={false} />
                     {c.id.startsWith("pending:") && <UnsyncedBadge className="ms-1 px-1.5" />}
                   </span>
                   <span className="block truncate font-mono text-[11px] opacity-50" dir="ltr">{c.code}</span>

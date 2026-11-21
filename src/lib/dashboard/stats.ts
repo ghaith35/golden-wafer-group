@@ -28,7 +28,7 @@ export type RawSale = {
   channel: string;
   locationId: string | null;
   clientId: string | null;
-  client: { name: string } | null;
+  client: { name: string; gpsLat?: number | null; gpsLng?: number | null } | null;
   lines: RawLine[];
 };
 export type RawExpense = { amount: unknown; expenseDate: Date; locationId: string | null };
@@ -36,7 +36,7 @@ export type RawVan = { id: string; name: string; matricule: string | null; isAct
 
 export type Agg = { revenue: number; profit: number; count: number; paid: number; expenses: number };
 export type ProductStat = { id: string; name: string; qty: number; revenue: number; profit: number };
-export type ClientStat = { id: string; name: string; revenue: number; profit: number; count: number };
+export type ClientStat = { id: string; name: string; gpsLat?: number | null; gpsLng?: number | null; revenue: number; profit: number; count: number };
 export type VanStat = { id: string; name: string; matricule: string; revenue: number; profit: number; count: number };
 
 export type VanPeriod = Agg & { products: ProductStat[]; clients: ClientStat[] };
@@ -148,7 +148,7 @@ function rankClients(sales: RawSale[]): ClientStat[] {
   for (const s of sales) {
     // Walk-in / anonymous tickets are not a "client" to rank.
     if (!s.clientId) continue;
-    const e = m.get(s.clientId) ?? { id: s.clientId, name: s.client?.name ?? "—", revenue: 0, profit: 0, count: 0 };
+    const e = m.get(s.clientId) ?? { id: s.clientId, name: s.client?.name ?? "—", gpsLat: s.client?.gpsLat ?? null, gpsLng: s.client?.gpsLng ?? null, revenue: 0, profit: 0, count: 0 };
     const total = num(s.total);
     e.revenue += total;
     e.profit += total - saleCogs(s);

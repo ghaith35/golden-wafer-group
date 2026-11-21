@@ -1,5 +1,6 @@
 "use client";
 
+import { ClientName } from "@/components/clients/ClientName";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Lock, Package, Store } from "lucide-react";
@@ -16,7 +17,7 @@ type Hold = {
   held: number;
   vanStock: number;
   free: number;
-  orders: Array<{ id: string; number: string; clientName: string; qty: number }>;
+  orders: Array<{ id: string; number: string; clientName: string; gpsLat?: number | null; gpsLng?: number | null; qty: number }>;
   pack: { name: string; factor: number } | null;
   baseUnit: string;
 };
@@ -264,7 +265,7 @@ export function VanStockClient({
             <div className="mt-1.5 space-y-0.5 border-t border-(--border-subtle) pt-1.5">
               {h.orders.map((o) => (
                 <div key={o.id} className="flex justify-between text-[11px]">
-                  <span className="truncate opacity-60">{o.number} · {o.clientName}</span>
+                  <span className="flex min-w-0 items-center gap-1 opacity-80"><span className="shrink-0 opacity-70">{o.number} ·</span><ClientName name={o.clientName} lat={o.gpsLat} lng={o.gpsLng} /></span>
                   <span className="shrink-0 font-black tabular-nums">{breakdown(o.qty, h)}</span>
                 </div>
               ))}

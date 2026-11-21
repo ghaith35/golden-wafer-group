@@ -16454,6 +16454,7 @@ export namespace Prisma {
     fullName: string | null
     role: string | null
     isActive: boolean | null
+    canChooseDay: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -16469,6 +16470,7 @@ export namespace Prisma {
     fullName: string | null
     role: string | null
     isActive: boolean | null
+    canChooseDay: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -16484,6 +16486,7 @@ export namespace Prisma {
     fullName: number
     role: number
     isActive: number
+    canChooseDay: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -16501,6 +16504,7 @@ export namespace Prisma {
     fullName?: true
     role?: true
     isActive?: true
+    canChooseDay?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -16516,6 +16520,7 @@ export namespace Prisma {
     fullName?: true
     role?: true
     isActive?: true
+    canChooseDay?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -16531,6 +16536,7 @@ export namespace Prisma {
     fullName?: true
     role?: true
     isActive?: true
+    canChooseDay?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -16619,6 +16625,7 @@ export namespace Prisma {
     fullName: string
     role: string
     isActive: boolean
+    canChooseDay: boolean
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -16651,6 +16658,7 @@ export namespace Prisma {
     fullName?: boolean
     role?: boolean
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -16673,6 +16681,7 @@ export namespace Prisma {
     fullName?: boolean
     role?: boolean
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -16689,6 +16698,7 @@ export namespace Prisma {
     fullName?: boolean
     role?: boolean
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -16705,11 +16715,12 @@ export namespace Prisma {
     fullName?: boolean
     role?: boolean
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "username" | "passwordHash" | "phone" | "passwordView" | "qrToken" | "fullName" | "role" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "username" | "passwordHash" | "phone" | "passwordView" | "qrToken" | "fullName" | "role" | "isActive" | "canChooseDay" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     distances?: boolean | User$distancesArgs<ExtArgs>
@@ -16759,6 +16770,11 @@ export namespace Prisma {
       fullName: string
       role: string
       isActive: boolean
+      /**
+       * Livreur / Vendeur may pick the journée day. false (default) = locked to
+       * today's tour only (admin toggles it in Settings > day access).
+       */
+      canChooseDay: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -17200,6 +17216,7 @@ export namespace Prisma {
     readonly fullName: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'String'>
     readonly isActive: FieldRef<"User", 'Boolean'>
+    readonly canChooseDay: FieldRef<"User", 'Boolean'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -57703,6 +57720,7 @@ export namespace Prisma {
     total: Decimal | null
     paid: Decimal | null
     notes: string | null
+    invoiceImageUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -57718,6 +57736,7 @@ export namespace Prisma {
     total: Decimal | null
     paid: Decimal | null
     notes: string | null
+    invoiceImageUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -57733,6 +57752,7 @@ export namespace Prisma {
     total: number
     paid: number
     notes: number
+    invoiceImageUrl: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -57762,6 +57782,7 @@ export namespace Prisma {
     total?: true
     paid?: true
     notes?: true
+    invoiceImageUrl?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -57777,6 +57798,7 @@ export namespace Prisma {
     total?: true
     paid?: true
     notes?: true
+    invoiceImageUrl?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -57792,6 +57814,7 @@ export namespace Prisma {
     total?: true
     paid?: true
     notes?: true
+    invoiceImageUrl?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -57894,6 +57917,7 @@ export namespace Prisma {
     total: Decimal
     paid: Decimal
     notes: string | null
+    invoiceImageUrl: string | null
     createdAt: Date
     updatedAt: Date
     _count: PurchaseInvoiceCountAggregateOutputType | null
@@ -57928,6 +57952,7 @@ export namespace Prisma {
     total?: boolean
     paid?: boolean
     notes?: boolean
+    invoiceImageUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -57949,6 +57974,7 @@ export namespace Prisma {
     total?: boolean
     paid?: boolean
     notes?: boolean
+    invoiceImageUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -57966,6 +57992,7 @@ export namespace Prisma {
     total?: boolean
     paid?: boolean
     notes?: boolean
+    invoiceImageUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
@@ -57983,11 +58010,12 @@ export namespace Prisma {
     total?: boolean
     paid?: boolean
     notes?: boolean
+    invoiceImageUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PurchaseInvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "seasonId" | "supplierId" | "number" | "date" | "remise" | "total" | "paid" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["purchaseInvoice"]>
+  export type PurchaseInvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "seasonId" | "supplierId" | "number" | "date" | "remise" | "total" | "paid" | "notes" | "invoiceImageUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["purchaseInvoice"]>
   export type PurchaseInvoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     supplier?: boolean | SupplierDefaultArgs<ExtArgs>
@@ -58031,6 +58059,10 @@ export namespace Prisma {
        */
       paid: Prisma.Decimal
       notes: string | null
+      /**
+       * Optional photo of the supplier's paper invoice (stored as WebP).
+       */
+      invoiceImageUrl: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["purchaseInvoice"]>
@@ -58471,6 +58503,7 @@ export namespace Prisma {
     readonly total: FieldRef<"PurchaseInvoice", 'Decimal'>
     readonly paid: FieldRef<"PurchaseInvoice", 'Decimal'>
     readonly notes: FieldRef<"PurchaseInvoice", 'String'>
+    readonly invoiceImageUrl: FieldRef<"PurchaseInvoice", 'String'>
     readonly createdAt: FieldRef<"PurchaseInvoice", 'DateTime'>
     readonly updatedAt: FieldRef<"PurchaseInvoice", 'DateTime'>
   }
@@ -73491,6 +73524,7 @@ export namespace Prisma {
     fullName: 'fullName',
     role: 'role',
     isActive: 'isActive',
+    canChooseDay: 'canChooseDay',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -74045,6 +74079,7 @@ export namespace Prisma {
     total: 'total',
     paid: 'paid',
     notes: 'notes',
+    invoiceImageUrl: 'invoiceImageUrl',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -75062,6 +75097,7 @@ export namespace Prisma {
     fullName?: StringFilter<"User"> | string
     role?: StringFilter<"User"> | string
     isActive?: BoolFilter<"User"> | boolean
+    canChooseDay?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -75083,6 +75119,7 @@ export namespace Prisma {
     fullName?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
+    canChooseDay?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
@@ -75108,6 +75145,7 @@ export namespace Prisma {
     fullName?: StringFilter<"User"> | string
     role?: StringFilter<"User"> | string
     isActive?: BoolFilter<"User"> | boolean
+    canChooseDay?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -75129,6 +75167,7 @@ export namespace Prisma {
     fullName?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
+    canChooseDay?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -75150,6 +75189,7 @@ export namespace Prisma {
     fullName?: StringWithAggregatesFilter<"User"> | string
     role?: StringWithAggregatesFilter<"User"> | string
     isActive?: BoolWithAggregatesFilter<"User"> | boolean
+    canChooseDay?: BoolWithAggregatesFilter<"User"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -78142,6 +78182,7 @@ export namespace Prisma {
     total?: DecimalFilter<"PurchaseInvoice"> | Decimal | DecimalJsLike | number | string
     paid?: DecimalFilter<"PurchaseInvoice"> | Decimal | DecimalJsLike | number | string
     notes?: StringNullableFilter<"PurchaseInvoice"> | string | null
+    invoiceImageUrl?: StringNullableFilter<"PurchaseInvoice"> | string | null
     createdAt?: DateTimeFilter<"PurchaseInvoice"> | Date | string
     updatedAt?: DateTimeFilter<"PurchaseInvoice"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -78162,6 +78203,7 @@ export namespace Prisma {
     total?: SortOrder
     paid?: SortOrder
     notes?: SortOrderInput | SortOrder
+    invoiceImageUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
@@ -78186,6 +78228,7 @@ export namespace Prisma {
     total?: DecimalFilter<"PurchaseInvoice"> | Decimal | DecimalJsLike | number | string
     paid?: DecimalFilter<"PurchaseInvoice"> | Decimal | DecimalJsLike | number | string
     notes?: StringNullableFilter<"PurchaseInvoice"> | string | null
+    invoiceImageUrl?: StringNullableFilter<"PurchaseInvoice"> | string | null
     createdAt?: DateTimeFilter<"PurchaseInvoice"> | Date | string
     updatedAt?: DateTimeFilter<"PurchaseInvoice"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
@@ -78206,6 +78249,7 @@ export namespace Prisma {
     total?: SortOrder
     paid?: SortOrder
     notes?: SortOrderInput | SortOrder
+    invoiceImageUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: PurchaseInvoiceCountOrderByAggregateInput
@@ -78229,6 +78273,7 @@ export namespace Prisma {
     total?: DecimalWithAggregatesFilter<"PurchaseInvoice"> | Decimal | DecimalJsLike | number | string
     paid?: DecimalWithAggregatesFilter<"PurchaseInvoice"> | Decimal | DecimalJsLike | number | string
     notes?: StringNullableWithAggregatesFilter<"PurchaseInvoice"> | string | null
+    invoiceImageUrl?: StringNullableWithAggregatesFilter<"PurchaseInvoice"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"PurchaseInvoice"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"PurchaseInvoice"> | Date | string
   }
@@ -80099,6 +80144,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -80120,6 +80166,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
@@ -80139,6 +80186,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -80160,6 +80208,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
@@ -80180,6 +80229,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -80194,6 +80244,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -80209,6 +80260,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -83409,6 +83461,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutPurchaseInvoicesInput
@@ -83429,6 +83482,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     lines?: PurchaseLineUncheckedCreateNestedManyWithoutInvoiceInput
@@ -83445,6 +83499,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutPurchaseInvoicesNestedInput
@@ -83465,6 +83520,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: PurchaseLineUncheckedUpdateManyWithoutInvoiceNestedInput
@@ -83483,6 +83539,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -83496,6 +83553,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -83511,6 +83569,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -85417,6 +85476,7 @@ export namespace Prisma {
     fullName?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
+    canChooseDay?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -85432,6 +85492,7 @@ export namespace Prisma {
     fullName?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
+    canChooseDay?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -85447,6 +85508,7 @@ export namespace Prisma {
     fullName?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
+    canChooseDay?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -87474,6 +87536,7 @@ export namespace Prisma {
     total?: SortOrder
     paid?: SortOrder
     notes?: SortOrder
+    invoiceImageUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -87495,6 +87558,7 @@ export namespace Prisma {
     total?: SortOrder
     paid?: SortOrder
     notes?: SortOrder
+    invoiceImageUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -87510,6 +87574,7 @@ export namespace Prisma {
     total?: SortOrder
     paid?: SortOrder
     notes?: SortOrder
+    invoiceImageUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -94411,6 +94476,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceCreateNestedManyWithoutUserInput
@@ -94430,6 +94496,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
@@ -94931,6 +94998,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     supplier: SupplierCreateNestedOneWithoutPurchaseInvoicesInput
@@ -94949,6 +95017,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     lines?: PurchaseLineUncheckedCreateNestedManyWithoutInvoiceInput
@@ -95631,6 +95700,7 @@ export namespace Prisma {
     fullName?: StringFilter<"User"> | string
     role?: StringFilter<"User"> | string
     isActive?: BoolFilter<"User"> | boolean
+    canChooseDay?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
   }
@@ -96033,6 +96103,7 @@ export namespace Prisma {
     total?: DecimalFilter<"PurchaseInvoice"> | Decimal | DecimalJsLike | number | string
     paid?: DecimalFilter<"PurchaseInvoice"> | Decimal | DecimalJsLike | number | string
     notes?: StringNullableFilter<"PurchaseInvoice"> | string | null
+    invoiceImageUrl?: StringNullableFilter<"PurchaseInvoice"> | string | null
     createdAt?: DateTimeFilter<"PurchaseInvoice"> | Date | string
     updatedAt?: DateTimeFilter<"PurchaseInvoice"> | Date | string
   }
@@ -99278,6 +99349,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -99298,6 +99370,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
@@ -99384,6 +99457,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -99404,6 +99478,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
@@ -99694,6 +99769,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -99714,6 +99790,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
@@ -100334,6 +100411,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -100354,6 +100432,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
@@ -103633,6 +103712,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutPurchaseInvoicesInput
@@ -103651,6 +103731,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     lines?: PurchaseLineUncheckedCreateNestedManyWithoutInvoiceInput
@@ -106041,6 +106122,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -106061,6 +106143,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
@@ -106642,6 +106725,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -106662,6 +106746,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
@@ -109293,6 +109378,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -109313,6 +109399,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
@@ -109552,6 +109639,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -109572,6 +109660,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
@@ -110324,6 +110413,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutPurchaseInvoicesInput
@@ -110343,6 +110433,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     returns?: SupplierReturnUncheckedCreateNestedManyWithoutInvoiceInput
@@ -110474,6 +110565,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutPurchaseInvoicesNestedInput
@@ -110493,6 +110585,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     returns?: SupplierReturnUncheckedUpdateManyWithoutInvoiceNestedInput
@@ -111404,6 +111497,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutPurchaseInvoicesInput
@@ -111423,6 +111517,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     lines?: PurchaseLineUncheckedCreateNestedManyWithoutInvoiceInput
@@ -111631,6 +111726,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutPurchaseInvoicesNestedInput
@@ -111650,6 +111746,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: PurchaseLineUncheckedUpdateManyWithoutInvoiceNestedInput
@@ -112531,6 +112628,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutPurchaseInvoicesInput
@@ -112550,6 +112648,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     lines?: PurchaseLineUncheckedCreateNestedManyWithoutInvoiceInput
@@ -112863,6 +112962,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutPurchaseInvoicesNestedInput
@@ -112882,6 +112982,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: PurchaseLineUncheckedUpdateManyWithoutInvoiceNestedInput
@@ -113679,6 +113780,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     company: CompanyCreateNestedOneWithoutUsersInput
@@ -113699,6 +113801,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
@@ -113909,6 +114012,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -113929,6 +114033,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
@@ -114465,6 +114570,7 @@ export namespace Prisma {
     fullName: string
     role?: string
     isActive?: boolean
+    canChooseDay?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -114600,6 +114706,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -114846,6 +114953,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUpdateManyWithoutUserNestedInput
@@ -114865,6 +114973,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
@@ -114884,6 +114993,7 @@ export namespace Prisma {
     fullName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -115350,6 +115460,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     supplier?: SupplierUpdateOneRequiredWithoutPurchaseInvoicesNestedInput
@@ -115368,6 +115479,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: PurchaseLineUncheckedUpdateManyWithoutInvoiceNestedInput
@@ -115385,6 +115497,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -119039,6 +119152,7 @@ export namespace Prisma {
     total?: Decimal | DecimalJsLike | number | string
     paid?: Decimal | DecimalJsLike | number | string
     notes?: string | null
+    invoiceImageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -119165,6 +119279,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutPurchaseInvoicesNestedInput
@@ -119183,6 +119298,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lines?: PurchaseLineUncheckedUpdateManyWithoutInvoiceNestedInput
@@ -119200,6 +119316,7 @@ export namespace Prisma {
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     paid?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    invoiceImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

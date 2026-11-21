@@ -233,6 +233,9 @@ model User {
   fullName     String
   role         UserRole @default(Vendeur)
   isActive     Boolean  @default(true)
+  /// Livreur / Vendeur may pick the journée day. false (default) = locked to
+  /// today's tour only (admin toggles it in Settings > day access).
+  canChooseDay Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

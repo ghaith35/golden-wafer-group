@@ -1,5 +1,6 @@
 "use client";
 
+import { matchClient } from "@/lib/clients/display";
 import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -45,7 +46,7 @@ export function QrPrintWizard({
         (c) =>
           (!wilaya || c.wilaya?.code === Number(wilaya)) &&
           (!secName || c.secteur?.name === secName) &&
-          (!q || c.name.includes(q) || c.code.includes(q) || (c.phone ?? "").includes(q))
+          matchClient(q, c)
       ),
     [rows, wilaya, secName, q]
   );

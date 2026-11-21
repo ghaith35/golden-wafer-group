@@ -1,5 +1,6 @@
 "use client";
 
+import { ClientName } from "@/components/clients/ClientName";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowDownToLine, ArrowUpFromLine, ShoppingCart, Undo2, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/Input";
@@ -35,14 +36,14 @@ type JournalData = {
     id: string;
     number: string;
     date: string;
-    client: { name: string } | null;
+    client: { name: string; gpsLat?: number | string | null; gpsLng?: number | string | null } | null;
     lines: Array<{ product: JProduct; baseQty: number }>;
   }>;
   returns: Array<{
     id: string;
     number: string;
     date: string;
-    client: { name: string } | null;
+    client: { name: string; gpsLat?: number | string | null; gpsLng?: number | string | null } | null;
     lines: Array<{ product: JProduct; baseQty: number }>;
   }>;
   losses: Array<{ id: string; date: string; motive: string; product: JProduct; baseQty: number }>;
@@ -56,6 +57,8 @@ type Entry = {
   counted: boolean;
   icon: "load" | "unload" | "sale" | "return" | "loss";
   title: string;
+  /// Client of a sale/return row: rendered with the shared name + map pin.
+  clientRef?: { name: string; lat?: number | string | null; lng?: number | string | null };
   sub?: string;
   lines: JLine[];
 };
@@ -152,7 +155,8 @@ export function VanJournal({
         dir: "out",
         counted: true,
         icon: "sale",
-        title: `${s.number}${s.client ? ` · ${s.client.name}` : ""}`,
+        title: s.number,
+        clientRef: s.client ? { name: s.client.name, lat: s.client.gpsLat, lng: s.client.gpsLng } : undefined,
         lines: s.lines.map((l) => ({ product: l.product, qty: l.baseQty })),
       });
     }
@@ -164,7 +168,8 @@ export function VanJournal({
         dir: "in",
         counted: true,
         icon: "return",
-        title: `${r.number}${r.client ? ` · ${r.client.name}` : ""}`,
+        title: r.number,
+        clientRef: r.client ? { name: r.client.name, lat: r.client.gpsLat, lng: r.client.gpsLng } : undefined,
         lines: r.lines.map((l) => ({ product: l.product, qty: l.baseQty })),
       });
     }
@@ -243,7 +248,10 @@ export function VanJournal({
             <div className="flex items-center gap-2.5">
               {iconFor(e.icon)}
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-bold">{e.title}</div>
+                <div className="flex min-w-0 items-center gap-1 text-sm font-bold">
+                  <span className="shrink-0">{e.title}</span>
+                  {e.clientRef && (<><span className="shrink-0 opacity-50">·</span><ClientName name={e.clientRef.name} lat={e.clientRef.lat} lng={e.clientRef.lng} /></>)}
+                </div>
                 <div className="text-[11px] opacity-60">
                   {new Date(e.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   {e.sub ? ` · ${e.sub}` : ""}

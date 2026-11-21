@@ -153,6 +153,7 @@
     "mQty": "Qty"
   },
   "common": {
+    "openMap": "Open in Google Maps",
     "save": "Save",
     "cancel": "Cancel",
     "search": "Search",
@@ -654,6 +655,12 @@
     "transferConfirmHint": "Van confirms receipt, else auto-delivered",
     "qrStrictMode": "Strict QR",
     "qrHint": "Block sale without client QR scan",
+    "dayAccessList": "Employees",
+    "dayAccessHint": "On: the employee picks the day. Off: only today's tour opens, with that day's sector and clients.",
+    "dayAccessFree": "Can choose the day freely",
+    "dayAccessLocked": "Locked to today",
+    "dayAccessEmpty": "No drivers or sellers",
+    "dayAccessError": "Could not save",
     "sections": {
       "general": "General",
       "generalDesc": "Costing and van assignment",
@@ -663,6 +670,8 @@
       "catalogDesc": "Units, price tiers and expense types",
       "sectors": "Sectors",
       "sectorsDesc": "Distribution sectors by wilaya",
+      "dayAccess": "Day selection",
+      "dayAccessDesc": "Who may choose the tour day and who is locked to today",
       "journal": "Journal",
       "journalDesc": "Sales and payments log",
       "company": "Company",

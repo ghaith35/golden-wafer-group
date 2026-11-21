@@ -1,5 +1,6 @@
 "use client";
 
+import { ClientName } from "@/components/clients/ClientName";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -15,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { GiftLineRow, giftBodyLines, giftProductsFrom, useGifts, useThreePackRules } from "@/components/threepack/useThreePack";
 
 import { ErrText } from "@/components/ui/ErrText";
-type Client = { id: string; name: string; code: string; phone: string | null; tierId: string | null; balance: unknown };
+type Client = { id: string; name: string; code: string; phone: string | null; gpsLat?: number | string | null; gpsLng?: number | string | null; tierId: string | null; balance: unknown };
 type Prod = {
   id: string; name: string; reference: string | null;
   baseUnitId: string | null;
@@ -137,7 +138,7 @@ export function CommandeClient({
     if (scanning.current) return;
     scanning.current = true;
     try {
-      const hit = await findScannedClient(text, companyId);
+      const hit = await findScannedClient(text, companyId, day);
       if (!hit) {
         setScanError(!snap && serverUnreachable() ? (labels.syncFirst ?? labels.qrNotFound ?? "not_found") : (labels.qrNotFound ?? "not_found"));
         return;
@@ -334,7 +335,7 @@ export function CommandeClient({
         >
           <QrCode size={17} className="shrink-0 text-(--brand-600)" />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-black">{client ? client.name : labels.scanTitle}</span>
+            <span className="block text-sm font-black">{client ? <ClientName name={client.name} lat={client.gpsLat} lng={client.gpsLng} /> : <span className="block truncate">{labels.scanTitle}</span>}</span>
             <span className="block truncate font-mono text-[11px] opacity-60" dir="ltr">{client?.code ?? labels.scanHint}</span>
           </span>
         </button>

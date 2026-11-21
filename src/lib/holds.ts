@@ -6,7 +6,7 @@ export type VanHold = {
   held: number;
   vanStock: number;
   free: number;
-  orders: Array<{ id: string; number: string; clientName: string; qty: number }>;
+  orders: Array<{ id: string; number: string; clientName: string; gpsLat?: number | null; gpsLng?: number | null; qty: number }>;
   /// Smallest pack above base (for "100 كرتون + 5 قطعة" breakdowns).
   pack: { name: string; factor: number } | null;
   baseUnit: string;
@@ -32,7 +32,7 @@ export async function vanHolds(
     prisma.sale.findMany({
       where: { companyId, kind: "ORDER", status: "CONFIRMED", locationId: vanId },
       include: {
-        client: { select: { name: true } },
+        client: { select: { name: true, gpsLat: true, gpsLng: true } },
         lines: { include: { product: { select: { id: true, name: true } } } },
       },
       orderBy: { createdAt: "asc" },
@@ -66,7 +66,7 @@ export async function vanHolds(
         baseUnit: "",
       };
       e.held += qty;
-      e.orders.push({ id: o.id, number: o.number, clientName: o.client?.name ?? "—", qty });
+      e.orders.push({ id: o.id, number: o.number, clientName: o.client?.name ?? "—", gpsLat: o.client?.gpsLat ?? null, gpsLng: o.client?.gpsLng ?? null, qty });
       byProduct.set(l.productId, e);
     }
   }
