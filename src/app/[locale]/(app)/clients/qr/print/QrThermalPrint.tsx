@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/lib/utils";
 import { qrLabelsPdfUrl } from "@/lib/pdf/clientQrPdf";
+import { pdfBlobToPngs } from "@/lib/pdf/pdfToImages";
 
 type Label = { id: string; code: string; name: string; phone: string | null; payload?: string; dataUrl: string };
 type Company = { name: string; phone: string | null; logoUrl: string | null };
@@ -48,7 +49,20 @@ export function QrThermalPrint({
     }
   }
 
-  function printIframe() {
+  async function printIframe() {
+    // Desktop shell: print exact-size images so the paper follows the chosen
+    // size (the PDF viewer would use the printer driver's default instead).
+    const desk = window.distribuili;
+    if (desk?.printLabels && pdfUrl) {
+      try {
+        const blob = await (await fetch(pdfUrl)).blob();
+        const { images, widthMm, heightMm } = await pdfBlobToPngs(blob);
+        const r = await desk.printLabels({ images, widthMm, heightMm });
+        if (r.ok || r.canceled) return;
+      } catch {
+        /* fall through to the in-page PDF print */
+      }
+    }
     const frame = document.getElementById("qr-pdf-frame") as HTMLIFrameElement | null;
     frame?.contentWindow?.print();
   }
@@ -144,7 +158,7 @@ export function QrThermalPrint({
                   {ui.downloadFile}
                 </Button>
               </a>
-              <Button onClick={printIframe}>{ui.print}</Button>
+              <Button onClick={() => void printIframe()}>{ui.print}</Button>
             </div>
           </div>
         )}

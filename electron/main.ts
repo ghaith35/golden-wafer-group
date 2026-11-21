@@ -165,6 +165,60 @@ function registerPdfIpc(): void {
       return { ok: false, error: String(e) };
     }
   });
+  // Exact-size label printing: the renderer sends one PNG per label plus the
+  // paper size in mm. A hidden window lays them out with @page { size } and
+  // webContents.print() is given the same pageSize, so the paper follows the
+  // size picked in the app instead of the printer driver's default.
+  ipcMain.handle(
+    "print-labels",
+    async (_e, args: { images?: unknown; widthMm?: unknown; heightMm?: unknown }) => {
+      try {
+        const images = Array.isArray(args?.images) ? (args.images as unknown[]).map(String) : [];
+        const w = Math.round(Number(args?.widthMm));
+        const h = Math.round(Number(args?.heightMm));
+        if (!images.length || !(w >= 20 && w <= 300) || !(h >= 20 && h <= 300)) return { ok: false, error: "bad-args" };
+        const { tmpdir } = require("node:os") as typeof import("node:os");
+        const dir = join(tmpdir(), "distribuili-labels", String(Date.now()));
+        mkdirSync(dir, { recursive: true });
+        const tags = images.map((d, i) => {
+          const m = /^data:image\/png;base64,(.+)$/.exec(d);
+          if (!m) throw new Error("bad-image");
+          writeFileSync(join(dir, `p${i}.png`), Buffer.from(m[1], "base64"));
+          return `<img src="p${i}.png">`;
+        });
+        const html =
+          `<!doctype html><meta charset="utf-8"><style>` +
+          `@page{size:${w}mm ${h}mm;margin:0}html,body{margin:0;padding:0}` +
+          `img{display:block;width:${w}mm;height:${h}mm;page-break-after:always;break-after:page}` +
+          `img:last-child{page-break-after:auto;break-after:auto}</style>${tags.join("")}`;
+        const file = join(dir, "labels.html");
+        writeFileSync(file, html);
+        const win = new BrowserWindow({ show: false, webPreferences: { sandbox: true } });
+        try {
+          await win.loadFile(file);
+          return await new Promise<{ ok?: boolean; canceled?: boolean; error?: string }>((resolve) => {
+            win.webContents.print(
+              {
+                silent: false,
+                printBackground: true,
+                margins: { marginType: "none" },
+                pageSize: { width: w * 1000, height: h * 1000 },
+              },
+              (success, reason) => {
+                if (success) resolve({ ok: true });
+                else if (/cancel/i.test(reason || "")) resolve({ ok: false, canceled: true });
+                else resolve({ ok: false, error: reason || "print-failed" });
+              }
+            );
+          });
+        } finally {
+          win.destroy();
+        }
+      } catch (e) {
+        return { ok: false, error: String(e) };
+      }
+    }
+  );
   ipcMain.handle("pdf-save", async (_e, args: { fileName?: unknown; base64?: unknown }) => {
     try {
       const b64 = String(args?.base64 || "");

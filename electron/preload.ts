@@ -33,6 +33,7 @@ contextBridge.exposeInMainWorld("distribuili", {
   setZoom: invoke("ui-zoom-set"),
   pdfOpen: invoke("pdf-open"),
   pdfSave: invoke("pdf-save"),
+  printLabels: invoke("print-labels"),
   onUpdateProgress: (cb: (pct: number) => void) => {
     const listener = (_e: unknown, pct: number) => cb(pct);
     ipcRenderer.on("update-progress", listener as never);
@@ -62,6 +63,7 @@ declare global {
       serverSaveUrl: (url: string) => Promise<never>;
       pdfOpen: (args: { fileName: string; base64: string }) => Promise<{ ok?: boolean; path?: string; error?: string }>;
       pdfSave: (args: { fileName: string; base64: string }) => Promise<{ ok?: boolean; canceled?: boolean; path?: string; error?: string }>;
+      printLabels?: (args: { images: string[]; widthMm: number; heightMm: number }) => Promise<{ ok?: boolean; canceled?: boolean; error?: string }>;
       onUpdateProgress: (cb: (pct: number) => void) => () => void;
       onBundleProgress: (cb: (pct: number) => void) => () => void;
     };

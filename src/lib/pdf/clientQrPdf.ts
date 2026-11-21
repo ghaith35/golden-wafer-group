@@ -2,8 +2,8 @@
 
 /// Client QR cards → square ticket PDF (60/80/100mm), one card per page.
 /// Each framed card has: company banner, a vector QR (error
-/// correction H) with the company logo large in the centre, client name,
-/// the client's phone in a bold pill, and the client code.
+/// correction H) with the full company logo in the centre, client name,
+/// and the client's phone in small black text under it.
 /// Arabic shaped with Amiri (same shared helpers as the van sheet).
 
 import { jsPDF } from "jspdf";
@@ -26,6 +26,8 @@ export type QrLabelsPdfInput = {
   widthMm: 60 | 80 | 100;
 };
 
+const QR_LOGO_URL = "/icons/qr-logo.png";
+
 function imageSize(src: string): Promise<{ w: number; h: number } | null> {
   return new Promise((resolve) => {
     const img = new Image();
@@ -45,14 +47,16 @@ export async function buildQrLabelsPdf(input: QrLabelsPdfInput): Promise<Blob> {
   const T = (s: string) => (F === "Amiri" ? pdfAr(s) : s);
   const cx = S / 2;
 
-  const logo = company.logoUrl ? await urlToDataUrl(company.logoUrl) : null;
+  // The white-background brand logo is the QR centre; company logo is the fallback.
+  const logo =
+    (await urlToDataUrl(QR_LOGO_URL)) ?? (company.logoUrl ? await urlToDataUrl(company.logoUrl) : null);
   const logoDim = logo ? await imageSize(logo.data) : null;
 
   const fm = 1.5 * k; // paper edge → frame
   const cardW = S - fm * 2;
   const innerW = cardW - 8 * k;
-  const bannerH = 10 * k;
-  const qrSize = 40 * k;
+  const bannerH = 13 * k;
+  const qrSize = 47 * k;
 
   const fit = (text: string, fs: number, maxW: number, min: number) => {
     doc.setFontSize(fs);
@@ -83,18 +87,19 @@ export async function buildQrLabelsPdf(input: QrLabelsPdfInput): Promise<Blob> {
     doc.setFont(F, "bold");
     doc.setTextColor(255, 255, 255);
     const nm = T(company.name.toUpperCase());
-    fit(nm, 11.5 * k, cardW - 8 * k, 6);
-    doc.text(nm, cx, by + bannerH / 2 + (company.phone ? -0.2 * k : 1.3 * k), { align: "center" });
+    fit(nm, 17 * k, cardW - 6 * k, 7);
+    doc.text(nm, cx, by + bannerH / 2 + 2 * k, { align: "center" });
+    // Company phone sits under the black bar, above the QR.
     if (company.phone) {
       doc.setFont("courier", "bold");
-      doc.setFontSize(7 * k);
-      doc.setTextColor(220, 220, 220);
-      doc.text(company.phone, cx, by + bannerH / 2 + 3.3 * k, { align: "center" });
+      doc.setFontSize(8 * k);
+      doc.setTextColor(0, 0, 0);
+      doc.text(company.phone, cx, by + bannerH + 3.8 * k, { align: "center" });
     }
 
     // ── QR (vector, level H) ──
     const qx = cx - qrSize / 2;
-    const qy = by + bannerH + 2.5 * k;
+    const qy = by + bannerH + (company.phone ? 5.4 : 2) * k;
     if (l.payload) {
       const qr = QRCode.create(l.payload, { errorCorrectionLevel: "H" });
       const n = qr.modules.size;
@@ -126,73 +131,40 @@ export async function buildQrLabelsPdf(input: QrLabelsPdfInput): Promise<Blob> {
       doc.addImage(l.dataUrl, "PNG", qx, qy, qrSize, qrSize);
     }
 
-    // ── Centre medallion with the big logo ──
+    // ── Centre: the full logo, uncropped, on a white plate ──
     if (logo && logoDim && l.payload) {
-      const plate = qrSize * 0.4; // ≈13% of the area, well inside level-H recovery (30%)
+      const ratio = logoDim.w / logoDim.h;
+      const box = qrSize * 0.34; // long side; verified scannable (jsQR) at 60/80/100mm; 0.42+ starts failing
+      const lw = ratio >= 1 ? box : box * ratio;
+      const lh = ratio >= 1 ? box / ratio : box;
       const pcx = qx + qrSize / 2;
       const pcy = qy + qrSize / 2;
+      const pad = 1 * k;
       doc.setFillColor(255, 255, 255);
-      doc.circle(pcx, pcy, plate / 2 + 0.8 * k, "F");
-      // Cover the circle (short side = diameter), then clip to the circle so
-      // the square image's corners/background never show outside the medallion.
-      const ratio = logoDim.w / logoDim.h;
-      const lw = ratio >= 1 ? plate * ratio : plate;
-      const lh = ratio >= 1 ? plate : plate / ratio;
-      doc.saveGraphicsState();
-      doc.circle(pcx, pcy, plate / 2, null);
-      doc.clip();
-      doc.discardPath();
+      doc.roundedRect(pcx - lw / 2 - pad, pcy - lh / 2 - pad, lw + pad * 2, lh + pad * 2, 2 * k, 2 * k, "F");
       try {
         doc.addImage(logo.data, logo.format, pcx - lw / 2, pcy - lh / 2, lw, lh);
       } catch {
         /* ignore */
       }
-      doc.restoreGraphicsState();
-      // Ring on top, drawn after the clip so it stays crisp.
-      doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.5 * k);
-      doc.circle(pcx, pcy, plate / 2, "S");
     }
 
     // ── Client name (one line, shrunk to fit) ──
-    let hy = qy + qrSize + 5.3 * k;
+    let hy = qy + qrSize + 4.4 * k;
     doc.setFont(F, "bold");
     doc.setTextColor(0, 0, 0);
     const name = T(l.name);
     fit(name, 11 * k, innerW, 6);
     const nameLine = (doc.splitTextToSize(name, innerW) as string[])[0] ?? name;
     doc.text(nameLine, cx, hy, { align: "center" });
-    hy += 2.3 * k;
+    hy += 1.6 * k;
 
-    // ── Client phone in a bold pill ──
+    // ── Client phone: small plain black text under the name ──
     if (l.phone) {
       doc.setFont("courier", "bold");
-      const pfs = fit(l.phone, 13 * k, innerW - 9 * k, 7);
-      const tw = doc.getTextWidth(l.phone);
-      const pw = tw + 9 * k;
-      const ph = 6.6 * k;
-      doc.setFillColor(0, 0, 0);
-      doc.roundedRect(cx - pw / 2, hy, pw, ph, ph / 2, ph / 2, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.text(l.phone, cx, hy + ph / 2 + pfs * 0.14, { align: "center" });
-      hy += ph + 1.2 * k;
-    }
-
-    // ── Code with ornament rules ──
-    doc.setFont("courier", "bold");
-    doc.setFontSize(8 * k);
-    doc.setTextColor(0, 0, 0);
-    doc.setCharSpace(0.5 * k);
-    const cw = doc.getTextWidth(l.code) + l.code.length * 0.5 * k;
-    doc.text(l.code, cx - cw / 2, hy + 3 * k);
-    doc.setCharSpace(0);
-    doc.setLineWidth(0.25 * k);
-    doc.setDrawColor(0, 0, 0);
-    const ly = hy + 2.1 * k;
-    const rule = Math.max(0, (innerW - cw) / 2 - 4 * k);
-    if (rule > 2) {
-      doc.line(cx - cw / 2 - 3 * k - rule, ly, cx - cw / 2 - 3 * k, ly);
-      doc.line(cx + cw / 2 + 3 * k, ly, cx + cw / 2 + 3 * k + rule, ly);
+      doc.setTextColor(0, 0, 0);
+      fit(l.phone, 9.5 * k, innerW, 6);
+      doc.text(l.phone, cx, hy + 1.8 * k, { align: "center" });
     }
   });
 
