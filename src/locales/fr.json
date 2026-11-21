@@ -195,6 +195,8 @@
     "qr": "QR code",
     "qrPrint": "Imprimer QR",
     "qrPrintTitle": "Impression QR clients",
+    "qrNext": "Suivant",
+    "qrBack": "Retour à la sélection",
     "selectAll": "Tout sélectionner",
     "print": "Imprimer",
     "portalSecret": "Code secret portail",

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { LayoutGrid, List, MapPin, Phone, Plus, Upload, UserCheck, Users, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -11,7 +10,7 @@ import { RowActions } from "@/components/ui/RowActions";
 import { KpiCard } from "@/components/ui/Card";
 import { ClientForm, type ClientData } from "./ClientForm";
 import { ClientImportModal } from "./ClientImportModal";
-import { QrPrintModal } from "./qr/print/QrThermalPrint";
+import { QrPrintWizard } from "./qr/print/QrPrintWizard";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useSyncedState } from "@/lib/data-sync";
@@ -59,7 +58,6 @@ export function ClientsClient({
   const [error, setError] = useState<string | null>(null);
   const [printIds, setPrintIds] = useState<string[] | null>(null);
   const [importing, setImporting] = useState(false);
-  const router = useRouter();
   /// Bulk selection (proforma-style): checkbox per row + header toggle.
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
@@ -196,7 +194,7 @@ export function ClientsClient({
           <Button
             onClick={() => {
               if (selected.size > 0) setPrintIds([...selected]);
-              else router.push(`/${locale}/clients/qr`);
+              else setPrintIds([]);
             }}
           >
             {labels.qrPrint}
@@ -437,10 +435,19 @@ export function ClientsClient({
         width="lg"
       >
         {printIds && (
-          <QrPrintModal
+          <QrPrintWizard
             key={printIds.join(",")}
-            ids={printIds}
+            rows={rows}
+            wilayas={wilayas}
+            secteurs={secteurs}
+            initialIds={printIds}
             ui={{
+              search: labels.search,
+              wilaya: labels.wilaya,
+              secteur: labels.secteur,
+              selectAll: labels.selectAll,
+              next: labels.qrNext,
+              back: labels.qrBack,
               title: labels.qrPrint,
               print: labels.print,
               pdf: labels.pdf,

@@ -44,7 +44,7 @@ export default async function ClientsPage({ params }: { params: Promise<{ locale
         save: tc("save"), cancel: tc("cancel"),
         portalSecret: t("portalSecret"), secretOnce: t("secretOnce"),
         newSecteur: t("newSecteur"), secteurNamePh: t("secteurNamePh"), selectWilayaFirst: t("selectWilayaFirst"),
-        qr: t("qr"), print: t("print"), pdf: t("pdf"),
+        qr: t("qr"), selectAll: t("selectAll"), qrNext: t("qrNext"), qrBack: t("qrBack"), print: t("print"), pdf: t("pdf"),
         downloadFile: t("downloadFile"), generating: t("generating"),
         import: t("import"), importTitle: t("importTitle"), importHint: t("importHint"),
         importFile: t("importFile"), importStart: t("importStart"), importing: t("importing"),
