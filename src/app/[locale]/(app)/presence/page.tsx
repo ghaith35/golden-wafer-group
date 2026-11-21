@@ -43,7 +43,7 @@ export default async function PresencePage({
   });
   const settings = await prisma.companySettings.findUnique({
     where: { companyId: session.companyId },
-    select: { workStartAt: true, maxDayHours: true },
+    select: { maxDayHours: true },
   });
   return (
     <PresenceClient
@@ -54,7 +54,6 @@ export default async function PresencePage({
       months={months}
       rows={JSON.parse(JSON.stringify(rows))}
       isAdmin={session.role === "Admin"}
-      workStartAt={settings?.workStartAt ?? null}
       maxDayHours={settings?.maxDayHours != null ? Number(settings.maxDayHours) : 10}
       labels={{
         title: t("title"), van: t("van"), driver: t("driver"), start: t("start"),

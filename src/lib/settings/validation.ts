@@ -21,7 +21,6 @@ export const settingsPatchSchema = z.object({
   ticketLang: z.enum(["ar", "fr"]).optional(),
   supplierFilterEnabled: z.boolean().optional(),
   threePackEnabled: z.boolean().optional(),
-  workStartAt: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).nullish(),
   maxDayHours: z.coerce.number().finite().min(1).max(24).nullish(),
 });
 

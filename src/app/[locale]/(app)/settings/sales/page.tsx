@@ -54,16 +54,6 @@ export default function SalesSettingsPage() {
             </div>
           </SettingRow>
         ))}
-        {/* Expected van departure time (late-start flags on presence) */}
-        <SettingRow label={t("workStart")} description={t("workStartHint")}>
-          <input
-            type="time"
-            value={String(settings.workStartAt ?? "")}
-            onChange={(e) => patch({ workStartAt: e.target.value || null })}
-            dir="ltr"
-            className="h-11 w-full rounded-[11px] border border-(--border-default) bg-(--bg-surface) px-3 text-sm font-semibold tabular-nums outline-none focus:border-(--brand-500)"
-          />
-        </SettingRow>
         {/* Max journée length (overtime flags on presence) */}
         <SettingRow label={t("maxDayHours")} description={t("maxDayHoursHint")}>
           <input

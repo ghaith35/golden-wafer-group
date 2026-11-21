@@ -81,7 +81,7 @@ export default async function LivreurDemandePage({
       locale={locale}
       day={day}
       role={session.role}
-      require="ended"
+      require="notActive"
       stamp={dayStamp}
       labels={{ gateStartT: t("gateStartT"), gateStartM: t("gateStartM"), gateStartBtn: t("gateStartBtn"), gateEndT: t("gateEndT"), gateEndM: t("gateEndM"), gateEndBtn: t("gateEndBtn") }}
     >

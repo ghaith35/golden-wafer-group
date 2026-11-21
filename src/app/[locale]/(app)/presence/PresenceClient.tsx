@@ -24,27 +24,18 @@ type Row = {
   location: { id: string; name: string; matricule: string | null; user: { fullName: string } | null };
 };
 
-/// Late départ / overtime / unended day, computed from company expectations.
+/// Overtime / unended day, computed from company expectations.
 /// `unclosed` = the driver never ended the journée — the system closed it.
 function flagsOf(
   r: Row,
-  workStartAt: string | null,
   maxDayHours: number,
-): { late: boolean; overtime: boolean; unclosed: boolean } {
-  let late = false;
-  if (workStartAt && r.startedAt) {
-    const [h, m] = workStartAt.split(":").map(Number);
-    const s = new Date(r.startedAt);
-    const expected = new Date(s);
-    expected.setHours(h || 0, m || 0, 0, 0);
-    late = s.getTime() > expected.getTime() + 5 * 60 * 1000;
-  }
+): { overtime: boolean; unclosed: boolean } {
   let overtime = false;
   if (r.startedAt && r.finishedAt && maxDayHours > 0) {
     overtime =
       (new Date(r.finishedAt).getTime() - new Date(r.startedAt).getTime()) / 3600000 > maxDayHours;
   }
-  return { late, overtime, unclosed: r.autoClosed === true };
+  return { overtime, unclosed: r.autoClosed === true };
 }
 
 function mapsUrl(lat: number | null, lng: number | null): string | null {
@@ -73,7 +64,6 @@ export function PresenceClient({
   rows,
   labels,
   isAdmin,
-  workStartAt,
   maxDayHours,
 }: {
   locale: string;
@@ -84,7 +74,6 @@ export function PresenceClient({
   rows: Row[];
   labels: Record<string, string>;
   isAdmin: boolean;
-  workStartAt: string | null;
   maxDayHours: number;
 }) {
   const router = useRouter();
@@ -256,7 +245,7 @@ export function PresenceClient({
       {visible.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
       <div className="grid items-start gap-2 md:grid-cols-2 xl:grid-cols-3">
         {visible.map((r) => {
-          const fl = flagsOf(r, workStartAt, maxDayHours);
+          const fl = flagsOf(r, maxDayHours);
           const startUrl = mapsUrl(r.startedLat, r.startedLng);
           const endUrl = mapsUrl(r.finishedLat, r.finishedLng);
           return (
@@ -275,11 +264,6 @@ export function PresenceClient({
               {fl.unclosed && (
                 <span className="shrink-0 rounded-full bg-red-500/15 px-2 py-1 text-[10px] font-black text-red-500">
                   ⚠ {labels.unclosed}
-                </span>
-              )}
-              {fl.late && (
-                <span className="shrink-0 rounded-full bg-red-500/15 px-2 py-1 text-[10px] font-black text-red-500">
-                  {labels.late}
                 </span>
               )}
               {fl.overtime && (

@@ -8,7 +8,8 @@ import { useJourneeState, type DayStamp } from "@/lib/journee";
 
 /// Tour workflow guard for driver pages.
 ///  require="active": sales & commandes only while the tour is in progress.
-///  require="ended":  goods requests (طلب بضاعة) only after the tour ended.
+///  require="notActive": goods requests (طلب سلعة) before the tour starts or
+///                       after it ended — never while the tour is running.
 /// Admins are never blocked.
 export function JourneeGate({
   locale,
@@ -22,15 +23,15 @@ export function JourneeGate({
   locale: string;
   day: string;
   role: string;
-  require: "active" | "ended";
+  require: "active" | "notActive";
   stamp: DayStamp;
   labels: Record<string, string>;
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const state = useJourneeState(stamp);
+  const state = useJourneeState(stamp, day);
   if (role === "Admin") return <>{children}</>;
-  const ok = need === "active" ? state === "active" : state === "ended";
+  const ok = need === "active" ? state === "active" : state !== "active";
   if (ok) return <>{children}</>;
 
   const toStart = need === "active"; // not started (or already ended) → go to the start screen

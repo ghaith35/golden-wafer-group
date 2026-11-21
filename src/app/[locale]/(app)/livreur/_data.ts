@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { closeStaleDays } from "@/lib/tournees/service";
 
 export type LivVan = { id: string; name: string; matricule: string | null };
 
@@ -15,6 +16,9 @@ export async function getDayStamp(
   vanId: string,
   date: Date,
 ): Promise<{ startedAt: string | null; finishedAt: string | null } | null> {
+  // A journée ends with its own day: close any past, still-open one first so
+  // the driver never sees yesterday's tour as "in progress".
+  await closeStaleDays(companyId).catch(() => {});
   const start = new Date(date);
   start.setHours(0, 0, 0, 0);
   const end = new Date(date);
