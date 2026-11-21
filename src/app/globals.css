@@ -426,6 +426,11 @@ html[data-ui-zoom] .h-dvh { height: calc(100vh / var(--ui-zoom, 1)); }
 
 /* ── Responsiveness base ───────────────────────────────────────────────── */
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* Reserve the page scrollbar's track permanently: pages that are briefly
+   taller/shorter while they animate in must never make the scrollbar appear
+   and vanish — that shifted the whole viewport width (and the fixed sidebar
+   + top bar with it) by ~9px on every section switch. */
+html { scrollbar-gutter: stable; }
 img, video, canvas, svg { max-width: 100%; }
 /* Wide tables/boards scroll inside their own box, never the whole page. */
 .overflow-x-auto { overscroll-behavior-x: contain; }
@@ -570,7 +575,9 @@ button, [role="button"] { transition-property: background-color, color, border-c
 @keyframes gw-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(232, 186, 76, 0.0); } 50% { box-shadow: 0 0 0 6px rgba(232, 186, 76, 0.16); } }
 
 /* Page enter: top-level blocks rise in, lightly staggered. */
-main > * { animation: gw-rise 0.5s var(--ease-out) backwards; }
+/* Fade only (no translate): a 14px rise pushes full-height pages past the
+   viewport for 0.5s → transient page scrollbar → layout shift. */
+main > * { animation: gw-fade 0.4s var(--ease-out) backwards; }
 main > *:nth-child(2) { animation-delay: 0.05s; }
 main > *:nth-child(3) { animation-delay: 0.1s; }
 main > *:nth-child(n+4) { animation-delay: 0.15s; }
