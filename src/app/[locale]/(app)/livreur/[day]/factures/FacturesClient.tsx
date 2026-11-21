@@ -100,7 +100,7 @@ export function FacturesClient({
       window.removeEventListener("offline", off);
     };
   }, []);
-  const [ticketCo, setTicketCo] = useState<{ company: { name: string; phone?: string | null; address?: string | null; rc?: string | null; nif?: string | null; logoUrl?: string | null }; width: "58" | "80"; currency: string } | null>(null);
+  const [ticketCo, setTicketCo] = useState<{ company: { name: string; phone?: string | null; address?: string | null; rc?: string | null; nif?: string | null; logoUrl?: string | null }; width: "80"; currency: string } | null>(null);
   const [ticketQr, setTicketQr] = useState<string | null>(null);
   /// Share feedback inside the print preview (clipboard fallback notice).
   const [sharedMsg, setSharedMsg] = useState<string | null>(null);
@@ -184,7 +184,7 @@ export function FacturesClient({
       if (d) {
         setTicketCo({
           company: d.company ?? { name: "" },
-          width: d.ticketWidth === "58" ? "58" : "80",
+          width: "80",
           currency: d.currency ?? "DZD",
         });
       }

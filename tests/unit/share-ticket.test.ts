@@ -35,7 +35,7 @@ describe("ticketPrintHtml (native thermal print)", () => {
 
   it("escapes HTML in names", () => {
     const evil = { ...ticket, client: { name: "<img src=x>", code: "1", phone: null } } as unknown as TicketVM;
-    const html = ticketPrintHtml(evil, { name: "Co" }, "58", labels, "fr");
+    const html = ticketPrintHtml(evil, { name: "Co" }, "80", labels, "fr");
     expect(html).not.toContain("<img src=x>");
     expect(html).toContain("&lt;img src=x&gt;");
     expect(html).toContain('dir="ltr"');

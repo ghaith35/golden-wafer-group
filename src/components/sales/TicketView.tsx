@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { dz, dzMoney } from "@/lib/format";
 import { TICKET_HERO, TICKET_HERO_RATIO } from "@/lib/brand/ticketHero";
 
-/// Shared thermal ticket (58mm / 80mm), Arabic RTL.
+/// Shared thermal ticket (80mm paper, 72mm printable), Arabic RTL.
 /// Rendered both by the print page (server) and the post-sale preview popup
 /// (client) — same component, so preview === printed output.
 /// No hooks: safe in server and client components alike.
@@ -97,7 +97,7 @@ export function TicketView({
 }: {
   ticket: TicketVM;
   company: TicketCompanyVM;
-  width: "58" | "80";
+  width: "80";
   locale: string;
   labels: TicketLabels;
   qrDataUrl?: string | null;
@@ -111,7 +111,6 @@ export function TicketView({
   const due = total - paid;
   // dzMoney already carries the DA suffix — never append currency again.
   const money = (v: number) => dzMoney(v);
-  const narrow = width === "58";
   const packs = ticket.lines.reduce((s, l) => {
     const f = packFactor(l);
     return s + (f > 1 ? num(l.qty) : 0);
@@ -123,7 +122,8 @@ export function TicketView({
       className="ticket bg-white text-black"
       style={{ width: `${width}mm`, fontFamily: "inherit" }}
     >
-      <div className="p-2 text-center">
+      {/* 80mm roll: ~72mm printable → 4mm side padding keeps every edge off the head's dead zone */}
+      <div className="text-center" style={{ padding: "2mm 4mm" }}>
         {/* ── Header: brand hero (truck + wordmark), then contact ── */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -132,8 +132,9 @@ export function TicketView({
           width={560}
           height={Math.round(560 / TICKET_HERO_RATIO)}
           className="mx-auto block h-auto"
-          style={{ width: narrow ? "78%" : "74%" }}
+          style={{ width: "74%" }}
         />
+        {!/golden\s*wafer/i.test(company.name) && <div className="mt-1 text-lg font-black leading-tight">{company.name}</div>}
         {company.address && <div className="mt-1 text-xs font-semibold opacity-80">{company.address}</div>}
         {company.phone && <div className="text-xs font-black" dir="ltr">{company.phone}</div>}
         {(company.rc || company.nif) && (
@@ -156,7 +157,7 @@ export function TicketView({
               <div className="text-xs font-black leading-tight">{ticket.seller}</div>
             )}
             {ticket.sellerPhone && (
-              <div className={`font-black leading-tight tracking-wider tabular-nums ${narrow ? "text-lg" : "text-xl"}`} dir="ltr">
+              <div className={`font-black leading-tight tracking-wider tabular-nums text-xl`} dir="ltr">
                 ☎ {ticket.sellerPhone}
               </div>
             )}
@@ -215,7 +216,7 @@ export function TicketView({
             <span dir="ltr">− {money(remise)}</span>
           </div>
         )}
-        <div className={`my-0.5 flex items-center justify-between rounded-lg bg-black px-2 py-1.5 font-black text-white ${narrow ? "text-base" : "text-lg"}`}>
+        <div className={`my-0.5 flex items-center justify-between rounded-lg bg-black px-2 py-1.5 font-black text-white text-lg`}>
           <span>{labels.total}</span>
           <span dir="ltr">{money(total)}</span>
         </div>

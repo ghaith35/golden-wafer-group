@@ -45,7 +45,7 @@ function shortDate(iso: unknown): string {
 export function ticketPrintHtml(
   t: TicketVM,
   company: TicketCompany,
-  width: "58" | "80",
+  width: "80",
   labels: TicketLabels,
   lang: "ar" | "fr",
   opts?: { qrDataUrl?: string | null; origin?: string },
@@ -64,7 +64,7 @@ export function ticketPrintHtml(
     .join("");
   return `<!DOCTYPE html><html lang="${lang}" dir="${rtl ? "rtl" : "ltr"}"><head><meta charset="utf-8">` +
     `<style>*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#000;font-family:monospace,monospace;font-size:12px}` +
-    `.t{width:${width}mm;margin:0 auto;padding:2mm}.c{text-align:center}.b{font-weight:700}` +
+    `.t{width:${width}mm;margin:0 auto;padding:2mm 4mm}.c{text-align:center}.b{font-weight:700}` +
     `h1{font-size:16px;margin:2px 0}.m{font-size:11px}.rule{border-top:1px dashed #000;margin:4px 0}` +
     `table{width:100%;border-collapse:collapse}td{padding:1px 0;vertical-align:top}.n{word-break:break-word}.r{text-align:right;white-space:nowrap}` +
     `.row{display:flex;justify-content:space-between}.tot{font-size:14px}.qr{display:block;margin:4px auto;width:36mm}` +
@@ -77,6 +77,7 @@ export function ticketPrintHtml(
     `@page{size:${width}mm auto;margin:0}</style></head><body><div class="t">` +
     `<img class="hero" src="${TICKET_HERO}">` +
     `<div class="c">` +
+    (/golden\s*wafer/i.test(company.name ?? "") ? "" : `<h1>${esc(company.name ?? "")}</h1>`) +
     (company.address ? `<div class="m">${esc(company.address)}</div>` : "") +
     (company.phone ? `<div class="m b">${esc(company.phone)}</div>` : "") +
     (company.rc || company.nif ? `<div class="m">${esc([company.rc ? `RC: ${company.rc}` : "", company.nif ? `NIF: ${company.nif}` : ""].filter(Boolean).join(" · "))}</div>` : "") +
@@ -139,7 +140,7 @@ export type PrintTicketResult = { ok: true } | { ok: false; reason: string };
 export async function printTicketNative(args: {
   ticket: TicketVM;
   company: TicketCompany;
-  width: "58" | "80";
+  width: "80";
   labels: TicketLabels;
   lang: "ar" | "fr";
   qrDataUrl?: string | null;
@@ -153,7 +154,7 @@ export async function printTicketNative(args: {
       origin,
     });
     const name = `facture-${String(args.ticket.number ?? "ticket")}`;
-    const widthMm = args.width === "58" ? 58 : 80;
+    const widthMm = 80;
     // 1. Capacitor-idiomatic proxy (bridges to the native TicketPrinter).
     try {
       const plugin = registerPlugin<TicketPrinterPlugin>("TicketPrinter");

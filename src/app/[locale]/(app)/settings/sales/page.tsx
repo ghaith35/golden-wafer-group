@@ -83,15 +83,6 @@ export default function SalesSettingsPage() {
             options={[{ value: "ar", label: "عربي" }, { value: "fr", label: "Français" }]}
           />
         </SettingRow>
-        {/* Thermal ticket paper width (58mm / 80mm) */}
-        <SettingRow label={t("ticketWidth")} description={t("ticketWidthHint")}>
-          <SegmentedControl
-            value={String(settings.ticketWidth ?? "80") as "58" | "80"}
-            onChange={(w) => patch({ ticketWidth: w })}
-            ariaLabel={t("ticketWidth")}
-            options={[{ value: "58", label: "58mm" }, { value: "80", label: "80mm" }]}
-          />
-        </SettingRow>
       </SettingsCard>
     </SettingsPanel>
   );

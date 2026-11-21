@@ -8,7 +8,7 @@ import { PrintButton } from "@/components/ui/PrintButton";
 import { BackButton } from "@/components/ui/BackButton";
 import { TicketView } from "@/components/sales/TicketView";
 
-/// Thermal ticket (58mm / 80mm per admin setting, Arabic RTL).
+/// Thermal ticket (80mm, Arabic RTL).
 export default async function TicketPrintPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
@@ -32,7 +32,7 @@ export default async function TicketPrintPage({ params }: { params: Promise<{ lo
   // the UI locale the seller browses in.
   const ticketLang = settings.ticketLang === "ar" ? "ar" : "fr";
   const t = await getTranslations({ locale: ticketLang, namespace: "sales" });
-  const width = settings.ticketWidth === "58" ? "58" : "80";
+  const width = "80" as const; // thermal tickets are 80mm only
   const total = Number(sale.total);
   const paid = Number(sale.paid);
   const due = total - paid;

@@ -18,7 +18,6 @@ export const settingsPatchSchema = z.object({
   transferConfirmRequired: z.boolean().optional(),
   qrStrictMode: z.boolean().optional(),
   gpsEnabled: z.boolean().optional(),
-  ticketWidth: z.enum(["58", "80"]).optional(),
   ticketLang: z.enum(["ar", "fr"]).optional(),
   supplierFilterEnabled: z.boolean().optional(),
   threePackEnabled: z.boolean().optional(),

@@ -164,7 +164,7 @@ export function VenteClient({
   /// Print preview: created ticket (server response or local snapshot when
   /// offline) + company header/width for the TicketView.
   const [doneTicket, setDoneTicket] = useState<TicketVM | null>(null);
-  const [ticketCo, setTicketCo] = useState<{ company: { name: string; phone?: string | null; address?: string | null; rc?: string | null; nif?: string | null; logoUrl?: string | null }; width: "58" | "80"; currency: string } | null>(null);
+  const [ticketCo, setTicketCo] = useState<{ company: { name: string; phone?: string | null; address?: string | null; rc?: string | null; nif?: string | null; logoUrl?: string | null }; width: "80"; currency: string } | null>(null);
   const [ticketQr, setTicketQr] = useState<string | null>(null);
   const [gallery, setGallery] = useState<Prod | null>(null);
   const [gIdx, setGIdx] = useState(0);
@@ -211,7 +211,7 @@ export function VenteClient({
         }
         setTicketCo({
           company: d?.company ?? { name: "" },
-          width: d?.ticketWidth === "58" ? "58" : "80",
+          width: "80",
           currency: d?.currency ?? "DZD",
         });
       })
