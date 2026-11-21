@@ -29,6 +29,7 @@ export default async function LivreurFacturesPage({
   const tt = await getTranslations({ locale: ticketLang, namespace: "sales" });
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
+  const driver = await prisma.user.findFirst({ where: { id: session.userId, companyId: session.companyId }, select: { fullName: true, phone: true } });
 
   const rows = await prisma.sale.findMany({
     where: { companyId: session.companyId, locationId: van.id, kind: "TICKET" },
@@ -64,6 +65,7 @@ export default async function LivreurFacturesPage({
         design: tt("product"), qty: tt("qty"), price: tt("price"), unitPrice: tt("unitPrice"),
       }}
       ticketLang={ticketLang}
+      driver={driver}
     />
   );
 }

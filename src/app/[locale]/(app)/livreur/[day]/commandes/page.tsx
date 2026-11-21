@@ -32,6 +32,7 @@ export default async function LivreurOrdersPage({
   const tt = await getTranslations({ locale: ticketLang, namespace: "sales" });
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
+  const driver = await prisma.user.findFirst({ where: { id: session.userId, companyId: session.companyId }, select: { fullName: true, phone: true } });
 
   const readyOnly = sp.ready === "1";
   const whereBase = { companyId: session.companyId, kind: "ORDER", locationId: van.id } as const;
@@ -87,6 +88,7 @@ export default async function LivreurOrdersPage({
         design: tt("product"), qty: tt("qty"), price: tt("price"), unitPrice: tt("unitPrice"),
       }}
       ticketLang={ticketLang}
+      driver={driver}
     />
   );
 }

@@ -58,6 +58,7 @@ export function VanOrdersClient({
   labels,
   ticketLabels,
   ticketLang,
+  driver,
 }: {
   locale: string;
   day: string;
@@ -68,6 +69,8 @@ export function VanOrdersClient({
   labels: Record<string, string>;
   ticketLabels: TicketLabels;
   ticketLang: "ar" | "fr";
+  /// Logged-in driver: name + phone printed on every ticket.
+  driver?: { fullName: string; phone: string | null } | null;
 }) {
   const router = useRouter();
   const t3 = useTranslations("threepack");
@@ -223,8 +226,8 @@ export function VanOrdersClient({
       newDebt: null,
       client: src.client ? { name: src.client.name, code: src.client.code, phone: src.client.phone, tierName: null } : null,
       location: src.location ? { name: src.location.name } : null,
-      seller: null,
-      sellerPhone: null,
+      seller: driver?.fullName ?? null,
+      sellerPhone: driver?.phone ?? null,
       lines: src.lines.map((l) => ({
         name: l.product?.name ?? "",
         qty: l.qty as number | string,

@@ -59,6 +59,7 @@ export function VenteClient({
   labels,
   ticketLabels,
   ticketLang,
+  driver,
   editingTicket = null,
 }: {
   locale: string;
@@ -76,6 +77,8 @@ export function VenteClient({
   labels: Record<string, string>;
   ticketLabels: TicketLabels;
   ticketLang: "ar" | "fr";
+  /// Logged-in driver: name + phone printed on every ticket.
+  driver?: { fullName: string; phone: string | null } | null;
   /// Edit mode: rewrite a posted ticket (factures ✎) — lines/paid prefilled,
   /// client locked, save goes back to the factures list (no print preview).
   editingTicket?: {
@@ -611,8 +614,8 @@ export function VenteClient({
           newDebt: d.client ? Number(d.client.balance ?? 0) + (Number(d.total) - Number(d.paid)) : null,
           client: d.client ? { name: d.client.name, code: d.client.code, phone: d.client.phone ?? null, tierName: d.client.tier?.name ?? null } : null,
           location: d.location ? { name: d.location.name } : { name: vanName },
-          seller: null,
-          sellerPhone: null,
+          seller: driver?.fullName ?? null,
+          sellerPhone: driver?.phone ?? null,
           lines: (d.lines ?? []).map((l: { product?: { name?: string }; name?: string; qty: number | string; baseQty?: number | string | null; unitPrice: number | string; lineTotal: number | string; isBonus?: boolean }) => ({
             name: l.product?.name ?? l.name ?? "",
             qty: l.qty,
@@ -648,8 +651,8 @@ export function VenteClient({
           newDebt: snapClient ? Number(snapClient.balance ?? 0) + (snapTotal - snapPaid) : null,
           client: snapClient ? { name: snapClient.name, code: snapClient.code, phone: snapClient.phone, tierName: null } : null,
           location: { name: vanName },
-          seller: null,
-          sellerPhone: null,
+          seller: driver?.fullName ?? null,
+          sellerPhone: driver?.phone ?? null,
           lines: snapLines,
         });
         setLines([]);

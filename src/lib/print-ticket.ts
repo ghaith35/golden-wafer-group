@@ -1,5 +1,6 @@
 import { Capacitor, registerPlugin } from "@capacitor/core";
 import type { TicketLabels, TicketVM } from "@/components/sales/TicketView";
+import { TICKET_HERO } from "@/lib/brand/ticketHero";
 
 /// Thermal-ticket printing for the APK: window.print() is a no-op inside the
 /// native WebView, so the facture is rendered to self-contained HTML (no
@@ -40,18 +41,6 @@ function shortDate(iso: unknown): string {
   }
 }
 
-/// Absolute logo URL (the off-screen print WebView needs a full URL).
-function logoSrc(logoUrl: string | null | undefined, origin: string): string | null {
-  if (!logoUrl) return null;
-  try {
-    if (/^https?:\/\//i.test(logoUrl)) return logoUrl;
-    if (logoUrl.startsWith("/")) return origin.replace(/\/+$/, "") + logoUrl;
-    return `${origin.replace(/\/+$/, "")}/${logoUrl}`;
-  } catch {
-    return null;
-  }
-}
-
 /// Self-contained 58/80mm thermal facture (works offline except the logo).
 export function ticketPrintHtml(
   t: TicketVM,
@@ -65,7 +54,6 @@ export function ticketPrintHtml(
   const total = Number(t.total ?? 0);
   const paid = Number(t.paid ?? 0);
   const due = Math.round((total - paid) * 100) / 100;
-  const logo = opts?.origin ? logoSrc(company.logoUrl ?? null, opts.origin) : null;
   const rows = (t.lines ?? [])
     .map(
       (l) => `<tr><td class="n">${esc(l.name ?? "")}${l.bonus ? `<br><span class="m b">&#9733; ${lang === "fr" ? "Gratuit" : "مجاني"}</span>` : ""}</td>` +
@@ -80,24 +68,37 @@ export function ticketPrintHtml(
     `h1{font-size:16px;margin:2px 0}.m{font-size:11px}.rule{border-top:1px dashed #000;margin:4px 0}` +
     `table{width:100%;border-collapse:collapse}td{padding:1px 0;vertical-align:top}.n{word-break:break-word}.r{text-align:right;white-space:nowrap}` +
     `.row{display:flex;justify-content:space-between}.tot{font-size:14px}.qr{display:block;margin:4px auto;width:36mm}` +
+    `*{-webkit-print-color-adjust:exact;print-color-adjust:exact}.hero{display:block;margin:0 auto 4px;width:76%;height:auto}` +
+    `.orn{display:flex;align-items:center;gap:4px;margin:6px 0}.orn i{flex:1;height:2px;background:#000}.orn b{font-size:9px}` +
+    `.meta{display:flex;justify-content:space-between;border-top:3px double #000;border-bottom:3px double #000;padding:3px 0}` +
+    `.drv{background:#000;color:#fff;border-radius:6px;padding:5px 8px;margin:6px 0;text-align:center}.drv .l{font-size:9px;letter-spacing:.25em;opacity:.8;font-weight:700}.drv .p{font-size:19px;font-weight:900;letter-spacing:1px;direction:ltr}` +
+    `.cl{border:2px solid #000;border-radius:6px;padding:4px 6px;margin:6px 0}` +
+    `.bar{background:#000;color:#fff;border-radius:6px;padding:5px 8px;margin:3px 0;font-size:16px;font-weight:900}.due{border:2px solid #000;border-radius:6px;padding:3px 8px;margin-top:3px;font-size:13px;font-weight:900}` +
     `@page{size:${width}mm auto;margin:0}</style></head><body><div class="t">` +
-    (logo ? `<div class="c"><img src="${esc(logo)}" style="max-height:14mm;max-width:100%"></div>` : "") +
-    `<div class="c"><h1>${esc(company.name ?? "")}</h1>` +
+    `<img class="hero" src="${TICKET_HERO}">` +
+    `<div class="c">` +
     (company.address ? `<div class="m">${esc(company.address)}</div>` : "") +
     (company.phone ? `<div class="m b">${esc(company.phone)}</div>` : "") +
     (company.rc || company.nif ? `<div class="m">${esc([company.rc ? `RC: ${company.rc}` : "", company.nif ? `NIF: ${company.nif}` : ""].filter(Boolean).join(" · "))}</div>` : "") +
-    `</div><div class="rule"></div>` +
-    `<div class="row"><span class="b">N° ${esc(t.number ?? "")}</span><span>${esc(shortDate(t.date))}</span></div>` +
-    (t.client ? `<div class="b">${esc(t.client.name ?? "")}</div><div class="m">${esc(t.client.code ?? "")}${t.client.phone ? ` · ${esc(t.client.phone)}` : ""}</div>` : "") +
-    `<div class="rule"></div>` +
+    `</div><div class="orn"><i></i><b>&#9670;</b><i></i></div>` +
+    `<div class="meta"><span class="b">N° ${esc(t.number ?? "")}</span><span class="b">${esc(shortDate(t.date))}</span></div>` +
+    (t.location?.name ? `<div class="c m b">${esc(t.location.name)}</div>` : "") +
+    (t.seller || t.sellerPhone
+      ? `<div class="drv"><div class="l">${esc(String(labels.seller ?? "").toUpperCase())}</div>` +
+        (t.seller && t.seller !== t.sellerPhone ? `<div class="b">${esc(t.seller)}</div>` : "") +
+        (t.sellerPhone ? `<div class="p">&#9742; ${esc(t.sellerPhone)}</div>` : "") + `</div>`
+      : "") +
+    (t.client ? `<div class="cl"><div class="b" style="font-size:13px">${esc(t.client.name ?? "")}</div><div class="m">${esc(t.client.code ?? "")}${t.client.phone ? ` · ${esc(t.client.phone)}` : ""}</div></div>` : "") +
+    `<div class="orn"><i></i><b>&#9670;</b><i></i></div>` +
     `<table>${rows}</table><div class="rule"></div>` +
     (Number(t.remise ?? 0) > 0 ? `<div class="row m"><span>${esc(labels.remise ?? "Remise")}</span><span>− ${esc(num(t.remise))}</span></div>` : "") +
-    `<div class="row tot b"><span>${esc(labels.total ?? "Total")}</span><span>${esc(num(t.total))}</span></div>` +
+    `<div class="row bar"><span>${esc(labels.total ?? "Total")}</span><span>${esc(num(t.total))}</span></div>` +
     `<div class="row"><span>${esc(labels.paid ?? "Paid")}</span><span>${esc(num(t.paid))}</span></div>` +
-    `<div class="row b"><span>${esc(labels.due ?? "Due")}</span><span>${esc(num(due))}</span></div>` +
-    `<div class="rule"></div>` +
+    `<div class="row due"><span>${esc(labels.due ?? "Due")}</span><span>${esc(num(due))}</span></div>` +
+    `<div class="orn"><i></i><b>&#9670;</b><i></i></div>` +
     (opts?.qrDataUrl ? `<img class="qr" src="${opts.qrDataUrl}">` : "") +
-    (labels.thanks ? `<div class="c m b">${esc(labels.thanks)}</div>` : "") +
+    (labels.thanks ? `<div class="c b" style="font-size:13px">&#10022; ${esc(labels.thanks)} &#10022;</div>` : "") +
+    (t.sellerPhone ? `<div class="c m b" dir="ltr">&#9742; ${esc(t.sellerPhone)}</div>` : "") +
     `</div></body></html>`;
 }
 

@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { dz, dzMoney } from "@/lib/format";
+import { TICKET_HERO, TICKET_HERO_RATIO } from "@/lib/brand/ticketHero";
 
 /// Shared thermal ticket (58mm / 80mm), Arabic RTL.
 /// Rendered both by the print page (server) and the post-sale preview popup
@@ -123,40 +124,52 @@ export function TicketView({
       style={{ width: `${width}mm`, fontFamily: "inherit" }}
     >
       <div className="p-2 text-center">
-        {/* ── Header ── */}
-        {company.logoUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={company.logoUrl} alt="" className="mx-auto mb-1 max-h-14 object-contain" />
-        )}
-        <div className={narrow ? "text-base font-black leading-tight" : "text-lg font-black leading-tight"}>{company.name}</div>
-        {company.address && <div className="text-xs opacity-80">{company.address}</div>}
-        {company.phone && <div className="text-xs font-bold" dir="ltr">{company.phone}</div>}
+        {/* ── Header: brand hero (truck + wordmark), then contact ── */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={TICKET_HERO}
+          alt={company.name}
+          width={560}
+          height={Math.round(560 / TICKET_HERO_RATIO)}
+          className="mx-auto block h-auto"
+          style={{ width: narrow ? "78%" : "74%" }}
+        />
+        {company.address && <div className="mt-1 text-xs font-semibold opacity-80">{company.address}</div>}
+        {company.phone && <div className="text-xs font-black" dir="ltr">{company.phone}</div>}
         {(company.rc || company.nif) && (
-          <div className="text-[11px] opacity-70">
+          <div className="text-[10px] opacity-70">
             {[company.rc && `RC: ${company.rc}`, company.nif && `NIF: ${company.nif}`].filter(Boolean).join(" · ")}
           </div>
         )}
-        <div className="my-1 border-t border-dashed border-black" />
-        {/* ── Meta ── */}
-        <div className="flex items-center justify-between text-xs">
-          <span className="font-black" dir="ltr">N° {ticket.number}</span>
-          <span>{fmtDate(ticket.date, locale)}</span>
+        <Ornament />
+        {/* ── Meta: framed number + date ── */}
+        <div className="flex items-center justify-between border-y-[3px] border-double border-black py-1 text-xs">
+          <span className="text-sm font-black" dir="ltr">N° {ticket.number}</span>
+          <span className="font-bold tabular-nums">{fmtDate(ticket.date, locale)}</span>
         </div>
-        {ticket.location && <div className="mt-0.5 text-xs font-bold opacity-70">{ticket.location.name}</div>}
-        {ticket.seller && (
-          <div className="mt-0.5 text-xs opacity-70">
-            {labels.seller}: {ticket.seller}
-            {ticket.sellerPhone && ticket.sellerPhone !== ticket.seller ? <span dir="ltr"> · {ticket.sellerPhone}</span> : null}
+        {ticket.location && <div className="mt-1 text-xs font-bold opacity-70">{ticket.location.name}</div>}
+        {/* ── Driver: solid black band, big phone ── */}
+        {(ticket.seller || ticket.sellerPhone) && (
+          <div className="mt-1.5 rounded-lg bg-black px-2 py-1.5 text-white">
+            <div className="text-[9px] font-bold uppercase tracking-[0.25em] opacity-80">{labels.seller}</div>
+            {ticket.seller && ticket.seller !== ticket.sellerPhone && (
+              <div className="text-xs font-black leading-tight">{ticket.seller}</div>
+            )}
+            {ticket.sellerPhone && (
+              <div className={`font-black leading-tight tracking-wider tabular-nums ${narrow ? "text-lg" : "text-xl"}`} dir="ltr">
+                ☎ {ticket.sellerPhone}
+              </div>
+            )}
           </div>
         )}
         {ticket.client && (
-          <div className="mt-1 rounded border border-dashed border-black p-1 text-xs">
-            <div className="font-black">{labels.client}: {ticket.client.name}</div>
-            <div className="opacity-70" dir="ltr">{ticket.client.code ?? ""}{ticket.client.phone ? ` · ${ticket.client.phone}` : ""}</div>
+          <div className="mt-1.5 rounded-lg border-2 border-black p-1.5 text-xs">
+            <div className="text-sm font-black leading-tight">{labels.client}: {ticket.client.name}</div>
+            <div className="font-bold opacity-70" dir="ltr">{ticket.client.code ?? ""}{ticket.client.phone ? ` · ${ticket.client.phone}` : ""}</div>
             {ticket.client.tierName && <div className="font-bold opacity-70">{ticket.client.tierName}</div>}
           </div>
         )}
-        <div className="my-1 border-t border-dashed border-black" />
+        <Ornament />
         {/* ── Lines: Designation | Qte | P.U | Totale ── */}
         {/* ── Lines table: ONE shared grid so the header and every row
             use the exact same column tracks (same dividing everywhere).
@@ -202,7 +215,7 @@ export function TicketView({
             <span dir="ltr">− {money(remise)}</span>
           </div>
         )}
-        <div className={`flex items-center justify-between border-b border-dashed border-black/40 pb-0.5 font-black ${narrow ? "text-base" : "text-lg"}`}>
+        <div className={`my-0.5 flex items-center justify-between rounded-lg bg-black px-2 py-1.5 font-black text-white ${narrow ? "text-base" : "text-lg"}`}>
           <span>{labels.total}</span>
           <span dir="ltr">{money(total)}</span>
         </div>
@@ -222,24 +235,37 @@ export function TicketView({
             <span dir="ltr">{money(num(ticket.newDebt))}</span>
           </div>
         )}
-        <div className="flex items-center justify-between text-xs font-bold">
+        <div className="mt-0.5 flex items-center justify-between rounded-lg border-2 border-black px-2 py-1 text-sm font-black">
           <span>{labels.due}</span>
           <span dir="ltr">{money(due)}</span>
         </div>
-        <div className="my-1 border-t border-dashed border-black" />
+        <Ornament />
         {qrDataUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={qrDataUrl} alt={ticket.number} className="mx-auto h-20 w-20" />
         )}
-        <div className="mt-1 text-[11px] font-bold opacity-70">{labels.thanks}</div>
+        <div className="mt-1 text-sm font-black tracking-wide">✦ {labels.thanks} ✦</div>
+        {ticket.sellerPhone && <div className="mt-0.5 text-[11px] font-bold opacity-70" dir="ltr">☎ {ticket.sellerPhone}</div>}
       </div>
-      <style>{`@media print {
+      <style>{`.ticket, .ticket * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      @media print {
         body.ticket-printing > *:not(.ticket-print-scope) { display: none !important; }
         body.ticket-printing { background: #fff !important; margin: 0 !important; }
         body.ticket-printing .ticket-print-scope { position: static !important; background: #fff !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; height: auto !important; max-height: none !important; }
         body.ticket-printing .no-print { display: none !important; }
         .ticket { width: ${width}mm !important; }
       } @page { size: ${width}mm auto; margin: 0; }`}</style>
+    </div>
+  );
+}
+
+/// Ruled divider with a centre diamond (prints crisp on thermal paper).
+function Ornament() {
+  return (
+    <div className="my-1.5 flex items-center gap-1.5" aria-hidden>
+      <span className="h-[2px] flex-1 bg-black" />
+      <span className="text-[10px] leading-none">◆</span>
+      <span className="h-[2px] flex-1 bg-black" />
     </div>
   );
 }

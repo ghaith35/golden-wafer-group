@@ -28,6 +28,7 @@ export default async function LivreurVentePage({
   const tc = await getTranslations("common");
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
+  const driver = await prisma.user.findFirst({ where: { id: session.userId, companyId: session.companyId }, select: { fullName: true, phone: true } });
 
   const [client, products, categories, tiers, vanStock, settings, tournees] = await Promise.all([
     sp.client
@@ -162,6 +163,7 @@ export default async function LivreurVentePage({
         design: tt("product"), qty: tt("qty"), price: tt("price"), unitPrice: tt("unitPrice"),
       }}
       ticketLang={ticketLang}
+      driver={driver}
     />
     </JourneeGate>
   );
