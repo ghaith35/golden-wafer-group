@@ -465,7 +465,15 @@ img, video, canvas, svg { max-width: 100%; }
    Polish layer — depth, fields, motion (light = warm gold glow, dark =
    layered graphite with gold edges). Everything is token-driven.
    ════════════════════════════════════════════════════════════════════════ */
-:root { --ease-out: cubic-bezier(0.22, 1, 0.36, 1); }
+:root { --ease-out: cubic-bezier(0.22, 1, 0.36, 1); --bottom-chrome: 0px; --safe-floor: env(safe-area-inset-bottom); }
+/* Space taken at the bottom by the app's own mobile tab bar (0 when absent:
+   drivers have none; desktop/tablet hide it). Sticky bottom bars sit above it. */
+.has-tabbar { --bottom-chrome: calc(56px + env(safe-area-inset-bottom)); --safe-floor: 0px; }
+@media (min-width: 768px) { .has-tabbar { --bottom-chrome: 0px; --safe-floor: env(safe-area-inset-bottom); } }
+@keyframes gw-sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+.gw-sheet { animation: gw-sheet-up 0.3s var(--ease-out) !important; }
+@keyframes gw-bump { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+.gw-bump { animation: gw-bump 0.35s var(--ease-out); }
 ::selection { background: color-mix(in srgb, var(--brand-500) 38%, transparent); color: inherit; }
 
 /* Themed scrollbars (page + inner scrollers). */

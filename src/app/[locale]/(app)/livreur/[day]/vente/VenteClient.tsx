@@ -5,7 +5,9 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { ArrowDownUp, ArrowLeft, Check, ChevronDown, Minus, Plus, Printer, QrCode, Search, Share2, Trash2, X } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ChevronUp, Minus, Plus, Printer, QrCode, Search, Share2, ShoppingBag, Trash2, X } from "lucide-react";
+import { BottomSheet } from "@/components/ui/BottomSheet";
+import { useKeyboardInset } from "@/lib/useKeyboardInset";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -122,6 +124,16 @@ export function VenteClient({
     editingTicket?.lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, tierId: null })) ?? []
   );
   const [showFacture, setShowFacture] = useState(false);
+  /// On-screen keyboard height: the cart bar hides while typing (search).
+  const kbInset = useKeyboardInset();
+  /// Small haptic tick when a product is added to the order (phones).
+  const prevLineCount = useRef(0);
+  useEffect(() => {
+    if (lines.length > prevLineCount.current) {
+      try { navigator.vibrate?.(12); } catch { /* unsupported */ }
+    }
+    prevLineCount.current = lines.length;
+  }, [lines.length]);
   const [qtyFor, setQtyFor] = useState<Prod | null>(null);
   const [qtyPacks, setQtyPacks] = useState(1);
   const [qtyUnits, setQtyUnits] = useState(0);
@@ -735,7 +747,7 @@ export function VenteClient({
   }
 
   return (
-    <div className="space-y-3 p-4 pb-28 md:p-5 md:pb-28">
+    <div className="space-y-3 p-4 md:p-5">
       <div className="flex items-center gap-2">
         <button
           aria-label="back"
@@ -783,7 +795,7 @@ export function VenteClient({
             </div>
           </>
         );
-        if (searchOpen && !showFacture) {
+        if (searchOpen) {
           return (
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
@@ -831,7 +843,7 @@ export function VenteClient({
                 )}
               </div>
             )}
-            {!showFacture && (
+            {(
               <div className="relative min-w-0 flex-1">
                 <button type="button" data-testid="cat-trigger" onClick={() => setMenu(menu === "cat" ? null : "cat")} className={chip(menu === "cat" || cat !== "")}>
                   <span className="min-w-0 truncate">{catLabel}</span>
@@ -853,7 +865,7 @@ export function VenteClient({
                 )}
               </div>
             )}
-            {!showFacture && (
+            {(
               <button
                 type="button"
                 aria-label={labels.searchProduct}
@@ -870,7 +882,7 @@ export function VenteClient({
         );
       })()}
 
-      {!showFacture ? (
+      {/* Products stay on screen; the order lives in a bottom sheet. */}
         <>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {filteredProducts.map((p) => {
@@ -959,9 +971,31 @@ export function VenteClient({
             })}
           </div>
         </>
-      ) : (
-        <div className="space-y-2">
-          <div className="space-y-1.5">
+
+      <BottomSheet
+        open={showFacture}
+        onClose={() => setShowFacture(false)}
+        title={labels.facture}
+        subtitle={`${lines.length} · ${dzMoney(total)}`}
+        testId="facture-sheet"
+        footer={
+          <>
+          <div className="flex items-center justify-between rounded-xl bg-(--bg-sunken) px-3 py-2.5">
+            <span className="text-sm font-black">{labels.total}</span>
+            <span className="text-lg font-black tabular-nums" dir="ltr">{dzMoney(total)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="shrink-0 text-sm font-bold opacity-70">{labels.paid}</span>
+            <Input value={paid} onChange={(e) => setPaid(e.target.value)} inputMode="decimal" placeholder={dzMoney(total)} dir="ltr" />
+          </div>
+          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
+          <Button onClick={() => void confirmSale()} disabled={saving || !lines.length} data-testid="confirm-sale" className="h-12 w-full text-base">
+            {saving ? "…" : `${labels.confirm} · ${dzMoney(total)}`}
+          </Button>
+          </>
+        }
+      >
+        <div className="space-y-1.5">
             {lines.map((l, i) => {
               const p = effProducts.find((x) => x.id === l.productId) ?? products.find((x) => x.id === l.productId);
               const img = p?.images?.[0]?.url;
@@ -1026,29 +1060,39 @@ export function VenteClient({
             ))}
             {lines.length === 0 && <p className="text-center text-sm opacity-60">{labels.empty}</p>}
           </div>
-          <div className="flex items-center justify-between rounded-xl bg-(--bg-sunken) px-3 py-2.5">
-            <span className="text-sm font-black">{labels.total}</span>
-            <span className="text-lg font-black tabular-nums" dir="ltr">{dzMoney(total)}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="shrink-0 text-sm font-bold opacity-70">{labels.paid}</span>
-            <Input value={paid} onChange={(e) => setPaid(e.target.value)} inputMode="decimal" placeholder={dzMoney(total)} dir="ltr" />
-          </div>
-          {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
-          <Button onClick={() => void confirmSale()} disabled={saving || !lines.length} data-testid="confirm-sale" className="h-12 w-full text-base">
-            {saving ? "…" : `${labels.confirm} · ${dzMoney(total)}`}
-          </Button>
+      </BottomSheet>
+
+      {/* Cart bar: in-flow sticky (not a guessed fixed offset) so it always sits
+          just above whatever the phone shows at the bottom — Safari toolbar,
+          Android nav buttons, gesture bar, or the app's own tab bar. */}
+      {kbInset === 0 && !showFacture && (
+        <div
+          className="pointer-events-none sticky z-40 -mx-4 bg-gradient-to-t from-(--bg-page) via-(--bg-page)/85 to-transparent px-3 pt-8 md:-mx-5"
+          style={{ bottom: "var(--bottom-chrome, 0px)", paddingBottom: "calc(var(--safe-floor, 0px) + 10px)" }}
+        >
+          <button
+            type="button"
+            data-testid="cart-bar"
+            onClick={() => setShowFacture(true)}
+            className={cn(
+              "pointer-events-auto mx-auto flex w-full max-w-xl items-center gap-3 rounded-2xl px-3 py-2.5 text-start shadow-[0_10px_28px_-8px_rgba(0,0,0,0.5)] transition-transform active:scale-[0.98]",
+              lines.length ? "bg-gradient-brand text-(--brand-contrast)" : "border border-(--border-default) bg-(--bg-overlay)"
+            )}
+          >
+            <span className={cn("relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl", lines.length ? "bg-black/15" : "bg-(--bg-sunken)")}>
+              <ShoppingBag size={21} />
+              <span key={lines.length} className="gw-bump absolute -end-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[11px] font-black tabular-nums text-white">
+                {lines.length}
+              </span>
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[11px] font-black uppercase tracking-wide opacity-70">{labels.facture}</span>
+              <span className="block truncate text-lg font-black leading-tight tabular-nums" dir="ltr">{dzMoney(total)}</span>
+            </span>
+            <ChevronUp size={22} className="shrink-0" />
+          </button>
         </div>
       )}
-
-      {/* Bottom arrow: products ⇄ facture */}
-      <button
-        onClick={() => setShowFacture((v) => !v)}
-        className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-40 flex items-center justify-center gap-2 border-t border-(--border-default) bg-(--bg-overlay) py-3 text-sm font-black shadow-[0_-4px_16px_rgba(0,0,0,0.08)] lg:bottom-0"
-      >
-        <ArrowDownUp size={17} className="text-(--brand-600)" />
-        {showFacture ? labels.backToProducts : `${labels.facture} · ${lines.length} · ${dzMoney(total)}`}
-      </button>
 
       {/* Scan popup — locked: no ✕, no skip, no manual pick. The sale
           cannot start until the client QR is scanned (camera or gallery). */}

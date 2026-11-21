@@ -65,7 +65,7 @@ test.describe("offline pending docs (ticket + order)", () => {
     await expect(page.locator("body")).toContainText(/130/, { timeout: 10_000 });
     await page.locator('[role="button"]', { hasText: "منتج ثاني" }).first().click();
     await page.getByTestId("qty-confirm").click();
-    await page.locator("button.fixed.inset-x-0").first().click();
+    await page.getByTestId("cart-bar").click();
     // Recap: line 1 kept base (badge سعر البيع), line 2 Gros, total 320.
     await expect(page.locator("body")).toContainText(/سعر البيع|Prix de vente|Sell price/, { timeout: 10_000 });
     await expect(page.locator("body")).toContainText(/Gros/, { timeout: 10_000 });
@@ -106,7 +106,7 @@ test.describe("offline pending docs (ticket + order)", () => {
     await page.goto(`/ar/livreur/${DAY}/commande?client=${CLIENT}`, { timeout: 20_000 });
     await page.locator('[role="button"]', { hasText: "منتج تجريبي" }).first().click();
     await page.getByTestId("qty-confirm").click();
-    await page.locator("button.fixed.inset-x-0").first().click();
+    await page.getByTestId("cart-bar").click();
     await page.getByTestId("send-order").click();
     await page.waitForTimeout(1000);
     await page.goto(`/ar/livreur/${DAY}/commandes`, { timeout: 20_000 });
