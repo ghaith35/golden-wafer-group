@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Crosshair, UserPlus } from "lucide-react";
+import { ArrowLeft, Crosshair, Trash2, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { queueOp, getVanSnapshot, getOutbox, goPage, saleErrText, queueErrText } from "@/lib/sync/client";
+import { queueOp, discardOutboxOp, getVanSnapshot, getOutbox, goPage, saleErrText, queueErrText } from "@/lib/sync/client";
 import { checkOfflineClient } from "@/lib/sync/offline-rules";
 import { clientQrPayload, generateOfflineClientCode } from "@/lib/clients/validation";
 import { compareNatural } from "@/lib/sort";
@@ -97,7 +97,8 @@ export function NewClient({
   const scope = snapScope !== undefined ? snapScope : (areaScope ?? null);
   const restricted = isRestricted(scope);
   /// Created account: QR shown immediately (offline or online).
-  const [created, setCreated] = useState<{ code: string; name: string; qr: string; offline: boolean } | null>(null);
+  const [created, setCreated] = useState<{ code: string; name: string; qr: string; offline: boolean; id?: string; opId?: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const allWilayas = wilayas.length ? wilayas : (snapRefs?.wilayas ?? []);
   // Assigned zones only (everything when the admin assigned nothing).
@@ -176,6 +177,7 @@ export function NewClient({
       const check = checkOfflineClient(s, o, { phone });
       if (!check.ok) {
         setError(saleErrText(labels, check.error) ?? check.error);
+        setSaving(false);
         savingRef.current = false;
         return;
       }
@@ -231,13 +233,14 @@ export function NewClient({
         savingRef.current = false;
         return;
       }
-      setCreated({ code, name: name.trim(), qr, offline: false });
+      const row = (await res.json().catch(() => null)) as { id?: string } | null;
+      setCreated({ code, name: name.trim(), qr, offline: false, id: row?.id });
       onCreated?.();
     } catch {
       try {
-        await queueOp("client", body);
+        const opId = await queueOp("client", body);
         setQueued(true);
-        setCreated({ code, name: name.trim(), qr, offline: true });
+        setCreated({ code, name: name.trim(), qr, offline: true, opId });
         onCreated?.();
       } catch (e) {
         setError(queueErrText(labels, e));
@@ -256,6 +259,35 @@ export function NewClient({
   }
 
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
+
+  /// Undo a client created by mistake: online → DELETE it on the server,
+  /// still queued offline → drop it from the outbox (it never reached the server).
+  async function deleteCreated() {
+    if (!created || deleting) return;
+    const ask = labels.deleteMessage
+      ? labels.deleteMessage.replace("{name}", created.name)
+      : locale === "fr" ? `Supprimer ${created.name} ?` : locale === "en" ? `Delete ${created.name}?` : `حذف ${created.name}؟`;
+    if (!window.confirm(ask)) return;
+    setDeleting(true);
+    setSaveMsg(null);
+    try {
+      if (created.offline) {
+        if (created.opId) await discardOutboxOp(created.opId);
+      } else if (created.id) {
+        const res = await fetch(`/api/clients/${created.id}`, { method: "DELETE" });
+        if (!res.ok) {
+          setSaveMsg(saleErrText(labels, (await res.json().catch(() => null))?.error) ?? labels.deleteFailed ?? "failed");
+          return;
+        }
+      }
+      onCreated?.();
+      reset();
+    } catch {
+      setSaveMsg(labels.deleteFailed ?? "failed");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   /// Save the QR as a PNG that the user can actually keep:
   /// 1. native (APK): write into Documents + open the share sheet
@@ -342,6 +374,12 @@ export function NewClient({
           </Button>
           <Button onClick={reset} className="h-12 flex-1 text-base">{labels.another}</Button>
         </div>
+        {(created.id || created.opId) && (
+          <Button variant="secondary" onClick={() => void deleteCreated()} disabled={deleting} className="h-12 w-full text-base text-red-500">
+            <Trash2 size={16} className="me-1.5" />
+            {labels.delete ?? (locale === "fr" ? "Supprimer" : locale === "en" ? "Delete" : "حذف")}
+          </Button>
+        )}
         <Button variant="secondary" onClick={() => embedded ? onClose?.() : goPage(router, `/${locale}/livreur/${day}`)} className="h-12 w-full text-base">
           {embedded ? (labels.close ?? labels.cancel) : labels.clients}
         </Button>

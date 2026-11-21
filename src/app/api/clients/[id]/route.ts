@@ -81,6 +81,15 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const existing = await prisma.customer.findFirst({ where: { id, companyId: session.companyId } });
   if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
+  // Field staff (Livreur/Vendeur) may only undo a client they just created:
+  // recent, no balance, no documents. Admins can delete anything as before.
+  if (session.role !== "Admin") {
+    const fresh = Date.now() - existing.createdAt.getTime() < 2 * 60 * 60 * 1000;
+    const used = await prisma.sale.count({ where: { clientId: id } });
+    if (!fresh || used > 0 || Number(existing.balance) !== 0) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
+  }
   if (Number(existing.balance) !== 0) {
     await prisma.customer.update({ where: { id }, data: { isActive: false } });
     return NextResponse.json({ ok: true, deactivated: true });
