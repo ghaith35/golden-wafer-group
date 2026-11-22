@@ -826,6 +826,8 @@ export async function handleSync(input: SyncInput) {
 
   // 3pack: active rules ride the snapshot so the phone computes the gift offline
   // (product colis units come from the snapshot's own conversions).
+  const vanRow = vanId ? await prisma.store.findFirst({ where: { id: vanId, companyId }, select: { qrSellRequired: true, qrOrderRequired: true } }) : null;
+  const vanQr = { sell: vanRow?.qrSellRequired ?? false, order: vanRow?.qrOrderRequired ?? true };
   const threePackRules = settings.threePackEnabled ? await loadRules(companyId) : [];
 
   return {
@@ -844,7 +846,10 @@ export async function handleSync(input: SyncInput) {
       settings: {
         remiseEnabled: settings.remiseEnabled,
         creditSalesEnabled: settings.creditSalesEnabled,
-        qrStrictMode: settings.qrStrictMode,
+        // Per-van rules (Settings → QR). `qrStrictMode` keeps its old name for
+        // already-installed phones: it now means "this van must scan to sell".
+        qrStrictMode: vanQr.sell,
+        qrOrderRequired: vanQr.order,
         oversellAllowed: settings.oversellAllowed,
         expiryEnabled: settings.expiryEnabled,
         transferConfirmRequired: settings.transferConfirmRequired,

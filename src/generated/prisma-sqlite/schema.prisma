@@ -310,6 +310,10 @@ model Store {
   /// Admin pressed "request location" (POST /api/vans/[id]/locate).
   /// The APK polls it and reports immediately; cleared on next report.
   locateRequestedAt DateTime?
+  /// Per-van QR rules (Settings → QR): must the driver scan the client QR
+  /// to sell / to create an order.
+  qrSellRequired    Boolean   @default(true)
+  qrOrderRequired   Boolean   @default(true)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -679,6 +683,9 @@ model Sale {
   saleLat     Float?
   saleLng     Float?
   saleDistM   Float?
+  /// Van tickets: null = ON HOLD (driver may edit / delete it), set = CONFIRMED (final,
+  /// only an admin can edit or cancel it).
+  confirmedAt DateTime?
   notes       String?
   date        DateTime   @default(now())
   createdAt   DateTime   @default(now())

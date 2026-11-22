@@ -179,6 +179,8 @@ CREATE TABLE "stores" (
     "lastLng" REAL,
     "lastSeenAt" DATETIME,
     "locateRequestedAt" DATETIME,
+    "qrSellRequired" BOOLEAN NOT NULL DEFAULT true,
+    "qrOrderRequired" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "stores_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,

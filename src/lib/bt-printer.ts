@@ -218,3 +218,20 @@ export function closeBtPrint() {
   current = null;
   emit();
 }
+
+/// Whether the ticket's QR code is printed (per phone, default yes).
+export function loadWithQr(): boolean {
+  try {
+    return localStorage.getItem("gw_bt_qr") !== "0";
+  } catch {
+    return true;
+  }
+}
+
+export function saveWithQr(v: boolean) {
+  try {
+    localStorage.setItem("gw_bt_qr", v ? "1" : "0");
+  } catch {
+    /* ignore */
+  }
+}

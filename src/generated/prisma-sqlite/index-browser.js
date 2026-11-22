@@ -274,6 +274,8 @@ exports.Prisma.StoreScalarFieldEnum = {
   lastLng: 'lastLng',
   lastSeenAt: 'lastSeenAt',
   locateRequestedAt: 'locateRequestedAt',
+  qrSellRequired: 'qrSellRequired',
+  qrOrderRequired: 'qrOrderRequired',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -467,6 +469,7 @@ exports.Prisma.SaleScalarFieldEnum = {
   saleLat: 'saleLat',
   saleLng: 'saleLng',
   saleDistM: 'saleDistM',
+  confirmedAt: 'confirmedAt',
   notes: 'notes',
   date: 'date',
   createdAt: 'createdAt',

@@ -16,10 +16,16 @@ export async function GET() {
       select: { name: true, phone: true, address: true, rc: true, nif: true, logoUrl: true },
     }),
   ]);
+  // Per-van QR rules: the session's own active van(s) decide (admins have none).
+  const vans = await prisma.store.findMany({
+    where: { companyId: session.companyId, kind: "VAN", isActive: true, userId: session.userId },
+    select: { qrSellRequired: true, qrOrderRequired: true },
+  });
   return NextResponse.json({
     gpsEnabled: s.gpsEnabled ?? true,
     threePackEnabled: s.threePackEnabled ?? false,
-    qrStrictMode: s.qrStrictMode ?? false,
+    qrStrictMode: vans.some((v) => v.qrSellRequired),
+    qrOrderRequired: vans.length ? vans.some((v) => v.qrOrderRequired) : false,
     ticketLang: s.ticketLang === "ar" ? "ar" : "fr",
     currency: s.currency ?? "DZD",
     company: company ?? { name: "" },

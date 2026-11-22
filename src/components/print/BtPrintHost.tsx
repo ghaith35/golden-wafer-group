@@ -14,6 +14,8 @@ import {
   forgetPrinter,
   getBtPrintRequest,
   loadCutMode,
+  loadWithQr,
+  saveWithQr,
   loadPrinter,
   registerBtHost,
   saveCutMode,
@@ -39,6 +41,7 @@ type View =
   | { k: "btOff" }
   | { k: "locOff" }
   | { k: "list" }
+  | { k: "ready"; dev: BtDevice }
   | { k: "working"; step: "render" | "pair" | "send"; dev: BtDevice }
   | { k: "done"; dev: BtDevice }
   | { k: "error"; code: BtErrCode; dev?: BtDevice };
@@ -77,19 +80,22 @@ function BtPrintScreen({ req }: { req: BtPrintRequest }) {
   const [showOther, setShowOther] = useState(false);
   // Client-only component (mounted after a tap) → reading localStorage in the initializer is safe.
   const [cutMode, setCutMode] = useState<CutMode>(() => loadCutMode());
+  const [withQr, setWithQr] = useState<boolean>(() => loadWithQr());
   const [testing, setTesting] = useState<"idle" | "busy" | "ok" | "err">("idle");
   const [saved, setSaved] = useState<SavedPrinter | null>(() => loadPrinter());
 
   const alive = useRef(true);
   const poll = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const bytesRef = useRef<{ cutMode: CutMode; data: Uint8Array } | null>(null);
+  const bytesRef = useRef<{ cutMode: CutMode; qr: boolean; data: Uint8Array } | null>(null);
+  const qrRef = useRef(withQr);
   const viewRef = useRef<View>(view);
   const cutRef = useRef(cutMode);
   useEffect(() => {
     viewRef.current = view;
     cutRef.current = cutMode;
-  }, [view, cutMode]);
+    qrRef.current = withQr;
+  }, [view, cutMode, withQr]);
   const poppedRef = useRef(false);
   const busyRef = useRef(false);
 
@@ -202,14 +208,15 @@ function BtPrintScreen({ req }: { req: BtPrintRequest }) {
   // ── printing ─────────────────────────────────────────────────────────────
   const ensureBytes = useCallback(async (): Promise<Uint8Array> => {
     const wantCut = cutRef.current;
-    if (bytesRef.current && bytesRef.current.cutMode === wantCut) return bytesRef.current.data;
+    const wantQr = qrRef.current;
+    if (bytesRef.current && bytesRef.current.cutMode === wantCut && bytesRef.current.qr === wantQr) return bytesRef.current.data;
     const a = req.args;
     // The REAL ticket component (same as the viewer) rasterised for the printer.
     const data = await ticketToEscPos(
-      { ticket: a.ticket, company: a.company, labels: a.labels, lang: a.lang, qrDataUrl: a.qrDataUrl ?? null },
+      { ticket: a.ticket, company: a.company, labels: a.labels, lang: a.lang, qrDataUrl: wantQr ? (a.qrDataUrl ?? null) : null },
       { cutMode: wantCut },
     );
-    bytesRef.current = { cutMode: wantCut, data };
+    bytesRef.current = { cutMode: wantCut, qr: wantQr, data };
     return data;
   }, [req.args]);
 
@@ -293,12 +300,15 @@ function BtPrintScreen({ req }: { req: BtPrintRequest }) {
       if (s.locationNeeded && !s.locationOn) return setView({ k: "locOff" });
       const mine = loadPrinter();
       if (mine && !opts?.skipRemembered) {
-        void run({ address: mine.address, name: mine.name, type: 0, major: 0, bonded: false, ...(mine.transport === "ble" ? { le: true } : {}) });
+        const dev: BtDevice = { address: mine.address, name: mine.name, type: 0, major: 0, bonded: false, ...(mine.transport === "ble" ? { le: true } : {}) };
+        // A ticket with a QR → let the driver choose print/skip QR first.
+        if (req.args.qrDataUrl) setView({ k: "ready", dev });
+        else void run(dev);
         return;
       }
       void enterList();
     },
-    [enterList, plugin, run],
+    [enterList, plugin, run, req.args.qrDataUrl],
   );
 
   useEffect(() => {
@@ -343,7 +353,7 @@ function BtPrintScreen({ req }: { req: BtPrintRequest }) {
   };
   const systemPrint = async () => {
     close();
-    await printTicketSystem(req.args);
+    await printTicketSystem(withQr ? req.args : { ...req.args, qrDataUrl: null });
   };
   const retry = (dev?: BtDevice) => {
     if (dev) void run(dev);
@@ -451,6 +461,7 @@ function BtPrintScreen({ req }: { req: BtPrintRequest }) {
         {view.k === "list" && (
           <div className="space-y-4">
             <p className="text-sm opacity-70">{t("listHint")}</p>
+            {req.args.qrDataUrl && <QrToggle checked={withQr} onChange={(v) => { setWithQr(v); saveWithQr(v); }} label={t("printQr")} />}
 
             <div className="flex items-center gap-2">
               {scanning ? (
@@ -524,6 +535,21 @@ function BtPrintScreen({ req }: { req: BtPrintRequest }) {
               {testing === "err" && <p className="text-xs font-bold text-red-500">{t("testCutFail")}</p>}
             </div>
           </div>
+        )}
+
+        {view.k === "ready" && (
+          <Centered
+            icon={<Printer size={36} />}
+            title={t("readyTitle")}
+            sub={t("printingTo", { name: view.dev.name })}
+            actions={
+              <>
+                <QrToggle checked={withQr} onChange={(v) => { setWithQr(v); saveWithQr(v); }} label={t("printQr")} />
+                <Primary onClick={() => void run(view.dev)}>{t("printNow")}</Primary>
+                <Secondary onClick={() => void enterList()}>{t("changePrinter")}</Secondary>
+              </>
+            }
+          />
         )}
 
         {view.k === "working" && (
@@ -645,6 +671,15 @@ function Centered({
       {sub && <p className="text-xs font-bold opacity-50">{sub}</p>}
       {actions && <div className="mt-2 flex w-full flex-col gap-2">{actions}</div>}
     </div>
+  );
+}
+
+function QrToggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+  return (
+    <label className="flex h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-(--border-default) px-4 text-sm font-black">
+      <span>{label}</span>
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="h-5 w-5 accent-(--brand-600)" />
+    </label>
   );
 }
 

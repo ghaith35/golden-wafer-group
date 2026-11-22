@@ -10,7 +10,6 @@ import { api, type Settings } from "@/components/settings/api";
 const HINTS: Record<string, string> = {
   debtTrackingEnabled: "debtHint",
   transferConfirmRequired: "transferConfirmHint",
-  qrStrictMode: "qrHint",
   gpsEnabled: "gpsHint",
   supplierFilterEnabled: "supplierFilterHint",
   threePackEnabled: "threePackHint",
@@ -22,7 +21,6 @@ const HINTS: Record<string, string> = {
 const BOOL_TOGGLES = [
   "debtTrackingEnabled",
   "transferConfirmRequired",
-  "qrStrictMode",
   "gpsEnabled",
   "supplierFilterEnabled",
   "threePackEnabled",

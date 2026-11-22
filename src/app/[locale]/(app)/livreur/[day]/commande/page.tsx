@@ -27,6 +27,7 @@ export default async function LivreurCommandePage({
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
 
+  const vanQr = await prisma.store.findFirst({ where: { id: van.id, companyId: session.companyId }, select: { qrOrderRequired: true } });
   const [client, products, categories, nullStock, locatedStock, settings, tournees] = await Promise.all([
     sp.client
       ? prisma.customer.findFirst({
@@ -99,8 +100,9 @@ export default async function LivreurCommandePage({
       categories={JSON.parse(JSON.stringify(categories))}
       depotStock={stockMap}
       allowPieces={settings?.pieceSalesEnabled ?? false}
+      qrRequired={vanQr?.qrOrderRequired ?? true}
       labels={{
-        remove: t("remove"),
+        remove: t("remove"), chooseClient: t("chooseClient"), searchClient: t("searchClient"),
         scanTitle: t("scanTitle"), scanHint: t("scanHint"), scan: t("scan"),
         gallery: t("gallery"), qrNotFound: t("qrNotFound"), backToDash: t("backToDash"),
         products: t("products"), searchProduct: t("searchProduct"), allCats: t("allCats"),

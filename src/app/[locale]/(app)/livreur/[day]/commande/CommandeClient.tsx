@@ -13,6 +13,7 @@ import { normFactor, saleUnits } from "@/components/products/UnitQty";
 import { queueOp, getVanSnapshot, getLastSync, getPendingClients, findScannedClient, serverUnreachable, goPage, saleErrText, queueErrText, type VanSnapshot } from "@/lib/sync/client";
 import { beepAdd, beepConfirm } from "@/lib/beep";
 import { cn } from "@/lib/utils";
+import { matchClient } from "@/lib/clients/display";
 import { GiftLineRow, giftBodyLines, giftProductsFrom, useGifts, useThreePackRules } from "@/components/threepack/useThreePack";
 
 import { ErrText } from "@/components/ui/ErrText";
@@ -42,6 +43,7 @@ export function CommandeClient({
   categories,
   depotStock,
   allowPieces,
+  qrRequired,
   labels,
 }: {
   locale: string;
@@ -55,11 +57,15 @@ export function CommandeClient({
   categories: Array<{ id: string; name: string }>;
   depotStock: Record<string, number>;
   allowPieces: boolean;
+  /// Per-van rule (Settings → QR): must the client QR be scanned to order?
+  qrRequired: boolean;
   labels: Record<string, string>;
 }) {
   const router = useRouter();
   const [scanOpen, setScanOpen] = useState(!initialClient);
   const scanning = useRef(false);
+  const [clientQ, setClientQ] = useState("");
+  const [clientHits, setClientHits] = useState<Client[]>([]);
   const [scanError, setScanError] = useState<string | null>(null);
   const [client, setClient] = useState<Client | null>(initialClient);
   const [cat, setCat] = useState("");
@@ -133,6 +139,31 @@ export function CommandeClient({
       (!cat || p.category?.id === cat) &&
       (!pq || p.name.includes(pq) || (p.reference ?? "").includes(pq))
   ).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
+
+  /// Manual client pick (scan not required): full list on open, typing filters.
+  useEffect(() => {
+    if (!scanOpen || qrRequired) return;
+    const q = clientQ.trim();
+    let dead = false;
+    const id = window.setTimeout(() => {
+      fetch(q ? `/api/clients?q=${encodeURIComponent(q)}` : "/api/clients", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((rows: Array<Client & { isActive?: boolean }>) => {
+          if (!dead) setClientHits(rows.filter((c) => c.isActive !== false).slice(0, 100));
+        })
+        .catch(async () => {
+          const pool = ((snap?.clients ?? []) as unknown as Client[]);
+          let pend: Client[] = [];
+          try {
+            pend = (await getPendingClients()).map((p) => ({ id: `pending:${p.opId}`, name: p.name, code: p.code, phone: p.phone, tierId: p.tierId, balance: 0 }));
+          } catch { /* ignore */ }
+          const all = [...pend, ...pool];
+          const hit = q ? all.filter((c) => matchClient(q, c)) : all;
+          if (!dead) setClientHits(hit.slice(0, 100));
+        });
+    }, q ? 250 : 0);
+    return () => { dead = true; window.clearTimeout(id); };
+  }, [clientQ, scanOpen, qrRequired, snap]);
 
   async function onScan(text: string) {
     if (scanning.current) return;
@@ -473,7 +504,7 @@ export function CommandeClient({
 
       {/* Scan popup — locked: the request cannot start until the client QR
           is scanned (camera or gallery). */}
-      <Modal open={scanOpen} onClose={() => setScanOpen(false)} title={labels.scanTitle} subtitle={vanName} icon={<QrCode size={18} />} locked>
+      <Modal open={scanOpen} onClose={() => setScanOpen(false)} title={labels.scanTitle} subtitle={vanName} icon={<QrCode size={18} />} locked={qrRequired}>
         <div className="space-y-3">
           <CameraBox
             hint={labels.scanHint}
@@ -487,6 +518,28 @@ export function CommandeClient({
               camUnsupported: labels.camUnsupported ?? "",
             }}
           />
+          {!qrRequired && (
+            <div className="space-y-2 rounded-2xl border border-(--border-default) p-2.5">
+              <div className="text-xs font-black opacity-70">{labels.chooseClient}</div>
+              <Input value={clientQ} onChange={(e) => setClientQ(e.target.value)} placeholder={labels.searchClient} />
+              {clientHits.length > 0 && (
+                <ul className="max-h-64 space-y-1 overflow-y-auto">
+                  {clientHits.map((c) => (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => { setClient(c); setScanError(null); setScanOpen(false); setClientQ(""); }}
+                        className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl bg-(--bg-sunken) px-3 py-2 text-start text-sm font-bold hover:bg-(--brand-500)/10"
+                      >
+                        <span className="min-w-0 truncate">{c.name}</span>
+                        <span className="shrink-0 font-mono text-[11px] opacity-60" dir="ltr">{c.code}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
           <Button variant="secondary" onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard`)} className="w-full">
             <ArrowLeft size={15} className="me-1 rtl:rotate-180" />
             {labels.backToDash ?? labels.backToProducts}

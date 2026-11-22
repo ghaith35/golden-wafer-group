@@ -124,6 +124,7 @@ export type VanSnapshot = {
     remiseEnabled: boolean;
     creditSalesEnabled: boolean;
     qrStrictMode: boolean;
+    qrOrderRequired?: boolean;
     oversellAllowed: boolean;
     expiryEnabled: boolean;
     transferConfirmRequired: boolean;

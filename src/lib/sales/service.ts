@@ -419,7 +419,7 @@ export async function createTicket(
   let offList = false;
   if (channel === "VAN" && location.kind === "VAN" && client) {
     if (!input.qrScanned) {
-      if (settings.qrStrictMode) throw Object.assign(new Error("qr_required"), { status: 400 });
+      if (location.qrSellRequired) throw Object.assign(new Error("qr_required"), { status: 400 });
       offList = true;
     }
     // Off-tournée sale: open tournee for this van today missing this client.

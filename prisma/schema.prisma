@@ -331,6 +331,10 @@ model Store {
   /// Admin pressed "request location" (POST /api/vans/[id]/locate).
   /// The APK polls it and reports immediately; cleared on next report.
   locateRequestedAt DateTime?
+  /// Per-van QR rules (Settings → QR): must the driver scan the client QR
+  /// to sell / to create an order.
+  qrSellRequired    Boolean      @default(true)
+  qrOrderRequired   Boolean      @default(true)
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 

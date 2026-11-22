@@ -1,8 +1,8 @@
 "use client";
 
-import { ShoppingCart, Boxes, MapPin, RefreshCw, Smartphone, CalendarDays, Building2, ShieldCheck, DatabaseZap } from "lucide-react";
+import { ShoppingCart, Boxes, MapPin, RefreshCw, Smartphone, CalendarDays, QrCode, Building2, ShieldCheck, DatabaseZap } from "lucide-react";
 
-export type SettingsSectionKey = "general" | "sales" | "catalog" | "sectors" | "dayAccess" | "journal" | "company" | "updates" | "devices" | "license" | "admins" | "data";
+export type SettingsSectionKey = "general" | "sales" | "catalog" | "sectors" | "dayAccess" | "qr" | "journal" | "company" | "updates" | "devices" | "license" | "admins" | "data";
 
 export interface SettingsSection {
   key: SettingsSectionKey;
@@ -26,6 +26,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   { key: "catalog", href: "catalog", Icon: Boxes, labelKey: "catalog", descriptionKey: "catalogDesc" },
   { key: "sectors", href: "sectors", Icon: MapPin, labelKey: "sectors", descriptionKey: "sectorsDesc" },
   { key: "dayAccess", href: "day-access", Icon: CalendarDays, labelKey: "dayAccess", descriptionKey: "dayAccessDesc", adminOnly: true },
+  { key: "qr", href: "qr", Icon: QrCode, labelKey: "qr", descriptionKey: "qrDesc", adminOnly: true },
   { key: "company", href: "company", Icon: Building2, labelKey: "company", descriptionKey: "companyDesc", adminOnly: true },
   { key: "admins", href: "admins", Icon: ShieldCheck, labelKey: "admins", descriptionKey: "adminsDesc", adminOnly: true },
   { key: "updates", href: "updates", Icon: RefreshCw, labelKey: "updates", descriptionKey: "updatesDesc" },
