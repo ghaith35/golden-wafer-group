@@ -43,9 +43,17 @@ export default async function LivreurDayPage({
     },
     orderBy: { createdAt: "desc" },
   });
-  const clients = (tour?.stops ?? [])
-    .filter((s) => s.client)
-    .map((s) => ({ ...(s.client as unknown as Record<string, unknown>), days: [day] }));
+  const planned = (tour?.stops ?? []).filter((s) => s.client).map((s) => s.client as unknown as { id: string });
+  // Clients registered THIS day (new-client popup) are not tour stops, yet the
+  // driver must see them right after saving.
+  const plannedIds = new Set(planned.map((c) => c.id));
+  const createdToday = await prisma.customer.findMany({
+    where: { companyId: session.companyId, isActive: true, createdAt: { gte: dayStart, lte: dayEnd }, id: { notIn: [...plannedIds] } },
+    select: sel,
+    orderBy: { createdAt: "desc" },
+    take: 200,
+  });
+  const clients = [...planned, ...createdToday].map((c) => ({ ...(c as unknown as Record<string, unknown>), days: [day] }));
   const daySlugs: string[] = [];
 
   // Reference lists for the embedded new-client popup (same as /clients/new).
