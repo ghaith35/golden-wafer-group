@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PRINT_WIDTH_DOTS, bytesToBase64, escposTicket, rgbaToMono } from "@/lib/escpos";
+import { CUT_MODES, PRINT_WIDTH_DOTS, bytesToBase64, cutBytes, escposCutTest, escposTicket, rgbaToMono } from "@/lib/escpos";
 
 function rgba(w: number, h: number, fn: (x: number, y: number) => number) {
   const d = new Uint8ClampedArray(w * h * 4);
@@ -40,20 +40,20 @@ describe("rgbaToMono", () => {
 
 describe("escposTicket", () => {
   const bmp = rgbaToMono(rgba(PRINT_WIDTH_DOTS, 200, () => 0), PRINT_WIDTH_DOTS, 200);
-  it("starts with init + left-align and ends with feed + cut", () => {
-    const b = escposTicket(bmp, { cut: true });
+  it("starts with init + left-align", () => {
+    const b = escposTicket(bmp);
     expect([...b.slice(0, 5)]).toEqual([0x1b, 0x40, 0x1b, 0x61, 0x00]);
-    expect([...b.slice(-7)]).toEqual([0x1b, 0x64, 4, 0x1d, 0x56, 0x42, 0x00]);
   });
-  it("omits the cut command when disabled", () => {
-    const b = escposTicket(bmp, { cut: false });
-    expect([...b.slice(-3)]).toEqual([0x1b, 0x64, 4]);
+  it("default (auto) ends with feed + GS V 66 0", () => {
+    const b = escposTicket(bmp);
+    expect([...b.slice(-7)]).toEqual([0x1b, 0x64, 3, 0x1d, 0x56, 0x42, 0x00]);
   });
   it("splits into GS v 0 bands that cover every row exactly once", () => {
-    const b = escposTicket(bmp, { cut: false, feedLines: 0 });
+    const b = escposTicket(bmp, { cutMode: "none" });
+    const tail = cutBytes("none").length;
     let rows = 0;
     let i = 5; // after ESC @ ESC a 0
-    while (i < b.length) {
+    while (i < b.length - tail) {
       expect([b[i], b[i + 1], b[i + 2], b[i + 3]]).toEqual([0x1d, 0x76, 0x30, 0x00]);
       const wb = b[i + 4] | (b[i + 5] << 8);
       const h = b[i + 6] | (b[i + 7] << 8);
@@ -62,7 +62,36 @@ describe("escposTicket", () => {
       i += 8 + wb * h;
     }
     expect(rows).toBe(200);
-    expect(i).toBe(b.length);
+    expect(i).toBe(b.length - tail);
+  });
+});
+
+describe("cut modes", () => {
+  it("each mode emits its own documented command", () => {
+    expect(cutBytes("auto")).toEqual([0x1b, 0x64, 3, 0x1d, 0x56, 0x42, 0x00]); // GS V 66 0
+    expect(cutBytes("full")).toEqual([0x1b, 0x64, 7, 0x1d, 0x56, 0x00]); // GS V 0
+    expect(cutBytes("partial")).toEqual([0x1b, 0x64, 7, 0x1d, 0x56, 0x01]); // GS V 1
+    expect(cutBytes("legacy")).toEqual([0x1b, 0x64, 7, 0x1b, 0x69]); // ESC i
+  });
+  it("none sends only a feed, never a cut opcode", () => {
+    const b = cutBytes("none");
+    expect(b).toEqual([0x1b, 0x64, 4]);
+    expect(b.includes(0x56)).toBe(false);
+  });
+  it("every listed mode is handled", () => {
+    for (const m of CUT_MODES) expect(cutBytes(m).length).toBeGreaterThan(0);
+  });
+  it("the test job is init + the mode's cut, with no image", () => {
+    const j = escposCutTest("full");
+    expect([...j]).toEqual([0x1b, 0x40, 0x1b, 0x64, 7, 0x1d, 0x56, 0x00]);
+  });
+  it("a ticket job ends with exactly the chosen cut", () => {
+    const bmp = rgbaToMono(rgba(PRINT_WIDTH_DOTS, 8, () => 255), PRINT_WIDTH_DOTS, 8);
+    for (const m of CUT_MODES) {
+      const b = escposTicket(bmp, { cutMode: m });
+      const tail = cutBytes(m);
+      expect([...b.slice(b.length - tail.length)]).toEqual(tail);
+    }
   });
 });
 

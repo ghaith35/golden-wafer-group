@@ -72,11 +72,43 @@ export function rgbaToMono(
   return { width, height, bytes };
 }
 
-/// Full print job: init → raster bands → feed → (optional) partial cut.
-export function escposTicket(bmp: MonoBitmap, opts: { cut?: boolean; feedLines?: number } = {}): Uint8Array {
+/// Paper-cut strategies. Printers differ, so the driver can pick (and test)
+/// the one that works on his model:
+///  auto    GS V 66 0  — "feed to cutter + partial cut" (Epson function B;
+///          Xprinter XP-80 / N160 family). Feeds by itself → short extra feed.
+///  full    GS V 0     — full cut, needs the paper fed past the blade first.
+///  partial GS V 1     — partial cut (leaves a tiny hinge), same feed need.
+///  legacy  ESC i      — old Epson/clone cutters.
+///  none    tear-bar printers: nothing sent.
+export type CutMode = "auto" | "full" | "partial" | "legacy" | "none";
+export const CUT_MODES: CutMode[] = ["auto", "full", "partial", "legacy", "none"];
+
+/// Feed + cut commands for a mode. Non-auto modes feed ~26 mm first so the
+/// last printed line has passed the blade before it closes.
+export function cutBytes(mode: CutMode): number[] {
+  switch (mode) {
+    case "auto":
+      return [0x1b, 0x64, 0x03, 0x1d, 0x56, 0x42, 0x00]; // ESC d 3 · GS V B 0
+    case "full":
+      return [0x1b, 0x64, 0x07, 0x1d, 0x56, 0x00]; // ESC d 7 · GS V 0
+    case "partial":
+      return [0x1b, 0x64, 0x07, 0x1d, 0x56, 0x01]; // ESC d 7 · GS V 1
+    case "legacy":
+      return [0x1b, 0x64, 0x07, 0x1b, 0x69]; // ESC d 7 · ESC i
+    case "none":
+      return [0x1b, 0x64, 0x04]; // just feed enough to tear
+  }
+}
+
+/// A tiny job (no ticket) that only feeds + cuts — the "Test cut" button.
+export function escposCutTest(mode: CutMode): Uint8Array {
+  return Uint8Array.from([0x1b, 0x40, ...cutBytes(mode)]);
+}
+
+/// Full print job: init → raster bands → feed + cut (per mode).
+export function escposTicket(bmp: MonoBitmap, opts: { cutMode?: CutMode } = {}): Uint8Array {
   const wb = bmp.width / 8;
   if (wb > 0xffff) throw new Error("bitmap too wide");
-  const feed = Math.max(0, Math.min(255, opts.feedLines ?? 4));
   const parts: Uint8Array[] = [];
   parts.push(Uint8Array.from([0x1b, 0x40])); // ESC @  initialize
   parts.push(Uint8Array.from([0x1b, 0x61, 0x00])); // ESC a 0  left align
@@ -86,8 +118,7 @@ export function escposTicket(bmp: MonoBitmap, opts: { cut?: boolean; feedLines?:
     parts.push(Uint8Array.from([0x1d, 0x76, 0x30, 0x00, wb & 0xff, (wb >> 8) & 0xff, rows & 0xff, (rows >> 8) & 0xff]));
     parts.push(bmp.bytes.subarray(y * wb, (y + rows) * wb));
   }
-  if (feed > 0) parts.push(Uint8Array.from([0x1b, 0x64, feed])); // ESC d n  feed n lines
-  if (opts.cut !== false) parts.push(Uint8Array.from([0x1d, 0x56, 0x42, 0x00])); // GS V B 0  feed + partial cut
+  parts.push(Uint8Array.from(cutBytes(opts.cutMode ?? "auto")));
   let total = 0;
   for (const p of parts) total += p.length;
   const out = new Uint8Array(total);

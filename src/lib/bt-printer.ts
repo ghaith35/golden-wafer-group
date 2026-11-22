@@ -1,5 +1,6 @@
 import { Capacitor, registerPlugin } from "@capacitor/core";
 import type { PrintArgs } from "@/lib/print-ticket";
+import { CUT_MODES, type CutMode } from "@/lib/escpos";
 
 /// Web side of the native BtPrinter plugin (direct Bluetooth ESC/POS printing)
 /// plus the tiny shared store that lets ANY screen's Print button open the
@@ -122,7 +123,7 @@ export async function btAvailable(): Promise<boolean> {
 // ── remembered printer + preferences (per phone) ─────────────────────────────
 
 const PRINTER_KEY = "gw_bt_printer";
-const CUT_KEY = "gw_bt_cut";
+const CUT_KEY = "gw_bt_cutmode";
 
 export type SavedPrinter = { address: string; name: string; transport?: BtTransport };
 
@@ -153,17 +154,22 @@ export function forgetPrinter() {
   }
 }
 
-export function loadCut(): boolean {
+/// How the paper is cut after a ticket (printers differ — see escpos CutMode).
+/// Default "auto" (GS V 66 0). The old on/off checkbox migrates: off → "none".
+export function loadCutMode(): CutMode {
   try {
-    return localStorage.getItem(CUT_KEY) !== "0";
+    const v = localStorage.getItem(CUT_KEY);
+    if (v && (CUT_MODES as string[]).includes(v)) return v as CutMode;
+    if (localStorage.getItem("gw_bt_cut") === "0") return "none";
   } catch {
-    return true;
+    /* ignore */
   }
+  return "auto";
 }
 
-export function saveCut(v: boolean) {
+export function saveCutMode(m: CutMode) {
   try {
-    localStorage.setItem(CUT_KEY, v ? "1" : "0");
+    localStorage.setItem(CUT_KEY, m);
   } catch {
     /* ignore */
   }

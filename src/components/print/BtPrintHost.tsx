@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowLeft, ArrowRight, Bluetooth, Check, ChevronDown, Loader2, Printer, RefreshCw, TriangleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { bytesToBase64 } from "@/lib/escpos";
-import { ticketToEscPos } from "@/lib/ticket-raster";
+import { CUT_MODES, bytesToBase64, escposCutTest, type CutMode } from "@/lib/escpos";
+import { ticketToEscPos } from "@/lib/ticket-capture";
 import { printTicketSystem } from "@/lib/print-ticket";
 import {
   btErr,
@@ -13,10 +13,10 @@ import {
   closeBtPrint,
   forgetPrinter,
   getBtPrintRequest,
-  loadCut,
+  loadCutMode,
   loadPrinter,
   registerBtHost,
-  saveCut,
+  saveCutMode,
   savePrinter,
   subscribeBtPrint,
   type BtDevice,
@@ -76,19 +76,20 @@ function BtPrintScreen({ req }: { req: BtPrintRequest }) {
   const [scanned, setScanned] = useState(false);
   const [showOther, setShowOther] = useState(false);
   // Client-only component (mounted after a tap) → reading localStorage in the initializer is safe.
-  const [cut, setCut] = useState(() => loadCut());
+  const [cutMode, setCutMode] = useState<CutMode>(() => loadCutMode());
+  const [testing, setTesting] = useState<"idle" | "busy" | "ok" | "err">("idle");
   const [saved, setSaved] = useState<SavedPrinter | null>(() => loadPrinter());
 
   const alive = useRef(true);
   const poll = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const bytesRef = useRef<{ cut: boolean; data: Uint8Array } | null>(null);
+  const bytesRef = useRef<{ cutMode: CutMode; data: Uint8Array } | null>(null);
   const viewRef = useRef<View>(view);
-  const cutRef = useRef(cut);
+  const cutRef = useRef(cutMode);
   useEffect(() => {
     viewRef.current = view;
-    cutRef.current = cut;
-  }, [view, cut]);
+    cutRef.current = cutMode;
+  }, [view, cutMode]);
   const poppedRef = useRef(false);
   const busyRef = useRef(false);
 
@@ -201,19 +202,14 @@ function BtPrintScreen({ req }: { req: BtPrintRequest }) {
   // ── printing ─────────────────────────────────────────────────────────────
   const ensureBytes = useCallback(async (): Promise<Uint8Array> => {
     const wantCut = cutRef.current;
-    if (bytesRef.current && bytesRef.current.cut === wantCut) return bytesRef.current.data;
+    if (bytesRef.current && bytesRef.current.cutMode === wantCut) return bytesRef.current.data;
     const a = req.args;
+    // The REAL ticket component (same as the viewer) rasterised for the printer.
     const data = await ticketToEscPos(
-      {
-        ticket: a.ticket,
-        company: { name: a.company.name, phone: a.company.phone, address: a.company.address, rc: a.company.rc, nif: a.company.nif },
-        labels: a.labels,
-        lang: a.lang,
-        qrDataUrl: a.qrDataUrl ?? null,
-      },
-      { cut: wantCut },
+      { ticket: a.ticket, company: a.company, labels: a.labels, lang: a.lang, qrDataUrl: a.qrDataUrl ?? null },
+      { cutMode: wantCut },
     );
-    bytesRef.current = { cut: wantCut, data };
+    bytesRef.current = { cutMode: wantCut, data };
     return data;
   }, [req.args]);
 
@@ -362,6 +358,23 @@ function BtPrintScreen({ req }: { req: BtPrintRequest }) {
     plugin.cancel().catch(() => {});
   };
 
+  /// Sends only feed + cut (no ticket) so the driver can find the cut mode
+  /// that works on his printer.
+  const testCut = async () => {
+    const p = loadPrinter();
+    if (!p || busyRef.current) return;
+    busyRef.current = true;
+    setTesting("busy");
+    try {
+      await plugin.write({ address: p.address, data: bytesToBase64(escposCutTest(cutRef.current)), transport: p.transport });
+      if (alive.current) setTesting("ok");
+    } catch {
+      if (alive.current) setTesting("err");
+    } finally {
+      busyRef.current = false;
+    }
+  };
+
   // ── derived lists ────────────────────────────────────────────────────────
   const { paired, nearby, other } = useMemo(() => {
     const all = Object.values(devices);
@@ -479,18 +492,37 @@ function BtPrintScreen({ req }: { req: BtPrintRequest }) {
               </div>
             )}
 
-            <label className="flex min-h-11 items-center gap-3 rounded-xl border border-(--border-default) px-4 py-2 text-sm font-bold">
-              <input
-                type="checkbox"
-                checked={cut}
+            <div className="space-y-2 rounded-2xl border border-(--border-default) p-3">
+              <label className="block text-sm font-black" htmlFor="gw-cut-mode">{t("cutPaper")}</label>
+              <select
+                id="gw-cut-mode"
+                value={cutMode}
                 onChange={(e) => {
-                  setCut(e.target.checked);
-                  saveCut(e.target.checked);
+                  const m = e.target.value as CutMode;
+                  setCutMode(m);
+                  saveCutMode(m);
+                  setTesting("idle");
                 }}
-                className="h-5 w-5"
-              />
-              {t("cutPaper")}
-            </label>
+                className="h-12 w-full rounded-xl border border-(--border-default) bg-(--bg-surface) px-3 text-sm font-bold"
+              >
+                {CUT_MODES.map((m) => (
+                  <option key={m} value={m}>{t(`cut_${m}`)}</option>
+                ))}
+              </select>
+              <p className="text-xs leading-5 opacity-60">{t("cutHint")}</p>
+              <button
+                type="button"
+                onClick={() => void testCut()}
+                disabled={!saved || testing === "busy"}
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-(--border-default) text-sm font-bold disabled:opacity-40"
+              >
+                {testing === "busy" && <Loader2 size={15} className="animate-spin" />}
+                {t("testCut")}
+              </button>
+              {!saved && <p className="text-xs opacity-60">{t("testCutNeedPrinter")}</p>}
+              {testing === "ok" && <p className="text-xs font-bold text-emerald-600">{t("testCutDone")}</p>}
+              {testing === "err" && <p className="text-xs font-bold text-red-500">{t("testCutFail")}</p>}
+            </div>
           </div>
         )}
 
@@ -515,6 +547,7 @@ function BtPrintScreen({ req }: { req: BtPrintRequest }) {
               <>
                 <Primary onClick={close}>{t("close")}</Primary>
                 <Secondary onClick={() => void run(view.dev)}>{t("printAgain")}</Secondary>
+                <Secondary onClick={() => void enterList()}>{t("printerSettings")}</Secondary>
               </>
             }
           />
