@@ -172,11 +172,12 @@ export function VanStockClient({
       [...byId.values()]
         .map((c) => ({ ...c, qty: m[c.productId] ?? 0 }))
         .filter((c) => c.qty > 1e-9)
-        .sort((a, b) => b.qty - a.qty)
+        .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }))
     );
   }
 
-  const list = q ? holds.filter((h) => h.productName.includes(q)) : holds;
+  const byName = (a: string, b: string) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
+  const list = (q ? holds.filter((h) => h.productName.includes(q)) : [...holds]).sort((a, b) => byName(a.productName, b.productName));
   const depotView = q
     ? depotList.filter((h) => h.name.includes(q))
     : depotList;
@@ -246,17 +247,17 @@ export function VanStockClient({
           <div className="mt-2 grid grid-cols-3 gap-1 text-center">
             <div className="rounded-lg bg-amber-500/10 px-1 py-1.5">
               <div className="flex items-center justify-center gap-0.5 text-[10px] font-black uppercase opacity-60">
-                <Lock size={10} /> held
+                <Lock size={10} /> {labels.held ?? "held"}
               </div>
               <div className="text-xs font-black tabular-nums sm:text-sm text-amber-600">{breakdown(h.held, h)}</div>
             </div>
             <div className="rounded-lg bg-emerald-500/10 px-1 py-1.5">
-              <div className="text-[10px] font-black uppercase opacity-60">free</div>
+              <div className="text-[10px] font-black uppercase opacity-60">{labels.free ?? "free"}</div>
               <div className={cn("text-sm font-black tabular-nums", effFree(h) < 0 ? "text-red-500" : "text-emerald-600")}>{breakdown(effFree(h), h)}</div>
             </div>
             <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
               <div className="flex items-center justify-center gap-0.5 text-[10px] font-black uppercase opacity-60">
-                <Store size={10} /> depot{!depotLive && syncAge() ? ` · ${syncAge()}` : ""}
+                <Store size={10} /> {labels.depotLbl ?? "depot"}{!depotLive && syncAge() ? ` · ${syncAge()}` : ""}
               </div>
               <div className="text-xs font-black tabular-nums sm:text-sm">{breakdown(depot[h.productId] ?? 0, h)}</div>
             </div>

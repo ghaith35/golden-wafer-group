@@ -68,7 +68,7 @@ export function InventoryClient({
     (l) =>
       (!locFilter || l.locationId === locFilter) &&
       (!q || pname(l.productId).includes(q))
-  );
+  ).sort((a, b) => pname(a.productId).localeCompare(pname(b.productId), undefined, { numeric: true, sensitivity: "base" }));
 
   async function createLocation() {
     if (!form.name.trim()) return;

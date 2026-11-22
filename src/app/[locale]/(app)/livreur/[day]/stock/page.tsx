@@ -28,7 +28,7 @@ export default async function LivreurStockPage({
       vanName={van.name}
       role={session.role}
       labels={{
-        stock: t("stock"), stockDepot: t("stockDepot"), empty: t("empty"), total: t("total"),
+        stock: t("stock"), stockDepot: t("stockDepot"), held: t("stockHeldLbl"), free: t("stockFreeLbl"), depotLbl: t("stockDepotLbl"), empty: t("empty"), total: t("total"),
       }}
     />
   );

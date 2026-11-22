@@ -210,8 +210,9 @@ export function StockBoard({
                   : null,
               };
             })
+            .sort((a, b) => compareNatural(a.product?.name ?? "", b.product?.name ?? "", locale))
         : [],
-    [selected, levels, byProduct]
+    [selected, levels, byProduct, locale]
   );
   const detailTransfers = useMemo(
     () => (selected ? transfers.filter((t) => t.fromLocationId === selected.id || t.toLocationId === selected.id) : []),
