@@ -1,6 +1,8 @@
 import { Capacitor, registerPlugin } from "@capacitor/core";
 import type { TicketLabels, TicketVM } from "@/components/sales/TicketView";
 import { TICKET_HERO } from "@/lib/brand/ticketHero";
+import { ticketNum as num, ticketShortDate as shortDate } from "@/lib/ticket-format";
+import { btAvailable, requestBtPrint } from "@/lib/bt-printer";
 
 /// Thermal-ticket printing for the APK: window.print() is a no-op inside the
 /// native WebView, so the facture is rendered to self-contained HTML (no
@@ -24,21 +26,6 @@ function esc(s: unknown): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-}
-
-function num(v: unknown): string {
-  const n = Number(v ?? 0);
-  return Number.isFinite(n) ? String(Math.round(n * 100) / 100) : "0";
-}
-
-function shortDate(iso: unknown): string {
-  try {
-    const d = new Date(String(iso ?? ""));
-    if (Number.isNaN(d.getTime())) return "";
-    return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  } catch {
-    return "";
-  }
 }
 
 /// Self-contained 58/80mm thermal facture (works offline except the logo).
@@ -137,14 +124,32 @@ export type PrintTicketResult = { ok: true } | { ok: false; reason: string };
 /// The plugin is resolved the Capacitor-idiomatic way (registerPlugin —
 /// required since v7 for custom native plugins) with the legacy
 /// window.Capacitor.Plugins lookup as fallback.
-export async function printTicketNative(args: {
+export type PrintArgs = {
   ticket: TicketVM;
   company: TicketCompany;
   width: "80";
   labels: TicketLabels;
   lang: "ar" | "fr";
   qrDataUrl?: string | null;
-}): Promise<PrintTicketResult> {
+};
+
+/// Print entry point for every APK "Print" button.
+/// 1. Direct Bluetooth (BtPrinter plugin): opens the in-app printer screen —
+///    search/select the Bluetooth printer, print, no system dialog.
+/// 2. Fallback — old APK without the plugin, no Bluetooth, or no host mounted:
+///    the Android system print dialog (printTicketSystem), exactly as before.
+export async function printTicketNative(args: PrintArgs): Promise<PrintTicketResult> {
+  try {
+    if (typeof window !== "undefined" && isNative() && !isDesktop() && (await btAvailable()) && requestBtPrint(args)) {
+      return { ok: true };
+    }
+  } catch {
+    /* any failure here → system dialog below */
+  }
+  return printTicketSystem(args);
+}
+
+export async function printTicketSystem(args: PrintArgs): Promise<PrintTicketResult> {
   try {
     if (typeof window === "undefined" || !isNative() || isDesktop())
       return { ok: false, reason: isDesktop() ? "desktop_window_print" : "not_native" };

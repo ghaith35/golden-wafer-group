@@ -17,6 +17,8 @@ public class MainActivity extends BridgeActivity {
         // the bridge: TicketPrinter (thermal-ticket system print dialog —
         // window.print() is a no-op inside the APK WebView).
         registerPlugin(TicketPrinter.class);
+        // BtPrinter: direct Bluetooth (ESC/POS) thermal printing, no system dialog.
+        registerPlugin(BtPrinter.class);
         super.onCreate(savedInstanceState);
         // Remote pages (client https servers opened from the launcher) never
         // get the native bridge injection — re-graft it after each page load

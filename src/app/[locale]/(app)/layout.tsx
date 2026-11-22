@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { AppShell } from "@/components/layout/AppShell";
+import { BtPrintHost } from "@/components/print/BtPrintHost";
 import { getSession } from "@/lib/auth/session";
 import { ensureMainDepot } from "@/lib/inventory/depot";
 import { localEntitlement, isLocalMode, isDesktopUserAgent } from "@/lib/license/gate";
@@ -33,5 +34,11 @@ export default async function StaffLayout({
   } catch {
     /* never block the page on this */
   }
-  return <AppShell>{children}</AppShell>;
+  return (
+    <>
+      <AppShell>{children}</AppShell>
+      {/* APK: full-screen Bluetooth printer flow, opened by any Print button. */}
+      <BtPrintHost />
+    </>
+  );
 }

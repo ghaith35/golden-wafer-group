@@ -88,14 +88,27 @@ export function ProductPicker({
     const measure = () => {
       if (!triggerRef.current) return;
       const r = triggerRef.current.getBoundingClientRect();
+      // The interface zoom is CSS `zoom` on <html>: getBoundingClientRect and
+      // innerWidth/Height are in real screen px, but the panel's fixed
+      // left/top/bottom/width/max-height get multiplied by the zoom again.
+      // Convert everything to zoomed CSS px, or the panel drifts away from
+      // the field (further the bigger the zoom / the lower the field).
+      const z = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
       const below = window.innerHeight - r.bottom - 20;
       const above = r.top - 20;
       const up = below < 380 && above > below;
       const vw = window.innerWidth;
-      const width = Math.min(512, vw - 32);
+      const width = Math.min(512 * z, vw - 32);
       const rtl = getComputedStyle(triggerRef.current).direction === "rtl";
       const left = Math.max(16, Math.min(rtl ? r.right - width : r.left, vw - width - 16));
-      setPlace({ up, max: Math.max(240, Math.min(448, up ? above : below)), top: r.bottom + 8, bottom: window.innerHeight - r.top + 8, left, width });
+      setPlace({
+        up,
+        max: Math.max(240 * z, Math.min(448 * z, up ? above : below)) / z,
+        top: (r.bottom + 8) / z,
+        bottom: (window.innerHeight - r.top + 8) / z,
+        left: left / z,
+        width: width / z,
+      });
     };
     measure();
     window.addEventListener("resize", measure);
