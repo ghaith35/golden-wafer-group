@@ -14,6 +14,7 @@ import { loadRules } from "@/lib/threepack/service";
 import { syncSchema } from "@/lib/sync/validation";
 import { getApkMeta, getMinNativeVersion, getWebBuildId, isForceWebUpdate } from "@/lib/update-feed";
 import { checkClientArea } from "@/lib/users/area-scope";
+import { addClientToDayTour } from "@/lib/livreur/day-access";
 import { loadAreaScope } from "@/lib/users/area-scope.server";
 
 type SyncInput = z.infer<typeof syncSchema>;
@@ -29,6 +30,7 @@ const KIND_PRIORITY: Record<string, number> = {
   order: 2,
   "order-deliver": 2,
   "sale-cancel": 2,
+  "sale-confirm": 2,
   "sale-reopen": 2,
   "client-return": 2,
   "transfer-declare": 3,
@@ -339,6 +341,10 @@ async function applyOp(
         });
       });
       id = row.id;
+      {
+        const u = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
+        await addClientToDayTour({ companyId, userId, role: u?.role ?? "" }, row.id, p.day);
+      }
     } else if (op.kind === "client-update") {
       // Offline client edit: driver-safe fields ONLY (name/phone/address/
       // area/GPS/legacy QR). Financial fields (tier/credit/balance/code) are NEVER
@@ -564,7 +570,22 @@ async function applyOp(
       if (!saleId) throw Object.assign(new Error("bad_sale"), { status: 400 });
       const target = await prisma.sale.findFirst({ where: { id: saleId, companyId }, select: { id: true, status: true } });
       if (!target) throw Object.assign(new Error("not_found"), { status: 404 });
-      if (target.status !== "CANCELLED") await cancelSale(companyId, saleId);
+      if (target.status !== "CANCELLED") {
+        // A confirmed ticket is final for staff (the confirmation may have
+        // synced before this queued delete) — admin only.
+        const t = await prisma.sale.findFirst({ where: { id: saleId, companyId }, select: { confirmedAt: true, kind: true } });
+        if (t?.kind === "TICKET" && t.confirmedAt && canceller?.role !== "Admin") throw Object.assign(new Error("ticket_confirmed"), { status: 403 });
+        await cancelSale(companyId, saleId);
+      }
+      id = saleId;
+    } else if (op.kind === "sale-confirm") {
+      const { confirmTicket } = await import("@/lib/sales/service");
+      const saleId = p.saleId as string;
+      if (!saleId) throw Object.assign(new Error("bad_sale"), { status: 400 });
+      const own = await prisma.sale.findFirst({ where: { id: saleId, companyId, kind: "TICKET" }, select: { location: { select: { userId: true } } } });
+      if (!own) throw Object.assign(new Error("not_found"), { status: 404 });
+      if (own.location?.userId !== userId) throw Object.assign(new Error("forbidden"), { status: 403 });
+      await confirmTicket(companyId, saleId);
       id = saleId;
     } else if (op.kind === "sale-reopen") {
       // Offline redelivery fix: reopen a DELIVERED order back to CONFIRMED.

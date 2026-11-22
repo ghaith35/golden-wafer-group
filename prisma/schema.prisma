@@ -749,6 +749,9 @@ model Sale {
   saleLat     Float?
   saleLng     Float?
   saleDistM   Float?
+  /// Van tickets: null = ON HOLD (driver may edit / delete it), set = CONFIRMED (final,
+  /// only an admin can edit or cancel it).
+  confirmedAt DateTime?
   notes       String?
   date        DateTime    @default(now())
   createdAt   DateTime    @default(now())

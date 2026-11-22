@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { deliverSchema, orderSchema, ticketSchema } from "@/lib/sales/validation";
-import { confirmOrder, deliverOrder, createInvoice, cancelSale, uncancelDelivery, reopenOrder, moveSale, assignOrder, confirmAndLoadOrder, updateTicket, updateOrder, deleteOrder } from "@/lib/sales/service";
+import { confirmOrder, deliverOrder, createInvoice, cancelSale, uncancelDelivery, reopenOrder, moveSale, assignOrder, confirmAndLoadOrder, updateTicket, updateOrder, deleteOrder, confirmTicket } from "@/lib/sales/service";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -35,6 +35,23 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
   try {
+    // Staff (driver) may only touch tickets on their OWN van, and only while
+    // the ticket is ON HOLD. Confirmed tickets are final: admin only.
+    if (session.role !== "Admin" && ["edit", "cancel", "validate"].includes(String(action))) {
+      const target = await prisma.sale.findFirst({
+        where: { id, companyId: session.companyId, kind: "TICKET", channel: "VAN" },
+        select: { confirmedAt: true, location: { select: { userId: true } } },
+      });
+      if (!target || target.location?.userId !== session.userId) {
+        return NextResponse.json({ error: "forbidden" }, { status: 403 });
+      }
+      if (target.confirmedAt && action !== "validate") {
+        return NextResponse.json({ error: "ticket_confirmed" }, { status: 403 });
+      }
+    }
+    if (action === "validate") {
+      return NextResponse.json(await confirmTicket(session.companyId, id));
+    }
     if (action === "confirm") {
       return NextResponse.json(await confirmOrder(session.companyId, id));
     }
@@ -47,6 +64,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json(await createInvoice(session.companyId, id));
     }
     if (action === "cancel") {
+      // Stale list / double tap: already cancelled = already done.
+      const cur = await prisma.sale.findFirst({ where: { id, companyId: session.companyId }, select: { status: true } });
+      if (cur?.status === "CANCELLED") return NextResponse.json({ ok: true });
       return NextResponse.json(await cancelSale(session.companyId, id));
     }
     if (action === "uncancel") {

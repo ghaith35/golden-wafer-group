@@ -132,7 +132,7 @@ export function CommandeClient({
     (p) =>
       (!cat || p.category?.id === cat) &&
       (!pq || p.name.includes(pq) || (p.reference ?? "").includes(pq))
-  );
+  ).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
 
   async function onScan(text: string) {
     if (scanning.current) return;

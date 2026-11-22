@@ -47,3 +47,30 @@ export async function isDayAllowed(who: Who, vanId: string | null, date: Date): 
   });
   return !!open && sameDay(new Date(open.date), date);
 }
+
+/// A client registered from a journée screen joins that day's tour as its last
+/// stop (the tour editor's "stops" list). Best-effort and idempotent: no tour
+/// that day, a closed tour, an admin, or an already-planned client = no-op.
+export async function addClientToDayTour(who: Who, clientId: string, daySlug: unknown): Promise<void> {
+  try {
+    if (who.role === "Admin") return;
+    const m = typeof daySlug === "string" ? /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(daySlug) : null;
+    if (!m) return;
+    const { start, end } = dayBounds(new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+    const van = await prisma.store.findFirst({
+      where: { companyId: who.companyId, kind: "VAN", isActive: true, userId: who.userId },
+      select: { id: true },
+    });
+    if (!van) return;
+    const tour = await prisma.tournee.findFirst({
+      where: { companyId: who.companyId, locationId: van.id, status: "OPEN", date: { gte: start, lte: end } },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, stops: { select: { clientId: true, position: true } } },
+    });
+    if (!tour || tour.stops.some((s) => s.clientId === clientId)) return;
+    const position = tour.stops.reduce((mx, s) => Math.max(mx, s.position), 0) + 1;
+    await prisma.tourneeStop.create({ data: { tourneeId: tour.id, clientId, position } });
+  } catch {
+    /* never fail client creation over the tour link */
+  }
+}

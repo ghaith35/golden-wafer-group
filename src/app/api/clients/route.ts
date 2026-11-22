@@ -6,6 +6,7 @@ import { clientSchema, generatePortalSecret } from "@/lib/clients/validation";
 import { nextDocNumber } from "@/lib/docs/sequences";
 import { checkClientArea } from "@/lib/users/area-scope";
 import { loadAreaScope } from "@/lib/users/area-scope.server";
+import { addClientToDayTour } from "@/lib/livreur/day-access";
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -31,7 +32,8 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  const parsed = clientSchema.safeParse(await req.json().catch(() => ({})));
+  const raw = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+  const parsed = clientSchema.safeParse(raw);
   if (!parsed.success) return NextResponse.json({ error: "validation_error", issues: parsed.error.issues }, { status: 400 });
   const d = parsed.data;
 
@@ -101,6 +103,7 @@ export async function POST(req: Request) {
         include: { tier: true, secteur: true, wilaya: true },
       });
     });
+    await addClientToDayTour(session, row.id, raw?.day);
     return NextResponse.json({ ...row, portalSecret: secret }, { status: 201 });
   } catch (e) {
     const msg = String(e);

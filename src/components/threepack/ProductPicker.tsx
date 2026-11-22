@@ -140,13 +140,17 @@ export function ProductPicker({
     for (const p of products) if (p.category) m.set(p.category.id, (m.get(p.category.id) ?? 0) + 1);
     return m;
   }, [products]);
-  const chips = useMemo(() => categories.filter((c) => (counts.get(c.id) ?? 0) > 0), [categories, counts]);
+  const chips = useMemo(
+    () => categories.filter((c) => (counts.get(c.id) ?? 0) > 0).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" })),
+    [categories, counts],
+  );
 
   const { shown, total } = useMemo(() => {
     const needle = norm(q.trim());
     const all = products.filter(
       (p) => (!cat || p.category?.id === cat) && (!needle || norm(p.name).includes(needle) || (p.reference ? norm(p.reference).includes(needle) : false)),
     );
+    all.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
     return { shown: all.slice(0, RESULT_CAP), total: all.length };
   }, [products, q, cat]);
 

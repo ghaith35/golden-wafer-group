@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const syncOpSchema = z.object({
   opId: z.string().min(8).max(64),
-  kind: z.enum(["ticket", "order", "client", "client-update", "versement", "client-return", "transfer-declare", "transfer-confirm", "transfer-reject", "stop-update", "cash-declare", "day-start", "day-finish", "expense", "expense-update", "expense-delete", "order-deliver", "sale-cancel", "sale-reopen"]),
+  kind: z.enum(["ticket", "order", "client", "client-update", "versement", "client-return", "transfer-declare", "transfer-confirm", "transfer-reject", "stop-update", "cash-declare", "day-start", "day-finish", "expense", "expense-update", "expense-delete", "order-deliver", "sale-cancel", "sale-confirm", "sale-reopen"]),
   payload: z.record(z.string(), z.unknown()),
   /// Real action time on the phone (epoch ms). The server stores this instead
   /// of sync time so offline sales land on the right day.

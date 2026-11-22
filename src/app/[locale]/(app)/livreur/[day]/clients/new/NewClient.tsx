@@ -225,7 +225,7 @@ export function NewClient({
       const res = await fetch("/api/clients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, day }),
       });
       if (!res.ok) {
         const d = await res.json().catch(() => null);
@@ -238,7 +238,7 @@ export function NewClient({
       onCreated?.();
     } catch {
       try {
-        const opId = await queueOp("client", body);
+        const opId = await queueOp("client", { ...body, day });
         setQueued(true);
         setCreated({ code, name: name.trim(), qr, offline: true, opId });
         onCreated?.();

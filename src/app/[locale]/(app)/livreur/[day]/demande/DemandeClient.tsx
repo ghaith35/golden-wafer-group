@@ -170,7 +170,7 @@ export function DemandeClient({
     (p) =>
       (!cat || p.category?.id === cat) &&
       (!pq || p.name.includes(pq) || (p.reference ?? "").includes(pq))
-  );
+  ).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
 
   function packOf(p: Prod) {
     return p.conversions

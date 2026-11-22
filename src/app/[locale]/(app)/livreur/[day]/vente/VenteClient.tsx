@@ -338,7 +338,7 @@ export function VenteClient({
       (stockOf(p.id) ?? 0) > 0 &&
       (!cat || p.category?.id === cat) &&
       (!pq || p.name.includes(pq) || (p.reference ?? "").includes(pq))
-  );
+  ).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
 
   async function onScan(text: string) {
     if (scanning.current) return;
@@ -779,20 +779,20 @@ export function VenteClient({
         const catLabel = cat === "" ? labels.allCats : (effCategories.find((c) => c.id === cat)?.name ?? labels.allCats);
         const chip = (active: boolean) =>
           cn(
-            "flex min-h-11 w-full min-w-0 items-center justify-between gap-1.5 rounded-2xl border px-3 text-start text-[13px] font-black shadow-sm transition-colors",
+            "flex min-h-11 w-full min-w-0 items-center justify-between gap-1.5 rounded-2xl border px-3 py-1 text-start text-[13px] font-black shadow-sm transition-colors",
             active
               ? "border-(--brand-500) bg-(--brand-500) text-(--brand-contrast)"
               : "border-(--border-default) bg-(--bg-overlay) hover:border-(--brand-500)"
           );
         const optCls = (on: boolean) =>
           cn(
-            "flex min-h-11 w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-start text-sm font-bold transition-colors",
+            "flex min-h-11 w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-start text-[13px] font-bold transition-colors",
             on ? "bg-(--brand-500)/12 text-(--brand-600)" : "hover:bg-(--bg-sunken)"
           );
         const popover = (children: React.ReactNode) => (
           <>
             <button type="button" aria-hidden tabIndex={-1} className="fixed inset-0 z-30 cursor-default" onClick={() => setMenu(null)} />
-            <div className="absolute inset-x-0 top-full z-40 mt-1.5 max-h-72 overflow-y-auto rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-1.5 shadow-[0_18px_40px_-12px_rgba(15,40,100,0.35)]">
+            <div className="absolute inset-x-0 top-full z-40 mt-1.5 max-h-[min(18rem,50vh)] overflow-y-auto overscroll-contain rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-1.5 shadow-[0_18px_40px_-12px_rgba(15,40,100,0.35)]">
               {children}
             </div>
           </>
@@ -822,22 +822,22 @@ export function VenteClient({
           );
         }
         return (
-          <div className="flex items-center gap-2">
+          <div className="relative flex flex-wrap items-center gap-2">
             {effTiers.length > 0 && (
-              <div className="relative min-w-0 flex-1">
+              <div className="min-w-[8.5rem] flex-1">
                 <button type="button" data-testid="tier-trigger" onClick={() => setMenu(menu === "tier" ? null : "tier")} className={chip(menu === "tier")}>
-                  <span className="min-w-0 truncate">{tierLabel}</span>
+                  <span className="min-w-0 break-words leading-tight">{tierLabel}</span>
                   <ChevronDown size={16} className={cn("shrink-0 transition-transform", menu === "tier" && "rotate-180")} />
                 </button>
                 {menu === "tier" && (
                   popover(<>
                     <button type="button" data-testid="tier-base" onClick={() => { setSelTier(null); setMenu(null); }} className={optCls(selTier == null)}>
-                      <span className="truncate">{labels.tierBase ?? ""}</span>
+                      <span className="min-w-0 break-words leading-tight">{labels.tierBase ?? ""}</span>
                       {selTier == null && <Check size={16} />}
                     </button>
-                    {effTiers.map((t) => (
+                    {[...effTiers].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" })).map((t) => (
                       <button key={t.id} type="button" data-testid={`tier-${t.id}`} onClick={() => { setSelTier(t.id); setMenu(null); }} className={optCls(selTier === t.id)}>
-                        <span className="truncate">{t.name}</span>
+                        <span className="min-w-0 break-words leading-tight">{t.name}</span>
                         {selTier === t.id && <Check size={16} />}
                       </button>
                     ))}
@@ -846,20 +846,20 @@ export function VenteClient({
               </div>
             )}
             {(
-              <div className="relative min-w-0 flex-1">
+              <div className="min-w-[8.5rem] flex-1">
                 <button type="button" data-testid="cat-trigger" onClick={() => setMenu(menu === "cat" ? null : "cat")} className={chip(menu === "cat" || cat !== "")}>
-                  <span className="min-w-0 truncate">{catLabel}</span>
+                  <span className="min-w-0 break-words leading-tight">{catLabel}</span>
                   <ChevronDown size={16} className={cn("shrink-0 transition-transform", menu === "cat" && "rotate-180")} />
                 </button>
                 {menu === "cat" && (
                   popover(<>
                     <button type="button" onClick={() => { setCat(""); setMenu(null); }} className={optCls(cat === "")}>
-                      <span className="truncate">{labels.allCats}</span>
+                      <span className="min-w-0 break-words leading-tight">{labels.allCats}</span>
                       {cat === "" && <Check size={16} />}
                     </button>
-                    {effCategories.map((c) => (
+                    {[...effCategories].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" })).map((c) => (
                       <button key={c.id} type="button" onClick={() => { setCat(c.id); setMenu(null); }} className={optCls(cat === c.id)}>
-                        <span className="truncate">{c.name}</span>
+                        <span className="min-w-0 break-words leading-tight">{c.name}</span>
                         {cat === c.id && <Check size={16} />}
                       </button>
                     ))}
@@ -886,7 +886,7 @@ export function VenteClient({
 
       {/* Products stay on screen; the order lives in a bottom sheet. */}
         <>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(9.75rem,1fr))] gap-2">
             {filteredProducts.map((p) => {
               const img = p.images[0]?.url;
               const base = priceFor(p, selTier);
@@ -911,7 +911,7 @@ export function VenteClient({
                   onMouseUp={endPress}
                   onMouseLeave={endPress}
                   onKeyDown={(e) => e.key === "Enter" && openQty(p)}
-                  className="relative overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay)"
+                  className="@container relative overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay)"
                 >
                   {inSale && (
                     <span className="absolute end-1.5 top-1.5 z-10 rounded-full bg-(--brand-500) px-2 py-0.5 text-[11px] font-black tabular-nums text-(--brand-contrast)" dir="ltr">
@@ -925,45 +925,45 @@ export function VenteClient({
                     <div className="flex aspect-[4/3] w-full items-center justify-center bg-(--bg-sunken) text-2xl opacity-50">📦</div>
                   )}
                   <div className="space-y-1 p-2">
-                    <div className="truncate text-[13px] font-bold">{p.name}</div>
+                    <div className="line-clamp-2 break-words text-[13px] font-bold leading-tight">{p.name}</div>
                     {pack ? (
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className="rounded-lg bg-(--brand-500)/10 px-1.5 py-1">
-                          <div className="truncate text-[9px] font-black uppercase opacity-60">{pack.unit.name}</div>
-                          <div className="truncate text-[12px] font-black tabular-nums text-(--brand-600)" dir="ltr">{dzMoney(packPrice)}</div>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between gap-2 rounded-lg bg-(--brand-500)/10 px-2 py-1.5">
+                          <span className="min-w-0 break-words text-[9px] font-black uppercase leading-tight opacity-60 @[11rem]:text-[10px]">{pack.unit.name}</span>
+                          <span className="shrink-0 whitespace-nowrap text-[13px] font-black tabular-nums @[11rem]:text-[14px] text-(--brand-600)" dir="ltr">{dzMoney(packPrice)}</span>
                         </div>
-                        <div className="rounded-lg bg-(--bg-sunken) px-1.5 py-1">
-                          <div className="truncate text-[9px] font-black uppercase opacity-60">{p.baseUnit?.name ?? ""}</div>
-                          <div className="truncate text-[12px] font-black tabular-nums" dir="ltr">{dzMoney(base)}</div>
+                        <div className="flex items-center justify-between gap-2 rounded-lg bg-(--bg-sunken) px-2 py-1.5">
+                          <span className="min-w-0 break-words text-[9px] font-black uppercase leading-tight opacity-60 @[11rem]:text-[10px]">{p.baseUnit?.name ?? ""}</span>
+                          <span className="shrink-0 whitespace-nowrap text-[13px] font-black tabular-nums @[11rem]:text-[14px]" dir="ltr">{dzMoney(base)}</span>
                         </div>
                       </div>
                     ) : (
-                      <div className="rounded-lg bg-(--brand-500)/10 px-1.5 py-1">
-                        <div className="truncate text-[9px] font-black uppercase opacity-60">{p.baseUnit?.name ?? ""}</div>
-                        <div className="truncate text-[12px] font-black tabular-nums text-(--brand-600)" dir="ltr">{dzMoney(base)}</div>
+                      <div className="flex items-center justify-between gap-2 rounded-lg bg-(--brand-500)/10 px-2 py-1.5">
+                        <span className="min-w-0 break-words text-[9px] font-black uppercase leading-tight opacity-60 @[11rem]:text-[10px]">{p.baseUnit?.name ?? ""}</span>
+                        <span className="shrink-0 whitespace-nowrap text-[13px] font-black tabular-nums @[11rem]:text-[14px] text-(--brand-600)" dir="ltr">{dzMoney(base)}</span>
                       </div>
                     )}
-                    <div className={cn("rounded-lg bg-(--bg-sunken) px-1.5 py-1 text-[10px] font-bold tabular-nums", stock < 0 ? "text-red-500" : "")}>
-                      <div className="flex items-baseline justify-between gap-1">
-                        <span className="opacity-60">{labels.stock}</span>
-                        <span><bdi>{pack ? whole : stock}</bdi> {pack ? pack.unit.name : (p.baseUnit?.name ?? "")}</span>
+                    <div className={cn("rounded-lg bg-(--bg-sunken) px-1.5 py-1 text-[9.5px] font-bold tabular-nums @[11rem]:text-[10.5px]", stock < 0 ? "text-red-500" : "")}>
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0">
+                        <span className="min-w-0 break-words opacity-60">{labels.stock}</span>
+                        <span className="shrink-0 whitespace-nowrap"><bdi>{pack ? whole : stock}</bdi> {pack ? pack.unit.name : (p.baseUnit?.name ?? "")}</span>
                       </div>
                       {pack && (
                         <>
-                          <div className="flex items-baseline justify-between gap-1 opacity-80">
-                            <span className="opacity-60">1 {pack.unit.name} =</span>
-                            <span><bdi>{f}</bdi> {p.baseUnit?.name ?? ""}</span>
+                          <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0 opacity-80">
+                            <span className="min-w-0 break-words opacity-60">1 {pack.unit.name} =</span>
+                            <span className="shrink-0 whitespace-nowrap"><bdi>{f}</bdi> {p.baseUnit?.name ?? ""}</span>
                           </div>
-                          <div className="flex items-baseline justify-between gap-1 opacity-80">
-                            <span className="opacity-60">{labels.total}</span>
-                            <span><bdi>{whole * f}</bdi> {p.baseUnit?.name ?? ""}</span>
+                          <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0 opacity-80">
+                            <span className="min-w-0 break-words opacity-60">{labels.total}</span>
+                            <span className="shrink-0 whitespace-nowrap"><bdi>{whole * f}</bdi> {p.baseUnit?.name ?? ""}</span>
                           </div>
                         </>
                       )}
                       {held > 0 && (
-                        <div className="flex items-baseline justify-between gap-1 text-amber-600">
-                          <span className="opacity-60">🔒 {labels.held ?? "held"}</span>
-                          <span><bdi>{pack ? Math.floor(held / (f || 1)) : held}</bdi> {pack ? pack.unit.name : (p.baseUnit?.name ?? "")}</span>
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0 text-amber-600">
+                          <span className="min-w-0 break-words opacity-60">🔒 {labels.held ?? "held"}</span>
+                          <span className="shrink-0 whitespace-nowrap"><bdi>{pack ? Math.floor(held / (f || 1)) : held}</bdi> {pack ? pack.unit.name : (p.baseUnit?.name ?? "")}</span>
                         </div>
                       )}
                     </div>
@@ -1018,31 +1018,31 @@ export function VenteClient({
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0 flex-1 truncate text-[13px] font-bold">
-                        {p?.name ?? l.productId.slice(-4)}{" "}
-                        <span className="rounded-full bg-(--bg-sunken) px-1.5 py-px text-[10px] font-black opacity-70">
+                      <div className="min-w-0 flex-1 text-[13px] font-bold leading-tight">
+                        <span className="line-clamp-2 break-words">{p?.name ?? l.productId.slice(-4)}</span>
+                        <span className="mt-0.5 block w-fit max-w-full break-words rounded-full bg-(--bg-sunken) px-1.5 py-px text-[10px] font-black leading-tight opacity-70">
                           {tierName(l.tierId)}
                         </span>
                       </div>
-                      <div className="shrink-0 text-sm font-black tabular-nums" dir="ltr">{dzMoney(l.qty * l.unitPrice)}</div>
+                      <div className="shrink-0 whitespace-nowrap text-sm font-black tabular-nums" dir="ltr">{dzMoney(l.qty * l.unitPrice)}</div>
                     </div>
-                    <div className="mt-1.5 flex items-center justify-between gap-2">
-                      <div className="text-[11px] tabular-nums opacity-60" dir="ltr">{dzMoney(l.unitPrice)}</div>
+                    <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                      <div className="whitespace-nowrap text-[11px] tabular-nums opacity-60" dir="ltr">{dzMoney(l.unitPrice)}</div>
                       <div className="flex shrink-0 items-center gap-1">
                         <button
                           type="button"
                           aria-label={labels.remove ?? "Remove"}
                           title={labels.remove ?? "Remove"}
                           onClick={() => setLines((prev) => prev.filter((_, j) => j !== i))}
-                          className="flex h-10 w-10 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10"
+                          className="flex h-9 w-9 items-center justify-center min-[380px]:h-10 min-[380px]:w-10 rounded-lg text-red-500 hover:bg-red-500/10"
                         >
                           <Trash2 size={15} />
                         </button>
-                        <button aria-label="-" onClick={() => bump(i, -1)} className="flex h-10 w-10 items-center justify-center rounded-lg bg-(--bg-sunken)">
+                        <button aria-label="-" onClick={() => bump(i, -1)} className="flex h-9 w-9 items-center justify-center min-[380px]:h-10 min-[380px]:w-10 rounded-lg bg-(--bg-sunken)">
                           <Minus size={15} />
                         </button>
-                        <span className="w-8 text-center text-sm font-black tabular-nums">{l.qty}</span>
-                        <button aria-label="+" onClick={() => bump(i, 1)} className="flex h-10 w-10 items-center justify-center rounded-lg bg-(--bg-sunken)">
+                        <span className="min-w-7 text-center text-sm font-black tabular-nums">{l.qty}</span>
+                        <button aria-label="+" onClick={() => bump(i, 1)} className="flex h-9 w-9 items-center justify-center min-[380px]:h-10 min-[380px]:w-10 rounded-lg bg-(--bg-sunken)">
                           <Plus size={15} />
                         </button>
                       </div>

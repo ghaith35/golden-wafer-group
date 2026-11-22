@@ -1092,3 +1092,16 @@ export async function createClientReturn(
 
 export { SERIES };
 export type { ReturnInput };
+
+/// Van ticket lifecycle: a new ticket is ON HOLD (confirmedAt null) — the
+/// driver may still edit / delete it (stock + debt are already posted and get
+/// reversed by those actions). Confirming makes it final: from then on only an
+/// admin can edit or cancel it. Idempotent.
+export async function confirmTicket(companyId: string, saleId: string) {
+  const sale = await prisma.sale.findFirst({ where: { id: saleId, companyId, kind: "TICKET" }, select: { id: true, status: true, confirmedAt: true } });
+  if (!sale) throw Object.assign(new Error("not_found"), { status: 404 });
+  if (sale.status !== "DELIVERED") throw Object.assign(new Error("bad_status"), { status: 400 });
+  if (sale.confirmedAt) return { ok: true, confirmedAt: sale.confirmedAt };
+  const row = await prisma.sale.update({ where: { id: sale.id }, data: { confirmedAt: new Date() }, select: { confirmedAt: true } });
+  return { ok: true, confirmedAt: row.confirmedAt };
+}

@@ -86,7 +86,8 @@ export default async function LivreurVentePage({
         },
       })
     : null;
-  if (sp.edit && !editing) redirect(`/${locale}/livreur/${day}/factures`);
+  // Confirmed tickets are final: only an admin may reopen them.
+  if (sp.edit && (!editing || (session.role !== "Admin" && editing.confirmedAt))) redirect(`/${locale}/livreur/${day}/factures`);
   const stockMap: Record<string, number> = {};
   for (const b of vanStock) stockMap[b.productId] = Number(b._sum.qty ?? 0);
   // Ticket labels follow the admin ticket language (default French),

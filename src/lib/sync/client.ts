@@ -723,7 +723,7 @@ export async function queueOp(kind: string, payload: Record<string, unknown>): P
   // hides them, and the server rejects replays. Fail fast here so a stale
   // cached page can't silently fill the outbox (works fully offline via
   // the cached credential).
-  if ((kind === "ticket" || kind === "sale-cancel" || kind === "sale-reopen" || kind === "transfer-declare") && getOfflineCred()?.role === "Vendeur") {
+  if ((kind === "ticket" || kind === "sale-cancel" || kind === "sale-confirm" || kind === "sale-reopen" || kind === "transfer-declare") && getOfflineCred()?.role === "Vendeur") {
     throw new Error("forbidden");
   }
   const opId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;

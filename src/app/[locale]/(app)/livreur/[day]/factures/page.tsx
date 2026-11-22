@@ -32,7 +32,7 @@ export default async function LivreurFacturesPage({
   const driver = await prisma.user.findFirst({ where: { id: session.userId, companyId: session.companyId }, select: { fullName: true, phone: true } });
 
   const rows = await prisma.sale.findMany({
-    where: { companyId: session.companyId, locationId: van.id, kind: "TICKET" },
+    where: { companyId: session.companyId, locationId: van.id, kind: "TICKET", status: { not: "CANCELLED" } },
     include: { client: { select: { name: true, gpsLat: true, gpsLng: true } } },
     orderBy: { createdAt: "desc" },
     take: 100,
@@ -40,6 +40,7 @@ export default async function LivreurFacturesPage({
 
   return (
     <FacturesClient
+      isAdmin={session.role === "Admin"}
       locale={locale}
       day={day}
       rows={JSON.parse(JSON.stringify(rows))}
@@ -49,6 +50,9 @@ export default async function LivreurFacturesPage({
         yes: t("yes"), no: t("no"), queuedOk: t("queuedOk"),
         print: t("print"), total: t("total"), paid: t("paid"),
         cancel: t("cancel"), offline: tc("offline"), unsynced: ts("unsynced"),
+        factureHold: t("factureHold"), factureConfirmed: t("factureConfirmed"), confirmFacture: t("confirmFacture"),
+        confirmFactureTitle: t("confirmFactureTitle"), confirmFactureMsg: t("confirmFactureMsg"),
+        factureLocked: t("factureLocked"), facturesSelected: t("facturesSelected"), selectAllFactures: t("selectAllFactures"), bulkFailed: t("bulkFailed"), factureConfirmedOk: t("factureConfirmedOk"),
         discarded: t("discarded"), errForbidden: t("errForbidden"),
         staleData: t("staleData"),
         edit: tc("edit"), save: tc("save"), product: ts("product"), unit: ts("unit"),

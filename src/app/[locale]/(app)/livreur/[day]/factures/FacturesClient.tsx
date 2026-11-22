@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
-import { ArrowLeft, Printer, Share2, Trash2, WifiOff, X } from "lucide-react";
+import { ArrowLeft, Check, CheckCircle2, Clock, Lock, Printer, Share2, Trash2, WifiOff, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { TicketView, type TicketLabels, type TicketVM } from "@/components/sales/TicketView";
@@ -18,7 +18,7 @@ import { dzMoney, fmtDT } from "@/lib/format";
 import { useSyncedState } from "@/lib/data-sync";
 
 import { ErrText } from "@/components/ui/ErrText";
-type Row = { id: string; number: string; total: unknown; date: unknown; client: { name: string; gpsLat?: number | string | null; gpsLng?: number | string | null } | null };
+type Row = { id: string; number: string; total: unknown; date: unknown; confirmedAt?: unknown; client: { name: string; gpsLat?: number | string | null; gpsLng?: number | string | null } | null };
 
 type Detail = {
   id: string; number: string; status: string;
@@ -46,7 +46,9 @@ export function FacturesClient({
   ticketLabels,
   ticketLang,
   driver,
+  isAdmin = false,
 }: {
+  isAdmin?: boolean;
   locale: string;
   day: string;
   rows: Row[];
@@ -84,6 +86,18 @@ export function FacturesClient({
     };
   }, []);
   const [deleting, setDeleting] = useState<Row | null>(null);
+  const [confirming, setConfirming] = useState<Row | null>(null);
+  /// Multi-select: ids of selected server tickets + the pending bulk action.
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulk, setBulk] = useState<"confirm" | "delete" | null>(null);
+  const selectable = (r: Row) => !r.id.startsWith("pending:") && (isAdmin || !r.confirmedAt);
+  const toggleSel = (id: string) =>
+    setSelected((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
   const [detail, setDetail] = useState<Detail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -273,6 +287,95 @@ export function FacturesClient({
     if (d) await openPrint(d);
   }
 
+  /// ON HOLD → CONFIRMED (final: only an admin can change it afterwards).
+  async function confirmTicketNow() {
+    if (!confirming || busy) return;
+    const target = confirming;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    const done = () => {
+      const at = new Date().toISOString();
+      setConfirming(null);
+      setRows((prev) => prev.map((r) => (r.id === target.id ? { ...r, confirmedAt: at } : r)));
+      setNotice(labels.factureConfirmedOk ?? "✓");
+    };
+    try {
+      const res = await fetch(`/api/sales/${target.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "validate" }),
+      });
+      const d = await res.json().catch(() => null);
+      if (!res.ok) {
+        setError(d?.error ?? "failed");
+        return;
+      }
+      done();
+    } catch {
+      try {
+        await queueOp("sale-confirm", { saleId: target.id });
+        done();
+      } catch (e) {
+        setError(queueErrText(labels, e));
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /// Runs one action over every selected ticket (sequential, so a slow link or
+  /// a single failure never loses the others). Offline → queued like the
+  /// single-ticket buttons.
+  async function runBulk() {
+    if (!bulk || busy) return;
+    const kind = bulk;
+    const targets = rows.filter((r) => selected.has(r.id) && selectable(r) && (kind === "delete" || !r.confirmedAt));
+    if (!targets.length) {
+      setBulk(null);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    const okIds = new Set<string>();
+    let failed = 0;
+    let lastErr = "";
+    for (const r of targets) {
+      try {
+        const res = await fetch(`/api/sales/${r.id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: kind === "confirm" ? "validate" : "cancel" }),
+        });
+        if (res.ok) okIds.add(r.id);
+        else {
+          failed++;
+          lastErr = String((await res.json().catch(() => null))?.error ?? "failed");
+        }
+      } catch {
+        try {
+          await queueOp(kind === "confirm" ? "sale-confirm" : "sale-cancel", { saleId: r.id });
+          okIds.add(r.id);
+        } catch (e) {
+          failed++;
+          lastErr = queueErrText(labels, e);
+        }
+      }
+    }
+    const at = new Date().toISOString();
+    setRows((prev) =>
+      kind === "confirm"
+        ? prev.map((r) => (okIds.has(r.id) ? { ...r, confirmedAt: at } : r))
+        : prev.filter((r) => !okIds.has(r.id)),
+    );
+    setSelected((prev) => new Set([...prev].filter((id) => !okIds.has(id))));
+    setBulk(null);
+    if (okIds.size) setNotice(kind === "confirm" ? `${labels.factureConfirmedOk} (${okIds.size})` : `${labels.discarded ?? "✓"} (${okIds.size})`);
+    if (failed) setError(`${failed} ${labels.bulkFailed ?? "failed"}${lastErr ? ` — ${lastErr}` : ""}`);
+    setBusy(false);
+  }
+
   async function confirmDelete() {
     if (!deleting || busy) return;
     // Offline-created ticket: no server row exists — just drop the queued op.
@@ -329,7 +432,7 @@ export function FacturesClient({
   }
 
   return (
-    <div className="space-y-3 p-4 pb-8 md:p-5">
+    <div className={`space-y-3 p-4 md:p-5 ${selected.size ? "pb-32" : "pb-8"}`}>
       <div className="flex items-center gap-2">
         <button
           aria-label="back"
@@ -381,16 +484,45 @@ export function FacturesClient({
             </div>
           );
         })}
-        {rows.map((t) => (
-          <div key={t.id} className="flex items-center gap-2 rounded-xl border border-(--border-default) bg-(--bg-overlay) p-2.5">
+        {rows.map((t) => {
+          const held = !t.confirmedAt;
+          const locked = !isAdmin && !held;
+          const isPending = t.id.startsWith("pending:");
+          return (
+          <div key={t.id} className={`flex items-center gap-2 rounded-xl border bg-(--bg-overlay) p-2.5 ${held ? "border-amber-500/40" : "border-(--border-default)"}`}>
+            {selectable(t) ? (
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={selected.has(t.id)}
+                onClick={() => toggleSel(t.id)}
+                data-testid="select-doc"
+                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${selected.has(t.id) ? "border-(--brand-600) bg-(--brand-600) text-white" : "border-(--border-default)"}`}
+              >
+                {selected.has(t.id) && <Check size={14} strokeWidth={3} />}
+              </button>
+            ) : (
+              <span className="h-6 w-6 shrink-0" aria-hidden />
+            )}
             <div className="min-w-0 flex-1">
               <div className="flex min-w-0 items-center gap-1 text-sm font-bold"><span className="shrink-0">{t.number} ·</span><ClientName name={t.client?.name} lat={t.client?.gpsLat} lng={t.client?.gpsLng} /></div>
-              <div className="flex items-center gap-1.5 text-[11px] opacity-60">
+              <div className="flex flex-wrap items-center gap-1.5 text-[11px] opacity-60">
                 <span>{fmtDT(t.date as string, locale)} · <b className="tabular-nums">{dzMoney(Number(t.total))}</b></span>
                 {unsynced.has(t.id) && (
                   <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-1.5 py-px text-[10px] font-black opacity-100">
                     <WifiOff size={11} />
                     {labels.unsynced ?? "…"}
+                  </span>
+                )}
+                {held ? (
+                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-500/15 px-1.5 py-px text-[10px] font-black text-amber-600 opacity-100">
+                    <Clock size={11} />
+                    {labels.factureHold}
+                  </span>
+                ) : (
+                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-px text-[10px] font-black text-emerald-600 opacity-100">
+                    <CheckCircle2 size={11} />
+                    {labels.factureConfirmed}
                   </span>
                 )}
               </div>
@@ -403,18 +535,31 @@ export function FacturesClient({
             >
               {labels.viewSale}
             </button>
-            <button
-              type="button"
-              onClick={() => goPage(router, `/${locale}/livreur/${day}/vente?edit=${t.id}`)}
-              aria-label={labels.edit ?? "Edit"}
-              title={labels.edit ?? "Edit"}
-              // Pending (offline-created) tickets have no server id to edit —
-              // and edits need the server anyway.
-              disabled={!online || t.id.startsWith("pending:")}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-(--brand-600) disabled:opacity-40"
-            >
-              ✎
-            </button>
+            {held && !isPending && (
+              <button
+                type="button"
+                onClick={() => { setError(null); setConfirming(t); }}
+                data-testid="confirm-doc"
+                className="flex h-9 shrink-0 items-center gap-1 rounded-lg bg-emerald-600 px-2.5 text-xs font-black text-white"
+              >
+                <CheckCircle2 size={14} />
+                {labels.confirmFacture}
+              </button>
+            )}
+            {!locked && (
+              <button
+                type="button"
+                onClick={() => goPage(router, `/${locale}/livreur/${day}/vente?edit=${t.id}`)}
+                aria-label={labels.edit ?? "Edit"}
+                title={labels.edit ?? "Edit"}
+                // Pending (offline-created) tickets have no server id to edit —
+                // and edits need the server anyway.
+                disabled={!online || isPending}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-(--brand-600) disabled:opacity-40"
+              >
+                ✎
+              </button>
+            )}
             <button
               type="button"
               onClick={() => void printRow(t)}
@@ -425,13 +570,62 @@ export function FacturesClient({
             >
               <Printer size={16} />
             </button>
-            <button onClick={() => setDeleting(t)} aria-label={labels.deleteSale} data-testid="delete-doc" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10">
-              <Trash2 size={16} />
-            </button>
+            {locked ? (
+              <span title={labels.factureLocked} aria-label={labels.factureLocked} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-(--text-muted) opacity-60">
+                <Lock size={15} />
+              </span>
+            ) : (
+              <button onClick={() => setDeleting(t)} aria-label={labels.deleteSale} data-testid="delete-doc" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10">
+                <Trash2 size={16} />
+              </button>
+            )}
           </div>
-        ))}
+          );
+        })}
         {rows.length + pending.length === 0 && <p className="text-center text-sm opacity-60">{labels.empty}</p>}
       </div>
+      {selected.size > 0 && (
+        <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-40 flex items-center gap-2 border-t border-(--border-default) bg-(--bg-overlay) px-3 py-2.5 shadow-lg lg:bottom-0">
+          <button type="button" onClick={() => setSelected(new Set())} aria-label={labels.cancel} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken)">
+            <X size={18} />
+          </button>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-black tabular-nums">{selected.size} {labels.facturesSelected}</div>
+            <button
+              type="button"
+              onClick={() => setSelected(new Set(rows.filter(selectable).map((r) => r.id)))}
+              className="text-[11px] font-bold text-(--brand-600)"
+            >
+              {labels.selectAllFactures}
+            </button>
+          </div>
+          {rows.some((r) => selected.has(r.id) && !r.confirmedAt) && (
+            <button type="button" onClick={() => setBulk("confirm")} data-testid="bulk-confirm" className="flex h-10 shrink-0 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-sm font-black text-white">
+              <CheckCircle2 size={16} />
+              {labels.confirmFacture} ({rows.filter((r) => selected.has(r.id) && !r.confirmedAt).length})
+            </button>
+          )}
+          <button type="button" onClick={() => setBulk("delete")} data-testid="bulk-delete" aria-label={labels.deleteSale} className="flex h-10 shrink-0 items-center gap-1.5 rounded-lg bg-red-500/10 px-3 text-sm font-black text-red-500">
+            <Trash2 size={16} />
+            {labels.deleteSale}
+          </button>
+        </div>
+      )}
+      <Modal open={bulk !== null} onClose={() => setBulk(null)} title={bulk === "delete" ? labels.confirmDelete : labels.confirmFactureTitle} subtitle={`${selected.size} ${labels.facturesSelected}`} icon={bulk === "delete" ? <Trash2 size={18} /> : <CheckCircle2 size={18} />}>
+        {bulk === "confirm" && <p className="mb-3 rounded-xl bg-amber-500/10 p-3 text-sm font-bold text-amber-700">{labels.confirmFactureMsg}</p>}
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => setBulk(null)} className="flex-1" disabled={busy}>{labels.no}</Button>
+          <Button onClick={() => void runBulk()} className="flex-1" disabled={busy}>{busy ? "…" : bulk === "delete" ? labels.yes : labels.confirmFacture}</Button>
+        </div>
+      </Modal>
+      <Modal open={confirming !== null} onClose={() => setConfirming(null)} title={labels.confirmFactureTitle} subtitle={confirming?.number ?? ""} icon={<CheckCircle2 size={18} />}>
+        <p className="mb-3 rounded-xl bg-amber-500/10 p-3 text-sm font-bold text-amber-700">{labels.confirmFactureMsg}</p>
+        {error && <p className="mb-2 rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => setConfirming(null)} className="flex-1" disabled={busy}>{labels.no}</Button>
+          <Button onClick={() => void confirmTicketNow()} className="flex-1" disabled={busy}>{busy ? "…" : labels.confirmFacture}</Button>
+        </div>
+      </Modal>
       <Modal open={deleting !== null} onClose={() => setDeleting(null)} title={labels.confirmDelete} subtitle={deleting?.number ?? ""} icon={<Trash2 size={18} />}>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={() => setDeleting(null)} className="flex-1" disabled={busy}>{labels.no}</Button>
@@ -467,7 +661,7 @@ export function FacturesClient({
             </div>
             <div className="flex gap-2">
               <Button variant="secondary" onClick={() => { setDetail(null); setError(null); }} className="flex-1">{labels.cancel}</Button>
-              {online && !detail.id.startsWith("pending:") && (
+              {online && !detail.id.startsWith("pending:") && (isAdmin || !rows.find((r) => r.id === detail.id)?.confirmedAt) && (
                 <Button variant="secondary" onClick={() => setEditing(true)} className="flex-1">
                   ✎ {labels.edit ?? "Edit"}
                 </Button>

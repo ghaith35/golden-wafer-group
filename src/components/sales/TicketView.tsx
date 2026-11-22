@@ -143,26 +143,12 @@ export function TicketView({
           </div>
         )}
         <Ornament />
-        {/* ── Meta: framed number + date ── */}
-        <div className="flex items-center justify-between border-y-[3px] border-double border-black py-1 text-xs">
-          <span className="text-sm font-black" dir="ltr">N° {ticket.number}</span>
-          <span className="font-bold tabular-nums">{fmtDate(ticket.date, locale)}</span>
+        {/* ── Meta: number · van name · date, one row ── */}
+        <div className="flex items-center justify-between gap-1 border-y-[3px] border-double border-black py-1 text-xs">
+          <span className="shrink-0 text-xs font-black" dir="ltr">N° {ticket.number}</span>
+          {ticket.location?.name && <span className="min-w-0 flex-1 text-center text-[11px] font-black leading-tight">{ticket.location.name}</span>}
+          <span className="shrink-0 text-[11px] font-bold tabular-nums">{fmtDate(ticket.date, locale)}</span>
         </div>
-        {ticket.location && <div className="mt-1 text-xs font-bold opacity-70">{ticket.location.name}</div>}
-        {/* ── Driver: solid black band, big phone ── */}
-        {(ticket.seller || ticket.sellerPhone) && (
-          <div className="mt-1.5 rounded-lg bg-black px-2 py-1.5 text-white">
-            <div className="text-[9px] font-bold uppercase tracking-[0.25em] opacity-80">{labels.seller}</div>
-            {ticket.seller && ticket.seller !== ticket.sellerPhone && (
-              <div className="text-xs font-black leading-tight">{ticket.seller}</div>
-            )}
-            {ticket.sellerPhone && (
-              <div className={`font-black leading-tight tracking-wider tabular-nums text-xl`} dir="ltr">
-                ☎ {ticket.sellerPhone}
-              </div>
-            )}
-          </div>
-        )}
         {ticket.client && (
           <div className="mt-1.5 rounded-lg border-2 border-black p-1.5 text-xs">
             <div className="text-sm font-black leading-tight">{labels.client}: <bdi dir="auto">{ticket.client.name}</bdi></div>
@@ -216,29 +202,26 @@ export function TicketView({
             <span dir="ltr">− {money(remise)}</span>
           </div>
         )}
-        <div className={`my-0.5 flex items-center justify-between rounded-lg bg-black px-2 py-1.5 font-black text-white text-lg`}>
-          <span>{labels.total}</span>
-          <span dir="ltr">{money(total)}</span>
-        </div>
-        {showDebts && (
-          <div className="flex items-center justify-between border-b border-dashed border-black/40 pb-0.5 text-xs">
-            <span>{labels.oldDebt}</span>
-            <span dir="ltr">{money(num(ticket.oldDebt))}</span>
+        {/* ── Summary: net · old debt · paid · new debt (or remaining) ── */}
+        <div className="my-1 rounded-lg border-[3px] border-double border-black">
+          <div className="flex items-center justify-between gap-2 border-b-2 border-black px-2 py-1.5 text-lg font-black">
+            <span className="min-w-0 whitespace-nowrap">{lang === "fr" ? "NET À PAYER" : "الصافي للدفع"}</span>
+            <span className="shrink-0 tabular-nums" dir="ltr">{money(total)}</span>
           </div>
-        )}
-        <div className="flex items-center justify-between border-b border-dashed border-black/40 pb-0.5 text-xs">
-          <span>{labels.paid}</span>
-          <span dir="ltr">{money(paid)}</span>
-        </div>
-        {showDebts && (
-          <div className="flex items-center justify-between border-b border-dashed border-black/40 pb-0.5 text-sm font-black">
-            <span>{labels.newDebt}</span>
-            <span dir="ltr">{money(num(ticket.newDebt))}</span>
+          {showDebts && (
+            <div className="flex items-center justify-between gap-2 border-b border-dashed border-black/60 px-2 py-1 text-sm font-bold">
+              <span className="min-w-0">{lang === "fr" ? "DETTE ANCIENNE" : "الدين القديم"}</span>
+              <span className="shrink-0 tabular-nums" dir="ltr">{money(num(ticket.oldDebt))}</span>
+            </div>
+          )}
+          <div className={`flex items-center justify-between gap-2 px-2 py-1 text-sm font-bold ${showDebts ? "border-b-2 border-black" : "border-b border-dashed border-black/60"}`}>
+            <span className="min-w-0">{lang === "fr" ? "MONTANT PAYÉ" : "المبلغ المدفوع"}</span>
+            <span className="shrink-0 tabular-nums" dir="ltr">{money(paid)}</span>
           </div>
-        )}
-        <div className="mt-0.5 flex items-center justify-between rounded-lg border-2 border-black px-2 py-1 text-sm font-black">
-          <span>{labels.due}</span>
-          <span dir="ltr">{money(due)}</span>
+          <div className="flex items-center justify-between gap-2 px-2 py-1.5 text-base font-black">
+            <span className="min-w-0 whitespace-nowrap">{showDebts ? (lang === "fr" ? "NOUVELLE DETTE" : "الدين الجديد") : labels.due}</span>
+            <span className="shrink-0 tabular-nums" dir="ltr">{money(showDebts ? num(ticket.newDebt) : due)}</span>
+          </div>
         </div>
         <Ornament />
         {qrDataUrl && (
