@@ -1108,6 +1108,7 @@ export function warmManifest(locale: string, day: string, role?: string): string
     `${base}/expenses`,
     `${base}/stock`,
     `${base}/clients/new`,
+    `${base}/gps`,
   ];
   if (role !== "Vendeur") {
     pages.push(`${base}/vente`, `${base}/factures`, `${base}/demande`, `${base}/commandes?ready=1`);

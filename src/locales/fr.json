@@ -54,7 +54,8 @@
     "debtsClients": "Dettes clients",
     "debtsSuppliers": "Dettes fournisseurs",
     "dailyCash": "Caisse du jour",
-    "threepack": "Pack cadeau"
+    "threepack": "Pack cadeau",
+    "vanGps": "Positions GPS"
   },
   "login": {
     "title": "Connexion",
@@ -1372,7 +1373,20 @@
     "lockedHint": "Verrouillé",
     "errBonus": "Colis gratuits non mérités pour cette vente",
     "errOutsideArea": "Cette wilaya ou ce secteur est hors de vos zones assignées",
-    "errAreaRequired": "Choisissez la wilaya et le secteur qui vous sont assignés"
+    "errAreaRequired": "Choisissez la wilaya et le secteur qui vous sont assignés",
+    "gpsTitle": "Positions GPS",
+    "gpsToday": "Aujourd'hui",
+    "gpsTodaySector": "Secteur du jour",
+    "proxNear": "Proche",
+    "proxMid": "Loin",
+    "proxFar": "Très loin",
+    "proxNone": "Sans GPS",
+    "gpsNoPos": "Localisez-vous pour voir la proximité",
+    "gpsRefresh": "Actualiser",
+    "callClient": "Appeler",
+    "gpsLocating": "Localisation…",
+    "gpsMapOffline": "Carte disponible hors ligne pour les zones enregistrées",
+    "gpsEmpty": "Aucun client"
   },
   "presence": {
     "title": "Pointage",

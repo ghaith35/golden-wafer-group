@@ -22,6 +22,9 @@ import { NewClient } from "./clients/new/NewClient";
 import type { AreaScope } from "@/lib/users/area-scope";
 import { cn } from "@/lib/utils";
 import { ClientName } from "@/components/clients/ClientName";
+import { proximityOf, PROX_CARD } from "@/lib/proximity";
+import { haversineM } from "@/lib/geo-math";
+import { RefreshButton } from "@/components/livreur/RefreshButton";
 import { matchClient } from "@/lib/clients/display";
 
 type Client = {
@@ -392,7 +395,7 @@ export function DayClients({
   }
 
   const detailTier = detailFor?.tierId ? refs.tiers.find((t) => t.id === detailFor.tierId)?.name ?? null : null;
-  const { locating, geoError, locate, meta, pos } = useSavedDistances({
+  const { locating, geoError, locate, meta, pos, raw } = useSavedDistances({
     unitM: labels.unitM, unitKm: labels.unitKm, unitMin: labels.unitMin,
   });
 
@@ -494,6 +497,7 @@ export function DayClients({
         >
           <Crosshair size={16} className={cn(locating && "animate-spin")} />
         </button>
+        <RefreshButton label={labels.actualiser ?? "refresh"} onLocal={() => locate()} />
         <button
           type="button"
           onClick={() => setAdding(true)}
@@ -552,10 +556,19 @@ export function DayClients({
         {list.map((c) => {
           const dist = meta(c.id);
           const url = mapsUrl(c);
+          // Green close · orange far · red very far (straight-line from the
+          // phone's own fix — works offline). No GPS on the client = neutral.
+          // Live fix first (works offline); until it lands, the saved distance
+          // shown on the card drives the colour so list and colour always agree.
+          const prox = proximityOf(
+            pos && c.gpsLat != null && c.gpsLng != null
+              ? haversineM(pos.lat, pos.lng, Number(c.gpsLat), Number(c.gpsLng))
+              : raw.get(c.id)?.distM ?? null
+          );
           return (
             <div
               key={c.id}
-              className="flex w-full items-center gap-2.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3"
+              className={cn("flex w-full items-center gap-2.5 rounded-2xl border p-3", PROX_CARD[prox])}
             >
               <button
                 onClick={() => void showDetail(c)}
@@ -573,6 +586,17 @@ export function DayClients({
                   {dist && <span className="block truncate text-[11px] font-bold text-(--brand-600)">{dist}</span>}
                 </span>
               </button>
+              {c.phone && !c.id.startsWith("pending:") ? (
+                <a
+                  href={`tel:${c.phone.replace(/[^+\d]/g, "")}`}
+                  aria-label={labels.callClient ?? "call"}
+                  title={labels.callClient ?? "call"}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white"
+                >
+                  <Phone size={17} />
+                </a>
+              ) : null}
               {url && online ? (
                 <a
                   href={url}

@@ -54,7 +54,8 @@
     "debtsClients": "ديون الزبائن",
     "debtsSuppliers": "ديون المورّدين",
     "dailyCash": "صندوق اليوم",
-    "threepack": "حزمة هدية"
+    "threepack": "حزمة هدية",
+    "vanGps": "مواقع GPS"
   },
   "login": {
     "title": "تسجيل الدخول",
@@ -1372,7 +1373,20 @@
     "lockedHint": "مقفل",
     "errBonus": "الطرود المجانية غير مستحقة لهذا البيع",
     "errOutsideArea": "هذه الولاية أو القطاع خارج المناطق المسندة إليك",
-    "errAreaRequired": "اختر الولاية والقطاع المسندين إليك"
+    "errAreaRequired": "اختر الولاية والقطاع المسندين إليك",
+    "gpsTitle": "مواقع GPS",
+    "gpsToday": "اليوم",
+    "gpsTodaySector": "قطاع اليوم",
+    "proxNear": "قريب",
+    "proxMid": "بعيد",
+    "proxFar": "بعيد جداً",
+    "proxNone": "بدون GPS",
+    "gpsNoPos": "حدّد موقعك لعرض القرب",
+    "gpsRefresh": "تحديث",
+    "callClient": "اتصال",
+    "gpsLocating": "جارٍ التحديد…",
+    "gpsMapOffline": "الخريطة تعمل بدون إنترنت للمناطق المحفوظة",
+    "gpsEmpty": "لا زبائن"
   },
   "presence": {
     "title": "الحضور",

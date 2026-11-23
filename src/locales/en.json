@@ -54,7 +54,8 @@
     "debtsClients": "Customer debts",
     "debtsSuppliers": "Supplier debts",
     "dailyCash": "Daily till",
-    "threepack": "Gifted pack"
+    "threepack": "Gifted pack",
+    "vanGps": "GPS locations"
   },
   "login": {
     "title": "Login",
@@ -1372,7 +1373,20 @@
     "lockedHint": "Locked",
     "errBonus": "Free colis not earned for this sale",
     "errOutsideArea": "This wilaya or sector is outside your assigned areas",
-    "errAreaRequired": "Pick the wilaya and sector assigned to you"
+    "errAreaRequired": "Pick the wilaya and sector assigned to you",
+    "gpsTitle": "GPS locations",
+    "gpsToday": "Today",
+    "gpsTodaySector": "Today's sector",
+    "proxNear": "Close",
+    "proxMid": "Far",
+    "proxFar": "Very far",
+    "proxNone": "No GPS",
+    "gpsNoPos": "Locate yourself to see proximity",
+    "gpsRefresh": "Refresh",
+    "callClient": "Call",
+    "gpsLocating": "Locating…",
+    "gpsMapOffline": "Map works offline for saved areas",
+    "gpsEmpty": "No clients"
   },
   "presence": {
     "title": "Attendance",

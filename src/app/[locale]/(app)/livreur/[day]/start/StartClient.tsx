@@ -178,7 +178,7 @@ export function StartClient({
       </p>
       <p className="text-xs font-bold opacity-60">{vanName}</p>
       {/* Day picker: only when Settings > day access lets this user choose. */}
-      {canChooseDay && !started && (
+      {canChooseDay && (
         <div className="flex w-full max-w-sm flex-wrap justify-center gap-1.5">
           {Array.from({ length: 7 }, (_, i) => {
             const base = new Date();

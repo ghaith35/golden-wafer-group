@@ -92,7 +92,7 @@ export default async function LivreurDayPage({
         locate: tg("locate"), geoDenied: tg("geoDenied"),
         unitM: tg("unitM"), unitKm: tg("unitKm"), unitMin: tg("unitMin"),
         startDay: t("startDay"), all: t("all"), showQr: t("showQr"),
-        newSale: t("newSale"),
+        newSale: t("newSale"), callClient: t("callClient"),
         newClient: t("newClient"), phoneOpt: t("phoneOpt"), addressOpt: t("addressOpt"),
         activityOpt: t("activityOpt"), wilayaOpt: t("wilayaOpt"), secteurOpt: t("secteurOpt"),
         tierOpt: t("tierOpt"), useGps: t("useGps"), confirm: t("confirm"),
