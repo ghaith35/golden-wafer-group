@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
-import { Check, ChevronDown, ChevronLeft, Globe, LogOut, Menu, Minus, Moon, Plus, RefreshCw, Sun, UserRound } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, Globe, Image as ImageIcon, ImageOff, LogOut, Menu, Minus, Moon, Plus, RefreshCw, Sun, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { notifyDataChanged, useRefreshPending } from "@/lib/data-sync";
 import { ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN, getZoom, subscribeZoom, zoomIn, zoomOut, zoomReset } from "@/lib/ui-zoom";
@@ -11,6 +11,7 @@ import { serverUnreachable, popCrumb } from "@/lib/sync/client";
 import { SyncBadge, type SyncBadgeLabels } from "@/components/sync/SyncBadge";
 import { ApkOnly } from "@/components/layout/ApkOnly";
 import { isDarkNow, toggleDark, THEME_CHANGED_EVENT } from "@/components/theme/ThemeSelector";
+import { getLogoOn, setLogoOn, LOGO_BG_EVENT } from "@/lib/logo-bg";
 
 /// Route segment → `nav` translation key. Segments without a key fall back to
 /// the `tournees` namespace title or the raw segment name.
@@ -143,6 +144,7 @@ export function TopBar({
         <div className="hidden lg:block"><ZoomControl /></div>
         <LanguageSwitcher />
       </div>
+      <LogoToggle />
       <ThemeToggle />
       <UserMenu username={username} onLogout={onLogout} />
     </header>
@@ -377,6 +379,36 @@ export function LanguageSwitcher({ tone = "light" }: { tone?: "light" | "onDark"
         </ul>
       )}
     </div>
+  );
+}
+
+/// Show / hide the logo layer behind the main screen (remembered on this device).
+function LogoToggle() {
+  const t = useTranslations("nav");
+  const on = useSyncExternalStore(
+    (cb) => {
+      window.addEventListener(LOGO_BG_EVENT, cb);
+      window.addEventListener("storage", cb);
+      return () => {
+        window.removeEventListener(LOGO_BG_EVENT, cb);
+        window.removeEventListener("storage", cb);
+      };
+    },
+    getLogoOn,
+    () => true
+  );
+  const label = on ? t("logoHide") : t("logoShow");
+  return (
+    <button
+      type="button"
+      onClick={() => setLogoOn(!on)}
+      aria-label={label}
+      aria-pressed={!on}
+      title={label}
+      className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-(--text-primary) transition-colors hover:opacity-80 sm:flex"
+    >
+      {on ? <ImageIcon size={17} /> : <ImageOff size={17} />}
+    </button>
   );
 }
 

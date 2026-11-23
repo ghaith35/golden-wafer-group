@@ -57,7 +57,9 @@
     "threepack": "Gifted pack",
     "vanGps": "GPS locations",
     "vanGifts": "Gifts",
-    "closedVisits": "Closed shops"
+    "closedVisits": "Closed shops",
+    "logoHide": "Hide the background logo",
+    "logoShow": "Show the background logo"
   },
   "login": {
     "title": "Login",

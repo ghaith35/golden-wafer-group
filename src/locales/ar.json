@@ -57,7 +57,9 @@
     "threepack": "حزمة هدية",
     "vanGps": "مواقع GPS",
     "vanGifts": "الهدايا",
-    "closedVisits": "المحلات المغلقة"
+    "closedVisits": "المحلات المغلقة",
+    "logoHide": "إخفاء الشعار من الخلفية",
+    "logoShow": "إظهار الشعار في الخلفية"
   },
   "login": {
     "title": "تسجيل الدخول",

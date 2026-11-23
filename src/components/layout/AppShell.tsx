@@ -13,6 +13,7 @@ import { ConnLostDialog } from "@/components/sync/ConnLostDialog";
 import { LAST_PAGE_KEY } from "@/lib/navigation-recovery";
 import { watchChunkErrors } from "@/lib/chunk-reload";
 import { VanTracker } from "@/components/track/VanTracker";
+import { applyLogoClass, getLogoOn } from "@/lib/logo-bg";
 import { TrackingGate } from "@/components/track/TrackingGate";
 import { ApkOnly } from "@/components/layout/ApkOnly";
 import { LocationPrompt } from "@/components/track/LocationPrompt";
@@ -99,6 +100,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // Livreur flow: app chrome (sidebar, drawer, tabs) stays hidden on the
   // Journée picker and appears once a day is selected.
   const hideChrome = /^\/[a-z]{2}\/livreur\/?$/.test(pathname ?? "");
+  // The logo layer follows the user's top-bar switch (remembered on this device).
+  useEffect(() => {
+    applyLogoClass(getLogoOn());
+  }, []);
   // Start expanded so the first render matches the server HTML, then apply
   // the persisted choice. Reading localStorage in the useState initializer
   // would render collapsed on the client but expanded on the server — a

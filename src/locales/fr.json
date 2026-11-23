@@ -57,7 +57,9 @@
     "threepack": "Pack cadeau",
     "vanGps": "Positions GPS",
     "vanGifts": "Cadeaux",
-    "closedVisits": "Clients fermés"
+    "closedVisits": "Clients fermés",
+    "logoHide": "Masquer le logo en arrière-plan",
+    "logoShow": "Afficher le logo en arrière-plan"
   },
   "login": {
     "title": "Connexion",

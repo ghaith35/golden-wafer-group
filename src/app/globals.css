@@ -676,4 +676,6 @@ main .grid > *:nth-child(n+7), .table-shell tbody tr:nth-child(n+7) { animation-
     transition: inset-inline-start 0.3s ease-in-out;
   }
 }
+/* The top-bar button switches the logo off (class set on <html>, remembered per device). */
+.gw-no-logo .gw-watermark { display: none !important; }
 @media print { .gw-watermark { display: none !important; } }
