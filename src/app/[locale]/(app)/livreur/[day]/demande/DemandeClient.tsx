@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { normFactor, packBreakdown } from "@/components/products/UnitQty";
+import { ProductThumb, useProductImages } from "@/components/products/ProductThumb";
 import { queueOp, getOutbox, updateOutboxPayload, syncNow, goPage, queueErrText } from "@/lib/sync/client";
 import type { OutboxRow } from "@/lib/sync/offline-db";
 import { beepAdd, beepConfirm } from "@/lib/beep";
@@ -130,6 +131,7 @@ export function DemandeClient({
     } catch { /* ignore */ }
   }
 
+  const imgs = useProductImages();
   const prodName = (pid: string) => products.find((p) => p.id === pid)?.name ?? pid.slice(-4);
   /// Depot stock for the selected depot (SSR map — present in the cached
   /// page offline too), minus what this phone already queued. Snapshot
@@ -399,10 +401,13 @@ export function DemandeClient({
                       {colisText(p.id, inReq.qty)}
                     </span>
                   )}
-                  <div className="p-2.5">
-                    <div className="truncate text-[13px] font-bold">{p.name}</div>
-                    <div className="mt-0.5 text-[11px] font-black tabular-nums text-(--brand-600)" dir="ltr">
-                      {labels.stockDepot ?? ""}: {colisText(p.id, avail)}
+                  <div className="flex items-center gap-2 p-2.5">
+                    <ProductThumb name={p.name} images={imgs.get(p.id)} />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-[13px] font-bold">{p.name}</div>
+                      <div className="mt-0.5 text-[11px] font-black tabular-nums text-(--brand-600)" dir="ltr">
+                        {labels.stockDepot ?? ""}: {colisText(p.id, avail)}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -425,6 +430,7 @@ export function DemandeClient({
             {lines.map((l, i) => (
               <div key={i} className="rounded-xl border border-(--border-default) p-2">
                 <div className="flex items-center justify-between gap-2">
+                  <ProductThumb name={prodName(l.productId)} images={imgs.get(l.productId)} className="h-9 w-9" />
                   <div className="min-w-0 flex-1 truncate text-[13px] font-bold">{prodName(l.productId)}</div>
                   <div className="shrink-0 text-sm font-black tabular-nums" dir="ltr">{colisText(l.productId, l.qty)}</div>
                 </div>

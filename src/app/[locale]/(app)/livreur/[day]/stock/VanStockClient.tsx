@@ -3,13 +3,14 @@
 import { ClientName } from "@/components/clients/ClientName";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Lock, Package, Store } from "lucide-react";
+import { ArrowLeft, Lock, Store } from "lucide-react";
 import { dz } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { getLastSync, getVanSnapshot, getOutbox, goPage } from "@/lib/sync/client";
 import { canSell } from "@/lib/staff-permissions";
 import { pendingEffects } from "@/lib/sync/offline-rules";
 import { useDataVersion } from "@/lib/data-sync";
+import { ProductThumb, useProductImages } from "@/components/products/ProductThumb";
 
 type Hold = {
   productId: string;
@@ -53,6 +54,7 @@ export function VanStockClient({
   labels: Record<string, string>;
 }) {
   const depotOnly = !canSell(role);
+  const imgs = useProductImages();
   const router = useRouter();
   const [holds, setHolds] = useState<Hold[]>([]);
   const [depot, setDepot] = useState<Record<string, number>>({});
@@ -209,9 +211,7 @@ export function VanStockClient({
         {depotOnly ? depotView.map((h) => (
           <div key={h.productId} className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
             <div className="flex items-center gap-2">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken)">
-                <Package size={16} />
-              </span>
+              <ProductThumb name={h.name} images={imgs.get(h.productId)} />
               <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-black">{h.name}</div>
               {h.pack && (
@@ -231,9 +231,7 @@ export function VanStockClient({
         )) : list.map((h) => (
           <div key={h.productId} className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
             <div className="flex items-center gap-2">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken)">
-                <Package size={16} />
-              </span>
+              <ProductThumb name={h.productName} images={imgs.get(h.productId)} />
               <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-black">{h.productName}</div>
               {h.pack && (
