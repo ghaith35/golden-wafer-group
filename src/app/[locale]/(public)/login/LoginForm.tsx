@@ -93,7 +93,10 @@ export function LoginForm({ dark = false, canReset = false }: { dark?: boolean; 
       } catch {
         /* fall through to the default entry */
       }
-      window.location.assign(`/${locale}/livreur`);
+      // Online: land on today's start screen (day picker when allowed) — even
+      // if a journée is already open, so the driver always sees it after login.
+      const t = new Date();
+      window.location.assign(`/${locale}/livreur/${t.getFullYear()}-${t.getMonth() + 1}-${t.getDate()}/start`);
       return;
     }
     const from = new URLSearchParams(window.location.search).get("from");
