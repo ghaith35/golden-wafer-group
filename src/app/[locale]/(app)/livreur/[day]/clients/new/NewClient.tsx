@@ -34,6 +34,7 @@ export function NewClient({
   tiers,
   labels,
   areaScope,
+  defaultSecteurId = null,
   embedded = false,
   onCreated,
   onClose,
@@ -47,6 +48,8 @@ export function NewClient({
   labels: Record<string, string>;
   /// Admin-assigned zones (server truth at render time); null/absent = everything.
   areaScope?: AreaScope | null;
+  /// Sector of the day's tour: the sector and its wilaya are selected by default (still changeable).
+  defaultSecteurId?: string | null;
   embedded?: boolean;
   onCreated?: () => void;
   onClose?: () => void;
@@ -105,9 +108,17 @@ export function NewClient({
   const zone = filterAreas(scope, allWilayas, secteurList);
   const effWilayas = zone.wilayas;
   // A single assigned wilaya / secteur is picked automatically.
-  const wilayaEff = wilaya || (restricted && zone.wilayas.length === 1 ? String(zone.wilayas[0].code) : "");
+  // The day's sector (and its wilaya) is selected by default until the driver
+  // picks something himself; works when the list loads late (offline snapshot)
+  // and again for the next client after "add another". Never a sector outside
+  // the driver's assigned zones.
+  const [touched, setTouched] = useState(false);
+  const daySec = !touched && defaultSecteurId
+    ? zone.secteurs.find((x) => x.id === defaultSecteurId) ?? null
+    : null;
+  const wilayaEff = wilaya || (daySec ? String(daySec.wilayaCode) : "") || (restricted && zone.wilayas.length === 1 ? String(zone.wilayas[0].code) : "");
   const secteurOpts = zone.secteurs.filter((s) => !wilayaEff || s.wilayaCode === Number(wilayaEff));
-  const secteurEff = secteur || (restricted && wilayaEff && secteurOpts.length === 1 ? secteurOpts[0].id : "");
+  const secteurEff = secteur || (daySec && String(daySec.wilayaCode) === wilayaEff ? daySec.id : "") || (restricted && wilayaEff && secteurOpts.length === 1 ? secteurOpts[0].id : "");
   const canAddSecteur = !!wilayaEff && canCreateSecteurIn(scope, Number(wilayaEff));
   const effTiers = tiers.length ? tiers : (snapRefs?.tiers ?? []);
 
@@ -129,6 +140,7 @@ export function NewClient({
       }
       const row = { id: data.id as string, name: data.name as string, wilayaCode: Number(data.wilayaCode) };
       setSecteurList((ss) => [...ss, row].sort((a, b) => compareNatural(a.name, b.name, locale)));
+      setTouched(true);
       setSecteur(row.id);
       setSecteurName("");
       setShowSecteur(false);
@@ -141,21 +153,46 @@ export function NewClient({
     }
   }
 
-  function captureGps() {
-    if (!("geolocation" in navigator)) return;
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        const lat = Math.round(p.coords.latitude * 100000) / 100000;
-        const lng = Math.round(p.coords.longitude * 100000) / 100000;
-        setGps({ lat, lng });
-        setGpsText(`${lat}, ${lng}`);
-        setLocating(false);
-      },
-      () => setLocating(false),
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+  /// The GPS follows the phone automatically: a fix on open, then a fresh one
+  /// every 5 seconds while the form is open — until the driver types the
+  /// coordinates himself, or the client is saved.
+  const manualGps = useRef(false);
+  async function liveFix(force = false) {
+    if (manualGps.current && !force) return;
+    try {
+      const m = await import("@/lib/van-gps");
+      const f = await m.getGpsFix(0);
+      if (!f || (manualGps.current && !force)) return;
+      const lat = Math.round(f.lat * 100000) / 100000;
+      const lng = Math.round(f.lng * 100000) / 100000;
+      setGps({ lat, lng });
+      setGpsText(`${lat}, ${lng}`);
+    } catch {
+      /* keep the last fix */
+    }
   }
+  function captureGps() {
+    manualGps.current = false; // the button hands control back to the live fix
+    setLocating(true);
+    void liveFix(true).finally(() => setLocating(false));
+  }
+  const savedRef = useRef(false);
+  useEffect(() => {
+    savedRef.current = !!created;
+  }, [created]);
+  useEffect(() => {
+    let busy = false;
+    const tick = async () => {
+      if (busy || savedRef.current || document.hidden) return;
+      busy = true;
+      await liveFix();
+      busy = false;
+    };
+    void tick();
+    const id = window.setInterval(() => void tick(), 5000);
+    return () => window.clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function typedGps(): { lat: number; lng: number } | null {
     const m = gpsText.trim().split(/[,;\s]+/).map(Number);
@@ -253,7 +290,9 @@ export function NewClient({
 
   function reset() {
     setName(""); setPhone(""); setAddress(""); setActivity("");
+    setTouched(false); // next client: the day's sector again
     setWilaya(""); setSecteur(""); setTier("");
+    manualGps.current = false; // live GPS resumes for the next client
     setGps(null); setGpsText(""); setError(null);
     setQueued(false); setCreated(null);
   }
@@ -451,7 +490,7 @@ export function NewClient({
               <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.wilayaOpt}</label>
               <select
                 value={wilayaEff}
-                onChange={(e) => { setWilaya(e.target.value); setSecteur(""); }}
+                onChange={(e) => { setTouched(true); setWilaya(e.target.value); setSecteur(""); }}
                 className="h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)"
               >
                 <option value="">—</option>
@@ -465,7 +504,7 @@ export function NewClient({
               <div className="flex gap-2">
                 <select
                   value={secteurEff}
-                  onChange={(e) => setSecteur(e.target.value)}
+                  onChange={(e) => { setTouched(true); setSecteur(e.target.value); }}
                   className="h-11 min-w-0 flex-1 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)"
                 >
                   <option value="">—</option>
@@ -516,7 +555,7 @@ export function NewClient({
         <div className="flex gap-2">
           <Input
             value={gpsText}
-            onChange={(e) => { setGpsText(e.target.value); setGps(null); }}
+            onChange={(e) => { manualGps.current = true; setGpsText(e.target.value); setGps(null); }}
             placeholder="36.75, 3.06"
             inputMode="decimal"
             dir="ltr"

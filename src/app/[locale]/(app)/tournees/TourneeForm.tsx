@@ -64,11 +64,14 @@ export function TourneeForm({
   const [weekday, setWeekday] = useState(() => presetWeekday ?? (new Date().getDay() + 1) % 7);
   const [secteurId, setSecteurId] = useState("");
   const [notes, setNotes] = useState("");
-  const [repeat, setRepeat] = useState(true);
+  /// Recurring forever: every week, or every 2 weeks (counted from the clicked day).
+  const [frequency, setFrequency] = useState<"WEEKLY" | "BIWEEKLY">("WEEKLY");
+  const [sectorQ, setSectorQ] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitGuard = useRef(false);
 
+  const fmtKey = (k: string) => new Date(`${k}T12:00:00Z`).toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: "UTC" });
   const secteurClients = secteurId ? clients.filter((c) => c.secteurId === secteurId) : [];
 
   const presetVan = presetVanId ? vans.find((v) => v.id === presetVanId) : null;
@@ -108,7 +111,7 @@ export function TourneeForm({
           secteurId,
           notes: notes || null,
           clientIds: [], // server uploads ALL clients of the secteur
-          repeatWeeks: repeat ? 11 : 0,
+          frequency,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -131,7 +134,7 @@ export function TourneeForm({
     <div className="space-y-4">
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <Card>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.weekday}</label>
             {presetWeekday != null ? (
@@ -161,29 +164,74 @@ export function TourneeForm({
               </select>
             )}
           </div>
-          <div>
-            <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.secteur}</label>
-            <select value={secteurId} onChange={(e) => setSecteurId(e.target.value)} className={inputCls}>
-              <option value="">—</option>
-              {secteurs.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </select>
-            {secteurs.length === 0 && (
-              <p className="mt-1 text-[11px] font-bold text-amber-600">
-                <a href={`/${locale}/settings/sectors`} className="underline">→ {labels.secteur}</a>
-              </p>
-            )}
+        </div>
+        {/* Step 2: which sector (all its clients are loaded into the tour). */}
+        <div className="mt-3">
+          <label className="mb-1.5 block text-xs font-bold uppercase opacity-60">{labels.secteur}</label>
+          {secteurs.length > 8 && (
+            <Input value={sectorQ} onChange={(e) => setSectorQ(e.target.value)} placeholder={labels.pickSector} className="mb-2 h-10" />
+          )}
+          <div className="grid max-h-56 grid-cols-2 gap-2 overflow-y-auto pe-1 sm:grid-cols-3" role="radiogroup" aria-label={labels.secteur}>
+            {secteurs
+              .filter((x) => !sectorQ.trim() || x.name.toLowerCase().includes(sectorQ.trim().toLowerCase()))
+              .map((x) => {
+                const n = clients.filter((c) => c.secteurId === x.id).length;
+                const on = secteurId === x.id;
+                return (
+                  <button
+                    key={x.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => setSecteurId(x.id)}
+                    className={`flex min-h-14 flex-col items-start justify-center rounded-xl border px-3 py-2 text-start transition-colors ${on ? "border-(--brand-500) bg-(--brand-500)/10 shadow" : "border-(--border-default) hover:border-(--brand-500)"}`}
+                  >
+                    <span className="w-full truncate text-sm font-black">{x.name}</span>
+                    <span className="text-[11px] font-bold opacity-60">{n} {labels.stops}</span>
+                  </button>
+                );
+              })}
           </div>
+          {secteurs.length === 0 && (
+            <p className="mt-1 text-[11px] font-bold text-amber-600">
+              <a href={`/${locale}/settings/sectors`} className="underline">→ {labels.secteur}</a>
+            </p>
+          )}
         </div>
         <div className="mt-2">
           <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.notes}</label>
           <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
         </div>
-        <label className="mt-2 flex cursor-pointer items-center gap-2 text-sm font-bold">
-          <input type="checkbox" checked={repeat} onChange={(e) => setRepeat(e.target.checked)} className="h-4 w-4 accent-(--brand-500)" />
-          {labels.repeatWeekly}
-        </label>
+        {/* Frequency: endless either way — no end date, no 12-week limit. */}
+        <div className="mt-3">
+          <label className="mb-1.5 block text-xs font-bold uppercase opacity-60">{labels.frequency}</label>
+          <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label={labels.frequency}>
+            {([
+              ["WEEKLY", labels.freqWeekly, labels.freqWeeklyHint, "↻"],
+              ["BIWEEKLY", labels.freqBiweekly, labels.freqBiweeklyHint, "↻²"],
+            ] as const).map(([k, title, hint, icon]) => (
+              <button
+                key={k}
+                type="button"
+                role="radio"
+                aria-checked={frequency === k}
+                onClick={() => setFrequency(k)}
+                className={`flex items-center gap-3 rounded-xl border p-3 text-start transition-colors ${frequency === k ? "border-(--brand-500) bg-(--brand-500)/10 shadow" : "border-(--border-default) hover:border-(--brand-500)"}`}
+              >
+                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-black ${frequency === k ? "bg-gradient-brand text-(--brand-contrast)" : "bg-(--bg-sunken)"}`}>{icon}</span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-black">{title}</span>
+                  <span className="block text-[11px] font-bold opacity-60">{hint}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+        {frequency === "BIWEEKLY" && presetDate && (
+          <p className="mt-2 text-xs font-bold opacity-70" dir="auto">
+            {labels.week1}: {fmtKey(presetDate)} · {labels.thenEvery2}: {fmtKey(addDaysKey(presetDate, 14))}, {fmtKey(addDaysKey(presetDate, 28))}, …
+          </p>
+        )}
         <div className="mt-2 rounded-xl bg-(--brand-500)/10 px-3 py-2 text-sm font-black text-(--brand-600)">
           {secteurId
             ? `${secteurClients.length} ${labels.stops} · ${labels.allClients}`

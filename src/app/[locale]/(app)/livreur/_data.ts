@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/db";
 import { closeStaleDays } from "@/lib/tournees/service";
+import { ensureDayTours } from "@/lib/tournees/plans";
+import { pickCurrentTour } from "@/lib/tournees/day-tours";
+import { algiersDayKey } from "@/lib/tournees/days";
 
 export type LivVan = { id: string; name: string; matricule: string | null };
 
@@ -23,11 +26,16 @@ export async function getDayStamp(
   start.setHours(0, 0, 0, 0);
   const end = new Date(date);
   end.setHours(23, 59, 59, 999);
-  const t = await prisma.tournee.findFirst({
-    where: { companyId, locationId: vanId, date: { gte: start, lte: end } },
-    select: { startedAt: true, finishedAt: true },
-    orderBy: { createdAt: "desc" },
-  });
+  // Recurring plans generate their tours on demand — make sure today's exist.
+  await ensureDayTours(companyId, vanId, algiersDayKey(start));
+  // Up to two tours that day: the stamp is the one being driven (else the next
+  // waiting, else the last finished).
+  const t = pickCurrentTour(
+    await prisma.tournee.findMany({
+      where: { companyId, locationId: vanId, date: { gte: start, lte: end } },
+      select: { startedAt: true, finishedAt: true, slot: true, createdAt: true, status: true },
+    }),
+  );
   if (!t) return null;
   return {
     startedAt: t.startedAt ? t.startedAt.toISOString() : null,

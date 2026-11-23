@@ -25,6 +25,7 @@ vi.mock("@/lib/db", () => ({
     expense: { create: vi.fn(), findFirst: vi.fn(async () => null), update: vi.fn(async (a: any) => ({ id: a?.where?.id ?? "exp1" })) },
     stockBatch: { groupBy: vi.fn(async () => []) },
     tournee: { findMany: vi.fn(async () => []) },
+    tourneePlan: { findMany: vi.fn(async () => []) },
     company: { findUnique: vi.fn(async () => null) },
     user: { findFirst: vi.fn(async () => ({ role: "Livreur" })) },
   },

@@ -70,8 +70,9 @@ export const tourneeSchema = z.object({
   secteurId: z.string().nullish(),
   notes: z.string().max(500).nullish(),
   clientIds: z.array(z.string()).max(500).optional(),
-  /// Extra weekly copies after `date` (admin planning: "repeat weekly").
-  repeatWeeks: z.number().int().min(0).max(26).optional(),
+  /// Admin planning: make this a recurring tour — every week or every 2 weeks,
+  /// with no end date. Omitted = a one-off tour for `date` only.
+  frequency: z.enum(["WEEKLY", "BIWEEKLY"]).optional(),
 });
 
 export const tourneeStopsSchema = z.object({

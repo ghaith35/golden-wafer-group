@@ -428,10 +428,26 @@
     "secteurRequired": "Pick a secteur — all its clients will be added",
     "allClients": "all secteur clients",
     "unclosed": "Auto-closed — day never ended",
-    "repeatWeekly": "Repeat weekly (12 weeks)",
     "actionFailed": "Action failed",
     "prevWeek": "Previous week",
-    "nextWeek": "Next week"
+    "nextWeek": "Next week",
+    "frequency": "Frequency",
+    "freqWeekly": "Every week",
+    "freqWeeklyHint": "Repeats every week on the same day — no end",
+    "freqBiweekly": "Every 2 weeks",
+    "freqBiweeklyHint": "Repeats every 2 weeks — no end",
+    "pickSector": "Search a sector…",
+    "week1": "Week 1",
+    "thenEvery2": "then every 2 weeks",
+    "removeDay": "Remove this day only",
+    "removeDayHint": "The recurring tour stays and continues in the coming weeks",
+    "endPlan": "End the recurring tour",
+    "endPlanHint": "No new days are created and the coming days that haven't started are removed. Days already driven stay in the history.",
+    "planEndTitle": "End the recurring tour",
+    "nextOn": "Next",
+    "cellFull": "This cell already has two tours",
+    "weeklyTag": "Every week",
+    "biweeklyTag": "Every 2 weeks"
   },
   "inventory": {
     "title": "Inventory",
@@ -1431,7 +1447,14 @@
     "closedSavedOffline": "Saved on the phone — will send at sync ✓",
     "giftsDealPercent": "Discount",
     "giftsDealPrice": "New price",
-    "giftsOnTargets": "on"
+    "giftsOnTargets": "on",
+    "tourOf": "Tour {n}",
+    "tourRunning": "Running",
+    "tourDone": "Done",
+    "tourWait": "Waiting",
+    "finishOtherFirst": "Finish the running tour first",
+    "closedShoot": "Take photo",
+    "closedCancel": "Cancel"
   },
   "presence": {
     "title": "Attendance",
@@ -1727,7 +1750,7 @@
     "duplicate_code": "Code already used",
     "duplicate_name": "Name already used",
     "duplicate_username": "Username already taken",
-    "duplicate_day": "This van already has a tour that day",
+    "duplicate_day": "This van already has two tours that day",
     "driver_busy": "Driver already assigned to another van",
     "weak_password": "Password too short (6 characters minimum)",
     "save_failed": "Could not save",
@@ -1800,7 +1823,10 @@
     "rule_needs_buy": "Add the product to buy",
     "rule_needs_target": "Pick at least one target product",
     "rule_bad_percent": "The percentage must be between 0 and 100",
-    "rule_bad_price": "Enter the new price for every product"
+    "rule_bad_price": "Enter the new price for every product",
+    "another_tour_running": "Finish the running tour before starting the other",
+    "cell_full": "This cell already has two tours",
+    "bad_frequency": "Invalid frequency"
   },
   "resetData": {
     "title": "Reset data",

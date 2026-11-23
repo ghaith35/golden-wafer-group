@@ -162,7 +162,8 @@ exports.Prisma.CompanySettingsScalarFieldEnum = {
   threePackEnabled: 'threePackEnabled',
   workStartAt: 'workStartAt',
   maxDayHours: 'maxDayHours',
-  remoteDomain: 'remoteDomain'
+  remoteDomain: 'remoteDomain',
+  tourPlansMigratedAt: 'tourPlansMigratedAt'
 };
 
 exports.Prisma.UnitScalarFieldEnum = {
@@ -532,6 +533,8 @@ exports.Prisma.TourneeScalarFieldEnum = {
   finishedLat: 'finishedLat',
   finishedLng: 'finishedLng',
   autoClosed: 'autoClosed',
+  planId: 'planId',
+  slot: 'slot',
   createdAt: 'createdAt'
 };
 
@@ -861,6 +864,22 @@ exports.Prisma.ClosedVisitPhotoScalarFieldEnum = {
   sortOrder: 'sortOrder'
 };
 
+exports.Prisma.TourneePlanScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  locationId: 'locationId',
+  secteurId: 'secteurId',
+  weekday: 'weekday',
+  intervalWeeks: 'intervalWeeks',
+  anchorKey: 'anchorKey',
+  slot: 'slot',
+  clientIds: 'clientIds',
+  skips: 'skips',
+  notes: 'notes',
+  isActive: 'isActive',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -944,7 +963,8 @@ exports.Prisma.ModelName = {
   ThreePackRule: 'ThreePackRule',
   ThreePackItem: 'ThreePackItem',
   ClosedVisit: 'ClosedVisit',
-  ClosedVisitPhoto: 'ClosedVisitPhoto'
+  ClosedVisitPhoto: 'ClosedVisitPhoto',
+  TourneePlan: 'TourneePlan'
 };
 
 /**

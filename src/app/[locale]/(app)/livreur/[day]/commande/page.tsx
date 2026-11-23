@@ -1,3 +1,4 @@
+import { pickCurrentTour } from "@/lib/tournees/day-tours";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
@@ -67,11 +68,12 @@ export default async function LivreurCommandePage({
     }),
     prisma.tournee.findMany({
       where: { companyId: session.companyId, locationId: van.id, status: "OPEN" },
-      select: { id: true, date: true },
+      select: { id: true, date: true, slot: true, createdAt: true, startedAt: true, finishedAt: true, status: true },
     }),
   ]);
 
-  const tour = tournees.find((x) => sameDay(new Date(x.date), date)) ?? null;
+  // Two tours may run that day: sales attach to the one being driven.
+  const tour = pickCurrentTour(tournees.filter((x) => sameDay(new Date(x.date), date)));
   // Main-depot availability (null store = legacy main stock + DEPOT stores).
   const stockMap: Record<string, number> = {};
   for (const b of [...nullStock, ...locatedStock]) {

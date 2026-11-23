@@ -5,6 +5,9 @@ import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../../_data";
 import { parseDay } from "../../_days";
 import { closeStaleDays } from "@/lib/tournees/service";
+import { ensureDayTours } from "@/lib/tournees/plans";
+import { pickCurrentTour } from "@/lib/tournees/day-tours";
+import { algiersDayKey } from "@/lib/tournees/days";
 import { vanDayCash } from "@/lib/cash/daily";
 import { DashClient } from "./DashClient";
 
@@ -41,7 +44,9 @@ export default async function LivreurDashPage({
   const dayEnd = new Date(date);
   dayEnd.setHours(23, 59, 59, 999);
   await closeStaleDays(session.companyId).catch(() => {});
-  const [today, readyCount, tournee, till] = await Promise.all([
+  // Recurring plans generate this day's tours on demand (one or two per van).
+  await ensureDayTours(session.companyId, van.id, algiersDayKey(dayStart)).catch(() => {});
+  const [today, readyCount, dayTours, till] = await Promise.all([
     prisma.sale.aggregate({
       where: {
         companyId: session.companyId,
@@ -55,14 +60,16 @@ export default async function LivreurDashPage({
     prisma.sale.count({
       where: { companyId: session.companyId, kind: "ORDER", status: "CONFIRMED", locationId: van.id },
     }),
-    prisma.tournee.findFirst({
+    prisma.tournee.findMany({
       where: { companyId: session.companyId, locationId: van.id, date: { gte: dayStart, lte: dayEnd } },
-      select: { id: true, status: true, startedAt: true, finishedAt: true, autoClosed: true },
-      orderBy: { createdAt: "desc" },
+      select: { id: true, status: true, startedAt: true, finishedAt: true, autoClosed: true, slot: true, createdAt: true },
     }),
     // Live till math for the auto-filled declaration (from his sales).
     vanDayCash(session.companyId, van.id, date).catch(() => null),
   ]);
+
+  // Up to two tours today: the dashboard follows the one being driven (else the next waiting).
+  const tournee = pickCurrentTour(dayTours);
 
   return (
     <DashClient

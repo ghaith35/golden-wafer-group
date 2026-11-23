@@ -323,6 +323,13 @@ export type ClosedVisit = $Result.DefaultSelection<Prisma.$ClosedVisitPayload>
  * 
  */
 export type ClosedVisitPhoto = $Result.DefaultSelection<Prisma.$ClosedVisitPhotoPayload>
+/**
+ * Model TourneePlan
+ * Recurring tour: one van + one weekday + one sector, every week or every 2
+ * weeks, with no end date. The daily Tournee rows (stamps, stops, sales) are
+ * generated from it on demand. A van+weekday "cell" holds up to two plans.
+ */
+export type TourneePlan = $Result.DefaultSelection<Prisma.$TourneePlanPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1004,6 +1011,16 @@ export class PrismaClient<
     * ```
     */
   get closedVisitPhoto(): Prisma.ClosedVisitPhotoDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tourneePlan`: Exposes CRUD operations for the **TourneePlan** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TourneePlans
+    * const tourneePlans = await prisma.tourneePlan.findMany()
+    * ```
+    */
+  get tourneePlan(): Prisma.TourneePlanDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1506,7 +1523,8 @@ export namespace Prisma {
     ThreePackRule: 'ThreePackRule',
     ThreePackItem: 'ThreePackItem',
     ClosedVisit: 'ClosedVisit',
-    ClosedVisitPhoto: 'ClosedVisitPhoto'
+    ClosedVisitPhoto: 'ClosedVisitPhoto',
+    TourneePlan: 'TourneePlan'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1522,7 +1540,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "userArea" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem" | "closedVisit" | "closedVisitPhoto"
+      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "userArea" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem" | "closedVisit" | "closedVisitPhoto" | "tourneePlan"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5670,6 +5688,80 @@ export namespace Prisma {
           }
         }
       }
+      TourneePlan: {
+        payload: Prisma.$TourneePlanPayload<ExtArgs>
+        fields: Prisma.TourneePlanFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TourneePlanFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TourneePlanPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TourneePlanFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TourneePlanPayload>
+          }
+          findFirst: {
+            args: Prisma.TourneePlanFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TourneePlanPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TourneePlanFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TourneePlanPayload>
+          }
+          findMany: {
+            args: Prisma.TourneePlanFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TourneePlanPayload>[]
+          }
+          create: {
+            args: Prisma.TourneePlanCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TourneePlanPayload>
+          }
+          createMany: {
+            args: Prisma.TourneePlanCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TourneePlanCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TourneePlanPayload>[]
+          }
+          delete: {
+            args: Prisma.TourneePlanDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TourneePlanPayload>
+          }
+          update: {
+            args: Prisma.TourneePlanUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TourneePlanPayload>
+          }
+          deleteMany: {
+            args: Prisma.TourneePlanDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TourneePlanUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TourneePlanUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TourneePlanPayload>[]
+          }
+          upsert: {
+            args: Prisma.TourneePlanUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TourneePlanPayload>
+          }
+          aggregate: {
+            args: Prisma.TourneePlanAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTourneePlan>
+          }
+          groupBy: {
+            args: Prisma.TourneePlanGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TourneePlanGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TourneePlanCountArgs<ExtArgs>
+            result: $Utils.Optional<TourneePlanCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5849,6 +5941,7 @@ export namespace Prisma {
     threePackItem?: ThreePackItemOmit
     closedVisit?: ClosedVisitOmit
     closedVisitPhoto?: ClosedVisitPhotoOmit
+    tourneePlan?: TourneePlanOmit
   }
 
   /* Types for Logging */
@@ -5950,6 +6043,7 @@ export namespace Prisma {
     clientReturns: number
     closedVisits: number
     tournees: number
+    tourneePlans: number
     expenses: number
     versements: number
     distances: number
@@ -5981,6 +6075,7 @@ export namespace Prisma {
     clientReturns?: boolean | CompanyCountOutputTypeCountClientReturnsArgs
     closedVisits?: boolean | CompanyCountOutputTypeCountClosedVisitsArgs
     tournees?: boolean | CompanyCountOutputTypeCountTourneesArgs
+    tourneePlans?: boolean | CompanyCountOutputTypeCountTourneePlansArgs
     expenses?: boolean | CompanyCountOutputTypeCountExpensesArgs
     versements?: boolean | CompanyCountOutputTypeCountVersementsArgs
     distances?: boolean | CompanyCountOutputTypeCountDistancesArgs
@@ -6146,6 +6241,13 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountTourneesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TourneeWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountTourneePlansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TourneePlanWhereInput
   }
 
   /**
@@ -6402,6 +6504,7 @@ export namespace Prisma {
     customers: number
     suppliers: number
     tournees: number
+    tourneePlans: number
     userAreas: number
   }
 
@@ -6409,6 +6512,7 @@ export namespace Prisma {
     customers?: boolean | SecteurCountOutputTypeCountCustomersArgs
     suppliers?: boolean | SecteurCountOutputTypeCountSuppliersArgs
     tournees?: boolean | SecteurCountOutputTypeCountTourneesArgs
+    tourneePlans?: boolean | SecteurCountOutputTypeCountTourneePlansArgs
     userAreas?: boolean | SecteurCountOutputTypeCountUserAreasArgs
   }
 
@@ -6442,6 +6546,13 @@ export namespace Prisma {
    */
   export type SecteurCountOutputTypeCountTourneesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TourneeWhereInput
+  }
+
+  /**
+   * SecteurCountOutputType without action
+   */
+  export type SecteurCountOutputTypeCountTourneePlansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TourneePlanWhereInput
   }
 
   /**
@@ -6573,6 +6684,7 @@ export namespace Prisma {
     clientReturns: number
     closedVisits: number
     tournees: number
+    tourneePlans: number
     expenseLinks: number
     devices: number
     dailyCloses: number
@@ -6588,6 +6700,7 @@ export namespace Prisma {
     clientReturns?: boolean | StoreCountOutputTypeCountClientReturnsArgs
     closedVisits?: boolean | StoreCountOutputTypeCountClosedVisitsArgs
     tournees?: boolean | StoreCountOutputTypeCountTourneesArgs
+    tourneePlans?: boolean | StoreCountOutputTypeCountTourneePlansArgs
     expenseLinks?: boolean | StoreCountOutputTypeCountExpenseLinksArgs
     devices?: boolean | StoreCountOutputTypeCountDevicesArgs
     dailyCloses?: boolean | StoreCountOutputTypeCountDailyClosesArgs
@@ -6665,6 +6778,13 @@ export namespace Prisma {
    */
   export type StoreCountOutputTypeCountTourneesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TourneeWhereInput
+  }
+
+  /**
+   * StoreCountOutputType without action
+   */
+  export type StoreCountOutputTypeCountTourneePlansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TourneePlanWhereInput
   }
 
   /**
@@ -7398,6 +7518,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type TourneePlanCountOutputType
+   */
+
+  export type TourneePlanCountOutputType = {
+    tournees: number
+  }
+
+  export type TourneePlanCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tournees?: boolean | TourneePlanCountOutputTypeCountTourneesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TourneePlanCountOutputType without action
+   */
+  export type TourneePlanCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlanCountOutputType
+     */
+    select?: TourneePlanCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TourneePlanCountOutputType without action
+   */
+  export type TourneePlanCountOutputTypeCountTourneesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TourneeWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -7675,6 +7826,7 @@ export namespace Prisma {
     clientReturns?: boolean | Company$clientReturnsArgs<ExtArgs>
     closedVisits?: boolean | Company$closedVisitsArgs<ExtArgs>
     tournees?: boolean | Company$tourneesArgs<ExtArgs>
+    tourneePlans?: boolean | Company$tourneePlansArgs<ExtArgs>
     expenses?: boolean | Company$expensesArgs<ExtArgs>
     versements?: boolean | Company$versementsArgs<ExtArgs>
     distances?: boolean | Company$distancesArgs<ExtArgs>
@@ -7766,6 +7918,7 @@ export namespace Prisma {
     clientReturns?: boolean | Company$clientReturnsArgs<ExtArgs>
     closedVisits?: boolean | Company$closedVisitsArgs<ExtArgs>
     tournees?: boolean | Company$tourneesArgs<ExtArgs>
+    tourneePlans?: boolean | Company$tourneePlansArgs<ExtArgs>
     expenses?: boolean | Company$expensesArgs<ExtArgs>
     versements?: boolean | Company$versementsArgs<ExtArgs>
     distances?: boolean | Company$distancesArgs<ExtArgs>
@@ -7803,6 +7956,7 @@ export namespace Prisma {
       clientReturns: Prisma.$ClientReturnPayload<ExtArgs>[]
       closedVisits: Prisma.$ClosedVisitPayload<ExtArgs>[]
       tournees: Prisma.$TourneePayload<ExtArgs>[]
+      tourneePlans: Prisma.$TourneePlanPayload<ExtArgs>[]
       expenses: Prisma.$ExpensePayload<ExtArgs>[]
       versements: Prisma.$VersementPayload<ExtArgs>[]
       distances: Prisma.$ClientDistancePayload<ExtArgs>[]
@@ -8250,6 +8404,7 @@ export namespace Prisma {
     clientReturns<T extends Company$clientReturnsArgs<ExtArgs> = {}>(args?: Subset<T, Company$clientReturnsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     closedVisits<T extends Company$closedVisitsArgs<ExtArgs> = {}>(args?: Subset<T, Company$closedVisitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tournees<T extends Company$tourneesArgs<ExtArgs> = {}>(args?: Subset<T, Company$tourneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tourneePlans<T extends Company$tourneePlansArgs<ExtArgs> = {}>(args?: Subset<T, Company$tourneePlansArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     expenses<T extends Company$expensesArgs<ExtArgs> = {}>(args?: Subset<T, Company$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     versements<T extends Company$versementsArgs<ExtArgs> = {}>(args?: Subset<T, Company$versementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VersementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     distances<T extends Company$distancesArgs<ExtArgs> = {}>(args?: Subset<T, Company$distancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientDistancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -9216,6 +9371,30 @@ export namespace Prisma {
   }
 
   /**
+   * Company.tourneePlans
+   */
+  export type Company$tourneePlansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    where?: TourneePlanWhereInput
+    orderBy?: TourneePlanOrderByWithRelationInput | TourneePlanOrderByWithRelationInput[]
+    cursor?: TourneePlanWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TourneePlanScalarFieldEnum | TourneePlanScalarFieldEnum[]
+  }
+
+  /**
    * Company.expenses
    */
   export type Company$expensesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9449,6 +9628,7 @@ export namespace Prisma {
     workStartAt: string | null
     maxDayHours: number | null
     remoteDomain: string | null
+    tourPlansMigratedAt: Date | null
   }
 
   export type CompanySettingsMaxAggregateOutputType = {
@@ -9478,6 +9658,7 @@ export namespace Prisma {
     workStartAt: string | null
     maxDayHours: number | null
     remoteDomain: string | null
+    tourPlansMigratedAt: Date | null
   }
 
   export type CompanySettingsCountAggregateOutputType = {
@@ -9507,6 +9688,7 @@ export namespace Prisma {
     workStartAt: number
     maxDayHours: number
     remoteDomain: number
+    tourPlansMigratedAt: number
     _all: number
   }
 
@@ -9546,6 +9728,7 @@ export namespace Prisma {
     workStartAt?: true
     maxDayHours?: true
     remoteDomain?: true
+    tourPlansMigratedAt?: true
   }
 
   export type CompanySettingsMaxAggregateInputType = {
@@ -9575,6 +9758,7 @@ export namespace Prisma {
     workStartAt?: true
     maxDayHours?: true
     remoteDomain?: true
+    tourPlansMigratedAt?: true
   }
 
   export type CompanySettingsCountAggregateInputType = {
@@ -9604,6 +9788,7 @@ export namespace Prisma {
     workStartAt?: true
     maxDayHours?: true
     remoteDomain?: true
+    tourPlansMigratedAt?: true
     _all?: true
   }
 
@@ -9720,6 +9905,7 @@ export namespace Prisma {
     workStartAt: string | null
     maxDayHours: number | null
     remoteDomain: string | null
+    tourPlansMigratedAt: Date | null
     _count: CompanySettingsCountAggregateOutputType | null
     _avg: CompanySettingsAvgAggregateOutputType | null
     _sum: CompanySettingsSumAggregateOutputType | null
@@ -9768,6 +9954,7 @@ export namespace Prisma {
     workStartAt?: boolean
     maxDayHours?: boolean
     remoteDomain?: boolean
+    tourPlansMigratedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["companySettings"]>
 
@@ -9798,6 +9985,7 @@ export namespace Prisma {
     workStartAt?: boolean
     maxDayHours?: boolean
     remoteDomain?: boolean
+    tourPlansMigratedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["companySettings"]>
 
@@ -9828,6 +10016,7 @@ export namespace Prisma {
     workStartAt?: boolean
     maxDayHours?: boolean
     remoteDomain?: boolean
+    tourPlansMigratedAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["companySettings"]>
 
@@ -9858,9 +10047,10 @@ export namespace Prisma {
     workStartAt?: boolean
     maxDayHours?: boolean
     remoteDomain?: boolean
+    tourPlansMigratedAt?: boolean
   }
 
-  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultLocale" | "currency" | "expiryEnabled" | "creditSalesEnabled" | "debtTrackingEnabled" | "remiseEnabled" | "depositsEnabled" | "multiDepotEnabled" | "costingMethod" | "facturePro" | "posEnabled" | "vanBindingMode" | "oversellAllowed" | "pieceSalesEnabled" | "transferConfirmRequired" | "gpsEnabled" | "qrStrictMode" | "ticketWidth" | "ticketLang" | "supplierFilterEnabled" | "threePackEnabled" | "workStartAt" | "maxDayHours" | "remoteDomain", ExtArgs["result"]["companySettings"]>
+  export type CompanySettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "defaultLocale" | "currency" | "expiryEnabled" | "creditSalesEnabled" | "debtTrackingEnabled" | "remiseEnabled" | "depositsEnabled" | "multiDepotEnabled" | "costingMethod" | "facturePro" | "posEnabled" | "vanBindingMode" | "oversellAllowed" | "pieceSalesEnabled" | "transferConfirmRequired" | "gpsEnabled" | "qrStrictMode" | "ticketWidth" | "ticketLang" | "supplierFilterEnabled" | "threePackEnabled" | "workStartAt" | "maxDayHours" | "remoteDomain" | "tourPlansMigratedAt", ExtArgs["result"]["companySettings"]>
   export type CompanySettingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }
@@ -9930,6 +10120,10 @@ export namespace Prisma {
        * uses it when set, so vans reach the PC through the tunnel from anywhere.
        */
       remoteDomain: string | null
+      /**
+       * One-time conversion of the old copy-forward tours into endless plans.
+       */
+      tourPlansMigratedAt: Date | null
     }, ExtArgs["result"]["companySettings"]>
     composites: {}
   }
@@ -10380,6 +10574,7 @@ export namespace Prisma {
     readonly workStartAt: FieldRef<"CompanySettings", 'String'>
     readonly maxDayHours: FieldRef<"CompanySettings", 'Float'>
     readonly remoteDomain: FieldRef<"CompanySettings", 'String'>
+    readonly tourPlansMigratedAt: FieldRef<"CompanySettings", 'DateTime'>
   }
     
 
@@ -15693,6 +15888,7 @@ export namespace Prisma {
     customers?: boolean | Secteur$customersArgs<ExtArgs>
     suppliers?: boolean | Secteur$suppliersArgs<ExtArgs>
     tournees?: boolean | Secteur$tourneesArgs<ExtArgs>
+    tourneePlans?: boolean | Secteur$tourneePlansArgs<ExtArgs>
     userAreas?: boolean | Secteur$userAreasArgs<ExtArgs>
     _count?: boolean | SecteurCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["secteur"]>
@@ -15735,6 +15931,7 @@ export namespace Prisma {
     customers?: boolean | Secteur$customersArgs<ExtArgs>
     suppliers?: boolean | Secteur$suppliersArgs<ExtArgs>
     tournees?: boolean | Secteur$tourneesArgs<ExtArgs>
+    tourneePlans?: boolean | Secteur$tourneePlansArgs<ExtArgs>
     userAreas?: boolean | Secteur$userAreasArgs<ExtArgs>
     _count?: boolean | SecteurCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -15755,6 +15952,7 @@ export namespace Prisma {
       customers: Prisma.$CustomerPayload<ExtArgs>[]
       suppliers: Prisma.$SupplierPayload<ExtArgs>[]
       tournees: Prisma.$TourneePayload<ExtArgs>[]
+      tourneePlans: Prisma.$TourneePlanPayload<ExtArgs>[]
       userAreas: Prisma.$UserAreaPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -16163,6 +16361,7 @@ export namespace Prisma {
     customers<T extends Secteur$customersArgs<ExtArgs> = {}>(args?: Subset<T, Secteur$customersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     suppliers<T extends Secteur$suppliersArgs<ExtArgs> = {}>(args?: Subset<T, Secteur$suppliersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tournees<T extends Secteur$tourneesArgs<ExtArgs> = {}>(args?: Subset<T, Secteur$tourneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tourneePlans<T extends Secteur$tourneePlansArgs<ExtArgs> = {}>(args?: Subset<T, Secteur$tourneePlansArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     userAreas<T extends Secteur$userAreasArgs<ExtArgs> = {}>(args?: Subset<T, Secteur$userAreasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -16667,6 +16866,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TourneeScalarFieldEnum | TourneeScalarFieldEnum[]
+  }
+
+  /**
+   * Secteur.tourneePlans
+   */
+  export type Secteur$tourneePlansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    where?: TourneePlanWhereInput
+    orderBy?: TourneePlanOrderByWithRelationInput | TourneePlanOrderByWithRelationInput[]
+    cursor?: TourneePlanWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TourneePlanScalarFieldEnum | TourneePlanScalarFieldEnum[]
   }
 
   /**
@@ -22690,6 +22913,7 @@ export namespace Prisma {
     clientReturns?: boolean | Store$clientReturnsArgs<ExtArgs>
     closedVisits?: boolean | Store$closedVisitsArgs<ExtArgs>
     tournees?: boolean | Store$tourneesArgs<ExtArgs>
+    tourneePlans?: boolean | Store$tourneePlansArgs<ExtArgs>
     expenseLinks?: boolean | Store$expenseLinksArgs<ExtArgs>
     devices?: boolean | Store$devicesArgs<ExtArgs>
     dailyCloses?: boolean | Store$dailyClosesArgs<ExtArgs>
@@ -22776,6 +23000,7 @@ export namespace Prisma {
     clientReturns?: boolean | Store$clientReturnsArgs<ExtArgs>
     closedVisits?: boolean | Store$closedVisitsArgs<ExtArgs>
     tournees?: boolean | Store$tourneesArgs<ExtArgs>
+    tourneePlans?: boolean | Store$tourneePlansArgs<ExtArgs>
     expenseLinks?: boolean | Store$expenseLinksArgs<ExtArgs>
     devices?: boolean | Store$devicesArgs<ExtArgs>
     dailyCloses?: boolean | Store$dailyClosesArgs<ExtArgs>
@@ -22804,6 +23029,7 @@ export namespace Prisma {
       clientReturns: Prisma.$ClientReturnPayload<ExtArgs>[]
       closedVisits: Prisma.$ClosedVisitPayload<ExtArgs>[]
       tournees: Prisma.$TourneePayload<ExtArgs>[]
+      tourneePlans: Prisma.$TourneePlanPayload<ExtArgs>[]
       expenseLinks: Prisma.$ExpensePayload<ExtArgs>[]
       devices: Prisma.$DevicePayload<ExtArgs>[]
       dailyCloses: Prisma.$DailyClosePayload<ExtArgs>[]
@@ -23249,6 +23475,7 @@ export namespace Prisma {
     clientReturns<T extends Store$clientReturnsArgs<ExtArgs> = {}>(args?: Subset<T, Store$clientReturnsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     closedVisits<T extends Store$closedVisitsArgs<ExtArgs> = {}>(args?: Subset<T, Store$closedVisitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tournees<T extends Store$tourneesArgs<ExtArgs> = {}>(args?: Subset<T, Store$tourneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tourneePlans<T extends Store$tourneePlansArgs<ExtArgs> = {}>(args?: Subset<T, Store$tourneePlansArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     expenseLinks<T extends Store$expenseLinksArgs<ExtArgs> = {}>(args?: Subset<T, Store$expenseLinksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     devices<T extends Store$devicesArgs<ExtArgs> = {}>(args?: Subset<T, Store$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     dailyCloses<T extends Store$dailyClosesArgs<ExtArgs> = {}>(args?: Subset<T, Store$dailyClosesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DailyClosePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -23930,6 +24157,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TourneeScalarFieldEnum | TourneeScalarFieldEnum[]
+  }
+
+  /**
+   * Store.tourneePlans
+   */
+  export type Store$tourneePlansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    where?: TourneePlanWhereInput
+    orderBy?: TourneePlanOrderByWithRelationInput | TourneePlanOrderByWithRelationInput[]
+    cursor?: TourneePlanWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TourneePlanScalarFieldEnum | TourneePlanScalarFieldEnum[]
   }
 
   /**
@@ -45524,6 +45775,7 @@ export namespace Prisma {
     startedLng: number | null
     finishedLat: number | null
     finishedLng: number | null
+    slot: number | null
   }
 
   export type TourneeSumAggregateOutputType = {
@@ -45531,6 +45783,7 @@ export namespace Prisma {
     startedLng: number | null
     finishedLat: number | null
     finishedLng: number | null
+    slot: number | null
   }
 
   export type TourneeMinAggregateOutputType = {
@@ -45548,6 +45801,8 @@ export namespace Prisma {
     finishedLat: number | null
     finishedLng: number | null
     autoClosed: boolean | null
+    planId: string | null
+    slot: number | null
     createdAt: Date | null
   }
 
@@ -45566,6 +45821,8 @@ export namespace Prisma {
     finishedLat: number | null
     finishedLng: number | null
     autoClosed: boolean | null
+    planId: string | null
+    slot: number | null
     createdAt: Date | null
   }
 
@@ -45584,6 +45841,8 @@ export namespace Prisma {
     finishedLat: number
     finishedLng: number
     autoClosed: number
+    planId: number
+    slot: number
     createdAt: number
     _all: number
   }
@@ -45594,6 +45853,7 @@ export namespace Prisma {
     startedLng?: true
     finishedLat?: true
     finishedLng?: true
+    slot?: true
   }
 
   export type TourneeSumAggregateInputType = {
@@ -45601,6 +45861,7 @@ export namespace Prisma {
     startedLng?: true
     finishedLat?: true
     finishedLng?: true
+    slot?: true
   }
 
   export type TourneeMinAggregateInputType = {
@@ -45618,6 +45879,8 @@ export namespace Prisma {
     finishedLat?: true
     finishedLng?: true
     autoClosed?: true
+    planId?: true
+    slot?: true
     createdAt?: true
   }
 
@@ -45636,6 +45899,8 @@ export namespace Prisma {
     finishedLat?: true
     finishedLng?: true
     autoClosed?: true
+    planId?: true
+    slot?: true
     createdAt?: true
   }
 
@@ -45654,6 +45919,8 @@ export namespace Prisma {
     finishedLat?: true
     finishedLng?: true
     autoClosed?: true
+    planId?: true
+    slot?: true
     createdAt?: true
     _all?: true
   }
@@ -45759,6 +46026,8 @@ export namespace Prisma {
     finishedLat: number | null
     finishedLng: number | null
     autoClosed: boolean
+    planId: string | null
+    slot: number
     createdAt: Date
     _count: TourneeCountAggregateOutputType | null
     _avg: TourneeAvgAggregateOutputType | null
@@ -45796,10 +46065,13 @@ export namespace Prisma {
     finishedLat?: boolean
     finishedLng?: boolean
     autoClosed?: boolean
+    planId?: boolean
+    slot?: boolean
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
     secteur?: boolean | Tournee$secteurArgs<ExtArgs>
+    plan?: boolean | Tournee$planArgs<ExtArgs>
     stops?: boolean | Tournee$stopsArgs<ExtArgs>
     sales?: boolean | Tournee$salesArgs<ExtArgs>
     _count?: boolean | TourneeCountOutputTypeDefaultArgs<ExtArgs>
@@ -45820,10 +46092,13 @@ export namespace Prisma {
     finishedLat?: boolean
     finishedLng?: boolean
     autoClosed?: boolean
+    planId?: boolean
+    slot?: boolean
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
     secteur?: boolean | Tournee$secteurArgs<ExtArgs>
+    plan?: boolean | Tournee$planArgs<ExtArgs>
   }, ExtArgs["result"]["tournee"]>
 
   export type TourneeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -45841,10 +46116,13 @@ export namespace Prisma {
     finishedLat?: boolean
     finishedLng?: boolean
     autoClosed?: boolean
+    planId?: boolean
+    slot?: boolean
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
     secteur?: boolean | Tournee$secteurArgs<ExtArgs>
+    plan?: boolean | Tournee$planArgs<ExtArgs>
   }, ExtArgs["result"]["tournee"]>
 
   export type TourneeSelectScalar = {
@@ -45862,14 +46140,17 @@ export namespace Prisma {
     finishedLat?: boolean
     finishedLng?: boolean
     autoClosed?: boolean
+    planId?: boolean
+    slot?: boolean
     createdAt?: boolean
   }
 
-  export type TourneeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "date" | "locationId" | "secteurId" | "status" | "notes" | "startedAt" | "finishedAt" | "startedLat" | "startedLng" | "finishedLat" | "finishedLng" | "autoClosed" | "createdAt", ExtArgs["result"]["tournee"]>
+  export type TourneeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "date" | "locationId" | "secteurId" | "status" | "notes" | "startedAt" | "finishedAt" | "startedLat" | "startedLng" | "finishedLat" | "finishedLng" | "autoClosed" | "planId" | "slot" | "createdAt", ExtArgs["result"]["tournee"]>
   export type TourneeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
     secteur?: boolean | Tournee$secteurArgs<ExtArgs>
+    plan?: boolean | Tournee$planArgs<ExtArgs>
     stops?: boolean | Tournee$stopsArgs<ExtArgs>
     sales?: boolean | Tournee$salesArgs<ExtArgs>
     _count?: boolean | TourneeCountOutputTypeDefaultArgs<ExtArgs>
@@ -45878,11 +46159,13 @@ export namespace Prisma {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
     secteur?: boolean | Tournee$secteurArgs<ExtArgs>
+    plan?: boolean | Tournee$planArgs<ExtArgs>
   }
   export type TourneeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     location?: boolean | StoreDefaultArgs<ExtArgs>
     secteur?: boolean | Tournee$secteurArgs<ExtArgs>
+    plan?: boolean | Tournee$planArgs<ExtArgs>
   }
 
   export type $TourneePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -45891,6 +46174,7 @@ export namespace Prisma {
       company: Prisma.$CompanyPayload<ExtArgs>
       location: Prisma.$StorePayload<ExtArgs>
       secteur: Prisma.$SecteurPayload<ExtArgs> | null
+      plan: Prisma.$TourneePlanPayload<ExtArgs> | null
       stops: Prisma.$TourneeStopPayload<ExtArgs>[]
       sales: Prisma.$SalePayload<ExtArgs>[]
     }
@@ -45919,6 +46203,14 @@ export namespace Prisma {
        * it at day end and flags it to the admin (driver didn't end journée).
        */
       autoClosed: boolean
+      /**
+       * The recurring plan this day's tour was generated from (null = one-off).
+       */
+      planId: string | null
+      /**
+       * Order inside the day: a van can run up to two tours per day (0, 1).
+       */
+      slot: number
       createdAt: Date
     }, ExtArgs["result"]["tournee"]>
     composites: {}
@@ -46317,6 +46609,7 @@ export namespace Prisma {
     company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     location<T extends StoreDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StoreDefaultArgs<ExtArgs>>): Prisma__StoreClient<$Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     secteur<T extends Tournee$secteurArgs<ExtArgs> = {}>(args?: Subset<T, Tournee$secteurArgs<ExtArgs>>): Prisma__SecteurClient<$Result.GetResult<Prisma.$SecteurPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    plan<T extends Tournee$planArgs<ExtArgs> = {}>(args?: Subset<T, Tournee$planArgs<ExtArgs>>): Prisma__TourneePlanClient<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     stops<T extends Tournee$stopsArgs<ExtArgs> = {}>(args?: Subset<T, Tournee$stopsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneeStopPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sales<T extends Tournee$salesArgs<ExtArgs> = {}>(args?: Subset<T, Tournee$salesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -46362,6 +46655,8 @@ export namespace Prisma {
     readonly finishedLat: FieldRef<"Tournee", 'Float'>
     readonly finishedLng: FieldRef<"Tournee", 'Float'>
     readonly autoClosed: FieldRef<"Tournee", 'Boolean'>
+    readonly planId: FieldRef<"Tournee", 'String'>
+    readonly slot: FieldRef<"Tournee", 'Int'>
     readonly createdAt: FieldRef<"Tournee", 'DateTime'>
   }
     
@@ -46778,6 +47073,25 @@ export namespace Prisma {
      */
     include?: SecteurInclude<ExtArgs> | null
     where?: SecteurWhereInput
+  }
+
+  /**
+   * Tournee.plan
+   */
+  export type Tournee$planArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    where?: TourneePlanWhereInput
   }
 
   /**
@@ -76262,6 +76576,1297 @@ export namespace Prisma {
 
 
   /**
+   * Model TourneePlan
+   */
+
+  export type AggregateTourneePlan = {
+    _count: TourneePlanCountAggregateOutputType | null
+    _avg: TourneePlanAvgAggregateOutputType | null
+    _sum: TourneePlanSumAggregateOutputType | null
+    _min: TourneePlanMinAggregateOutputType | null
+    _max: TourneePlanMaxAggregateOutputType | null
+  }
+
+  export type TourneePlanAvgAggregateOutputType = {
+    weekday: number | null
+    intervalWeeks: number | null
+    slot: number | null
+  }
+
+  export type TourneePlanSumAggregateOutputType = {
+    weekday: number | null
+    intervalWeeks: number | null
+    slot: number | null
+  }
+
+  export type TourneePlanMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    locationId: string | null
+    secteurId: string | null
+    weekday: number | null
+    intervalWeeks: number | null
+    anchorKey: string | null
+    slot: number | null
+    clientIds: string | null
+    skips: string | null
+    notes: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+  }
+
+  export type TourneePlanMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    locationId: string | null
+    secteurId: string | null
+    weekday: number | null
+    intervalWeeks: number | null
+    anchorKey: string | null
+    slot: number | null
+    clientIds: string | null
+    skips: string | null
+    notes: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+  }
+
+  export type TourneePlanCountAggregateOutputType = {
+    id: number
+    companyId: number
+    locationId: number
+    secteurId: number
+    weekday: number
+    intervalWeeks: number
+    anchorKey: number
+    slot: number
+    clientIds: number
+    skips: number
+    notes: number
+    isActive: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type TourneePlanAvgAggregateInputType = {
+    weekday?: true
+    intervalWeeks?: true
+    slot?: true
+  }
+
+  export type TourneePlanSumAggregateInputType = {
+    weekday?: true
+    intervalWeeks?: true
+    slot?: true
+  }
+
+  export type TourneePlanMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    locationId?: true
+    secteurId?: true
+    weekday?: true
+    intervalWeeks?: true
+    anchorKey?: true
+    slot?: true
+    clientIds?: true
+    skips?: true
+    notes?: true
+    isActive?: true
+    createdAt?: true
+  }
+
+  export type TourneePlanMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    locationId?: true
+    secteurId?: true
+    weekday?: true
+    intervalWeeks?: true
+    anchorKey?: true
+    slot?: true
+    clientIds?: true
+    skips?: true
+    notes?: true
+    isActive?: true
+    createdAt?: true
+  }
+
+  export type TourneePlanCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    locationId?: true
+    secteurId?: true
+    weekday?: true
+    intervalWeeks?: true
+    anchorKey?: true
+    slot?: true
+    clientIds?: true
+    skips?: true
+    notes?: true
+    isActive?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type TourneePlanAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TourneePlan to aggregate.
+     */
+    where?: TourneePlanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TourneePlans to fetch.
+     */
+    orderBy?: TourneePlanOrderByWithRelationInput | TourneePlanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TourneePlanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TourneePlans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TourneePlans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TourneePlans
+    **/
+    _count?: true | TourneePlanCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TourneePlanAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TourneePlanSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TourneePlanMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TourneePlanMaxAggregateInputType
+  }
+
+  export type GetTourneePlanAggregateType<T extends TourneePlanAggregateArgs> = {
+        [P in keyof T & keyof AggregateTourneePlan]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTourneePlan[P]>
+      : GetScalarType<T[P], AggregateTourneePlan[P]>
+  }
+
+
+
+
+  export type TourneePlanGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TourneePlanWhereInput
+    orderBy?: TourneePlanOrderByWithAggregationInput | TourneePlanOrderByWithAggregationInput[]
+    by: TourneePlanScalarFieldEnum[] | TourneePlanScalarFieldEnum
+    having?: TourneePlanScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TourneePlanCountAggregateInputType | true
+    _avg?: TourneePlanAvgAggregateInputType
+    _sum?: TourneePlanSumAggregateInputType
+    _min?: TourneePlanMinAggregateInputType
+    _max?: TourneePlanMaxAggregateInputType
+  }
+
+  export type TourneePlanGroupByOutputType = {
+    id: string
+    companyId: string
+    locationId: string
+    secteurId: string | null
+    weekday: number
+    intervalWeeks: number
+    anchorKey: string
+    slot: number
+    clientIds: string | null
+    skips: string
+    notes: string | null
+    isActive: boolean
+    createdAt: Date
+    _count: TourneePlanCountAggregateOutputType | null
+    _avg: TourneePlanAvgAggregateOutputType | null
+    _sum: TourneePlanSumAggregateOutputType | null
+    _min: TourneePlanMinAggregateOutputType | null
+    _max: TourneePlanMaxAggregateOutputType | null
+  }
+
+  type GetTourneePlanGroupByPayload<T extends TourneePlanGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TourneePlanGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TourneePlanGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TourneePlanGroupByOutputType[P]>
+            : GetScalarType<T[P], TourneePlanGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TourneePlanSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    locationId?: boolean
+    secteurId?: boolean
+    weekday?: boolean
+    intervalWeeks?: boolean
+    anchorKey?: boolean
+    slot?: boolean
+    clientIds?: boolean
+    skips?: boolean
+    notes?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    location?: boolean | StoreDefaultArgs<ExtArgs>
+    secteur?: boolean | TourneePlan$secteurArgs<ExtArgs>
+    tournees?: boolean | TourneePlan$tourneesArgs<ExtArgs>
+    _count?: boolean | TourneePlanCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tourneePlan"]>
+
+  export type TourneePlanSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    locationId?: boolean
+    secteurId?: boolean
+    weekday?: boolean
+    intervalWeeks?: boolean
+    anchorKey?: boolean
+    slot?: boolean
+    clientIds?: boolean
+    skips?: boolean
+    notes?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    location?: boolean | StoreDefaultArgs<ExtArgs>
+    secteur?: boolean | TourneePlan$secteurArgs<ExtArgs>
+  }, ExtArgs["result"]["tourneePlan"]>
+
+  export type TourneePlanSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    locationId?: boolean
+    secteurId?: boolean
+    weekday?: boolean
+    intervalWeeks?: boolean
+    anchorKey?: boolean
+    slot?: boolean
+    clientIds?: boolean
+    skips?: boolean
+    notes?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    location?: boolean | StoreDefaultArgs<ExtArgs>
+    secteur?: boolean | TourneePlan$secteurArgs<ExtArgs>
+  }, ExtArgs["result"]["tourneePlan"]>
+
+  export type TourneePlanSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    locationId?: boolean
+    secteurId?: boolean
+    weekday?: boolean
+    intervalWeeks?: boolean
+    anchorKey?: boolean
+    slot?: boolean
+    clientIds?: boolean
+    skips?: boolean
+    notes?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+  }
+
+  export type TourneePlanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "locationId" | "secteurId" | "weekday" | "intervalWeeks" | "anchorKey" | "slot" | "clientIds" | "skips" | "notes" | "isActive" | "createdAt", ExtArgs["result"]["tourneePlan"]>
+  export type TourneePlanInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    location?: boolean | StoreDefaultArgs<ExtArgs>
+    secteur?: boolean | TourneePlan$secteurArgs<ExtArgs>
+    tournees?: boolean | TourneePlan$tourneesArgs<ExtArgs>
+    _count?: boolean | TourneePlanCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type TourneePlanIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    location?: boolean | StoreDefaultArgs<ExtArgs>
+    secteur?: boolean | TourneePlan$secteurArgs<ExtArgs>
+  }
+  export type TourneePlanIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    location?: boolean | StoreDefaultArgs<ExtArgs>
+    secteur?: boolean | TourneePlan$secteurArgs<ExtArgs>
+  }
+
+  export type $TourneePlanPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TourneePlan"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      location: Prisma.$StorePayload<ExtArgs>
+      secteur: Prisma.$SecteurPayload<ExtArgs> | null
+      tournees: Prisma.$TourneePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      locationId: string
+      secteurId: string | null
+      /**
+       * 0 = Sunday … 6 = Saturday (Algiers calendar).
+       */
+      weekday: number
+      /**
+       * 1 = every week, 2 = every 2 weeks.
+       */
+      intervalWeeks: number
+      /**
+       * First occurrence, "YYYY-MM-DD". Biweekly weeks are counted from here.
+       */
+      anchorKey: string
+      /**
+       * Slot inside the van+weekday cell (0 or 1).
+       */
+      slot: number
+      /**
+       * Hand-picked ordered client ids (JSON array). Null = every active client
+       * of the sector, always up to date.
+       */
+      clientIds: string | null
+      /**
+       * Single dates removed from the plan ("YYYY-MM-DD,YYYY-MM-DD") — never recreated.
+       */
+      skips: string
+      notes: string | null
+      isActive: boolean
+      createdAt: Date
+    }, ExtArgs["result"]["tourneePlan"]>
+    composites: {}
+  }
+
+  type TourneePlanGetPayload<S extends boolean | null | undefined | TourneePlanDefaultArgs> = $Result.GetResult<Prisma.$TourneePlanPayload, S>
+
+  type TourneePlanCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TourneePlanFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TourneePlanCountAggregateInputType | true
+    }
+
+  export interface TourneePlanDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TourneePlan'], meta: { name: 'TourneePlan' } }
+    /**
+     * Find zero or one TourneePlan that matches the filter.
+     * @param {TourneePlanFindUniqueArgs} args - Arguments to find a TourneePlan
+     * @example
+     * // Get one TourneePlan
+     * const tourneePlan = await prisma.tourneePlan.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TourneePlanFindUniqueArgs>(args: SelectSubset<T, TourneePlanFindUniqueArgs<ExtArgs>>): Prisma__TourneePlanClient<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TourneePlan that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TourneePlanFindUniqueOrThrowArgs} args - Arguments to find a TourneePlan
+     * @example
+     * // Get one TourneePlan
+     * const tourneePlan = await prisma.tourneePlan.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TourneePlanFindUniqueOrThrowArgs>(args: SelectSubset<T, TourneePlanFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TourneePlanClient<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TourneePlan that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TourneePlanFindFirstArgs} args - Arguments to find a TourneePlan
+     * @example
+     * // Get one TourneePlan
+     * const tourneePlan = await prisma.tourneePlan.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TourneePlanFindFirstArgs>(args?: SelectSubset<T, TourneePlanFindFirstArgs<ExtArgs>>): Prisma__TourneePlanClient<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TourneePlan that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TourneePlanFindFirstOrThrowArgs} args - Arguments to find a TourneePlan
+     * @example
+     * // Get one TourneePlan
+     * const tourneePlan = await prisma.tourneePlan.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TourneePlanFindFirstOrThrowArgs>(args?: SelectSubset<T, TourneePlanFindFirstOrThrowArgs<ExtArgs>>): Prisma__TourneePlanClient<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TourneePlans that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TourneePlanFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TourneePlans
+     * const tourneePlans = await prisma.tourneePlan.findMany()
+     * 
+     * // Get first 10 TourneePlans
+     * const tourneePlans = await prisma.tourneePlan.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tourneePlanWithIdOnly = await prisma.tourneePlan.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TourneePlanFindManyArgs>(args?: SelectSubset<T, TourneePlanFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TourneePlan.
+     * @param {TourneePlanCreateArgs} args - Arguments to create a TourneePlan.
+     * @example
+     * // Create one TourneePlan
+     * const TourneePlan = await prisma.tourneePlan.create({
+     *   data: {
+     *     // ... data to create a TourneePlan
+     *   }
+     * })
+     * 
+     */
+    create<T extends TourneePlanCreateArgs>(args: SelectSubset<T, TourneePlanCreateArgs<ExtArgs>>): Prisma__TourneePlanClient<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TourneePlans.
+     * @param {TourneePlanCreateManyArgs} args - Arguments to create many TourneePlans.
+     * @example
+     * // Create many TourneePlans
+     * const tourneePlan = await prisma.tourneePlan.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TourneePlanCreateManyArgs>(args?: SelectSubset<T, TourneePlanCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TourneePlans and returns the data saved in the database.
+     * @param {TourneePlanCreateManyAndReturnArgs} args - Arguments to create many TourneePlans.
+     * @example
+     * // Create many TourneePlans
+     * const tourneePlan = await prisma.tourneePlan.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TourneePlans and only return the `id`
+     * const tourneePlanWithIdOnly = await prisma.tourneePlan.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TourneePlanCreateManyAndReturnArgs>(args?: SelectSubset<T, TourneePlanCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TourneePlan.
+     * @param {TourneePlanDeleteArgs} args - Arguments to delete one TourneePlan.
+     * @example
+     * // Delete one TourneePlan
+     * const TourneePlan = await prisma.tourneePlan.delete({
+     *   where: {
+     *     // ... filter to delete one TourneePlan
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TourneePlanDeleteArgs>(args: SelectSubset<T, TourneePlanDeleteArgs<ExtArgs>>): Prisma__TourneePlanClient<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TourneePlan.
+     * @param {TourneePlanUpdateArgs} args - Arguments to update one TourneePlan.
+     * @example
+     * // Update one TourneePlan
+     * const tourneePlan = await prisma.tourneePlan.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TourneePlanUpdateArgs>(args: SelectSubset<T, TourneePlanUpdateArgs<ExtArgs>>): Prisma__TourneePlanClient<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TourneePlans.
+     * @param {TourneePlanDeleteManyArgs} args - Arguments to filter TourneePlans to delete.
+     * @example
+     * // Delete a few TourneePlans
+     * const { count } = await prisma.tourneePlan.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TourneePlanDeleteManyArgs>(args?: SelectSubset<T, TourneePlanDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TourneePlans.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TourneePlanUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TourneePlans
+     * const tourneePlan = await prisma.tourneePlan.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TourneePlanUpdateManyArgs>(args: SelectSubset<T, TourneePlanUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TourneePlans and returns the data updated in the database.
+     * @param {TourneePlanUpdateManyAndReturnArgs} args - Arguments to update many TourneePlans.
+     * @example
+     * // Update many TourneePlans
+     * const tourneePlan = await prisma.tourneePlan.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TourneePlans and only return the `id`
+     * const tourneePlanWithIdOnly = await prisma.tourneePlan.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TourneePlanUpdateManyAndReturnArgs>(args: SelectSubset<T, TourneePlanUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TourneePlan.
+     * @param {TourneePlanUpsertArgs} args - Arguments to update or create a TourneePlan.
+     * @example
+     * // Update or create a TourneePlan
+     * const tourneePlan = await prisma.tourneePlan.upsert({
+     *   create: {
+     *     // ... data to create a TourneePlan
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TourneePlan we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TourneePlanUpsertArgs>(args: SelectSubset<T, TourneePlanUpsertArgs<ExtArgs>>): Prisma__TourneePlanClient<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TourneePlans.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TourneePlanCountArgs} args - Arguments to filter TourneePlans to count.
+     * @example
+     * // Count the number of TourneePlans
+     * const count = await prisma.tourneePlan.count({
+     *   where: {
+     *     // ... the filter for the TourneePlans we want to count
+     *   }
+     * })
+    **/
+    count<T extends TourneePlanCountArgs>(
+      args?: Subset<T, TourneePlanCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TourneePlanCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TourneePlan.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TourneePlanAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TourneePlanAggregateArgs>(args: Subset<T, TourneePlanAggregateArgs>): Prisma.PrismaPromise<GetTourneePlanAggregateType<T>>
+
+    /**
+     * Group by TourneePlan.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TourneePlanGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TourneePlanGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TourneePlanGroupByArgs['orderBy'] }
+        : { orderBy?: TourneePlanGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TourneePlanGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTourneePlanGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TourneePlan model
+   */
+  readonly fields: TourneePlanFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TourneePlan.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TourneePlanClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    location<T extends StoreDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StoreDefaultArgs<ExtArgs>>): Prisma__StoreClient<$Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    secteur<T extends TourneePlan$secteurArgs<ExtArgs> = {}>(args?: Subset<T, TourneePlan$secteurArgs<ExtArgs>>): Prisma__SecteurClient<$Result.GetResult<Prisma.$SecteurPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    tournees<T extends TourneePlan$tourneesArgs<ExtArgs> = {}>(args?: Subset<T, TourneePlan$tourneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TourneePlan model
+   */
+  interface TourneePlanFieldRefs {
+    readonly id: FieldRef<"TourneePlan", 'String'>
+    readonly companyId: FieldRef<"TourneePlan", 'String'>
+    readonly locationId: FieldRef<"TourneePlan", 'String'>
+    readonly secteurId: FieldRef<"TourneePlan", 'String'>
+    readonly weekday: FieldRef<"TourneePlan", 'Int'>
+    readonly intervalWeeks: FieldRef<"TourneePlan", 'Int'>
+    readonly anchorKey: FieldRef<"TourneePlan", 'String'>
+    readonly slot: FieldRef<"TourneePlan", 'Int'>
+    readonly clientIds: FieldRef<"TourneePlan", 'String'>
+    readonly skips: FieldRef<"TourneePlan", 'String'>
+    readonly notes: FieldRef<"TourneePlan", 'String'>
+    readonly isActive: FieldRef<"TourneePlan", 'Boolean'>
+    readonly createdAt: FieldRef<"TourneePlan", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TourneePlan findUnique
+   */
+  export type TourneePlanFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    /**
+     * Filter, which TourneePlan to fetch.
+     */
+    where: TourneePlanWhereUniqueInput
+  }
+
+  /**
+   * TourneePlan findUniqueOrThrow
+   */
+  export type TourneePlanFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    /**
+     * Filter, which TourneePlan to fetch.
+     */
+    where: TourneePlanWhereUniqueInput
+  }
+
+  /**
+   * TourneePlan findFirst
+   */
+  export type TourneePlanFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    /**
+     * Filter, which TourneePlan to fetch.
+     */
+    where?: TourneePlanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TourneePlans to fetch.
+     */
+    orderBy?: TourneePlanOrderByWithRelationInput | TourneePlanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TourneePlans.
+     */
+    cursor?: TourneePlanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TourneePlans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TourneePlans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TourneePlans.
+     */
+    distinct?: TourneePlanScalarFieldEnum | TourneePlanScalarFieldEnum[]
+  }
+
+  /**
+   * TourneePlan findFirstOrThrow
+   */
+  export type TourneePlanFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    /**
+     * Filter, which TourneePlan to fetch.
+     */
+    where?: TourneePlanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TourneePlans to fetch.
+     */
+    orderBy?: TourneePlanOrderByWithRelationInput | TourneePlanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TourneePlans.
+     */
+    cursor?: TourneePlanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TourneePlans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TourneePlans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TourneePlans.
+     */
+    distinct?: TourneePlanScalarFieldEnum | TourneePlanScalarFieldEnum[]
+  }
+
+  /**
+   * TourneePlan findMany
+   */
+  export type TourneePlanFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    /**
+     * Filter, which TourneePlans to fetch.
+     */
+    where?: TourneePlanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TourneePlans to fetch.
+     */
+    orderBy?: TourneePlanOrderByWithRelationInput | TourneePlanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TourneePlans.
+     */
+    cursor?: TourneePlanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TourneePlans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TourneePlans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TourneePlans.
+     */
+    distinct?: TourneePlanScalarFieldEnum | TourneePlanScalarFieldEnum[]
+  }
+
+  /**
+   * TourneePlan create
+   */
+  export type TourneePlanCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TourneePlan.
+     */
+    data: XOR<TourneePlanCreateInput, TourneePlanUncheckedCreateInput>
+  }
+
+  /**
+   * TourneePlan createMany
+   */
+  export type TourneePlanCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TourneePlans.
+     */
+    data: TourneePlanCreateManyInput | TourneePlanCreateManyInput[]
+  }
+
+  /**
+   * TourneePlan createManyAndReturn
+   */
+  export type TourneePlanCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * The data used to create many TourneePlans.
+     */
+    data: TourneePlanCreateManyInput | TourneePlanCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TourneePlan update
+   */
+  export type TourneePlanUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TourneePlan.
+     */
+    data: XOR<TourneePlanUpdateInput, TourneePlanUncheckedUpdateInput>
+    /**
+     * Choose, which TourneePlan to update.
+     */
+    where: TourneePlanWhereUniqueInput
+  }
+
+  /**
+   * TourneePlan updateMany
+   */
+  export type TourneePlanUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TourneePlans.
+     */
+    data: XOR<TourneePlanUpdateManyMutationInput, TourneePlanUncheckedUpdateManyInput>
+    /**
+     * Filter which TourneePlans to update
+     */
+    where?: TourneePlanWhereInput
+    /**
+     * Limit how many TourneePlans to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TourneePlan updateManyAndReturn
+   */
+  export type TourneePlanUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * The data used to update TourneePlans.
+     */
+    data: XOR<TourneePlanUpdateManyMutationInput, TourneePlanUncheckedUpdateManyInput>
+    /**
+     * Filter which TourneePlans to update
+     */
+    where?: TourneePlanWhereInput
+    /**
+     * Limit how many TourneePlans to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TourneePlan upsert
+   */
+  export type TourneePlanUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TourneePlan to update in case it exists.
+     */
+    where: TourneePlanWhereUniqueInput
+    /**
+     * In case the TourneePlan found by the `where` argument doesn't exist, create a new TourneePlan with this data.
+     */
+    create: XOR<TourneePlanCreateInput, TourneePlanUncheckedCreateInput>
+    /**
+     * In case the TourneePlan was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TourneePlanUpdateInput, TourneePlanUncheckedUpdateInput>
+  }
+
+  /**
+   * TourneePlan delete
+   */
+  export type TourneePlanDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+    /**
+     * Filter which TourneePlan to delete.
+     */
+    where: TourneePlanWhereUniqueInput
+  }
+
+  /**
+   * TourneePlan deleteMany
+   */
+  export type TourneePlanDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TourneePlans to delete
+     */
+    where?: TourneePlanWhereInput
+    /**
+     * Limit how many TourneePlans to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TourneePlan.secteur
+   */
+  export type TourneePlan$secteurArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Secteur
+     */
+    select?: SecteurSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Secteur
+     */
+    omit?: SecteurOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SecteurInclude<ExtArgs> | null
+    where?: SecteurWhereInput
+  }
+
+  /**
+   * TourneePlan.tournees
+   */
+  export type TourneePlan$tourneesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tournee
+     */
+    select?: TourneeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tournee
+     */
+    omit?: TourneeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneeInclude<ExtArgs> | null
+    where?: TourneeWhereInput
+    orderBy?: TourneeOrderByWithRelationInput | TourneeOrderByWithRelationInput[]
+    cursor?: TourneeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TourneeScalarFieldEnum | TourneeScalarFieldEnum[]
+  }
+
+  /**
+   * TourneePlan without action
+   */
+  export type TourneePlanDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TourneePlan
+     */
+    select?: TourneePlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TourneePlan
+     */
+    omit?: TourneePlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TourneePlanInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -76320,7 +77925,8 @@ export namespace Prisma {
     threePackEnabled: 'threePackEnabled',
     workStartAt: 'workStartAt',
     maxDayHours: 'maxDayHours',
-    remoteDomain: 'remoteDomain'
+    remoteDomain: 'remoteDomain',
+    tourPlansMigratedAt: 'tourPlansMigratedAt'
   };
 
   export type CompanySettingsScalarFieldEnum = (typeof CompanySettingsScalarFieldEnum)[keyof typeof CompanySettingsScalarFieldEnum]
@@ -76777,6 +78383,8 @@ export namespace Prisma {
     finishedLat: 'finishedLat',
     finishedLng: 'finishedLng',
     autoClosed: 'autoClosed',
+    planId: 'planId',
+    slot: 'slot',
     createdAt: 'createdAt'
   };
 
@@ -77184,6 +78792,25 @@ export namespace Prisma {
   export type ClosedVisitPhotoScalarFieldEnum = (typeof ClosedVisitPhotoScalarFieldEnum)[keyof typeof ClosedVisitPhotoScalarFieldEnum]
 
 
+  export const TourneePlanScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    locationId: 'locationId',
+    secteurId: 'secteurId',
+    weekday: 'weekday',
+    intervalWeeks: 'intervalWeeks',
+    anchorKey: 'anchorKey',
+    slot: 'slot',
+    clientIds: 'clientIds',
+    skips: 'skips',
+    notes: 'notes',
+    isActive: 'isActive',
+    createdAt: 'createdAt'
+  };
+
+  export type TourneePlanScalarFieldEnum = (typeof TourneePlanScalarFieldEnum)[keyof typeof TourneePlanScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -77331,6 +78958,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnListRelationFilter
     closedVisits?: ClosedVisitListRelationFilter
     tournees?: TourneeListRelationFilter
+    tourneePlans?: TourneePlanListRelationFilter
     expenses?: ExpenseListRelationFilter
     versements?: VersementListRelationFilter
     distances?: ClientDistanceListRelationFilter
@@ -77379,6 +79007,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnOrderByRelationAggregateInput
     closedVisits?: ClosedVisitOrderByRelationAggregateInput
     tournees?: TourneeOrderByRelationAggregateInput
+    tourneePlans?: TourneePlanOrderByRelationAggregateInput
     expenses?: ExpenseOrderByRelationAggregateInput
     versements?: VersementOrderByRelationAggregateInput
     distances?: ClientDistanceOrderByRelationAggregateInput
@@ -77430,6 +79059,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnListRelationFilter
     closedVisits?: ClosedVisitListRelationFilter
     tournees?: TourneeListRelationFilter
+    tourneePlans?: TourneePlanListRelationFilter
     expenses?: ExpenseListRelationFilter
     versements?: VersementListRelationFilter
     distances?: ClientDistanceListRelationFilter
@@ -77513,6 +79143,7 @@ export namespace Prisma {
     workStartAt?: StringNullableFilter<"CompanySettings"> | string | null
     maxDayHours?: FloatNullableFilter<"CompanySettings"> | number | null
     remoteDomain?: StringNullableFilter<"CompanySettings"> | string | null
+    tourPlansMigratedAt?: DateTimeNullableFilter<"CompanySettings"> | Date | string | null
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
   }
 
@@ -77543,6 +79174,7 @@ export namespace Prisma {
     workStartAt?: SortOrderInput | SortOrder
     maxDayHours?: SortOrderInput | SortOrder
     remoteDomain?: SortOrderInput | SortOrder
+    tourPlansMigratedAt?: SortOrderInput | SortOrder
     company?: CompanyOrderByWithRelationInput
   }
 
@@ -77576,6 +79208,7 @@ export namespace Prisma {
     workStartAt?: StringNullableFilter<"CompanySettings"> | string | null
     maxDayHours?: FloatNullableFilter<"CompanySettings"> | number | null
     remoteDomain?: StringNullableFilter<"CompanySettings"> | string | null
+    tourPlansMigratedAt?: DateTimeNullableFilter<"CompanySettings"> | Date | string | null
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
   }, "id" | "companyId">
 
@@ -77606,6 +79239,7 @@ export namespace Prisma {
     workStartAt?: SortOrderInput | SortOrder
     maxDayHours?: SortOrderInput | SortOrder
     remoteDomain?: SortOrderInput | SortOrder
+    tourPlansMigratedAt?: SortOrderInput | SortOrder
     _count?: CompanySettingsCountOrderByAggregateInput
     _avg?: CompanySettingsAvgOrderByAggregateInput
     _max?: CompanySettingsMaxOrderByAggregateInput
@@ -77643,6 +79277,7 @@ export namespace Prisma {
     workStartAt?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
     maxDayHours?: FloatNullableWithAggregatesFilter<"CompanySettings"> | number | null
     remoteDomain?: StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+    tourPlansMigratedAt?: DateTimeNullableWithAggregatesFilter<"CompanySettings"> | Date | string | null
   }
 
   export type UnitWhereInput = {
@@ -77927,6 +79562,7 @@ export namespace Prisma {
     customers?: CustomerListRelationFilter
     suppliers?: SupplierListRelationFilter
     tournees?: TourneeListRelationFilter
+    tourneePlans?: TourneePlanListRelationFilter
     userAreas?: UserAreaListRelationFilter
   }
 
@@ -77942,6 +79578,7 @@ export namespace Prisma {
     customers?: CustomerOrderByRelationAggregateInput
     suppliers?: SupplierOrderByRelationAggregateInput
     tournees?: TourneeOrderByRelationAggregateInput
+    tourneePlans?: TourneePlanOrderByRelationAggregateInput
     userAreas?: UserAreaOrderByRelationAggregateInput
   }
 
@@ -77961,6 +79598,7 @@ export namespace Prisma {
     customers?: CustomerListRelationFilter
     suppliers?: SupplierListRelationFilter
     tournees?: TourneeListRelationFilter
+    tourneePlans?: TourneePlanListRelationFilter
     userAreas?: UserAreaListRelationFilter
   }, "id" | "companyId_wilayaCode_name">
 
@@ -78382,6 +80020,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnListRelationFilter
     closedVisits?: ClosedVisitListRelationFilter
     tournees?: TourneeListRelationFilter
+    tourneePlans?: TourneePlanListRelationFilter
     expenseLinks?: ExpenseListRelationFilter
     devices?: DeviceListRelationFilter
     dailyCloses?: DailyCloseListRelationFilter
@@ -78417,6 +80056,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnOrderByRelationAggregateInput
     closedVisits?: ClosedVisitOrderByRelationAggregateInput
     tournees?: TourneeOrderByRelationAggregateInput
+    tourneePlans?: TourneePlanOrderByRelationAggregateInput
     expenseLinks?: ExpenseOrderByRelationAggregateInput
     devices?: DeviceOrderByRelationAggregateInput
     dailyCloses?: DailyCloseOrderByRelationAggregateInput
@@ -78456,6 +80096,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnListRelationFilter
     closedVisits?: ClosedVisitListRelationFilter
     tournees?: TourneeListRelationFilter
+    tourneePlans?: TourneePlanListRelationFilter
     expenseLinks?: ExpenseListRelationFilter
     devices?: DeviceListRelationFilter
     dailyCloses?: DailyCloseListRelationFilter
@@ -80198,10 +81839,13 @@ export namespace Prisma {
     finishedLat?: FloatNullableFilter<"Tournee"> | number | null
     finishedLng?: FloatNullableFilter<"Tournee"> | number | null
     autoClosed?: BoolFilter<"Tournee"> | boolean
+    planId?: StringNullableFilter<"Tournee"> | string | null
+    slot?: IntFilter<"Tournee"> | number
     createdAt?: DateTimeFilter<"Tournee"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     location?: XOR<StoreScalarRelationFilter, StoreWhereInput>
     secteur?: XOR<SecteurNullableScalarRelationFilter, SecteurWhereInput> | null
+    plan?: XOR<TourneePlanNullableScalarRelationFilter, TourneePlanWhereInput> | null
     stops?: TourneeStopListRelationFilter
     sales?: SaleListRelationFilter
   }
@@ -80221,16 +81865,20 @@ export namespace Prisma {
     finishedLat?: SortOrderInput | SortOrder
     finishedLng?: SortOrderInput | SortOrder
     autoClosed?: SortOrder
+    planId?: SortOrderInput | SortOrder
+    slot?: SortOrder
     createdAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
     location?: StoreOrderByWithRelationInput
     secteur?: SecteurOrderByWithRelationInput
+    plan?: TourneePlanOrderByWithRelationInput
     stops?: TourneeStopOrderByRelationAggregateInput
     sales?: SaleOrderByRelationAggregateInput
   }
 
   export type TourneeWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    planId_date?: TourneePlanIdDateCompoundUniqueInput
     AND?: TourneeWhereInput | TourneeWhereInput[]
     OR?: TourneeWhereInput[]
     NOT?: TourneeWhereInput | TourneeWhereInput[]
@@ -80247,13 +81895,16 @@ export namespace Prisma {
     finishedLat?: FloatNullableFilter<"Tournee"> | number | null
     finishedLng?: FloatNullableFilter<"Tournee"> | number | null
     autoClosed?: BoolFilter<"Tournee"> | boolean
+    planId?: StringNullableFilter<"Tournee"> | string | null
+    slot?: IntFilter<"Tournee"> | number
     createdAt?: DateTimeFilter<"Tournee"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     location?: XOR<StoreScalarRelationFilter, StoreWhereInput>
     secteur?: XOR<SecteurNullableScalarRelationFilter, SecteurWhereInput> | null
+    plan?: XOR<TourneePlanNullableScalarRelationFilter, TourneePlanWhereInput> | null
     stops?: TourneeStopListRelationFilter
     sales?: SaleListRelationFilter
-  }, "id">
+  }, "id" | "planId_date">
 
   export type TourneeOrderByWithAggregationInput = {
     id?: SortOrder
@@ -80270,6 +81921,8 @@ export namespace Prisma {
     finishedLat?: SortOrderInput | SortOrder
     finishedLng?: SortOrderInput | SortOrder
     autoClosed?: SortOrder
+    planId?: SortOrderInput | SortOrder
+    slot?: SortOrder
     createdAt?: SortOrder
     _count?: TourneeCountOrderByAggregateInput
     _avg?: TourneeAvgOrderByAggregateInput
@@ -80296,6 +81949,8 @@ export namespace Prisma {
     finishedLat?: FloatNullableWithAggregatesFilter<"Tournee"> | number | null
     finishedLng?: FloatNullableWithAggregatesFilter<"Tournee"> | number | null
     autoClosed?: BoolWithAggregatesFilter<"Tournee"> | boolean
+    planId?: StringNullableWithAggregatesFilter<"Tournee"> | string | null
+    slot?: IntWithAggregatesFilter<"Tournee"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Tournee"> | Date | string
   }
 
@@ -82439,6 +84094,112 @@ export namespace Prisma {
     sortOrder?: IntWithAggregatesFilter<"ClosedVisitPhoto"> | number
   }
 
+  export type TourneePlanWhereInput = {
+    AND?: TourneePlanWhereInput | TourneePlanWhereInput[]
+    OR?: TourneePlanWhereInput[]
+    NOT?: TourneePlanWhereInput | TourneePlanWhereInput[]
+    id?: StringFilter<"TourneePlan"> | string
+    companyId?: StringFilter<"TourneePlan"> | string
+    locationId?: StringFilter<"TourneePlan"> | string
+    secteurId?: StringNullableFilter<"TourneePlan"> | string | null
+    weekday?: IntFilter<"TourneePlan"> | number
+    intervalWeeks?: IntFilter<"TourneePlan"> | number
+    anchorKey?: StringFilter<"TourneePlan"> | string
+    slot?: IntFilter<"TourneePlan"> | number
+    clientIds?: StringNullableFilter<"TourneePlan"> | string | null
+    skips?: StringFilter<"TourneePlan"> | string
+    notes?: StringNullableFilter<"TourneePlan"> | string | null
+    isActive?: BoolFilter<"TourneePlan"> | boolean
+    createdAt?: DateTimeFilter<"TourneePlan"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    location?: XOR<StoreScalarRelationFilter, StoreWhereInput>
+    secteur?: XOR<SecteurNullableScalarRelationFilter, SecteurWhereInput> | null
+    tournees?: TourneeListRelationFilter
+  }
+
+  export type TourneePlanOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    locationId?: SortOrder
+    secteurId?: SortOrderInput | SortOrder
+    weekday?: SortOrder
+    intervalWeeks?: SortOrder
+    anchorKey?: SortOrder
+    slot?: SortOrder
+    clientIds?: SortOrderInput | SortOrder
+    skips?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    location?: StoreOrderByWithRelationInput
+    secteur?: SecteurOrderByWithRelationInput
+    tournees?: TourneeOrderByRelationAggregateInput
+  }
+
+  export type TourneePlanWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TourneePlanWhereInput | TourneePlanWhereInput[]
+    OR?: TourneePlanWhereInput[]
+    NOT?: TourneePlanWhereInput | TourneePlanWhereInput[]
+    companyId?: StringFilter<"TourneePlan"> | string
+    locationId?: StringFilter<"TourneePlan"> | string
+    secteurId?: StringNullableFilter<"TourneePlan"> | string | null
+    weekday?: IntFilter<"TourneePlan"> | number
+    intervalWeeks?: IntFilter<"TourneePlan"> | number
+    anchorKey?: StringFilter<"TourneePlan"> | string
+    slot?: IntFilter<"TourneePlan"> | number
+    clientIds?: StringNullableFilter<"TourneePlan"> | string | null
+    skips?: StringFilter<"TourneePlan"> | string
+    notes?: StringNullableFilter<"TourneePlan"> | string | null
+    isActive?: BoolFilter<"TourneePlan"> | boolean
+    createdAt?: DateTimeFilter<"TourneePlan"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    location?: XOR<StoreScalarRelationFilter, StoreWhereInput>
+    secteur?: XOR<SecteurNullableScalarRelationFilter, SecteurWhereInput> | null
+    tournees?: TourneeListRelationFilter
+  }, "id">
+
+  export type TourneePlanOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    locationId?: SortOrder
+    secteurId?: SortOrderInput | SortOrder
+    weekday?: SortOrder
+    intervalWeeks?: SortOrder
+    anchorKey?: SortOrder
+    slot?: SortOrder
+    clientIds?: SortOrderInput | SortOrder
+    skips?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    _count?: TourneePlanCountOrderByAggregateInput
+    _avg?: TourneePlanAvgOrderByAggregateInput
+    _max?: TourneePlanMaxOrderByAggregateInput
+    _min?: TourneePlanMinOrderByAggregateInput
+    _sum?: TourneePlanSumOrderByAggregateInput
+  }
+
+  export type TourneePlanScalarWhereWithAggregatesInput = {
+    AND?: TourneePlanScalarWhereWithAggregatesInput | TourneePlanScalarWhereWithAggregatesInput[]
+    OR?: TourneePlanScalarWhereWithAggregatesInput[]
+    NOT?: TourneePlanScalarWhereWithAggregatesInput | TourneePlanScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TourneePlan"> | string
+    companyId?: StringWithAggregatesFilter<"TourneePlan"> | string
+    locationId?: StringWithAggregatesFilter<"TourneePlan"> | string
+    secteurId?: StringNullableWithAggregatesFilter<"TourneePlan"> | string | null
+    weekday?: IntWithAggregatesFilter<"TourneePlan"> | number
+    intervalWeeks?: IntWithAggregatesFilter<"TourneePlan"> | number
+    anchorKey?: StringWithAggregatesFilter<"TourneePlan"> | string
+    slot?: IntWithAggregatesFilter<"TourneePlan"> | number
+    clientIds?: StringNullableWithAggregatesFilter<"TourneePlan"> | string | null
+    skips?: StringWithAggregatesFilter<"TourneePlan"> | string
+    notes?: StringNullableWithAggregatesFilter<"TourneePlan"> | string | null
+    isActive?: BoolWithAggregatesFilter<"TourneePlan"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"TourneePlan"> | Date | string
+  }
+
   export type CompanyCreateInput = {
     id?: string
     name: string
@@ -82478,6 +84239,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -82526,6 +84288,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -82574,6 +84337,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -82622,6 +84386,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -82714,6 +84479,7 @@ export namespace Prisma {
     workStartAt?: string | null
     maxDayHours?: number | null
     remoteDomain?: string | null
+    tourPlansMigratedAt?: Date | string | null
     company: CompanyCreateNestedOneWithoutSettingsInput
   }
 
@@ -82744,6 +84510,7 @@ export namespace Prisma {
     workStartAt?: string | null
     maxDayHours?: number | null
     remoteDomain?: string | null
+    tourPlansMigratedAt?: Date | string | null
   }
 
   export type CompanySettingsUpdateInput = {
@@ -82772,6 +84539,7 @@ export namespace Prisma {
     workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
     maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    tourPlansMigratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     company?: CompanyUpdateOneRequiredWithoutSettingsNestedInput
   }
 
@@ -82802,6 +84570,7 @@ export namespace Prisma {
     workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
     maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    tourPlansMigratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type CompanySettingsCreateManyInput = {
@@ -82831,6 +84600,7 @@ export namespace Prisma {
     workStartAt?: string | null
     maxDayHours?: number | null
     remoteDomain?: string | null
+    tourPlansMigratedAt?: Date | string | null
   }
 
   export type CompanySettingsUpdateManyMutationInput = {
@@ -82859,6 +84629,7 @@ export namespace Prisma {
     workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
     maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    tourPlansMigratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type CompanySettingsUncheckedUpdateManyInput = {
@@ -82888,6 +84659,7 @@ export namespace Prisma {
     workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
     maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    tourPlansMigratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UnitCreateInput = {
@@ -83176,6 +84948,7 @@ export namespace Prisma {
     customers?: CustomerCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierCreateNestedManyWithoutSecteurInput
     tournees?: TourneeCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutSecteurInput
     userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
   }
 
@@ -83189,6 +84962,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutSecteurInput
     userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
   }
 
@@ -83202,6 +84976,7 @@ export namespace Prisma {
     customers?: CustomerUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutSecteurNestedInput
     userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
   }
 
@@ -83215,6 +84990,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutSecteurNestedInput
     userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
@@ -83658,6 +85434,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -83691,6 +85468,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -83724,6 +85502,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -83757,6 +85536,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -85576,10 +87356,12 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    slot?: number
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     location: StoreCreateNestedOneWithoutTourneesInput
     secteur?: SecteurCreateNestedOneWithoutTourneesInput
+    plan?: TourneePlanCreateNestedOneWithoutTourneesInput
     stops?: TourneeStopCreateNestedManyWithoutTourneeInput
     sales?: SaleCreateNestedManyWithoutTourneeInput
   }
@@ -85599,6 +87381,8 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    planId?: string | null
+    slot?: number
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
@@ -85616,10 +87400,12 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
     secteur?: SecteurUpdateOneWithoutTourneesNestedInput
+    plan?: TourneePlanUpdateOneWithoutTourneesNestedInput
     stops?: TourneeStopUpdateManyWithoutTourneeNestedInput
     sales?: SaleUpdateManyWithoutTourneeNestedInput
   }
@@ -85639,6 +87425,8 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
@@ -85659,6 +87447,8 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    planId?: string | null
+    slot?: number
     createdAt?: Date | string
   }
 
@@ -85674,6 +87464,7 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -85692,6 +87483,8 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -87971,6 +89764,119 @@ export namespace Prisma {
     sortOrder?: IntFieldUpdateOperationsInput | number
   }
 
+  export type TourneePlanCreateInput = {
+    id?: string
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutTourneePlansInput
+    location: StoreCreateNestedOneWithoutTourneePlansInput
+    secteur?: SecteurCreateNestedOneWithoutTourneePlansInput
+    tournees?: TourneeCreateNestedManyWithoutPlanInput
+  }
+
+  export type TourneePlanUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    locationId: string
+    secteurId?: string | null
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    tournees?: TourneeUncheckedCreateNestedManyWithoutPlanInput
+  }
+
+  export type TourneePlanUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutTourneePlansNestedInput
+    location?: StoreUpdateOneRequiredWithoutTourneePlansNestedInput
+    secteur?: SecteurUpdateOneWithoutTourneePlansNestedInput
+    tournees?: TourneeUpdateManyWithoutPlanNestedInput
+  }
+
+  export type TourneePlanUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    locationId?: StringFieldUpdateOperationsInput | string
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tournees?: TourneeUncheckedUpdateManyWithoutPlanNestedInput
+  }
+
+  export type TourneePlanCreateManyInput = {
+    id?: string
+    companyId: string
+    locationId: string
+    secteurId?: string | null
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+  }
+
+  export type TourneePlanUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TourneePlanUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    locationId?: StringFieldUpdateOperationsInput | string
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -88141,6 +90047,12 @@ export namespace Prisma {
     none?: TourneeWhereInput
   }
 
+  export type TourneePlanListRelationFilter = {
+    every?: TourneePlanWhereInput
+    some?: TourneePlanWhereInput
+    none?: TourneePlanWhereInput
+  }
+
   export type ExpenseListRelationFilter = {
     every?: ExpenseWhereInput
     some?: ExpenseWhereInput
@@ -88269,6 +90181,10 @@ export namespace Prisma {
   }
 
   export type TourneeOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TourneePlanOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -88421,6 +90337,17 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type CompanyScalarRelationFilter = {
     is?: CompanyWhereInput
     isNot?: CompanyWhereInput
@@ -88453,6 +90380,7 @@ export namespace Prisma {
     workStartAt?: SortOrder
     maxDayHours?: SortOrder
     remoteDomain?: SortOrder
+    tourPlansMigratedAt?: SortOrder
   }
 
   export type CompanySettingsAvgOrderByAggregateInput = {
@@ -88486,6 +90414,7 @@ export namespace Prisma {
     workStartAt?: SortOrder
     maxDayHours?: SortOrder
     remoteDomain?: SortOrder
+    tourPlansMigratedAt?: SortOrder
   }
 
   export type CompanySettingsMinOrderByAggregateInput = {
@@ -88515,6 +90444,7 @@ export namespace Prisma {
     workStartAt?: SortOrder
     maxDayHours?: SortOrder
     remoteDomain?: SortOrder
+    tourPlansMigratedAt?: SortOrder
   }
 
   export type CompanySettingsSumOrderByAggregateInput = {
@@ -88543,6 +90473,20 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -88905,17 +90849,6 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
   export type SuperAdminAuditListRelationFilter = {
     every?: SuperAdminAuditWhereInput
     some?: SuperAdminAuditWhereInput
@@ -88951,20 +90884,6 @@ export namespace Prisma {
     isActive?: SortOrder
     passwordChangedAt?: SortOrder
     createdAt?: SortOrder
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -90347,6 +92266,16 @@ export namespace Prisma {
     lineTotal?: SortOrder
   }
 
+  export type TourneePlanNullableScalarRelationFilter = {
+    is?: TourneePlanWhereInput | null
+    isNot?: TourneePlanWhereInput | null
+  }
+
+  export type TourneePlanIdDateCompoundUniqueInput = {
+    planId: string
+    date: Date | string
+  }
+
   export type TourneeCountOrderByAggregateInput = {
     id?: SortOrder
     companyId?: SortOrder
@@ -90362,6 +92291,8 @@ export namespace Prisma {
     finishedLat?: SortOrder
     finishedLng?: SortOrder
     autoClosed?: SortOrder
+    planId?: SortOrder
+    slot?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -90370,6 +92301,7 @@ export namespace Prisma {
     startedLng?: SortOrder
     finishedLat?: SortOrder
     finishedLng?: SortOrder
+    slot?: SortOrder
   }
 
   export type TourneeMaxOrderByAggregateInput = {
@@ -90387,6 +92319,8 @@ export namespace Prisma {
     finishedLat?: SortOrder
     finishedLng?: SortOrder
     autoClosed?: SortOrder
+    planId?: SortOrder
+    slot?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -90405,6 +92339,8 @@ export namespace Prisma {
     finishedLat?: SortOrder
     finishedLng?: SortOrder
     autoClosed?: SortOrder
+    planId?: SortOrder
+    slot?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -90413,6 +92349,7 @@ export namespace Prisma {
     startedLng?: SortOrder
     finishedLat?: SortOrder
     finishedLng?: SortOrder
+    slot?: SortOrder
   }
 
   export type TourneeScalarRelationFilter = {
@@ -91745,6 +93682,66 @@ export namespace Prisma {
     sortOrder?: SortOrder
   }
 
+  export type TourneePlanCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    locationId?: SortOrder
+    secteurId?: SortOrder
+    weekday?: SortOrder
+    intervalWeeks?: SortOrder
+    anchorKey?: SortOrder
+    slot?: SortOrder
+    clientIds?: SortOrder
+    skips?: SortOrder
+    notes?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type TourneePlanAvgOrderByAggregateInput = {
+    weekday?: SortOrder
+    intervalWeeks?: SortOrder
+    slot?: SortOrder
+  }
+
+  export type TourneePlanMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    locationId?: SortOrder
+    secteurId?: SortOrder
+    weekday?: SortOrder
+    intervalWeeks?: SortOrder
+    anchorKey?: SortOrder
+    slot?: SortOrder
+    clientIds?: SortOrder
+    skips?: SortOrder
+    notes?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type TourneePlanMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    locationId?: SortOrder
+    secteurId?: SortOrder
+    weekday?: SortOrder
+    intervalWeeks?: SortOrder
+    anchorKey?: SortOrder
+    slot?: SortOrder
+    clientIds?: SortOrder
+    skips?: SortOrder
+    notes?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type TourneePlanSumOrderByAggregateInput = {
+    weekday?: SortOrder
+    intervalWeeks?: SortOrder
+    slot?: SortOrder
+  }
+
   export type UserCreateNestedManyWithoutCompanyInput = {
     create?: XOR<UserCreateWithoutCompanyInput, UserUncheckedCreateWithoutCompanyInput> | UserCreateWithoutCompanyInput[] | UserUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserCreateOrConnectWithoutCompanyInput | UserCreateOrConnectWithoutCompanyInput[]
@@ -91896,6 +93893,13 @@ export namespace Prisma {
     connectOrCreate?: TourneeCreateOrConnectWithoutCompanyInput | TourneeCreateOrConnectWithoutCompanyInput[]
     createMany?: TourneeCreateManyCompanyInputEnvelope
     connect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+  }
+
+  export type TourneePlanCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<TourneePlanCreateWithoutCompanyInput, TourneePlanUncheckedCreateWithoutCompanyInput> | TourneePlanCreateWithoutCompanyInput[] | TourneePlanUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutCompanyInput | TourneePlanCreateOrConnectWithoutCompanyInput[]
+    createMany?: TourneePlanCreateManyCompanyInputEnvelope
+    connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
   }
 
   export type ExpenseCreateNestedManyWithoutCompanyInput = {
@@ -92098,6 +94102,13 @@ export namespace Prisma {
     connectOrCreate?: TourneeCreateOrConnectWithoutCompanyInput | TourneeCreateOrConnectWithoutCompanyInput[]
     createMany?: TourneeCreateManyCompanyInputEnvelope
     connect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+  }
+
+  export type TourneePlanUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<TourneePlanCreateWithoutCompanyInput, TourneePlanUncheckedCreateWithoutCompanyInput> | TourneePlanCreateWithoutCompanyInput[] | TourneePlanUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutCompanyInput | TourneePlanCreateOrConnectWithoutCompanyInput[]
+    createMany?: TourneePlanCreateManyCompanyInputEnvelope
+    connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
   }
 
   export type ExpenseUncheckedCreateNestedManyWithoutCompanyInput = {
@@ -92463,6 +94474,20 @@ export namespace Prisma {
     update?: TourneeUpdateWithWhereUniqueWithoutCompanyInput | TourneeUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: TourneeUpdateManyWithWhereWithoutCompanyInput | TourneeUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: TourneeScalarWhereInput | TourneeScalarWhereInput[]
+  }
+
+  export type TourneePlanUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<TourneePlanCreateWithoutCompanyInput, TourneePlanUncheckedCreateWithoutCompanyInput> | TourneePlanCreateWithoutCompanyInput[] | TourneePlanUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutCompanyInput | TourneePlanCreateOrConnectWithoutCompanyInput[]
+    upsert?: TourneePlanUpsertWithWhereUniqueWithoutCompanyInput | TourneePlanUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: TourneePlanCreateManyCompanyInputEnvelope
+    set?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    disconnect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    delete?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    update?: TourneePlanUpdateWithWhereUniqueWithoutCompanyInput | TourneePlanUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: TourneePlanUpdateManyWithWhereWithoutCompanyInput | TourneePlanUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: TourneePlanScalarWhereInput | TourneePlanScalarWhereInput[]
   }
 
   export type ExpenseUpdateManyWithoutCompanyNestedInput = {
@@ -92867,6 +94892,20 @@ export namespace Prisma {
     deleteMany?: TourneeScalarWhereInput | TourneeScalarWhereInput[]
   }
 
+  export type TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<TourneePlanCreateWithoutCompanyInput, TourneePlanUncheckedCreateWithoutCompanyInput> | TourneePlanCreateWithoutCompanyInput[] | TourneePlanUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutCompanyInput | TourneePlanCreateOrConnectWithoutCompanyInput[]
+    upsert?: TourneePlanUpsertWithWhereUniqueWithoutCompanyInput | TourneePlanUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: TourneePlanCreateManyCompanyInputEnvelope
+    set?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    disconnect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    delete?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    update?: TourneePlanUpdateWithWhereUniqueWithoutCompanyInput | TourneePlanUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: TourneePlanUpdateManyWithWhereWithoutCompanyInput | TourneePlanUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: TourneePlanScalarWhereInput | TourneePlanScalarWhereInput[]
+  }
+
   export type ExpenseUncheckedUpdateManyWithoutCompanyNestedInput = {
     create?: XOR<ExpenseCreateWithoutCompanyInput, ExpenseUncheckedCreateWithoutCompanyInput> | ExpenseCreateWithoutCompanyInput[] | ExpenseUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: ExpenseCreateOrConnectWithoutCompanyInput | ExpenseCreateOrConnectWithoutCompanyInput[]
@@ -92981,6 +95020,10 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type CompanyUpdateOneRequiredWithoutSettingsNestedInput = {
@@ -93578,6 +95621,13 @@ export namespace Prisma {
     connect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
   }
 
+  export type TourneePlanCreateNestedManyWithoutSecteurInput = {
+    create?: XOR<TourneePlanCreateWithoutSecteurInput, TourneePlanUncheckedCreateWithoutSecteurInput> | TourneePlanCreateWithoutSecteurInput[] | TourneePlanUncheckedCreateWithoutSecteurInput[]
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutSecteurInput | TourneePlanCreateOrConnectWithoutSecteurInput[]
+    createMany?: TourneePlanCreateManySecteurInputEnvelope
+    connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+  }
+
   export type UserAreaCreateNestedManyWithoutSecteurInput = {
     create?: XOR<UserAreaCreateWithoutSecteurInput, UserAreaUncheckedCreateWithoutSecteurInput> | UserAreaCreateWithoutSecteurInput[] | UserAreaUncheckedCreateWithoutSecteurInput[]
     connectOrCreate?: UserAreaCreateOrConnectWithoutSecteurInput | UserAreaCreateOrConnectWithoutSecteurInput[]
@@ -93604,6 +95654,13 @@ export namespace Prisma {
     connectOrCreate?: TourneeCreateOrConnectWithoutSecteurInput | TourneeCreateOrConnectWithoutSecteurInput[]
     createMany?: TourneeCreateManySecteurInputEnvelope
     connect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+  }
+
+  export type TourneePlanUncheckedCreateNestedManyWithoutSecteurInput = {
+    create?: XOR<TourneePlanCreateWithoutSecteurInput, TourneePlanUncheckedCreateWithoutSecteurInput> | TourneePlanCreateWithoutSecteurInput[] | TourneePlanUncheckedCreateWithoutSecteurInput[]
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutSecteurInput | TourneePlanCreateOrConnectWithoutSecteurInput[]
+    createMany?: TourneePlanCreateManySecteurInputEnvelope
+    connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
   }
 
   export type UserAreaUncheckedCreateNestedManyWithoutSecteurInput = {
@@ -93671,6 +95728,20 @@ export namespace Prisma {
     deleteMany?: TourneeScalarWhereInput | TourneeScalarWhereInput[]
   }
 
+  export type TourneePlanUpdateManyWithoutSecteurNestedInput = {
+    create?: XOR<TourneePlanCreateWithoutSecteurInput, TourneePlanUncheckedCreateWithoutSecteurInput> | TourneePlanCreateWithoutSecteurInput[] | TourneePlanUncheckedCreateWithoutSecteurInput[]
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutSecteurInput | TourneePlanCreateOrConnectWithoutSecteurInput[]
+    upsert?: TourneePlanUpsertWithWhereUniqueWithoutSecteurInput | TourneePlanUpsertWithWhereUniqueWithoutSecteurInput[]
+    createMany?: TourneePlanCreateManySecteurInputEnvelope
+    set?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    disconnect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    delete?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    update?: TourneePlanUpdateWithWhereUniqueWithoutSecteurInput | TourneePlanUpdateWithWhereUniqueWithoutSecteurInput[]
+    updateMany?: TourneePlanUpdateManyWithWhereWithoutSecteurInput | TourneePlanUpdateManyWithWhereWithoutSecteurInput[]
+    deleteMany?: TourneePlanScalarWhereInput | TourneePlanScalarWhereInput[]
+  }
+
   export type UserAreaUpdateManyWithoutSecteurNestedInput = {
     create?: XOR<UserAreaCreateWithoutSecteurInput, UserAreaUncheckedCreateWithoutSecteurInput> | UserAreaCreateWithoutSecteurInput[] | UserAreaUncheckedCreateWithoutSecteurInput[]
     connectOrCreate?: UserAreaCreateOrConnectWithoutSecteurInput | UserAreaCreateOrConnectWithoutSecteurInput[]
@@ -93725,6 +95796,20 @@ export namespace Prisma {
     update?: TourneeUpdateWithWhereUniqueWithoutSecteurInput | TourneeUpdateWithWhereUniqueWithoutSecteurInput[]
     updateMany?: TourneeUpdateManyWithWhereWithoutSecteurInput | TourneeUpdateManyWithWhereWithoutSecteurInput[]
     deleteMany?: TourneeScalarWhereInput | TourneeScalarWhereInput[]
+  }
+
+  export type TourneePlanUncheckedUpdateManyWithoutSecteurNestedInput = {
+    create?: XOR<TourneePlanCreateWithoutSecteurInput, TourneePlanUncheckedCreateWithoutSecteurInput> | TourneePlanCreateWithoutSecteurInput[] | TourneePlanUncheckedCreateWithoutSecteurInput[]
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutSecteurInput | TourneePlanCreateOrConnectWithoutSecteurInput[]
+    upsert?: TourneePlanUpsertWithWhereUniqueWithoutSecteurInput | TourneePlanUpsertWithWhereUniqueWithoutSecteurInput[]
+    createMany?: TourneePlanCreateManySecteurInputEnvelope
+    set?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    disconnect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    delete?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    update?: TourneePlanUpdateWithWhereUniqueWithoutSecteurInput | TourneePlanUpdateWithWhereUniqueWithoutSecteurInput[]
+    updateMany?: TourneePlanUpdateManyWithWhereWithoutSecteurInput | TourneePlanUpdateManyWithWhereWithoutSecteurInput[]
+    deleteMany?: TourneePlanScalarWhereInput | TourneePlanScalarWhereInput[]
   }
 
   export type UserAreaUncheckedUpdateManyWithoutSecteurNestedInput = {
@@ -94065,10 +96150,6 @@ export namespace Prisma {
     connect?: SuperAdminAuditWhereUniqueInput | SuperAdminAuditWhereUniqueInput[]
   }
 
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
-  }
-
   export type SuperAdminAuditUpdateManyWithoutAdminNestedInput = {
     create?: XOR<SuperAdminAuditCreateWithoutAdminInput, SuperAdminAuditUncheckedCreateWithoutAdminInput> | SuperAdminAuditCreateWithoutAdminInput[] | SuperAdminAuditUncheckedCreateWithoutAdminInput[]
     connectOrCreate?: SuperAdminAuditCreateOrConnectWithoutAdminInput | SuperAdminAuditCreateOrConnectWithoutAdminInput[]
@@ -94186,6 +96267,13 @@ export namespace Prisma {
     connect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
   }
 
+  export type TourneePlanCreateNestedManyWithoutLocationInput = {
+    create?: XOR<TourneePlanCreateWithoutLocationInput, TourneePlanUncheckedCreateWithoutLocationInput> | TourneePlanCreateWithoutLocationInput[] | TourneePlanUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutLocationInput | TourneePlanCreateOrConnectWithoutLocationInput[]
+    createMany?: TourneePlanCreateManyLocationInputEnvelope
+    connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+  }
+
   export type ExpenseCreateNestedManyWithoutLocationInput = {
     create?: XOR<ExpenseCreateWithoutLocationInput, ExpenseUncheckedCreateWithoutLocationInput> | ExpenseCreateWithoutLocationInput[] | ExpenseUncheckedCreateWithoutLocationInput[]
     connectOrCreate?: ExpenseCreateOrConnectWithoutLocationInput | ExpenseCreateOrConnectWithoutLocationInput[]
@@ -94268,6 +96356,13 @@ export namespace Prisma {
     connectOrCreate?: TourneeCreateOrConnectWithoutLocationInput | TourneeCreateOrConnectWithoutLocationInput[]
     createMany?: TourneeCreateManyLocationInputEnvelope
     connect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+  }
+
+  export type TourneePlanUncheckedCreateNestedManyWithoutLocationInput = {
+    create?: XOR<TourneePlanCreateWithoutLocationInput, TourneePlanUncheckedCreateWithoutLocationInput> | TourneePlanCreateWithoutLocationInput[] | TourneePlanUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutLocationInput | TourneePlanCreateOrConnectWithoutLocationInput[]
+    createMany?: TourneePlanCreateManyLocationInputEnvelope
+    connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
   }
 
   export type ExpenseUncheckedCreateNestedManyWithoutLocationInput = {
@@ -94433,6 +96528,20 @@ export namespace Prisma {
     update?: TourneeUpdateWithWhereUniqueWithoutLocationInput | TourneeUpdateWithWhereUniqueWithoutLocationInput[]
     updateMany?: TourneeUpdateManyWithWhereWithoutLocationInput | TourneeUpdateManyWithWhereWithoutLocationInput[]
     deleteMany?: TourneeScalarWhereInput | TourneeScalarWhereInput[]
+  }
+
+  export type TourneePlanUpdateManyWithoutLocationNestedInput = {
+    create?: XOR<TourneePlanCreateWithoutLocationInput, TourneePlanUncheckedCreateWithoutLocationInput> | TourneePlanCreateWithoutLocationInput[] | TourneePlanUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutLocationInput | TourneePlanCreateOrConnectWithoutLocationInput[]
+    upsert?: TourneePlanUpsertWithWhereUniqueWithoutLocationInput | TourneePlanUpsertWithWhereUniqueWithoutLocationInput[]
+    createMany?: TourneePlanCreateManyLocationInputEnvelope
+    set?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    disconnect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    delete?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    update?: TourneePlanUpdateWithWhereUniqueWithoutLocationInput | TourneePlanUpdateWithWhereUniqueWithoutLocationInput[]
+    updateMany?: TourneePlanUpdateManyWithWhereWithoutLocationInput | TourneePlanUpdateManyWithWhereWithoutLocationInput[]
+    deleteMany?: TourneePlanScalarWhereInput | TourneePlanScalarWhereInput[]
   }
 
   export type ExpenseUpdateManyWithoutLocationNestedInput = {
@@ -94601,6 +96710,20 @@ export namespace Prisma {
     update?: TourneeUpdateWithWhereUniqueWithoutLocationInput | TourneeUpdateWithWhereUniqueWithoutLocationInput[]
     updateMany?: TourneeUpdateManyWithWhereWithoutLocationInput | TourneeUpdateManyWithWhereWithoutLocationInput[]
     deleteMany?: TourneeScalarWhereInput | TourneeScalarWhereInput[]
+  }
+
+  export type TourneePlanUncheckedUpdateManyWithoutLocationNestedInput = {
+    create?: XOR<TourneePlanCreateWithoutLocationInput, TourneePlanUncheckedCreateWithoutLocationInput> | TourneePlanCreateWithoutLocationInput[] | TourneePlanUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutLocationInput | TourneePlanCreateOrConnectWithoutLocationInput[]
+    upsert?: TourneePlanUpsertWithWhereUniqueWithoutLocationInput | TourneePlanUpsertWithWhereUniqueWithoutLocationInput[]
+    createMany?: TourneePlanCreateManyLocationInputEnvelope
+    set?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    disconnect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    delete?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+    update?: TourneePlanUpdateWithWhereUniqueWithoutLocationInput | TourneePlanUpdateWithWhereUniqueWithoutLocationInput[]
+    updateMany?: TourneePlanUpdateManyWithWhereWithoutLocationInput | TourneePlanUpdateManyWithWhereWithoutLocationInput[]
+    deleteMany?: TourneePlanScalarWhereInput | TourneePlanScalarWhereInput[]
   }
 
   export type ExpenseUncheckedUpdateManyWithoutLocationNestedInput = {
@@ -96709,6 +98832,12 @@ export namespace Prisma {
     connect?: SecteurWhereUniqueInput
   }
 
+  export type TourneePlanCreateNestedOneWithoutTourneesInput = {
+    create?: XOR<TourneePlanCreateWithoutTourneesInput, TourneePlanUncheckedCreateWithoutTourneesInput>
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutTourneesInput
+    connect?: TourneePlanWhereUniqueInput
+  }
+
   export type TourneeStopCreateNestedManyWithoutTourneeInput = {
     create?: XOR<TourneeStopCreateWithoutTourneeInput, TourneeStopUncheckedCreateWithoutTourneeInput> | TourneeStopCreateWithoutTourneeInput[] | TourneeStopUncheckedCreateWithoutTourneeInput[]
     connectOrCreate?: TourneeStopCreateOrConnectWithoutTourneeInput | TourneeStopCreateOrConnectWithoutTourneeInput[]
@@ -96761,6 +98890,16 @@ export namespace Prisma {
     delete?: SecteurWhereInput | boolean
     connect?: SecteurWhereUniqueInput
     update?: XOR<XOR<SecteurUpdateToOneWithWhereWithoutTourneesInput, SecteurUpdateWithoutTourneesInput>, SecteurUncheckedUpdateWithoutTourneesInput>
+  }
+
+  export type TourneePlanUpdateOneWithoutTourneesNestedInput = {
+    create?: XOR<TourneePlanCreateWithoutTourneesInput, TourneePlanUncheckedCreateWithoutTourneesInput>
+    connectOrCreate?: TourneePlanCreateOrConnectWithoutTourneesInput
+    upsert?: TourneePlanUpsertWithoutTourneesInput
+    disconnect?: TourneePlanWhereInput | boolean
+    delete?: TourneePlanWhereInput | boolean
+    connect?: TourneePlanWhereUniqueInput
+    update?: XOR<XOR<TourneePlanUpdateToOneWithWhereWithoutTourneesInput, TourneePlanUpdateWithoutTourneesInput>, TourneePlanUncheckedUpdateWithoutTourneesInput>
   }
 
   export type TourneeStopUpdateManyWithoutTourneeNestedInput = {
@@ -97903,6 +100042,92 @@ export namespace Prisma {
     update?: XOR<XOR<ClosedVisitUpdateToOneWithWhereWithoutPhotosInput, ClosedVisitUpdateWithoutPhotosInput>, ClosedVisitUncheckedUpdateWithoutPhotosInput>
   }
 
+  export type CompanyCreateNestedOneWithoutTourneePlansInput = {
+    create?: XOR<CompanyCreateWithoutTourneePlansInput, CompanyUncheckedCreateWithoutTourneePlansInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutTourneePlansInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type StoreCreateNestedOneWithoutTourneePlansInput = {
+    create?: XOR<StoreCreateWithoutTourneePlansInput, StoreUncheckedCreateWithoutTourneePlansInput>
+    connectOrCreate?: StoreCreateOrConnectWithoutTourneePlansInput
+    connect?: StoreWhereUniqueInput
+  }
+
+  export type SecteurCreateNestedOneWithoutTourneePlansInput = {
+    create?: XOR<SecteurCreateWithoutTourneePlansInput, SecteurUncheckedCreateWithoutTourneePlansInput>
+    connectOrCreate?: SecteurCreateOrConnectWithoutTourneePlansInput
+    connect?: SecteurWhereUniqueInput
+  }
+
+  export type TourneeCreateNestedManyWithoutPlanInput = {
+    create?: XOR<TourneeCreateWithoutPlanInput, TourneeUncheckedCreateWithoutPlanInput> | TourneeCreateWithoutPlanInput[] | TourneeUncheckedCreateWithoutPlanInput[]
+    connectOrCreate?: TourneeCreateOrConnectWithoutPlanInput | TourneeCreateOrConnectWithoutPlanInput[]
+    createMany?: TourneeCreateManyPlanInputEnvelope
+    connect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+  }
+
+  export type TourneeUncheckedCreateNestedManyWithoutPlanInput = {
+    create?: XOR<TourneeCreateWithoutPlanInput, TourneeUncheckedCreateWithoutPlanInput> | TourneeCreateWithoutPlanInput[] | TourneeUncheckedCreateWithoutPlanInput[]
+    connectOrCreate?: TourneeCreateOrConnectWithoutPlanInput | TourneeCreateOrConnectWithoutPlanInput[]
+    createMany?: TourneeCreateManyPlanInputEnvelope
+    connect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+  }
+
+  export type CompanyUpdateOneRequiredWithoutTourneePlansNestedInput = {
+    create?: XOR<CompanyCreateWithoutTourneePlansInput, CompanyUncheckedCreateWithoutTourneePlansInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutTourneePlansInput
+    upsert?: CompanyUpsertWithoutTourneePlansInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutTourneePlansInput, CompanyUpdateWithoutTourneePlansInput>, CompanyUncheckedUpdateWithoutTourneePlansInput>
+  }
+
+  export type StoreUpdateOneRequiredWithoutTourneePlansNestedInput = {
+    create?: XOR<StoreCreateWithoutTourneePlansInput, StoreUncheckedCreateWithoutTourneePlansInput>
+    connectOrCreate?: StoreCreateOrConnectWithoutTourneePlansInput
+    upsert?: StoreUpsertWithoutTourneePlansInput
+    connect?: StoreWhereUniqueInput
+    update?: XOR<XOR<StoreUpdateToOneWithWhereWithoutTourneePlansInput, StoreUpdateWithoutTourneePlansInput>, StoreUncheckedUpdateWithoutTourneePlansInput>
+  }
+
+  export type SecteurUpdateOneWithoutTourneePlansNestedInput = {
+    create?: XOR<SecteurCreateWithoutTourneePlansInput, SecteurUncheckedCreateWithoutTourneePlansInput>
+    connectOrCreate?: SecteurCreateOrConnectWithoutTourneePlansInput
+    upsert?: SecteurUpsertWithoutTourneePlansInput
+    disconnect?: SecteurWhereInput | boolean
+    delete?: SecteurWhereInput | boolean
+    connect?: SecteurWhereUniqueInput
+    update?: XOR<XOR<SecteurUpdateToOneWithWhereWithoutTourneePlansInput, SecteurUpdateWithoutTourneePlansInput>, SecteurUncheckedUpdateWithoutTourneePlansInput>
+  }
+
+  export type TourneeUpdateManyWithoutPlanNestedInput = {
+    create?: XOR<TourneeCreateWithoutPlanInput, TourneeUncheckedCreateWithoutPlanInput> | TourneeCreateWithoutPlanInput[] | TourneeUncheckedCreateWithoutPlanInput[]
+    connectOrCreate?: TourneeCreateOrConnectWithoutPlanInput | TourneeCreateOrConnectWithoutPlanInput[]
+    upsert?: TourneeUpsertWithWhereUniqueWithoutPlanInput | TourneeUpsertWithWhereUniqueWithoutPlanInput[]
+    createMany?: TourneeCreateManyPlanInputEnvelope
+    set?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+    disconnect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+    delete?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+    connect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+    update?: TourneeUpdateWithWhereUniqueWithoutPlanInput | TourneeUpdateWithWhereUniqueWithoutPlanInput[]
+    updateMany?: TourneeUpdateManyWithWhereWithoutPlanInput | TourneeUpdateManyWithWhereWithoutPlanInput[]
+    deleteMany?: TourneeScalarWhereInput | TourneeScalarWhereInput[]
+  }
+
+  export type TourneeUncheckedUpdateManyWithoutPlanNestedInput = {
+    create?: XOR<TourneeCreateWithoutPlanInput, TourneeUncheckedCreateWithoutPlanInput> | TourneeCreateWithoutPlanInput[] | TourneeUncheckedCreateWithoutPlanInput[]
+    connectOrCreate?: TourneeCreateOrConnectWithoutPlanInput | TourneeCreateOrConnectWithoutPlanInput[]
+    upsert?: TourneeUpsertWithWhereUniqueWithoutPlanInput | TourneeUpsertWithWhereUniqueWithoutPlanInput[]
+    createMany?: TourneeCreateManyPlanInputEnvelope
+    set?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+    disconnect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+    delete?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+    connect?: TourneeWhereUniqueInput | TourneeWhereUniqueInput[]
+    update?: TourneeUpdateWithWhereUniqueWithoutPlanInput | TourneeUpdateWithWhereUniqueWithoutPlanInput[]
+    updateMany?: TourneeUpdateManyWithWhereWithoutPlanInput | TourneeUpdateManyWithWhereWithoutPlanInput[]
+    deleteMany?: TourneeScalarWhereInput | TourneeScalarWhereInput[]
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -98028,6 +100253,17 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
@@ -98050,6 +100286,20 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -98077,31 +100327,6 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -98286,6 +100511,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -98318,6 +100544,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -98582,6 +100809,7 @@ export namespace Prisma {
     workStartAt?: string | null
     maxDayHours?: number | null
     remoteDomain?: string | null
+    tourPlansMigratedAt?: Date | string | null
   }
 
   export type CompanySettingsUncheckedCreateWithoutCompanyInput = {
@@ -98610,6 +100838,7 @@ export namespace Prisma {
     workStartAt?: string | null
     maxDayHours?: number | null
     remoteDomain?: string | null
+    tourPlansMigratedAt?: Date | string | null
   }
 
   export type CompanySettingsCreateOrConnectWithoutCompanyInput = {
@@ -98717,6 +100946,7 @@ export namespace Prisma {
     customers?: CustomerCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierCreateNestedManyWithoutSecteurInput
     tournees?: TourneeCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutSecteurInput
     userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
   }
 
@@ -98729,6 +100959,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutSecteurInput
     userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
   }
 
@@ -99171,9 +101402,11 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    slot?: number
     createdAt?: Date | string
     location: StoreCreateNestedOneWithoutTourneesInput
     secteur?: SecteurCreateNestedOneWithoutTourneesInput
+    plan?: TourneePlanCreateNestedOneWithoutTourneesInput
     stops?: TourneeStopCreateNestedManyWithoutTourneeInput
     sales?: SaleCreateNestedManyWithoutTourneeInput
   }
@@ -99192,6 +101425,8 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    planId?: string | null
+    slot?: number
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
@@ -99204,6 +101439,47 @@ export namespace Prisma {
 
   export type TourneeCreateManyCompanyInputEnvelope = {
     data: TourneeCreateManyCompanyInput | TourneeCreateManyCompanyInput[]
+  }
+
+  export type TourneePlanCreateWithoutCompanyInput = {
+    id?: string
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    location: StoreCreateNestedOneWithoutTourneePlansInput
+    secteur?: SecteurCreateNestedOneWithoutTourneePlansInput
+    tournees?: TourneeCreateNestedManyWithoutPlanInput
+  }
+
+  export type TourneePlanUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    locationId: string
+    secteurId?: string | null
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    tournees?: TourneeUncheckedCreateNestedManyWithoutPlanInput
+  }
+
+  export type TourneePlanCreateOrConnectWithoutCompanyInput = {
+    where: TourneePlanWhereUniqueInput
+    create: XOR<TourneePlanCreateWithoutCompanyInput, TourneePlanUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type TourneePlanCreateManyCompanyInputEnvelope = {
+    data: TourneePlanCreateManyCompanyInput | TourneePlanCreateManyCompanyInput[]
   }
 
   export type ExpenseCreateWithoutCompanyInput = {
@@ -99730,6 +102006,7 @@ export namespace Prisma {
     workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
     maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    tourPlansMigratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type CompanySettingsUncheckedUpdateWithoutCompanyInput = {
@@ -99758,6 +102035,7 @@ export namespace Prisma {
     workStartAt?: NullableStringFieldUpdateOperationsInput | string | null
     maxDayHours?: NullableFloatFieldUpdateOperationsInput | number | null
     remoteDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    tourPlansMigratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UnitUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -100255,7 +102533,44 @@ export namespace Prisma {
     finishedLat?: FloatNullableFilter<"Tournee"> | number | null
     finishedLng?: FloatNullableFilter<"Tournee"> | number | null
     autoClosed?: BoolFilter<"Tournee"> | boolean
+    planId?: StringNullableFilter<"Tournee"> | string | null
+    slot?: IntFilter<"Tournee"> | number
     createdAt?: DateTimeFilter<"Tournee"> | Date | string
+  }
+
+  export type TourneePlanUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: TourneePlanWhereUniqueInput
+    update: XOR<TourneePlanUpdateWithoutCompanyInput, TourneePlanUncheckedUpdateWithoutCompanyInput>
+    create: XOR<TourneePlanCreateWithoutCompanyInput, TourneePlanUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type TourneePlanUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: TourneePlanWhereUniqueInput
+    data: XOR<TourneePlanUpdateWithoutCompanyInput, TourneePlanUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type TourneePlanUpdateManyWithWhereWithoutCompanyInput = {
+    where: TourneePlanScalarWhereInput
+    data: XOR<TourneePlanUpdateManyMutationInput, TourneePlanUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type TourneePlanScalarWhereInput = {
+    AND?: TourneePlanScalarWhereInput | TourneePlanScalarWhereInput[]
+    OR?: TourneePlanScalarWhereInput[]
+    NOT?: TourneePlanScalarWhereInput | TourneePlanScalarWhereInput[]
+    id?: StringFilter<"TourneePlan"> | string
+    companyId?: StringFilter<"TourneePlan"> | string
+    locationId?: StringFilter<"TourneePlan"> | string
+    secteurId?: StringNullableFilter<"TourneePlan"> | string | null
+    weekday?: IntFilter<"TourneePlan"> | number
+    intervalWeeks?: IntFilter<"TourneePlan"> | number
+    anchorKey?: StringFilter<"TourneePlan"> | string
+    slot?: IntFilter<"TourneePlan"> | number
+    clientIds?: StringNullableFilter<"TourneePlan"> | string | null
+    skips?: StringFilter<"TourneePlan"> | string
+    notes?: StringNullableFilter<"TourneePlan"> | string | null
+    isActive?: BoolFilter<"TourneePlan"> | boolean
+    createdAt?: DateTimeFilter<"TourneePlan"> | Date | string
   }
 
   export type ExpenseUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -100534,6 +102849,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -100581,6 +102897,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -100644,6 +102961,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -100691,6 +103009,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -100738,6 +103057,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -100785,6 +103105,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -101092,6 +103413,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -101139,6 +103461,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -101262,6 +103585,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -101309,6 +103633,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -101549,6 +103874,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -101596,6 +103922,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -101702,6 +104029,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -101749,6 +104077,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -101849,6 +104178,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -101896,6 +104226,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -101930,6 +104261,7 @@ export namespace Prisma {
     customers?: CustomerCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierCreateNestedManyWithoutSecteurInput
     tournees?: TourneeCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutSecteurInput
     userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
   }
 
@@ -101942,6 +104274,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutSecteurInput
     userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
   }
 
@@ -102216,6 +104549,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -102263,6 +104597,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -102438,9 +104773,11 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    slot?: number
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     location: StoreCreateNestedOneWithoutTourneesInput
+    plan?: TourneePlanCreateNestedOneWithoutTourneesInput
     stops?: TourneeStopCreateNestedManyWithoutTourneeInput
     sales?: SaleCreateNestedManyWithoutTourneeInput
   }
@@ -102459,6 +104796,8 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    planId?: string | null
+    slot?: number
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
@@ -102471,6 +104810,47 @@ export namespace Prisma {
 
   export type TourneeCreateManySecteurInputEnvelope = {
     data: TourneeCreateManySecteurInput | TourneeCreateManySecteurInput[]
+  }
+
+  export type TourneePlanCreateWithoutSecteurInput = {
+    id?: string
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutTourneePlansInput
+    location: StoreCreateNestedOneWithoutTourneePlansInput
+    tournees?: TourneeCreateNestedManyWithoutPlanInput
+  }
+
+  export type TourneePlanUncheckedCreateWithoutSecteurInput = {
+    id?: string
+    companyId: string
+    locationId: string
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    tournees?: TourneeUncheckedCreateNestedManyWithoutPlanInput
+  }
+
+  export type TourneePlanCreateOrConnectWithoutSecteurInput = {
+    where: TourneePlanWhereUniqueInput
+    create: XOR<TourneePlanCreateWithoutSecteurInput, TourneePlanUncheckedCreateWithoutSecteurInput>
+  }
+
+  export type TourneePlanCreateManySecteurInputEnvelope = {
+    data: TourneePlanCreateManySecteurInput | TourneePlanCreateManySecteurInput[]
   }
 
   export type UserAreaCreateWithoutSecteurInput = {
@@ -102545,6 +104925,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -102592,6 +104973,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -102678,6 +105060,22 @@ export namespace Prisma {
     data: XOR<TourneeUpdateManyMutationInput, TourneeUncheckedUpdateManyWithoutSecteurInput>
   }
 
+  export type TourneePlanUpsertWithWhereUniqueWithoutSecteurInput = {
+    where: TourneePlanWhereUniqueInput
+    update: XOR<TourneePlanUpdateWithoutSecteurInput, TourneePlanUncheckedUpdateWithoutSecteurInput>
+    create: XOR<TourneePlanCreateWithoutSecteurInput, TourneePlanUncheckedCreateWithoutSecteurInput>
+  }
+
+  export type TourneePlanUpdateWithWhereUniqueWithoutSecteurInput = {
+    where: TourneePlanWhereUniqueInput
+    data: XOR<TourneePlanUpdateWithoutSecteurInput, TourneePlanUncheckedUpdateWithoutSecteurInput>
+  }
+
+  export type TourneePlanUpdateManyWithWhereWithoutSecteurInput = {
+    where: TourneePlanScalarWhereInput
+    data: XOR<TourneePlanUpdateManyMutationInput, TourneePlanUncheckedUpdateManyWithoutSecteurInput>
+  }
+
   export type UserAreaUpsertWithWhereUniqueWithoutSecteurInput = {
     where: UserAreaWhereUniqueInput
     update: XOR<UserAreaUpdateWithoutSecteurInput, UserAreaUncheckedUpdateWithoutSecteurInput>
@@ -102732,6 +105130,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -102779,6 +105178,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -102876,6 +105276,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -102908,6 +105309,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -103116,6 +105518,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -103163,6 +105566,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -103348,6 +105752,7 @@ export namespace Prisma {
     customers?: CustomerCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierCreateNestedManyWithoutSecteurInput
     tournees?: TourneeCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurUncheckedCreateWithoutUserAreasInput = {
@@ -103360,6 +105765,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurCreateOrConnectWithoutUserAreasInput = {
@@ -103470,6 +105876,7 @@ export namespace Prisma {
     customers?: CustomerUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutSecteurNestedInput
   }
 
   export type SecteurUncheckedUpdateWithoutUserAreasInput = {
@@ -103482,6 +105889,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
   export type SuperAdminAuditCreateWithoutAdminInput = {
@@ -103633,6 +106041,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -103680,6 +106089,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -104105,9 +106515,11 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    slot?: number
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     secteur?: SecteurCreateNestedOneWithoutTourneesInput
+    plan?: TourneePlanCreateNestedOneWithoutTourneesInput
     stops?: TourneeStopCreateNestedManyWithoutTourneeInput
     sales?: SaleCreateNestedManyWithoutTourneeInput
   }
@@ -104126,6 +106538,8 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    planId?: string | null
+    slot?: number
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
@@ -104138,6 +106552,47 @@ export namespace Prisma {
 
   export type TourneeCreateManyLocationInputEnvelope = {
     data: TourneeCreateManyLocationInput | TourneeCreateManyLocationInput[]
+  }
+
+  export type TourneePlanCreateWithoutLocationInput = {
+    id?: string
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutTourneePlansInput
+    secteur?: SecteurCreateNestedOneWithoutTourneePlansInput
+    tournees?: TourneeCreateNestedManyWithoutPlanInput
+  }
+
+  export type TourneePlanUncheckedCreateWithoutLocationInput = {
+    id?: string
+    companyId: string
+    secteurId?: string | null
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    tournees?: TourneeUncheckedCreateNestedManyWithoutPlanInput
+  }
+
+  export type TourneePlanCreateOrConnectWithoutLocationInput = {
+    where: TourneePlanWhereUniqueInput
+    create: XOR<TourneePlanCreateWithoutLocationInput, TourneePlanUncheckedCreateWithoutLocationInput>
+  }
+
+  export type TourneePlanCreateManyLocationInputEnvelope = {
+    data: TourneePlanCreateManyLocationInput | TourneePlanCreateManyLocationInput[]
   }
 
   export type ExpenseCreateWithoutLocationInput = {
@@ -104312,6 +106767,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -104359,6 +106815,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -104565,6 +107022,22 @@ export namespace Prisma {
     data: XOR<TourneeUpdateManyMutationInput, TourneeUncheckedUpdateManyWithoutLocationInput>
   }
 
+  export type TourneePlanUpsertWithWhereUniqueWithoutLocationInput = {
+    where: TourneePlanWhereUniqueInput
+    update: XOR<TourneePlanUpdateWithoutLocationInput, TourneePlanUncheckedUpdateWithoutLocationInput>
+    create: XOR<TourneePlanCreateWithoutLocationInput, TourneePlanUncheckedCreateWithoutLocationInput>
+  }
+
+  export type TourneePlanUpdateWithWhereUniqueWithoutLocationInput = {
+    where: TourneePlanWhereUniqueInput
+    data: XOR<TourneePlanUpdateWithoutLocationInput, TourneePlanUncheckedUpdateWithoutLocationInput>
+  }
+
+  export type TourneePlanUpdateManyWithWhereWithoutLocationInput = {
+    where: TourneePlanScalarWhereInput
+    data: XOR<TourneePlanUpdateManyMutationInput, TourneePlanUncheckedUpdateManyWithoutLocationInput>
+  }
+
   export type ExpenseUpsertWithWhereUniqueWithoutLocationInput = {
     where: ExpenseWhereUniqueInput
     update: XOR<ExpenseUpdateWithoutLocationInput, ExpenseUncheckedUpdateWithoutLocationInput>
@@ -104651,6 +107124,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -104698,6 +107172,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -104739,6 +107214,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -104771,6 +107247,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -104808,6 +107285,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -104840,6 +107318,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -105000,6 +107479,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -105047,6 +107527,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -105094,6 +107575,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -105126,6 +107608,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -105169,6 +107652,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -105201,6 +107685,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -105543,6 +108028,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -105590,6 +108076,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -105631,6 +108118,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -105663,6 +108151,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -105745,6 +108234,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -105792,6 +108282,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -105839,6 +108330,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -105871,6 +108363,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -106149,6 +108642,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -106196,6 +108690,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -106237,6 +108732,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -106269,6 +108765,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -106397,6 +108894,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -106444,6 +108942,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -106491,6 +108990,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -106523,6 +109023,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -106641,6 +109142,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -106688,6 +109190,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -106751,6 +109254,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -106798,6 +109302,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -106845,6 +109350,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -106892,6 +109398,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -106938,6 +109445,7 @@ export namespace Prisma {
     wilaya: WilayaCreateNestedOneWithoutSecteursInput
     suppliers?: SupplierCreateNestedManyWithoutSecteurInput
     tournees?: TourneeCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutSecteurInput
     userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
   }
 
@@ -106950,6 +109458,7 @@ export namespace Prisma {
     createdAt?: Date | string
     suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutSecteurInput
     userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
   }
 
@@ -107321,6 +109830,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -107368,6 +109878,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -107426,6 +109937,7 @@ export namespace Prisma {
     wilaya?: WilayaUpdateOneRequiredWithoutSecteursNestedInput
     suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutSecteurNestedInput
     userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
   }
 
@@ -107438,6 +109950,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutSecteurNestedInput
     userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
@@ -107638,6 +110151,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -107685,6 +110199,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -107731,6 +110246,7 @@ export namespace Prisma {
     wilaya: WilayaCreateNestedOneWithoutSecteursInput
     customers?: CustomerCreateNestedManyWithoutSecteurInput
     tournees?: TourneeCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutSecteurInput
     userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
   }
 
@@ -107743,6 +110259,7 @@ export namespace Prisma {
     createdAt?: Date | string
     customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutSecteurInput
     userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
   }
 
@@ -107996,6 +110513,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -108043,6 +110561,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -108101,6 +110620,7 @@ export namespace Prisma {
     wilaya?: WilayaUpdateOneRequiredWithoutSecteursNestedInput
     customers?: CustomerUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutSecteurNestedInput
     userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
   }
 
@@ -108113,6 +110633,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutSecteurNestedInput
     userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
@@ -108307,6 +110828,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -108354,6 +110876,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -108906,6 +111429,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -108953,6 +111477,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -110020,6 +112545,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -110067,6 +112593,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -110183,6 +112710,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -110215,6 +112743,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -110311,10 +112840,12 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    slot?: number
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     location: StoreCreateNestedOneWithoutTourneesInput
     secteur?: SecteurCreateNestedOneWithoutTourneesInput
+    plan?: TourneePlanCreateNestedOneWithoutTourneesInput
     stops?: TourneeStopCreateNestedManyWithoutTourneeInput
   }
 
@@ -110333,6 +112864,8 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    planId?: string | null
+    slot?: number
     createdAt?: Date | string
     stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
   }
@@ -110615,6 +113148,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -110662,6 +113196,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -110790,6 +113325,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -110822,6 +113358,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -110936,10 +113473,12 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
     secteur?: SecteurUpdateOneWithoutTourneesNestedInput
+    plan?: TourneePlanUpdateOneWithoutTourneesNestedInput
     stops?: TourneeStopUpdateManyWithoutTourneeNestedInput
   }
 
@@ -110958,6 +113497,8 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
   }
@@ -111417,6 +113958,7 @@ export namespace Prisma {
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -111464,6 +114006,7 @@ export namespace Prisma {
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -111651,6 +114194,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -111683,6 +114227,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -111767,6 +114312,7 @@ export namespace Prisma {
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -111814,6 +114360,7 @@ export namespace Prisma {
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -112019,6 +114566,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -112051,6 +114599,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -112334,6 +114883,7 @@ export namespace Prisma {
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -112381,6 +114931,7 @@ export namespace Prisma {
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -112422,6 +114973,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -112454,6 +115006,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -112473,6 +115026,7 @@ export namespace Prisma {
     wilaya: WilayaCreateNestedOneWithoutSecteursInput
     customers?: CustomerCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutSecteurInput
     userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
   }
 
@@ -112485,12 +115039,50 @@ export namespace Prisma {
     createdAt?: Date | string
     customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
     suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutSecteurInput
     userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
   }
 
   export type SecteurCreateOrConnectWithoutTourneesInput = {
     where: SecteurWhereUniqueInput
     create: XOR<SecteurCreateWithoutTourneesInput, SecteurUncheckedCreateWithoutTourneesInput>
+  }
+
+  export type TourneePlanCreateWithoutTourneesInput = {
+    id?: string
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutTourneePlansInput
+    location: StoreCreateNestedOneWithoutTourneePlansInput
+    secteur?: SecteurCreateNestedOneWithoutTourneePlansInput
+  }
+
+  export type TourneePlanUncheckedCreateWithoutTourneesInput = {
+    id?: string
+    companyId: string
+    locationId: string
+    secteurId?: string | null
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+  }
+
+  export type TourneePlanCreateOrConnectWithoutTourneesInput = {
+    where: TourneePlanWhereUniqueInput
+    create: XOR<TourneePlanCreateWithoutTourneesInput, TourneePlanUncheckedCreateWithoutTourneesInput>
   }
 
   export type TourneeStopCreateWithoutTourneeInput = {
@@ -112646,6 +115238,7 @@ export namespace Prisma {
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -112693,6 +115286,7 @@ export namespace Prisma {
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -112740,6 +115334,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -112772,6 +115367,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -112797,6 +115393,7 @@ export namespace Prisma {
     wilaya?: WilayaUpdateOneRequiredWithoutSecteursNestedInput
     customers?: CustomerUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutSecteurNestedInput
     userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
   }
 
@@ -112809,7 +115406,51 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutSecteurNestedInput
     userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
+  }
+
+  export type TourneePlanUpsertWithoutTourneesInput = {
+    update: XOR<TourneePlanUpdateWithoutTourneesInput, TourneePlanUncheckedUpdateWithoutTourneesInput>
+    create: XOR<TourneePlanCreateWithoutTourneesInput, TourneePlanUncheckedCreateWithoutTourneesInput>
+    where?: TourneePlanWhereInput
+  }
+
+  export type TourneePlanUpdateToOneWithWhereWithoutTourneesInput = {
+    where?: TourneePlanWhereInput
+    data: XOR<TourneePlanUpdateWithoutTourneesInput, TourneePlanUncheckedUpdateWithoutTourneesInput>
+  }
+
+  export type TourneePlanUpdateWithoutTourneesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutTourneePlansNestedInput
+    location?: StoreUpdateOneRequiredWithoutTourneePlansNestedInput
+    secteur?: SecteurUpdateOneWithoutTourneePlansNestedInput
+  }
+
+  export type TourneePlanUncheckedUpdateWithoutTourneesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    locationId?: StringFieldUpdateOperationsInput | string
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TourneeStopUpsertWithWhereUniqueWithoutTourneeInput = {
@@ -112856,10 +115497,12 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    slot?: number
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutTourneesInput
     location: StoreCreateNestedOneWithoutTourneesInput
     secteur?: SecteurCreateNestedOneWithoutTourneesInput
+    plan?: TourneePlanCreateNestedOneWithoutTourneesInput
     sales?: SaleCreateNestedManyWithoutTourneeInput
   }
 
@@ -112878,6 +115521,8 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    planId?: string | null
+    slot?: number
     createdAt?: Date | string
     sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
   }
@@ -112985,10 +115630,12 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
     secteur?: SecteurUpdateOneWithoutTourneesNestedInput
+    plan?: TourneePlanUpdateOneWithoutTourneesNestedInput
     sales?: SaleUpdateManyWithoutTourneeNestedInput
   }
 
@@ -113007,6 +115654,8 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
   }
@@ -113457,6 +116106,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -113504,6 +116154,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -113545,6 +116196,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
   }
@@ -113577,6 +116229,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
   }
@@ -113716,6 +116369,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -113763,6 +116417,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -113810,6 +116465,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
   }
@@ -113842,6 +116498,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
   }
@@ -113954,6 +116611,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -114001,6 +116659,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -114093,6 +116752,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -114140,6 +116800,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -114221,6 +116882,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -114268,6 +116930,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -114489,6 +117152,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -114536,6 +117200,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -114980,6 +117645,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -115027,6 +117693,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -115137,6 +117804,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -115169,6 +117837,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -115306,6 +117975,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -115353,6 +118023,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -115475,6 +118146,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -115507,6 +118179,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -115640,6 +118313,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -115687,6 +118361,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -115859,6 +118534,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -115906,6 +118582,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -116278,6 +118955,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -116325,6 +119003,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -116387,6 +119066,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
   }
@@ -116419,6 +119099,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
   }
@@ -116478,6 +119159,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -116525,6 +119207,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -116599,6 +119282,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
   }
@@ -116631,6 +119315,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
   }
@@ -116674,6 +119359,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -116721,6 +119407,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -116988,6 +119675,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -117035,6 +119723,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -117310,6 +119999,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -117357,6 +120047,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -117398,6 +120089,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
   }
@@ -117430,6 +120122,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
   }
@@ -117489,6 +120182,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -117536,6 +120230,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -117583,6 +120278,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
   }
@@ -117615,6 +120311,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
   }
@@ -117658,6 +120355,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -117705,6 +120403,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -117843,6 +120542,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -117890,6 +120590,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -118018,6 +120719,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -118065,6 +120767,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -118250,6 +120953,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -118297,6 +121001,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -118477,6 +121182,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -118524,6 +121230,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -118612,6 +121319,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -118659,6 +121367,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -118934,6 +121643,7 @@ export namespace Prisma {
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -118981,6 +121691,7 @@ export namespace Prisma {
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -119097,6 +121808,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -119129,6 +121841,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -119256,6 +121969,7 @@ export namespace Prisma {
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -119303,6 +122017,7 @@ export namespace Prisma {
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -119431,6 +122146,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -119463,6 +122179,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -119617,6 +122334,497 @@ export namespace Prisma {
     lng?: NullableFloatFieldUpdateOperationsInput | number | null
     occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyCreateWithoutTourneePlansInput = {
+    id?: string
+    name: string
+    phone?: string | null
+    address?: string | null
+    email?: string | null
+    rc?: string | null
+    nif?: string | null
+    ai?: string | null
+    nis?: string | null
+    bankName?: string | null
+    rib?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    stampUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    stores?: StoreCreateNestedManyWithoutCompanyInput
+    customers?: CustomerCreateNestedManyWithoutCompanyInput
+    suppliers?: SupplierCreateNestedManyWithoutCompanyInput
+    products?: ProductCreateNestedManyWithoutCompanyInput
+    seasons?: SeasonCreateNestedManyWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    units?: UnitCreateNestedManyWithoutCompanyInput
+    priceTiers?: PriceTierCreateNestedManyWithoutCompanyInput
+    expenseTypes?: ExpenseTypeCreateNestedManyWithoutCompanyInput
+    secteurs?: SecteurCreateNestedManyWithoutCompanyInput
+    purchaseInvoices?: PurchaseInvoiceCreateNestedManyWithoutCompanyInput
+    supplierReturns?: SupplierReturnCreateNestedManyWithoutCompanyInput
+    stockBatches?: StockBatchCreateNestedManyWithoutCompanyInput
+    transfers?: TransferCreateNestedManyWithoutCompanyInput
+    stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
+    stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
+    sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
+    clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
+    tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    versements?: VersementCreateNestedManyWithoutCompanyInput
+    distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
+    deposits?: DepositCreateNestedManyWithoutCompanyInput
+    devices?: DeviceCreateNestedManyWithoutCompanyInput
+    syncOps?: SyncOpCreateNestedManyWithoutCompanyInput
+    dailyCloses?: DailyCloseCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutTourneePlansInput = {
+    id?: string
+    name: string
+    phone?: string | null
+    address?: string | null
+    email?: string | null
+    rc?: string | null
+    nif?: string | null
+    ai?: string | null
+    nis?: string | null
+    bankName?: string | null
+    rib?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    stampUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    stores?: StoreUncheckedCreateNestedManyWithoutCompanyInput
+    customers?: CustomerUncheckedCreateNestedManyWithoutCompanyInput
+    suppliers?: SupplierUncheckedCreateNestedManyWithoutCompanyInput
+    products?: ProductUncheckedCreateNestedManyWithoutCompanyInput
+    seasons?: SeasonUncheckedCreateNestedManyWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    units?: UnitUncheckedCreateNestedManyWithoutCompanyInput
+    priceTiers?: PriceTierUncheckedCreateNestedManyWithoutCompanyInput
+    expenseTypes?: ExpenseTypeUncheckedCreateNestedManyWithoutCompanyInput
+    secteurs?: SecteurUncheckedCreateNestedManyWithoutCompanyInput
+    purchaseInvoices?: PurchaseInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    supplierReturns?: SupplierReturnUncheckedCreateNestedManyWithoutCompanyInput
+    stockBatches?: StockBatchUncheckedCreateNestedManyWithoutCompanyInput
+    transfers?: TransferUncheckedCreateNestedManyWithoutCompanyInput
+    stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
+    stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
+    sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
+    clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
+    tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
+    distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
+    deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutCompanyInput
+    syncOps?: SyncOpUncheckedCreateNestedManyWithoutCompanyInput
+    dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutTourneePlansInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutTourneePlansInput, CompanyUncheckedCreateWithoutTourneePlansInput>
+  }
+
+  export type StoreCreateWithoutTourneePlansInput = {
+    id?: string
+    name: string
+    address?: string | null
+    kind?: string
+    marque?: string | null
+    matricule?: string | null
+    imageUrl?: string | null
+    isActive?: boolean
+    lastLat?: number | null
+    lastLng?: number | null
+    lastSeenAt?: Date | string | null
+    locateRequestedAt?: Date | string | null
+    qrSellRequired?: boolean
+    qrOrderRequired?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutStoresInput
+    user?: UserCreateNestedOneWithoutAssignedVansInput
+    batches?: StockBatchCreateNestedManyWithoutLocationInput
+    transfersFrom?: TransferCreateNestedManyWithoutFromLocationInput
+    transfersTo?: TransferCreateNestedManyWithoutToLocationInput
+    counts?: StockCountCreateNestedManyWithoutLocationInput
+    losses?: StockLossCreateNestedManyWithoutLocationInput
+    sales?: SaleCreateNestedManyWithoutLocationInput
+    clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
+    tournees?: TourneeCreateNestedManyWithoutLocationInput
+    expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
+    devices?: DeviceCreateNestedManyWithoutLocationInput
+    dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
+  }
+
+  export type StoreUncheckedCreateWithoutTourneePlansInput = {
+    id?: string
+    companyId: string
+    name: string
+    address?: string | null
+    kind?: string
+    marque?: string | null
+    matricule?: string | null
+    imageUrl?: string | null
+    userId?: string | null
+    isActive?: boolean
+    lastLat?: number | null
+    lastLng?: number | null
+    lastSeenAt?: Date | string | null
+    locateRequestedAt?: Date | string | null
+    qrSellRequired?: boolean
+    qrOrderRequired?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    batches?: StockBatchUncheckedCreateNestedManyWithoutLocationInput
+    transfersFrom?: TransferUncheckedCreateNestedManyWithoutFromLocationInput
+    transfersTo?: TransferUncheckedCreateNestedManyWithoutToLocationInput
+    counts?: StockCountUncheckedCreateNestedManyWithoutLocationInput
+    losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
+    sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
+    clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
+    tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
+    dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
+  }
+
+  export type StoreCreateOrConnectWithoutTourneePlansInput = {
+    where: StoreWhereUniqueInput
+    create: XOR<StoreCreateWithoutTourneePlansInput, StoreUncheckedCreateWithoutTourneePlansInput>
+  }
+
+  export type SecteurCreateWithoutTourneePlansInput = {
+    id?: string
+    name: string
+    isActive?: boolean
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutSecteursInput
+    wilaya: WilayaCreateNestedOneWithoutSecteursInput
+    customers?: CustomerCreateNestedManyWithoutSecteurInput
+    suppliers?: SupplierCreateNestedManyWithoutSecteurInput
+    tournees?: TourneeCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaCreateNestedManyWithoutSecteurInput
+  }
+
+  export type SecteurUncheckedCreateWithoutTourneePlansInput = {
+    id?: string
+    companyId: string
+    wilayaCode: number
+    name: string
+    isActive?: boolean
+    createdAt?: Date | string
+    customers?: CustomerUncheckedCreateNestedManyWithoutSecteurInput
+    suppliers?: SupplierUncheckedCreateNestedManyWithoutSecteurInput
+    tournees?: TourneeUncheckedCreateNestedManyWithoutSecteurInput
+    userAreas?: UserAreaUncheckedCreateNestedManyWithoutSecteurInput
+  }
+
+  export type SecteurCreateOrConnectWithoutTourneePlansInput = {
+    where: SecteurWhereUniqueInput
+    create: XOR<SecteurCreateWithoutTourneePlansInput, SecteurUncheckedCreateWithoutTourneePlansInput>
+  }
+
+  export type TourneeCreateWithoutPlanInput = {
+    id?: string
+    date: Date | string
+    status?: string
+    notes?: string | null
+    startedAt?: Date | string | null
+    finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
+    autoClosed?: boolean
+    slot?: number
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutTourneesInput
+    location: StoreCreateNestedOneWithoutTourneesInput
+    secteur?: SecteurCreateNestedOneWithoutTourneesInput
+    stops?: TourneeStopCreateNestedManyWithoutTourneeInput
+    sales?: SaleCreateNestedManyWithoutTourneeInput
+  }
+
+  export type TourneeUncheckedCreateWithoutPlanInput = {
+    id?: string
+    companyId: string
+    date: Date | string
+    locationId: string
+    secteurId?: string | null
+    status?: string
+    notes?: string | null
+    startedAt?: Date | string | null
+    finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
+    autoClosed?: boolean
+    slot?: number
+    createdAt?: Date | string
+    stops?: TourneeStopUncheckedCreateNestedManyWithoutTourneeInput
+    sales?: SaleUncheckedCreateNestedManyWithoutTourneeInput
+  }
+
+  export type TourneeCreateOrConnectWithoutPlanInput = {
+    where: TourneeWhereUniqueInput
+    create: XOR<TourneeCreateWithoutPlanInput, TourneeUncheckedCreateWithoutPlanInput>
+  }
+
+  export type TourneeCreateManyPlanInputEnvelope = {
+    data: TourneeCreateManyPlanInput | TourneeCreateManyPlanInput[]
+  }
+
+  export type CompanyUpsertWithoutTourneePlansInput = {
+    update: XOR<CompanyUpdateWithoutTourneePlansInput, CompanyUncheckedUpdateWithoutTourneePlansInput>
+    create: XOR<CompanyCreateWithoutTourneePlansInput, CompanyUncheckedCreateWithoutTourneePlansInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutTourneePlansInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutTourneePlansInput, CompanyUncheckedUpdateWithoutTourneePlansInput>
+  }
+
+  export type CompanyUpdateWithoutTourneePlansInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stampUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    stores?: StoreUpdateManyWithoutCompanyNestedInput
+    customers?: CustomerUpdateManyWithoutCompanyNestedInput
+    suppliers?: SupplierUpdateManyWithoutCompanyNestedInput
+    products?: ProductUpdateManyWithoutCompanyNestedInput
+    seasons?: SeasonUpdateManyWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    units?: UnitUpdateManyWithoutCompanyNestedInput
+    priceTiers?: PriceTierUpdateManyWithoutCompanyNestedInput
+    expenseTypes?: ExpenseTypeUpdateManyWithoutCompanyNestedInput
+    secteurs?: SecteurUpdateManyWithoutCompanyNestedInput
+    purchaseInvoices?: PurchaseInvoiceUpdateManyWithoutCompanyNestedInput
+    supplierReturns?: SupplierReturnUpdateManyWithoutCompanyNestedInput
+    stockBatches?: StockBatchUpdateManyWithoutCompanyNestedInput
+    transfers?: TransferUpdateManyWithoutCompanyNestedInput
+    stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
+    stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
+    sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
+    clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
+    tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    versements?: VersementUpdateManyWithoutCompanyNestedInput
+    distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
+    deposits?: DepositUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUpdateManyWithoutCompanyNestedInput
+    syncOps?: SyncOpUpdateManyWithoutCompanyNestedInput
+    dailyCloses?: DailyCloseUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutTourneePlansInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stampUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    stores?: StoreUncheckedUpdateManyWithoutCompanyNestedInput
+    customers?: CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+    suppliers?: SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+    products?: ProductUncheckedUpdateManyWithoutCompanyNestedInput
+    seasons?: SeasonUncheckedUpdateManyWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    units?: UnitUncheckedUpdateManyWithoutCompanyNestedInput
+    priceTiers?: PriceTierUncheckedUpdateManyWithoutCompanyNestedInput
+    expenseTypes?: ExpenseTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    secteurs?: SecteurUncheckedUpdateManyWithoutCompanyNestedInput
+    purchaseInvoices?: PurchaseInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    supplierReturns?: SupplierReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    stockBatches?: StockBatchUncheckedUpdateManyWithoutCompanyNestedInput
+    transfers?: TransferUncheckedUpdateManyWithoutCompanyNestedInput
+    stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
+    stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
+    sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
+    clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
+    tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
+    distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
+    deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutCompanyNestedInput
+    syncOps?: SyncOpUncheckedUpdateManyWithoutCompanyNestedInput
+    dailyCloses?: DailyCloseUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type StoreUpsertWithoutTourneePlansInput = {
+    update: XOR<StoreUpdateWithoutTourneePlansInput, StoreUncheckedUpdateWithoutTourneePlansInput>
+    create: XOR<StoreCreateWithoutTourneePlansInput, StoreUncheckedCreateWithoutTourneePlansInput>
+    where?: StoreWhereInput
+  }
+
+  export type StoreUpdateToOneWithWhereWithoutTourneePlansInput = {
+    where?: StoreWhereInput
+    data: XOR<StoreUpdateWithoutTourneePlansInput, StoreUncheckedUpdateWithoutTourneePlansInput>
+  }
+
+  export type StoreUpdateWithoutTourneePlansInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    marque?: NullableStringFieldUpdateOperationsInput | string | null
+    matricule?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
+    qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutStoresNestedInput
+    user?: UserUpdateOneWithoutAssignedVansNestedInput
+    batches?: StockBatchUpdateManyWithoutLocationNestedInput
+    transfersFrom?: TransferUpdateManyWithoutFromLocationNestedInput
+    transfersTo?: TransferUpdateManyWithoutToLocationNestedInput
+    counts?: StockCountUpdateManyWithoutLocationNestedInput
+    losses?: StockLossUpdateManyWithoutLocationNestedInput
+    sales?: SaleUpdateManyWithoutLocationNestedInput
+    clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
+    tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
+    devices?: DeviceUpdateManyWithoutLocationNestedInput
+    dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
+  }
+
+  export type StoreUncheckedUpdateWithoutTourneePlansInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    marque?: NullableStringFieldUpdateOperationsInput | string | null
+    matricule?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
+    qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    batches?: StockBatchUncheckedUpdateManyWithoutLocationNestedInput
+    transfersFrom?: TransferUncheckedUpdateManyWithoutFromLocationNestedInput
+    transfersTo?: TransferUncheckedUpdateManyWithoutToLocationNestedInput
+    counts?: StockCountUncheckedUpdateManyWithoutLocationNestedInput
+    losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
+    sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
+    clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
+    tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
+    dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
+  }
+
+  export type SecteurUpsertWithoutTourneePlansInput = {
+    update: XOR<SecteurUpdateWithoutTourneePlansInput, SecteurUncheckedUpdateWithoutTourneePlansInput>
+    create: XOR<SecteurCreateWithoutTourneePlansInput, SecteurUncheckedCreateWithoutTourneePlansInput>
+    where?: SecteurWhereInput
+  }
+
+  export type SecteurUpdateToOneWithWhereWithoutTourneePlansInput = {
+    where?: SecteurWhereInput
+    data: XOR<SecteurUpdateWithoutTourneePlansInput, SecteurUncheckedUpdateWithoutTourneePlansInput>
+  }
+
+  export type SecteurUpdateWithoutTourneePlansInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutSecteursNestedInput
+    wilaya?: WilayaUpdateOneRequiredWithoutSecteursNestedInput
+    customers?: CustomerUpdateManyWithoutSecteurNestedInput
+    suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
+    tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
+  }
+
+  export type SecteurUncheckedUpdateWithoutTourneePlansInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    wilayaCode?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
+    suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
+    tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
+    userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
+  }
+
+  export type TourneeUpsertWithWhereUniqueWithoutPlanInput = {
+    where: TourneeWhereUniqueInput
+    update: XOR<TourneeUpdateWithoutPlanInput, TourneeUncheckedUpdateWithoutPlanInput>
+    create: XOR<TourneeCreateWithoutPlanInput, TourneeUncheckedCreateWithoutPlanInput>
+  }
+
+  export type TourneeUpdateWithWhereUniqueWithoutPlanInput = {
+    where: TourneeWhereUniqueInput
+    data: XOR<TourneeUpdateWithoutPlanInput, TourneeUncheckedUpdateWithoutPlanInput>
+  }
+
+  export type TourneeUpdateManyWithWhereWithoutPlanInput = {
+    where: TourneeScalarWhereInput
+    data: XOR<TourneeUpdateManyMutationInput, TourneeUncheckedUpdateManyWithoutPlanInput>
   }
 
   export type UserCreateManyCompanyInput = {
@@ -119920,6 +123128,23 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    planId?: string | null
+    slot?: number
+    createdAt?: Date | string
+  }
+
+  export type TourneePlanCreateManyCompanyInput = {
+    id?: string
+    locationId: string
+    secteurId?: string | null
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
     createdAt?: Date | string
   }
 
@@ -120105,6 +123330,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -120137,6 +123363,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -120518,6 +123745,7 @@ export namespace Prisma {
     customers?: CustomerUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutSecteurNestedInput
     userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
   }
 
@@ -120530,6 +123758,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutSecteurNestedInput
     userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
@@ -121030,9 +124259,11 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
     secteur?: SecteurUpdateOneWithoutTourneesNestedInput
+    plan?: TourneePlanUpdateOneWithoutTourneesNestedInput
     stops?: TourneeStopUpdateManyWithoutTourneeNestedInput
     sales?: SaleUpdateManyWithoutTourneeNestedInput
   }
@@ -121051,6 +124282,8 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
@@ -121070,6 +124303,55 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    slot?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TourneePlanUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    location?: StoreUpdateOneRequiredWithoutTourneePlansNestedInput
+    secteur?: SecteurUpdateOneWithoutTourneePlansNestedInput
+    tournees?: TourneeUpdateManyWithoutPlanNestedInput
+  }
+
+  export type TourneePlanUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    locationId?: StringFieldUpdateOperationsInput | string
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tournees?: TourneeUncheckedUpdateManyWithoutPlanNestedInput
+  }
+
+  export type TourneePlanUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    locationId?: StringFieldUpdateOperationsInput | string
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -122116,6 +125398,7 @@ export namespace Prisma {
     customers?: CustomerUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutSecteurNestedInput
     userAreas?: UserAreaUpdateManyWithoutSecteurNestedInput
   }
 
@@ -122128,6 +125411,7 @@ export namespace Prisma {
     customers?: CustomerUncheckedUpdateManyWithoutSecteurNestedInput
     suppliers?: SupplierUncheckedUpdateManyWithoutSecteurNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutSecteurNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutSecteurNestedInput
     userAreas?: UserAreaUncheckedUpdateManyWithoutSecteurNestedInput
   }
 
@@ -122368,6 +125652,23 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    planId?: string | null
+    slot?: number
+    createdAt?: Date | string
+  }
+
+  export type TourneePlanCreateManySecteurInput = {
+    id?: string
+    companyId: string
+    locationId: string
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
     createdAt?: Date | string
   }
 
@@ -122541,9 +125842,11 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
+    plan?: TourneePlanUpdateOneWithoutTourneesNestedInput
     stops?: TourneeStopUpdateManyWithoutTourneeNestedInput
     sales?: SaleUpdateManyWithoutTourneeNestedInput
   }
@@ -122562,6 +125865,8 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
@@ -122581,6 +125886,55 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    slot?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TourneePlanUpdateWithoutSecteurInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutTourneePlansNestedInput
+    location?: StoreUpdateOneRequiredWithoutTourneePlansNestedInput
+    tournees?: TourneeUpdateManyWithoutPlanNestedInput
+  }
+
+  export type TourneePlanUncheckedUpdateWithoutSecteurInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    locationId?: StringFieldUpdateOperationsInput | string
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tournees?: TourneeUncheckedUpdateManyWithoutPlanNestedInput
+  }
+
+  export type TourneePlanUncheckedUpdateManyWithoutSecteurInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    locationId?: StringFieldUpdateOperationsInput | string
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -122782,6 +126136,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -122814,6 +126169,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -123192,6 +126548,23 @@ export namespace Prisma {
     finishedLat?: number | null
     finishedLng?: number | null
     autoClosed?: boolean
+    planId?: string | null
+    slot?: number
+    createdAt?: Date | string
+  }
+
+  export type TourneePlanCreateManyLocationInput = {
+    id?: string
+    companyId: string
+    secteurId?: string | null
+    weekday: number
+    intervalWeeks?: number
+    anchorKey: string
+    slot?: number
+    clientIds?: string | null
+    skips?: string
+    notes?: string | null
+    isActive?: boolean
     createdAt?: Date | string
   }
 
@@ -123661,9 +127034,11 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
     secteur?: SecteurUpdateOneWithoutTourneesNestedInput
+    plan?: TourneePlanUpdateOneWithoutTourneesNestedInput
     stops?: TourneeStopUpdateManyWithoutTourneeNestedInput
     sales?: SaleUpdateManyWithoutTourneeNestedInput
   }
@@ -123682,6 +127057,8 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    slot?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
@@ -123701,6 +127078,55 @@ export namespace Prisma {
     finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
     finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
     autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    slot?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TourneePlanUpdateWithoutLocationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutTourneePlansNestedInput
+    secteur?: SecteurUpdateOneWithoutTourneePlansNestedInput
+    tournees?: TourneeUpdateManyWithoutPlanNestedInput
+  }
+
+  export type TourneePlanUncheckedUpdateWithoutLocationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tournees?: TourneeUncheckedUpdateManyWithoutPlanNestedInput
+  }
+
+  export type TourneePlanUncheckedUpdateManyWithoutLocationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    weekday?: IntFieldUpdateOperationsInput | number
+    intervalWeeks?: IntFieldUpdateOperationsInput | number
+    anchorKey?: StringFieldUpdateOperationsInput | string
+    slot?: IntFieldUpdateOperationsInput | number
+    clientIds?: NullableStringFieldUpdateOperationsInput | string | null
+    skips?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -126111,6 +129537,86 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TourneeCreateManyPlanInput = {
+    id?: string
+    companyId: string
+    date: Date | string
+    locationId: string
+    secteurId?: string | null
+    status?: string
+    notes?: string | null
+    startedAt?: Date | string | null
+    finishedAt?: Date | string | null
+    startedLat?: number | null
+    startedLng?: number | null
+    finishedLat?: number | null
+    finishedLng?: number | null
+    autoClosed?: boolean
+    slot?: number
+    createdAt?: Date | string
+  }
+
+  export type TourneeUpdateWithoutPlanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    slot?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutTourneesNestedInput
+    location?: StoreUpdateOneRequiredWithoutTourneesNestedInput
+    secteur?: SecteurUpdateOneWithoutTourneesNestedInput
+    stops?: TourneeStopUpdateManyWithoutTourneeNestedInput
+    sales?: SaleUpdateManyWithoutTourneeNestedInput
+  }
+
+  export type TourneeUncheckedUpdateWithoutPlanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    locationId?: StringFieldUpdateOperationsInput | string
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    slot?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stops?: TourneeStopUncheckedUpdateManyWithoutTourneeNestedInput
+    sales?: SaleUncheckedUpdateManyWithoutTourneeNestedInput
+  }
+
+  export type TourneeUncheckedUpdateManyWithoutPlanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    locationId?: StringFieldUpdateOperationsInput | string
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    startedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    finishedLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    autoClosed?: BoolFieldUpdateOperationsInput | boolean
+    slot?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

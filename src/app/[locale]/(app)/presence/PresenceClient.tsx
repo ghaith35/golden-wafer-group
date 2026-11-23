@@ -22,6 +22,8 @@ type Row = {
   finishedLat: number | null;
   finishedLng: number | null;
   location: { id: string; name: string; matricule: string | null; user: { fullName: string } | null };
+  /// A van can run two tours a day — the sector tells them apart.
+  secteur?: { name: string } | null;
 };
 
 /// Overtime / unended day, computed from company expectations.
@@ -259,6 +261,7 @@ export function PresenceClient({
                 <div className="truncate text-[11px] opacity-60">
                   {new Date(r.date as string).toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "short" })}
                   {r.location.user ? ` · ${r.location.user.fullName}` : ""}
+                  {r.secteur ? ` · ${r.secteur.name}` : ""}
                 </div>
               </div>
               {fl.unclosed && (

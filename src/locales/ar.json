@@ -428,10 +428,26 @@
     "secteurRequired": "اختر القطاع — كل زبائنه سيُضافون",
     "allClients": "كل زبائن القطاع",
     "unclosed": "أُغلق تلقائيًا — لم يُنهِ اليوم",
-    "repeatWeekly": "تكرار كل أسبوع (12 أسبوعًا)",
     "actionFailed": "تعذّر تنفيذ العملية",
     "prevWeek": "الأسبوع السابق",
-    "nextWeek": "الأسبوع التالي"
+    "nextWeek": "الأسبوع التالي",
+    "frequency": "التكرار",
+    "freqWeekly": "كل أسبوع",
+    "freqWeeklyHint": "تتكرر كل أسبوع في نفس اليوم — بلا نهاية",
+    "freqBiweekly": "كل أسبوعين",
+    "freqBiweeklyHint": "تتكرر كل أسبوعين — بلا نهاية",
+    "pickSector": "ابحث عن قطاع…",
+    "week1": "الأسبوع الأول",
+    "thenEvery2": "ثم كل أسبوعين",
+    "removeDay": "حذف هذا اليوم فقط",
+    "removeDayHint": "تبقى الجولة المتكررة وتستمر في الأسابيع القادمة",
+    "endPlan": "إيقاف الجولة المتكررة",
+    "endPlanHint": "لا تُنشأ أيام جديدة وتُحذف الأيام القادمة التي لم تبدأ. الأيام المنجزة تبقى في السجل.",
+    "planEndTitle": "إيقاف الجولة المتكررة",
+    "nextOn": "القادمة",
+    "cellFull": "هذه الخانة تضم جولتين بالفعل",
+    "weeklyTag": "كل أسبوع",
+    "biweeklyTag": "كل أسبوعين"
   },
   "inventory": {
     "title": "المخزون",
@@ -1431,7 +1447,14 @@
     "closedSavedOffline": "تم الحفظ على الهاتف — سيُرسل عند المزامنة ✓",
     "giftsDealPercent": "خصم",
     "giftsDealPrice": "سعر جديد",
-    "giftsOnTargets": "على"
+    "giftsOnTargets": "على",
+    "tourOf": "الجولة {n}",
+    "tourRunning": "جارية",
+    "tourDone": "منتهية",
+    "tourWait": "في الانتظار",
+    "finishOtherFirst": "أنهِ الجولة الجارية أولاً",
+    "closedShoot": "التقاط صورة",
+    "closedCancel": "إلغاء"
   },
   "presence": {
     "title": "الحضور",
@@ -1727,7 +1750,7 @@
     "duplicate_code": "الرمز مستعمل من قبل",
     "duplicate_name": "الاسم مستعمل من قبل",
     "duplicate_username": "اسم المستخدم مستعمل من قبل",
-    "duplicate_day": "توجد جولة لهذه الشاحنة في هذا اليوم",
+    "duplicate_day": "لهذه الشاحنة جولتان بالفعل في هذا اليوم",
     "driver_busy": "السائق مرتبط بشاحنة أخرى",
     "weak_password": "كلمة المرور قصيرة (6 أحرف على الأقل)",
     "save_failed": "تعذّر الحفظ",
@@ -1800,7 +1823,10 @@
     "rule_needs_buy": "أضف منتج الشراء",
     "rule_needs_target": "اختر منتجًا واحدًا على الأقل يطبَّق عليه العرض",
     "rule_bad_percent": "النسبة يجب أن تكون بين 0 و100",
-    "rule_bad_price": "أدخل السعر الجديد لكل منتج"
+    "rule_bad_price": "أدخل السعر الجديد لكل منتج",
+    "another_tour_running": "أنهِ الجولة الجارية أولاً قبل بدء الأخرى",
+    "cell_full": "هذه الخانة تضم جولتين بالفعل",
+    "bad_frequency": "تكرار غير صالح"
   },
   "resetData": {
     "title": "إعادة ضبط البيانات",

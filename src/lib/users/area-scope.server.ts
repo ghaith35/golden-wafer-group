@@ -27,6 +27,12 @@ export async function loadAreaScope(userId: string | null | undefined, role?: st
   });
   const secteurs = new Map<string, number>();
   for (const t of planned) if (t.secteur) secteurs.set(t.secteur.id, t.secteur.wilayaCode);
+  // Endless recurring plans count even when their next day is not generated yet.
+  const plans = await prisma.tourneePlan.findMany({
+    where: { locationId: { in: vans.map((v) => v.id) }, isActive: true, secteurId: { not: null } },
+    select: { secteur: { select: { id: true, wilayaCode: true } } },
+  });
+  for (const p of plans) if (p.secteur) secteurs.set(p.secteur.id, p.secteur.wilayaCode);
   if (!secteurs.size) return null;
   return scopeFromRows([...secteurs].map(([secteurId, wilayaCode]) => ({ wilayaCode, secteurId })));
 }

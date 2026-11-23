@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 import { tourneeSchema, tourneeStopsSchema, stopUpdateSchema } from "@/lib/sales/validation";
-import { addDaysKey, algiersDayKey, algiersDayRange, endOfAlgiersDay, isPastAlgiersDay, weekStartKey } from "./days";
+import { algiersDayKey, algiersDayRange, endOfAlgiersDay, isPastAlgiersDay } from "./days";
+import { deletePlan, updatePlanStops } from "./plans";
 
 type TourneeInput = z.infer<typeof tourneeSchema>;
 
@@ -15,12 +16,11 @@ export async function createTournee(companyId: string, input: TourneeInput) {
   const date = new Date(input.date);
   if (Number.isNaN(date.getTime())) throw Object.assign(new Error("bad_date"), { status: 400 });
 
-  // One open tour per van per day — the board assumes a single column owner.
-  const clash = await prisma.tournee.findFirst({
+  // A van runs at most two tours per day (the two slots of a board cell).
+  const sameDay = await prisma.tournee.count({
     where: { companyId, locationId: input.locationId, status: "OPEN", date: algiersDayRange(date) },
-    select: { id: true },
   });
-  if (clash) throw Object.assign(new Error("duplicate_day"), { status: 400 });
+  if (sameDay >= 2) throw Object.assign(new Error("duplicate_day"), { status: 400 });
 
   let clientIds = [...new Set(input.clientIds ?? [])];
   if (!clientIds.length && input.secteurId) {
@@ -44,6 +44,7 @@ export async function createTournee(companyId: string, input: TourneeInput) {
         locationId: location.id,
         secteurId: input.secteurId ?? null,
         notes: input.notes ?? null,
+        slot: sameDay,
       },
     });
     for (let i = 0; i < clientIds.length; i++) {
@@ -210,6 +211,19 @@ export async function startDay(
   // Idempotent: a retried/duplicated offline stamp is a success, not an error.
   if (tournee.startedAt) return tournee;
   if (tournee.status !== "OPEN") throw Object.assign(new Error("bad_status"), { status: 400 });
+  // Two tours on one day run one after the other: finish the first before
+  // starting the second (not enforced when replaying an offline stamp — the
+  // phone already applied the rule and ops can arrive out of order).
+  if (!occurredAt && role !== "Admin") {
+    const running = await prisma.tournee.findFirst({
+      where: {
+        companyId, locationId: tournee.locationId, id: { not: tournee.id },
+        status: "OPEN", startedAt: { not: null }, finishedAt: null, date: algiersDayRange(new Date(tournee.date)),
+      },
+      select: { id: true },
+    });
+    if (running) throw Object.assign(new Error("another_tour_running"), { status: 400 });
+  }
   const lat = cleanCoord(stamp?.lat);
   const lng = cleanCoord(stamp?.lng);
   return prisma.tournee.update({
@@ -337,96 +351,21 @@ export async function moveStop(companyId: string, stopId: string, toTourneeId: s
   return { ok: true, sourceEmpty: remaining === 0 };
 }
 
-/// One weekly plan for every week. The "live plan" of a van is its OPEN tours
-/// from the current week onward; each van+weekday cell is copied forward
-/// (same secteur, else same stops) for `weeks` weeks starting at weekKey, only
-/// for days that are not in the past. Deleting a cell (all its open future
-/// tours) ends that plan — nothing is regenerated from history.
-export async function ensureWeekTours(companyId: string, weekKey: string, weeks = 1): Promise<number> {
-  const today = algiersDayKey(new Date());
-  const thisWeek = weekStartKey(today);
-  const from = algiersDayRange(new Date(`${thisWeek}T12:00:00Z`)).gte;
-  const live = await prisma.tournee.findMany({
-    where: { companyId, status: "OPEN", date: { gte: from } },
-    orderBy: { date: "desc" },
-    take: 2000,
-    select: { date: true, locationId: true, secteurId: true, stops: { select: { clientId: true }, orderBy: { position: "asc" } } },
-  });
-  type Tpl = { secteurId: string | null; clientIds: string[] };
-  const templates = new Map<string, Tpl>(); // `${vanId}|${offset}` → latest
-  for (const t of live) {
-    const key = algiersDayKey(t.date);
-    const offset = (new Date(`${key}T00:00:00Z`).getUTCDay() + 1) % 7;
-    const k = `${t.locationId}|${offset}`;
-    if (!templates.has(k)) templates.set(k, { secteurId: t.secteurId, clientIds: t.stops.map((x) => x.clientId) });
-  }
-  if (!templates.size) return 0;
-  const first = weekKey < thisWeek ? thisWeek : weekKey;
-  const lastDay = addDaysKey(first, 7 * weeks - 1);
-  const startR = algiersDayRange(new Date(`${first}T12:00:00Z`)).gte;
-  const endR = algiersDayRange(new Date(`${lastDay}T12:00:00Z`)).lt;
-  const existing = await prisma.tournee.findMany({
-    where: { companyId, date: { gte: startR, lt: endR } },
-    select: { date: true, locationId: true },
-  });
-  const have = new Set(existing.map((e) => `${e.locationId}|${algiersDayKey(e.date)}`));
-  let created = 0;
-  for (let w = 0; w < weeks; w++) {
-    for (const [k, tpl] of templates) {
-      const [vanId, off] = k.split("|");
-      const dayKey = addDaysKey(first, 7 * w + Number(off));
-      if (dayKey < today || have.has(`${vanId}|${dayKey}`)) continue;
-      try {
-        await createTournee(companyId, {
-          locationId: vanId,
-          date: dayKey,
-          secteurId: tpl.secteurId ?? undefined,
-          clientIds: tpl.secteurId ? [] : tpl.clientIds,
-        } as never);
-        have.add(`${vanId}|${dayKey}`);
-        created++;
-      } catch {
-        // van archived / client gone / duplicate → skip this cell
-      }
-    }
-  }
-  return created;
-}
-
-/// Other tours of the same van + weekday that are still part of the plan:
-/// OPEN, not started, today or later.
-async function seriesSiblings(companyId: string, tourneeId: string) {
-  const t = await prisma.tournee.findFirst({ where: { id: tourneeId, companyId } });
-  if (!t) return [];
-  const offset = (new Date(`${algiersDayKey(t.date)}T00:00:00Z`).getUTCDay() + 1) % 7;
-  const from = algiersDayRange(new Date(`${algiersDayKey(new Date())}T12:00:00Z`)).gte;
-  const rows = await prisma.tournee.findMany({
-    where: { companyId, locationId: t.locationId, status: "OPEN", startedAt: null, date: { gte: from }, id: { not: t.id } },
-    select: { id: true, date: true },
-  });
-  return rows.filter((r) => (new Date(`${algiersDayKey(r.date)}T00:00:00Z`).getUTCDay() + 1) % 7 === offset).map((r) => r.id);
-}
-
-/// Edit once → every future week follows (stops of the cell copied over).
+/// Edit once → every later day of the same recurring plan follows. A one-off
+/// (plan-less) tour has nothing to propagate to.
 export async function propagateStops(companyId: string, tourneeId: string) {
   const src = await prisma.tournee.findFirst({
     where: { id: tourneeId, companyId },
     include: { stops: { orderBy: { position: "asc" }, select: { clientId: true } } },
   });
-  if (!src || src.status !== "OPEN") return;
-  for (const id of await seriesSiblings(companyId, tourneeId)) {
-    await prisma.$transaction(async (tx) => {
-      await tx.tourneeStop.deleteMany({ where: { tourneeId: id } });
-      for (let i = 0; i < src.stops.length; i++) {
-        await tx.tourneeStop.create({ data: { tourneeId: id, clientId: src.stops[i].clientId, position: i } });
-      }
-      await tx.tournee.update({ where: { id }, data: { secteurId: src.secteurId } });
-    });
-  }
+  if (!src || src.status !== "OPEN" || !src.planId) return;
+  await updatePlanStops(companyId, src.planId, src.stops.map((x) => x.clientId));
 }
 
-/// Delete a cell from the plan: this tour plus every future open copy.
+/// Remove a recurring tour from the plan: the plan ends (no new days) and its
+/// future, not-started days go. A plan-less one-off is just deleted.
 export async function deleteSeries(companyId: string, tourneeId: string) {
-  const ids = await seriesSiblings(companyId, tourneeId);
-  await prisma.tournee.deleteMany({ where: { companyId, id: { in: [...ids, tourneeId] } } });
+  const t = await prisma.tournee.findFirst({ where: { id: tourneeId, companyId }, select: { id: true, planId: true } });
+  if (!t) return;
+  if (t.planId) await deletePlan(companyId, t.planId);
 }

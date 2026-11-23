@@ -428,10 +428,26 @@
     "secteurRequired": "Choisissez un secteur — tous ses clients seront ajoutés",
     "allClients": "tous les clients du secteur",
     "unclosed": "Clôturée auto — journée non terminée",
-    "repeatWeekly": "Répéter chaque semaine (12 semaines)",
     "actionFailed": "Action impossible",
     "prevWeek": "Semaine précédente",
-    "nextWeek": "Semaine suivante"
+    "nextWeek": "Semaine suivante",
+    "frequency": "Fréquence",
+    "freqWeekly": "Chaque semaine",
+    "freqWeeklyHint": "Se répète chaque semaine le même jour — sans fin",
+    "freqBiweekly": "Toutes les 2 semaines",
+    "freqBiweeklyHint": "Se répète toutes les 2 semaines — sans fin",
+    "pickSector": "Rechercher un secteur…",
+    "week1": "Semaine 1",
+    "thenEvery2": "puis toutes les 2 semaines",
+    "removeDay": "Supprimer ce jour seulement",
+    "removeDayHint": "La tournée récurrente continue les semaines suivantes",
+    "endPlan": "Arrêter la tournée récurrente",
+    "endPlanHint": "Plus aucun jour n'est créé et les jours à venir non démarrés sont supprimés. Les jours déjà faits restent dans l'historique.",
+    "planEndTitle": "Arrêter la tournée récurrente",
+    "nextOn": "Prochaine",
+    "cellFull": "Cette case contient déjà deux tournées",
+    "weeklyTag": "Chaque semaine",
+    "biweeklyTag": "Toutes les 2 semaines"
   },
   "inventory": {
     "title": "Stock",
@@ -1431,7 +1447,14 @@
     "closedSavedOffline": "Enregistré sur le téléphone — envoyé à la synchro ✓",
     "giftsDealPercent": "Remise",
     "giftsDealPrice": "Nouveau prix",
-    "giftsOnTargets": "sur"
+    "giftsOnTargets": "sur",
+    "tourOf": "Tournée {n}",
+    "tourRunning": "En cours",
+    "tourDone": "Terminée",
+    "tourWait": "En attente",
+    "finishOtherFirst": "Terminez d'abord la tournée en cours",
+    "closedShoot": "Prendre la photo",
+    "closedCancel": "Annuler"
   },
   "presence": {
     "title": "Pointage",
@@ -1727,7 +1750,7 @@
     "duplicate_code": "Code déjà utilisé",
     "duplicate_name": "Nom déjà utilisé",
     "duplicate_username": "Nom d'utilisateur déjà utilisé",
-    "duplicate_day": "Une tournée existe déjà ce jour pour cette camionnette",
+    "duplicate_day": "Ce camion a déjà deux tournées ce jour-là",
     "driver_busy": "Chauffeur déjà affecté à une autre camionnette",
     "weak_password": "Mot de passe trop court (6 caractères minimum)",
     "save_failed": "Échec de l'enregistrement",
@@ -1800,7 +1823,10 @@
     "rule_needs_buy": "Ajoutez le produit à acheter",
     "rule_needs_target": "Choisissez au moins un produit ciblé",
     "rule_bad_percent": "Le pourcentage doit être entre 0 et 100",
-    "rule_bad_price": "Saisissez le nouveau prix de chaque produit"
+    "rule_bad_price": "Saisissez le nouveau prix de chaque produit",
+    "another_tour_running": "Terminez la tournée en cours avant de démarrer l'autre",
+    "cell_full": "Cette case contient déjà deux tournées",
+    "bad_frequency": "Fréquence invalide"
   },
   "resetData": {
     "title": "Réinitialiser les données",

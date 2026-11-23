@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { tourneeSchema, tourneeStopsSchema } from "@/lib/sales/validation";
 import { createTournee } from "@/lib/tournees/service";
+import { createPlan } from "@/lib/tournees/plans";
 import { addDaysKey, algiersDayRange } from "@/lib/tournees/days";
 
 export async function GET(req: Request) {
@@ -59,20 +60,25 @@ export async function POST(req: Request) {
     data = { ...data, locationId: ownVan.id, clientIds: [] };
   }
   try {
-    const { repeatWeeks, ...one } = data;
-    const row = await createTournee(session.companyId, one);
-    // Weekly repeat (admin only, date-only input): same van + secteur on the
-    // same weekday for the following weeks; weeks that already have an open
-    // tour for this van are skipped.
-    if (session.role === "Admin" && repeatWeeks && /^\d{4}-\d{2}-\d{2}$/.test(one.date)) {
-      for (let k = 1; k <= repeatWeeks; k++) {
-        try {
-          await createTournee(session.companyId, { ...one, date: addDaysKey(one.date, 7 * k) });
-        } catch (e) {
-          if ((e as Error).message !== "duplicate_day") throw e;
-        }
-      }
+    const { frequency, ...one } = data;
+    // Recurring plan (admin, date-only input): every week or every 2 weeks,
+    // endless. The clicked day is week 1; daily tours are generated on demand.
+    if (session.role === "Admin" && frequency && /^\d{4}-\d{2}-\d{2}$/.test(one.date)) {
+      const plan = await createPlan(session.companyId, {
+        locationId: one.locationId,
+        secteurId: one.secteurId ?? null,
+        dateKey: one.date,
+        intervalWeeks: frequency === "BIWEEKLY" ? 2 : 1,
+        notes: one.notes ?? null,
+        clientIds: one.clientIds?.length ? one.clientIds : null,
+      });
+      const first = await prisma.tournee.findFirst({
+        where: { companyId: session.companyId, planId: plan.id, date: algiersDayRange(new Date(`${one.date}T12:00:00Z`)) },
+        include: { stops: { include: { client: true }, orderBy: { position: "asc" } }, location: true, secteur: true },
+      });
+      return NextResponse.json(first ?? { id: plan.id, planId: plan.id }, { status: 201 });
     }
+    const row = await createTournee(session.companyId, one);
     return NextResponse.json(row, { status: 201 });
   } catch (e) {
     const err = e as Error & { status?: number };

@@ -25,14 +25,15 @@ type C = {
 type Filter = "all" | "today" | "sector" | `s:${string}`;
 
 export function GpsClient({
-  locale, day, hasStarted, closedToday, todayIds, todaySecteurId, clients, labels,
+  locale, day, hasStarted, closedToday, todayIds, todaySecteurIds, clients, labels,
 }: {
   locale: string;
   day: string;
   hasStarted: boolean;
   closedToday: string[];
   todayIds: string[];
-  todaySecteurId: string | null;
+  /// Sectors of today's tours (a van can run two).
+  todaySecteurIds: string[];
   clients: C[];
   labels: Record<string, string>;
 }) {
@@ -104,14 +105,17 @@ export function GpsClient({
     }
     return [...m].map(([id, v]) => ({ id, ...v })).sort((a, b) => a.name.localeCompare(b.name, locale));
   }, [clients, locale]);
-  const todaySector = sectors.find((s) => s.id === todaySecteurId) ?? null;
-  const otherSectors = sectors.filter((s) => s.id !== todaySecteurId);
+  const todaySectors = sectors.filter((s) => todaySecteurIds.includes(s.id));
+  const todaySector = todaySectors.length
+    ? { name: todaySectors.map((s) => s.name).join(" + "), n: todaySectors.reduce((a, s) => a + s.n, 0) }
+    : null;
+  const otherSectors = sectors.filter((s) => !todaySecteurIds.includes(s.id));
 
   const rows = useMemo(() => {
     const base = clients.filter((c) =>
       filter === "all" ? true
         : filter === "today" ? todaySet.has(c.id)
-        : filter === "sector" ? c.secteurId === todaySecteurId
+        : filter === "sector" ? !!c.secteurId && todaySecteurIds.includes(c.secteurId)
         : c.secteurId === filter.slice(2)
     );
     const withDist = base.map((c) => {
@@ -120,7 +124,7 @@ export function GpsClient({
     });
     // Nearest first once we know where the driver is.
     return pos ? withDist.sort((a, b) => (a.distM ?? 0) - (b.distM ?? 0)) : withDist;
-  }, [clients, filter, todaySet, todaySecteurId, pos]);
+  }, [clients, filter, todaySet, todaySecteurIds, pos]);
 
 
   const counts = useMemo(() => {
@@ -194,6 +198,10 @@ export function GpsClient({
         me={pos}
         nonce={nonce}
         height="min(52vh, 420px)"
+        onPick={(id) => {
+          const c = clients.find((x) => x.id === id);
+          if (c) setSheetFor({ id: c.id, name: c.name, code: c.code });
+        }}
       />
 
       {/* Legend with live counts. */}

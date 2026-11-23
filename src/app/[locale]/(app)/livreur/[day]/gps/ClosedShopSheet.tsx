@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Camera, Lock, Plus, X } from "lucide-react";
 import { queueOp, syncNow } from "@/lib/sync/client";
 import { compressToJpegDataUrl } from "@/lib/photo";
+import { CameraCapture } from "@/components/camera/CameraCapture";
 import { cn } from "@/lib/utils";
 
 const MAX_PHOTOS = 6;
@@ -32,24 +33,30 @@ export function ClosedShopSheet({
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  /// Live in-app camera (opens straight on the back camera). If the phone
+  /// refuses it, we fall back to the system picker below.
+  const [camOpen, setCamOpen] = useState(false);
   const openCamera = () => {
     setErr(null);
-    fileRef.current?.click();
+    setCamOpen(true);
   };
 
-  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    e.target.value = ""; // same photo can be picked again
-    if (!f) return;
+  async function addPhoto(blob: Blob) {
     setBusy(true);
     try {
-      const url = await compressToJpegDataUrl(f);
+      const url = await compressToJpegDataUrl(blob);
       setPhotos((p) => [...p, url].slice(0, MAX_PHOTOS));
     } catch {
       setErr(labels.closedErr);
     } finally {
       setBusy(false);
     }
+  }
+
+  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    e.target.value = ""; // same photo can be picked again
+    if (f) await addPhoto(f);
   }
 
   async function save() {
@@ -94,7 +101,22 @@ export function ClosedShopSheet({
           <p className="rounded-xl bg-amber-500/15 p-2.5 text-xs font-black text-amber-600">🔒 {labels.closedBadge}</p>
         )}
 
-        {/* hidden camera input: opens the phone camera directly */}
+        {camOpen && (
+          <CameraCapture
+            labels={{ shoot: labels.closedShoot ?? "", cancel: labels.closedCancel ?? "" }}
+            onClose={() => setCamOpen(false)}
+            onCapture={(b) => {
+              setCamOpen(false);
+              void addPhoto(b);
+            }}
+            onFail={() => {
+              // No live camera available: use the system camera/picker instead.
+              setCamOpen(false);
+              fileRef.current?.click();
+            }}
+          />
+        )}
+        {/* fallback only: the system camera / picker */}
         <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => void onFile(e)} />
 
         {photos.length === 0 ? (

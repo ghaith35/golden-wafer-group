@@ -11,6 +11,7 @@ import { updateStop } from "@/lib/tournees/service";
 import { ensureSeasonFor } from "@/lib/docs/sequences";
 import { z } from "zod";
 import { loadRules } from "@/lib/threepack/service";
+import { pickCurrentTour } from "@/lib/tournees/day-tours";
 import { syncSchema } from "@/lib/sync/validation";
 import { getApkMeta, getMinNativeVersion, getWebBuildId, isForceWebUpdate } from "@/lib/update-feed";
 import { checkClientArea } from "@/lib/users/area-scope";
@@ -137,11 +138,17 @@ async function ensureVanDayTournee(companyId: string, vanId: string, day: string
   s.setHours(0, 0, 0, 0);
   const end = new Date(s);
   end.setDate(end.getDate() + 1);
-  const existing = await prisma.tournee.findFirst({
-    where: { companyId, locationId: vanId, status: "OPEN", date: { gte: s, lt: end } },
-    select: { id: true },
-    orderBy: { createdAt: "desc" },
-  });
+  // The day may already have its (planned) tours — one or two: use the one
+  // being driven, else the next waiting.
+  const { ensureDayTours } = await import("@/lib/tournees/plans");
+  const { algiersDayKey } = await import("@/lib/tournees/days");
+  await ensureDayTours(companyId, vanId, algiersDayKey(s));
+  const existing = pickCurrentTour(
+    await prisma.tournee.findMany({
+      where: { companyId, locationId: vanId, status: "OPEN", date: { gte: s, lt: end } },
+      select: { id: true, slot: true, createdAt: true, startedAt: true, finishedAt: true, status: true },
+    }),
+  );
   if (existing) return existing.id;
   const { createTournee } = await import("@/lib/tournees/service");
   try {
@@ -150,11 +157,12 @@ async function ensureVanDayTournee(companyId: string, vanId: string, day: string
   } catch (err) {
     // Lost a concurrent create race — take the winner's row.
     if ((err as Error)?.message === "duplicate_day") {
-      const winner = await prisma.tournee.findFirst({
-        where: { companyId, locationId: vanId, status: "OPEN", date: { gte: s, lt: end } },
-        select: { id: true },
-        orderBy: { createdAt: "desc" },
-      });
+      const winner = pickCurrentTour(
+        await prisma.tournee.findMany({
+          where: { companyId, locationId: vanId, status: "OPEN", date: { gte: s, lt: end } },
+          select: { id: true, slot: true, createdAt: true, startedAt: true, finishedAt: true, status: true },
+        }),
+      );
       if (winner) return winner.id;
     }
     throw err;
@@ -206,10 +214,12 @@ async function resolveTillAttribution(
     s.setHours(0, 0, 0, 0);
     const e = new Date(s);
     e.setDate(e.getDate() + 1);
-    const tour = await prisma.tournee.findFirst({
-      where: { companyId, locationId, date: { gte: s, lt: e } },
-      select: { id: true },
-    });
+    const tour = pickCurrentTour(
+      await prisma.tournee.findMany({
+        where: { companyId, locationId, date: { gte: s, lt: e } },
+        select: { id: true, slot: true, createdAt: true, startedAt: true, finishedAt: true, status: true },
+      }),
+    );
     tourneeId = tour?.id ?? null;
   }
   return { locationId, tourneeId };
@@ -777,6 +787,14 @@ export async function handleSync(input: SyncInput) {
   // new-client pickers with this, offline included.
   const stafferRole = await prisma.user.findFirst({ where: { id: userId, companyId }, select: { role: true } });
   const areaScope = await loadAreaScope(userId, stafferRole?.role);
+  // Recurring tours are generated on demand: make sure this van's coming days
+  // exist before the phone downloads them (so an offline day is never empty).
+  if (vanId) {
+    const { materializePlans, LOOKAHEAD_DAYS } = await import("@/lib/tournees/plans");
+    const { algiersDayKey, addDaysKey } = await import("@/lib/tournees/days");
+    const todayKey = algiersDayKey(new Date());
+    await materializePlans(companyId, { fromKey: todayKey, toKey: addDaysKey(todayKey, LOOKAHEAD_DAYS), vanId }).catch(() => {});
+  }
   const [products, units, tiers, categories, secteurs, wilayas, clients, batches, depotBatches, transfers, tournees, vans, assignedOrders, holds, company, webBuildId, apkMeta] = await Promise.all([
     prisma.product.findMany({
       where: { companyId, isActive: true },
@@ -818,10 +836,11 @@ export async function handleSync(input: SyncInput) {
       : [],
     vanId
       ? prisma.tournee.findMany({
-          where: { companyId, locationId: vanId, status: "OPEN" },
+          // Coming days first (today, tomorrow…), two tours per day at most.
+          where: { companyId, locationId: vanId, status: "OPEN", date: { gte: new Date(Date.now() - 36 * 3600_000) } },
           include: { stops: { include: { client: { select: { id: true, name: true, code: true, gpsLat: true, gpsLng: true, tierId: true } } }, orderBy: { position: "asc" } } },
-          orderBy: { date: "desc" },
-          take: 30,
+          orderBy: [{ date: "asc" }, { slot: "asc" }],
+          take: 60,
         })
       : [],
     prisma.store.findMany({ where: { companyId, kind: "VAN", isActive: true }, select: { id: true, name: true, matricule: true } }),

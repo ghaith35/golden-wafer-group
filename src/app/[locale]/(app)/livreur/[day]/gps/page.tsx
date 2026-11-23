@@ -6,6 +6,8 @@ import { getLivreurVan } from "../../_data";
 import { parseDay } from "../../_days";
 import { dayBounds } from "@/lib/livreur/day-access";
 import { GpsClient } from "./GpsClient";
+import { ensureDayTours } from "@/lib/tournees/plans";
+import { algiersDayKey } from "@/lib/tournees/days";
 
 /// مواقع GPS — every client with a position, on a phone-first map, colour
 /// coded by distance from the driver. All data is server-rendered into the
@@ -27,15 +29,15 @@ export default async function LivreurGpsPage({
   const tg = await getTranslations("tournees");
 
   const { start, end } = dayBounds(date);
-  const [closedRows, tour, rows] = await Promise.all([
+  await ensureDayTours(session.companyId, van.id, algiersDayKey(start)).catch(() => {});
+  const [closedRows, dayTours, rows] = await Promise.all([
     prisma.closedVisit.findMany({
       where: { companyId: session.companyId, locationId: van.id, occurredAt: { gte: start, lte: end } },
       select: { customerId: true },
     }),
-    prisma.tournee.findFirst({
+    prisma.tournee.findMany({
       where: { companyId: session.companyId, locationId: van.id, date: { gte: start, lte: end } },
-      select: { secteurId: true, startedAt: true, stops: { select: { clientId: true } } },
-      orderBy: { createdAt: "desc" },
+      select: { secteurId: true, startedAt: true, slot: true, createdAt: true, stops: { select: { clientId: true } } },
     }),
     prisma.customer.findMany({
       where: { companyId: session.companyId, isActive: true, gpsLat: { not: null }, gpsLng: { not: null } },
@@ -58,10 +60,10 @@ export default async function LivreurGpsPage({
     <GpsClient
       locale={locale}
       day={day}
-      hasStarted={!!tour?.startedAt}
+      hasStarted={dayTours.some((x) => !!x.startedAt)}
       closedToday={[...new Set(closedRows.map((c) => c.customerId))]}
-      todayIds={(tour?.stops ?? []).map((s) => s.clientId)}
-      todaySecteurId={tour?.secteurId ?? null}
+      todayIds={[...new Set(dayTours.flatMap((x) => x.stops.map((s) => s.clientId)))]}
+      todaySecteurIds={[...new Set(dayTours.map((x) => x.secteurId).filter((x): x is string => !!x))]}
       clients={clients}
       labels={{
         title: t("gpsTitle"), all: t("clients"), today: t("gpsToday"), todaySector: t("gpsTodaySector"),
@@ -69,7 +71,7 @@ export default async function LivreurGpsPage({
         noPos: t("gpsNoPos"), refresh: t("gpsRefresh"), call: t("callClient"), locating: t("gpsLocating"),
         empty: t("gpsEmpty"), unitM: tg("unitM"), unitKm: tg("unitKm"),
         closedShop: t("closedShop"), closedAddPhoto: t("closedAddPhoto"), closedSave: t("closedSave"), closedHint: t("closedHint"),
-        closedBadge: t("closedBadge"), closedErr: t("closedErr"), closedSaved: t("closedSaved"), closedSavedOffline: t("closedSavedOffline"),
+        closedBadge: t("closedBadge"), closedErr: t("closedErr"), closedShoot: t("closedShoot"), closedCancel: t("closedCancel"), closedSaved: t("closedSaved"), closedSavedOffline: t("closedSavedOffline"),
       }}
     />
   );

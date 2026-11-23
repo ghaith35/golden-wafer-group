@@ -15,6 +15,7 @@ import { TourneeForm } from "./TourneeForm";
 import { OrderedStops } from "./OrderedStops";
 import { useSavedDistances, useTourLegs } from "@/lib/geo";
 import { addDaysKey, algiersDayKey, weekStartKey } from "@/lib/tournees/days";
+import { nextDueKey } from "@/lib/tournees/plans-pure";
 import { useSyncedState } from "@/lib/data-sync";
 
 import { ErrText } from "@/components/ui/ErrText";
@@ -30,9 +31,17 @@ type Row = {
   date: unknown;
   status: string;
   autoClosed?: boolean | null;
+  /// Recurring plan this day came from (null = one-off) and its cell slot.
+  planId?: string | null;
+  slot?: number;
   location: { id: string; name: string };
   secteur: { id: string; name: string } | null;
   stops: BoardStop[];
+};
+
+type Plan = {
+  id: string; locationId: string; secteurId: string | null; secteurName: string | null;
+  weekday: number; intervalWeeks: number; anchorKey: string; slot: number; custom: boolean;
 };
 
 type DayDetail = {
@@ -56,12 +65,15 @@ const keyDate = (key: string) => new Date(`${key}T12:00:00Z`);
 export function TourneesClient({
   locale,
   initial,
+  plans: initialPlans,
   vans: initialVans,
   isAdmin,
   labels,
 }: {
   locale: string;
   initial: Row[];
+  /// Active recurring tours (endless, weekly or every 2 weeks).
+  plans: Plan[];
   vans: Array<{ id: string; name: string; marque: string | null; matricule: string | null; imageUrl: string | null; user: { fullName: string } | null }>;
   isAdmin: boolean;
   labels: Record<string, string>;
@@ -71,6 +83,7 @@ export function TourneesClient({
   const [q, setQ] = useState("");
   const [vans, setVans] = useSyncedState(initialVans);
   const [rows, setRows] = useSyncedState(initial);
+  const [plans, setPlans] = useSyncedState(initialPlans);
   const [day, setDay] = useState<DayDetail | null>(null);
   // Preset creation from a matrix "+" cell (van + weekday locked in the form).
   const [preset, setPreset] = useState<{ vanId: string; weekday: number; date: string } | null>(null);
@@ -81,11 +94,13 @@ export function TourneesClient({
     clients: Array<{ id: string; name: string; code: string; secteurId: string | null; gpsLat: number | null; gpsLng: number | null }>;
   } | null>(null);
   const [editingStops, setEditingStops] = useState<{ id: string; secteurId: string | null; stopIds: string[] } | null>(null);
-  const [deletingTour, setDeletingTour] = useState<{ id: string; label: string } | null>(null);
+  /// id = a generated day (null for a "ghost" plan chip); planId = its recurring plan.
+  const [deletingTour, setDeletingTour] = useState<{ id: string | null; planId: string | null; label: string } | null>(null);
 
   async function reload() {
-    const res = await fetch("/api/tournees?take=500");
+    const [res, pr] = await Promise.all([fetch("/api/tournees?take=500"), fetch("/api/tournees/plans")]);
     if (res.ok) setRows(await res.json());
+    if (pr.ok) setPlans(await pr.json());
   }
 
   async function openCreate(keepPreset = false) {
@@ -129,15 +144,20 @@ export function TourneesClient({
       .catch(() => {});
   }, []);
 
-  async function confirmTourDelete() {
-    if (!deletingTour) return;
-    const res = await fetch(`/api/tournees/${deletingTour.id}?series=1`, { method: "DELETE" });
-    if (!res.ok) {
-      setDeletingTour(null);
-      return fail(String(res.status));
-    }
+  /// "this day only" (the plan keeps running) · "end the recurring tour" (no
+  /// more days from now on) · plain delete of a one-off.
+  async function runDelete(mode: "day" | "plan" | "oneoff") {
+    const d = deletingTour;
+    if (!d) return;
+    const url =
+      mode === "plan" && d.planId ? `/api/tournees/plans/${d.planId}`
+      : mode === "oneoff" && d.id ? `/api/tournees/${d.id}?series=1`
+      : d.id ? `/api/tournees/${d.id}` : "";
+    if (!url) return setDeletingTour(null);
+    const res = await fetch(url, { method: "DELETE" });
     setDeletingTour(null);
-    if (day?.id === deletingTour.id) setDay(null);
+    if (!res.ok) return fail(String(res.status));
+    if (d.id && day?.id === d.id) setDay(null);
     await reload();
   }
   // All day maths is on the Algiers calendar (YYYY-MM-DD keys) — the same
@@ -171,11 +191,11 @@ export function TourneesClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startKey]);
   const rowKey = (r: Row) => algiersDayKey(new Date(r.date as string));
-  // Matrix lookup: van × day → tour (OPEN first, else first).
-  const tourFor = (van: string, key: string): Row | undefined => {
-    const list = rows.filter((r) => r.location.id === van && rowKey(r) === key);
-    return list.find((r) => r.status === "OPEN") ?? list[0];
-  };
+  // Matrix lookup: van × day → its tours (a cell holds up to two), by slot.
+  const toursFor = (van: string, key: string): Row[] =>
+    rows
+      .filter((r) => r.location.id === van && rowKey(r) === key)
+      .sort((a, b) => (a.slot ?? 0) - (b.slot ?? 0));
 
   const dayLabels = {
     stops: labels.stops,
@@ -331,7 +351,17 @@ export function TourneesClient({
                   </div>
                 </th>
                 {days.map((d) => {
-                  const t = tourFor(v.id, d);
+                  const dayTours = toursFor(v.id, d);
+                  const weekdayNum = keyDate(d).getUTCDay();
+                  const cellPlans = plans.filter((p) => p.locationId === v.id && p.weekday === weekdayNum);
+                  // Plans of this cell with no day generated here (not their week / removed day).
+                  const ghosts = cellPlans.filter((p) => !dayTours.some((t) => t.planId === p.id));
+                  const capacity = cellPlans.length + dayTours.filter((t) => !t.planId).length;
+                  const full = capacity >= 2;
+                  const tag = (planId: string | null | undefined) => {
+                    const pl = planId ? plans.find((p) => p.id === planId) : null;
+                    return pl ? (pl.intervalWeeks === 2 ? { icon: "↻²", text: labels.biweeklyTag } : { icon: "↻", text: labels.weeklyTag }) : null;
+                  };
                   const addCell = (compact: boolean) => (
                     <button
                       type="button"
@@ -349,58 +379,88 @@ export function TourneesClient({
                     </button>
                   );
                   return (
-                    <td key={d} className="border-b border-(--border-subtle) p-1.5">
-                      {t ? (
-                        <>
-                        <div className="flex items-stretch gap-1">
-                          <button
-                            type="button"
-                            onClick={() => void openDay(t.id)}
-                            className={cn(
-                              "min-w-0 flex-1 rounded-xl border p-2 text-start transition-colors",
-                              t.status === "OPEN"
-                                ? "border-(--brand-500)/40 bg-(--brand-500)/5 hover:border-(--brand-500)"
-                                : "border-(--border-default) opacity-60 hover:border-(--brand-500)"
-                            )}
-                          >
-                            <span className="block truncate text-xs font-black">
-                              {t.secteur?.name ?? "—"}
-                            </span>
-                            <span className="mt-0.5 block text-[11px] font-bold opacity-70">
-                              {t.stops.length} {labels.stops}
-                              {t.autoClosed ? ` · ⚠ ${labels.unclosed}` : ""}
-                            </span>
-                          </button>
-                          {isAdmin && (
-                            <span className="flex shrink-0 flex-col gap-1">
+                    <td key={d} className="border-b border-(--border-subtle) p-1.5 align-top">
+                      <div className="space-y-1">
+                        {dayTours.map((t) => {
+                          const tg = tag(t.planId);
+                          return (
+                            <div key={t.id} className="flex items-stretch gap-1">
                               <button
                                 type="button"
-                                title={labels.edit}
-                                aria-label={labels.edit}
-                                onClick={() => setEditingStops({ id: t.id, secteurId: t.secteur?.id ?? null, stopIds: t.stops.map((s) => s.client?.id ?? s.id) })}
-                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600 hover:bg-amber-500/25"
+                                onClick={() => void openDay(t.id)}
+                                className={cn(
+                                  "min-w-0 flex-1 rounded-xl border p-2 text-start transition-colors",
+                                  t.status === "OPEN"
+                                    ? "border-(--brand-500)/40 bg-(--brand-500)/5 hover:border-(--brand-500)"
+                                    : "border-(--border-default) opacity-60 hover:border-(--brand-500)"
+                                )}
                               >
-                                <Pencil size={13} />
+                                <span className="flex items-center gap-1.5">
+                                  <span className="block min-w-0 flex-1 truncate text-xs font-black">{t.secteur?.name ?? "—"}</span>
+                                  {tg && (
+                                    <span title={tg.text} className="shrink-0 rounded-md bg-(--brand-500)/15 px-1 text-[10px] font-black text-(--brand-600)" dir="ltr">{tg.icon}</span>
+                                  )}
+                                </span>
+                                <span className="mt-0.5 block text-[11px] font-bold opacity-70">
+                                  {t.stops.length} {labels.stops}
+                                  {t.autoClosed ? ` · ⚠ ${labels.unclosed}` : ""}
+                                </span>
                               </button>
-                              <button
-                                type="button"
-                                title={labels.delete}
-                                aria-label={labels.delete}
-                                onClick={() => setDeletingTour({ id: t.id, label: `${v.name} · ${fmtDay.format(keyDate(d))}` })}
-                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/15 text-red-500 hover:bg-red-500/25"
-                              >
-                                <Trash2 size={13} />
-                              </button>
-                            </span>
-                          )}
-                        </div>
-                        {isAdmin && t.status !== "OPEN" && addCell(true)}
-                        </>
-                      ) : isAdmin ? (
-                        addCell(false)
-                      ) : (
-                        <p className="py-3 text-center text-[11px] opacity-40">—</p>
-                      )}
+                              {isAdmin && (
+                                <span className="flex shrink-0 flex-col gap-1">
+                                  <button
+                                    type="button"
+                                    title={labels.edit}
+                                    aria-label={labels.edit}
+                                    onClick={() => setEditingStops({ id: t.id, secteurId: t.secteur?.id ?? null, stopIds: t.stops.map((s) => s.client?.id ?? s.id) })}
+                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600 hover:bg-amber-500/25"
+                                  >
+                                    <Pencil size={12} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    title={labels.delete}
+                                    aria-label={labels.delete}
+                                    onClick={() => setDeletingTour({ id: t.id, planId: t.planId ?? null, label: `${v.name} · ${fmtDay.format(keyDate(d))}` })}
+                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/15 text-red-500 hover:bg-red-500/25"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
+                        {ghosts.map((p) => {
+                          const next = nextDueKey(p, d);
+                          return (
+                            <div key={`g-${p.id}`} className="flex items-stretch gap-1">
+                              <div className="min-w-0 flex-1 rounded-xl border border-dashed border-(--border-default) p-2 opacity-70">
+                                <span className="flex items-center gap-1.5">
+                                  <span className="block min-w-0 flex-1 truncate text-xs font-black">{p.secteurName ?? "—"}</span>
+                                  <span className="shrink-0 rounded-md bg-(--bg-sunken) px-1 text-[10px] font-black" dir="ltr">{p.intervalWeeks === 2 ? "↻²" : "↻"}</span>
+                                </span>
+                                <span className="mt-0.5 block text-[11px] font-bold opacity-70" dir="auto">
+                                  {labels.nextOn}: {next ? new Date(`${next}T12:00:00Z`).toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: "UTC" }) : "—"}
+                                </span>
+                              </div>
+                              {isAdmin && (
+                                <button
+                                  type="button"
+                                  title={labels.endPlan}
+                                  aria-label={labels.endPlan}
+                                  onClick={() => setDeletingTour({ id: null, planId: p.id, label: `${v.name} · ${p.secteurName ?? ""}` })}
+                                  className="flex w-8 shrink-0 items-center justify-center rounded-lg bg-red-500/15 text-red-500 hover:bg-red-500/25"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                        {isAdmin && !full && addCell(dayTours.length + ghosts.length > 0)}
+                        {!isAdmin && dayTours.length + ghosts.length === 0 && <p className="py-3 text-center text-[11px] opacity-40">—</p>}
+                      </div>
                     </td>
                   );
                 })}
@@ -442,7 +502,9 @@ export function TourneesClient({
               notes: labels.notes, stops: labels.stops, save: labels.save, cancel: labels.cancel,
               secteurRequired: labels.secteurRequired, allClients: labels.allClients,
               missingFields: labels.missingFields, duplicateDay: labels.duplicateDay,
-              repeatWeekly: labels.repeatWeekly,
+              frequency: labels.frequency, freqWeekly: labels.freqWeekly, freqWeeklyHint: labels.freqWeeklyHint,
+              freqBiweekly: labels.freqBiweekly, freqBiweeklyHint: labels.freqBiweeklyHint,
+              pickSector: labels.pickSector, week1: labels.week1, thenEvery2: labels.thenEvery2,
             }}
             presetVanId={preset?.vanId}
             presetWeekday={preset?.weekday}
@@ -515,13 +577,39 @@ export function TourneesClient({
         )}
       </Modal>
 
-      <ConfirmDialog
+      {/* Remove: a recurring day offers "this day only" or "end the tour". */}
+      <Modal
         open={deletingTour !== null}
         onClose={() => setDeletingTour(null)}
-        onConfirm={confirmTourDelete}
         title={labels.deleteTitle}
-        message={deletingTour ? labels.deleteMessage.replace("{name}", deletingTour.label) : ""}
-      />
+        subtitle={deletingTour?.label ?? ""}
+        icon="🗑"
+        width="sm"
+      >
+        {deletingTour && (
+          <div className="space-y-2">
+            {deletingTour.planId ? (
+              <>
+                {deletingTour.id && (
+                  <button type="button" onClick={() => void runDelete("day")} className="w-full rounded-xl border border-(--border-default) p-3 text-start transition-colors hover:border-(--brand-500)">
+                    <span className="block text-sm font-black">{labels.removeDay}</span>
+                    <span className="block text-[11px] font-bold opacity-60">{labels.removeDayHint}</span>
+                  </button>
+                )}
+                <button type="button" onClick={() => void runDelete("plan")} className="w-full rounded-xl border border-red-500/40 bg-red-500/5 p-3 text-start transition-colors hover:border-red-500">
+                  <span className="block text-sm font-black text-red-600">{labels.endPlan}</span>
+                  <span className="block text-[11px] font-bold opacity-60">{labels.endPlanHint}</span>
+                </button>
+              </>
+            ) : (
+              <button type="button" onClick={() => void runDelete("oneoff")} className="w-full rounded-xl border border-red-500/40 bg-red-500/5 p-3 text-start text-sm font-black text-red-600">
+                {labels.deleteMessage.replace("{name}", deletingTour.label)}
+              </button>
+            )}
+            <Button variant="secondary" onClick={() => setDeletingTour(null)} className="w-full">{labels.cancel}</Button>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

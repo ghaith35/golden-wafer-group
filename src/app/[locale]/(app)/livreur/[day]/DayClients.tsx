@@ -42,6 +42,9 @@ export function DayClients({
   vanName,
   hasTournee,
   hasStarted,
+  tours = [],
+  tourId = null,
+  tourSecteurId = null,
   days,
   sectorName,
   clients,
@@ -56,6 +59,11 @@ export function DayClients({
   vanName: string;
   hasTournee: boolean;
   hasStarted: boolean;
+  /// Every tour of the day (a van can run two): chips switch between them.
+  tours?: Array<{ id: string; secteurName: string | null; stopsCount: number; running: boolean; done: boolean }>;
+  tourId?: string | null;
+  /// Sector of the selected tour — preselected in the new-client form.
+  tourSecteurId?: string | null;
   days: string[];
   /// Sector of this day's tour (null = none set).
   sectorName?: string | null;
@@ -538,6 +546,33 @@ export function DayClients({
         <p className="rounded-xl bg-amber-500/10 p-2.5 text-xs font-bold text-amber-600">{labels.noTournee}</p>
       )}
 
+      {tours.length >= 2 && (
+        <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={labels.tourOf}>
+          {tours.map((tr, i) => {
+            const on = tr.id === tourId;
+            return (
+              <button
+                key={tr.id}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => !on && goPage(router, `/${locale}/livreur/${day}?tour=${tr.id}`)}
+                className={cn(
+                  "flex h-12 shrink-0 items-center gap-2 rounded-2xl px-3.5 text-sm font-black transition-all active:scale-95",
+                  on ? "bg-gradient-brand text-(--brand-contrast) shadow" : "border border-(--border-default) bg-(--bg-overlay)"
+                )}
+              >
+                <span className={cn("flex h-7 w-7 items-center justify-center rounded-lg text-xs", on ? "bg-white/25" : "bg-(--bg-sunken)")}>{String.fromCharCode(65 + i)}</span>
+                <span className="max-w-[9rem] truncate">{tr.secteurName ?? `#${i + 1}`}</span>
+                <span className="tabular-nums opacity-70">({tr.stopsCount})</span>
+                {tr.running && <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden />}
+                {tr.done && <span aria-hidden>✓</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <div className="sticky top-0 space-y-2">
         {days.length > 1 && (
           <div className="flex gap-1.5 overflow-x-auto pb-1" dir="ltr">
@@ -660,6 +695,7 @@ export function DayClients({
           tiers={refs.tiers}
           labels={labels}
           areaScope={areaScope}
+          defaultSecteurId={tourSecteurId}
           embedded
           onCreated={() => void reloadPending()}
           onClose={() => setAdding(false)}

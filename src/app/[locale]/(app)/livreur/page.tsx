@@ -3,6 +3,9 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan } from "./_data";
+import { ensureDayTours } from "@/lib/tournees/plans";
+import { dayFinished } from "@/lib/tournees/day-tours";
+import { algiersDayKey } from "@/lib/tournees/days";
 import { daySlug } from "./_days";
 import { DaysClient } from "./DaysClient";
 
@@ -39,13 +42,15 @@ export default async function LivreurDaysPage({ params }: { params: Promise<{ lo
       dayStart.setHours(0, 0, 0, 0);
       const dayEnd = new Date(now);
       dayEnd.setHours(23, 59, 59, 999);
-      const todays = await prisma.tournee.findFirst({
+      // Recurring plans generate today's tours on demand (one or two).
+      await ensureDayTours(session.companyId, van.id, algiersDayKey(now)).catch(() => {});
+      const todays = await prisma.tournee.findMany({
         where: { companyId: session.companyId, locationId: van.id, date: { gte: dayStart, lte: dayEnd } },
-        select: { startedAt: true, finishedAt: true },
-        orderBy: { createdAt: "desc" },
+        select: { startedAt: true, finishedAt: true, status: true, slot: true, createdAt: true },
       });
-      // Ended today → show the (ended) dashboard: goods request is open now.
-      if (todays?.startedAt && todays.finishedAt) redirect(`/${locale}/livreur/${today}/dashboard`);
+      // Every tour of today driven to the end → the (ended) dashboard: goods
+      // request is open now. A second tour still waiting → back to start.
+      if (todays.some((x) => x.startedAt) && dayFinished(todays)) redirect(`/${locale}/livreur/${today}/dashboard`);
       redirect(`/${locale}/livreur/${today}/start`);
     }
   }

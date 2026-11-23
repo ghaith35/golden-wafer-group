@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { pickCurrentTour } from "@/lib/tournees/day-tours";
 
 type Who = { companyId: string; userId: string; role: string };
 
@@ -62,12 +63,14 @@ export async function addClientToDayTour(who: Who, clientId: string, daySlug: un
       select: { id: true },
     });
     if (!van) return;
-    const tour = await prisma.tournee.findFirst({
+    // Two tours may run that day: the client joins the one being driven (else
+    // the first waiting). Already on ANY of them = nothing to do.
+    const tours = await prisma.tournee.findMany({
       where: { companyId: who.companyId, locationId: van.id, status: "OPEN", date: { gte: start, lte: end } },
-      orderBy: { createdAt: "desc" },
-      select: { id: true, stops: { select: { clientId: true, position: true } } },
+      select: { id: true, slot: true, createdAt: true, startedAt: true, finishedAt: true, status: true, stops: { select: { clientId: true, position: true } } },
     });
-    if (!tour || tour.stops.some((s) => s.clientId === clientId)) return;
+    const tour = pickCurrentTour(tours);
+    if (!tour || tours.some((t) => t.stops.some((s) => s.clientId === clientId))) return;
     const position = tour.stops.reduce((mx, s) => Math.max(mx, s.position), 0) + 1;
     await prisma.tourneeStop.create({ data: { tourneeId: tour.id, clientId, position } });
   } catch {

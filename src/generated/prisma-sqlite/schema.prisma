@@ -54,6 +54,7 @@ model Company {
   clientReturns    ClientReturn[]
   closedVisits     ClosedVisit[]
   tournees         Tournee[]
+  tourneePlans     TourneePlan[]
   expenses         Expense[]
   versements       Versement[]
   distances        ClientDistance[]
@@ -73,39 +74,41 @@ model CompanySettings {
   currency      String  @default("DZD")
 
   // ── Feature toggles (every toggle gates real logic + UI + reports) ──
-  expiryEnabled           Boolean @default(false)
-  creditSalesEnabled      Boolean @default(false)
-  debtTrackingEnabled     Boolean @default(true)
-  remiseEnabled           Boolean @default(false)
-  depositsEnabled         Boolean @default(false)
-  multiDepotEnabled       Boolean @default(false)
-  costingMethod           String  @default("FIFO")
-  facturePro              Boolean @default(false)
-  posEnabled              Boolean @default(false)
-  vanBindingMode          String  @default("LOCKED")
-  oversellAllowed         Boolean @default(true)
-  pieceSalesEnabled       Boolean @default(false)
+  expiryEnabled           Boolean   @default(false)
+  creditSalesEnabled      Boolean   @default(false)
+  debtTrackingEnabled     Boolean   @default(true)
+  remiseEnabled           Boolean   @default(false)
+  depositsEnabled         Boolean   @default(false)
+  multiDepotEnabled       Boolean   @default(false)
+  costingMethod           String    @default("FIFO")
+  facturePro              Boolean   @default(false)
+  posEnabled              Boolean   @default(false)
+  vanBindingMode          String    @default("LOCKED")
+  oversellAllowed         Boolean   @default(true)
+  pieceSalesEnabled       Boolean   @default(false)
   /// Transfers need an explicit receipt confirmation (declare → confirm).
   /// OFF = declare delivers straight to destination (single-step).
-  transferConfirmRequired Boolean @default(true)
-  gpsEnabled              Boolean @default(true)
-  qrStrictMode            Boolean @default(true)
+  transferConfirmRequired Boolean   @default(true)
+  gpsEnabled              Boolean   @default(true)
+  qrStrictMode            Boolean   @default(true)
   /// Thermal ticket paper width in mm (admin setting: "58" or "80").
-  ticketWidth             String  @default("80")
+  ticketWidth             String    @default("80")
   /// Thermal ticket language (admin setting: "ar" or "fr", default French).
-  ticketLang              String  @default("fr")
+  ticketLang              String    @default("fr")
   /// Purchase picker: only the chosen supplier's products (default ON).
-  supplierFilterEnabled   Boolean @default(true)
+  supplierFilterEnabled   Boolean   @default(true)
   /// 3pack: free-colis bonus rules (buy X get Y free). Admin-editable.
-  threePackEnabled        Boolean @default(false)
+  threePackEnabled        Boolean   @default(false)
   /// Expected départ time for vans ("HH:MM", null = no late flag).
   workStartAt             String?
   /// A journée longer than this (hours) flags overtime on presence.
-  maxDayHours             Float?  @default(10)
+  maxDayHours             Float?    @default(10)
   /// Public internet domain for this install's phones
   /// (e.g. client1.distribuili.khiatadz.com, no scheme). The Devices setup QR
   /// uses it when set, so vans reach the PC through the tunnel from anywhere.
   remoteDomain            String?
+  /// One-time conversion of the old copy-forward tours into endless plans.
+  tourPlansMigratedAt     DateTime?
 
   @@map("company_settings")
 }
@@ -185,10 +188,11 @@ model Secteur {
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
 
-  customers Customer[]
-  suppliers Supplier[]
-  tournees  Tournee[]
-  userAreas UserArea[]
+  customers    Customer[]
+  suppliers    Supplier[]
+  tournees     Tournee[]
+  tourneePlans TourneePlan[]
+  userAreas    UserArea[]
 
   @@unique([companyId, wilayaCode, name])
   @@index([companyId, wilayaCode])
@@ -328,6 +332,7 @@ model Store {
   clientReturns ClientReturn[]
   closedVisits  ClosedVisit[]
   tournees      Tournee[]
+  tourneePlans  TourneePlan[]
   expenseLinks  Expense[]
   devices       Device[]
   dailyCloses   DailyClose[]
@@ -780,15 +785,15 @@ model ClientReturnLine {
 
 /// Daily van visit list (admin-planned, vendeur-executed, optimized en route).
 model Tournee {
-  id          String    @id @default(cuid())
+  id          String       @id @default(cuid())
   companyId   String
-  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
   date        DateTime
   locationId  String
-  location    Store     @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  location    Store        @relation(fields: [locationId], references: [id], onDelete: Restrict)
   secteurId   String?
-  secteur     Secteur?  @relation(fields: [secteurId], references: [id], onDelete: SetNull)
-  status      String    @default("OPEN")
+  secteur     Secteur?     @relation(fields: [secteurId], references: [id], onDelete: SetNull)
+  status      String       @default("OPEN")
   notes       String?
   /// Day tracking set by the livreur/vendeur: départ → fin de journée.
   startedAt   DateTime?
@@ -800,14 +805,21 @@ model Tournee {
   finishedLng Float?
   /// Auto-close: started but never finished the same day — the system ends
   /// it at day end and flags it to the admin (driver didn't end journée).
-  autoClosed  Boolean   @default(false)
-  createdAt   DateTime  @default(now())
+  autoClosed  Boolean      @default(false)
+  /// The recurring plan this day's tour was generated from (null = one-off).
+  planId      String?
+  plan        TourneePlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+  /// Order inside the day: a van can run up to two tours per day (0, 1).
+  slot        Int          @default(0)
+  createdAt   DateTime     @default(now())
 
   stops TourneeStop[]
   sales Sale[]
 
+  @@unique([planId, date])
   @@index([companyId, date])
   @@index([companyId, locationId])
+  @@index([locationId, date])
   @@map("tournees")
 }
 
@@ -1373,4 +1385,38 @@ model ClosedVisitPhoto {
 
   @@index([visitId])
   @@map("closed_visit_photos")
+}
+
+/// Recurring tour: one van + one weekday + one sector, every week or every 2
+/// weeks, with no end date. The daily Tournee rows (stamps, stops, sales) are
+/// generated from it on demand. A van+weekday "cell" holds up to two plans.
+model TourneePlan {
+  id            String    @id @default(cuid())
+  companyId     String
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  locationId    String
+  location      Store     @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  secteurId     String?
+  secteur       Secteur?  @relation(fields: [secteurId], references: [id], onDelete: SetNull)
+  /// 0 = Sunday … 6 = Saturday (Algiers calendar).
+  weekday       Int
+  /// 1 = every week, 2 = every 2 weeks.
+  intervalWeeks Int       @default(1)
+  /// First occurrence, "YYYY-MM-DD". Biweekly weeks are counted from here.
+  anchorKey     String
+  /// Slot inside the van+weekday cell (0 or 1).
+  slot          Int       @default(0)
+  /// Hand-picked ordered client ids (JSON array). Null = every active client
+  /// of the sector, always up to date.
+  clientIds     String?
+  /// Single dates removed from the plan ("YYYY-MM-DD,YYYY-MM-DD") — never recreated.
+  skips         String    @default("")
+  notes         String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  tournees      Tournee[]
+
+  @@index([companyId, isActive])
+  @@index([locationId, weekday])
+  @@map("tournee_plans")
 }

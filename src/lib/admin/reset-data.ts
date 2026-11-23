@@ -154,7 +154,11 @@ export async function resetScope(companyId: string, scope: ResetScope): Promise<
       if (f.batches === "all") await tx.stockBatch.deleteMany({ where: staffOnly ? { ...co, storeId: { in: vanIds } } : co });
       if (f.batches === "holding") await tx.stockBatch.deleteMany({ where: { ...co, transferId: { not: null } } });
 
-      if (f.tournees) await tx.tournee.deleteMany({ where: { ...co, ...atVans("locationId") } });
+      if (f.tournees) {
+        await tx.tournee.deleteMany({ where: { ...co, ...atVans("locationId") } });
+        // Recurring plans too — otherwise they would regenerate the wiped days.
+        await tx.tourneePlan.deleteMany({ where: { ...co, ...atVans("locationId") } });
+      }
 
       if (f.products) {
         // 3pack rules reference products (Restrict): they go first (items cascade).

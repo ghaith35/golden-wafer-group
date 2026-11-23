@@ -58,6 +58,7 @@ model Company {
   clientReturns    ClientReturn[]
   closedVisits     ClosedVisit[]
   tournees         Tournee[]
+  tourneePlans     TourneePlan[]
   expenses         Expense[]
   versements       Versement[]
   distances        ClientDistance[]
@@ -112,6 +113,8 @@ model CompanySettings {
   remoteDomain            String?
 
   @@map("company_settings")
+  /// One-time conversion of the old copy-forward tours into endless plans.
+  tourPlansMigratedAt DateTime?
 }
 
 // ─── Settings-managed reference lists ────────────────────────────────────────
@@ -192,6 +195,7 @@ model Secteur {
   customers Customer[]
   suppliers Supplier[]
   tournees  Tournee[]
+  tourneePlans TourneePlan[]
   userAreas UserArea[]
 
   @@unique([companyId, wilayaCode, name])
@@ -332,6 +336,7 @@ model Store {
   clientReturns ClientReturn[]
   closedVisits  ClosedVisit[]
   tournees      Tournee[]
+  tourneePlans  TourneePlan[]
   expenseLinks  Expense[]
   devices       Device[]
   dailyCloses   DailyClose[]
@@ -812,13 +817,20 @@ model Tournee {
   /// Auto-close: started but never finished the same day — the system ends
   /// it at day end and flags it to the admin (driver didn't end journée).
   autoClosed Boolean @default(false)
+  /// The recurring plan this day's tour was generated from (null = one-off).
+  planId     String?
+  plan       TourneePlan?  @relation(fields: [planId], references: [id], onDelete: SetNull)
+  /// Order inside the day: a van can run up to two tours per day (0, 1).
+  slot       Int           @default(0)
   createdAt  DateTime      @default(now())
 
   stops TourneeStop[]
   sales Sale[]
 
+  @@unique([planId, date])
   @@index([companyId, date])
   @@index([companyId, locationId])
+  @@index([locationId, date])
   @@map("tournees")
 }
 
@@ -1389,4 +1401,39 @@ model ClosedVisitPhoto {
 
   @@index([visitId])
   @@map("closed_visit_photos")
+}
+
+
+/// Recurring tour: one van + one weekday + one sector, every week or every 2
+/// weeks, with no end date. The daily Tournee rows (stamps, stops, sales) are
+/// generated from it on demand. A van+weekday "cell" holds up to two plans.
+model TourneePlan {
+  id            String   @id @default(cuid())
+  companyId     String
+  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  locationId    String
+  location      Store    @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  secteurId     String?
+  secteur       Secteur? @relation(fields: [secteurId], references: [id], onDelete: SetNull)
+  /// 0 = Sunday … 6 = Saturday (Algiers calendar).
+  weekday       Int
+  /// 1 = every week, 2 = every 2 weeks.
+  intervalWeeks Int      @default(1)
+  /// First occurrence, "YYYY-MM-DD". Biweekly weeks are counted from here.
+  anchorKey     String
+  /// Slot inside the van+weekday cell (0 or 1).
+  slot          Int      @default(0)
+  /// Hand-picked ordered client ids (JSON array). Null = every active client
+  /// of the sector, always up to date.
+  clientIds     String?
+  /// Single dates removed from the plan ("YYYY-MM-DD,YYYY-MM-DD") — never recreated.
+  skips         String   @default("")
+  notes         String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  tournees      Tournee[]
+
+  @@index([companyId, isActive])
+  @@index([locationId, weekday])
+  @@map("tournee_plans")
 }

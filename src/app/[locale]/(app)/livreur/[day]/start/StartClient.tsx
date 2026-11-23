@@ -18,6 +18,7 @@ export function StartClient({
   tourneeId: tourneeIdP,
   startedAt: startedAtP,
   stopsCount: stopsCountP,
+  tours = [],
   canChooseDay = false,
   labels,
 }: {
@@ -28,6 +29,9 @@ export function StartClient({
   tourneeId: string | null;
   startedAt: string | null;
   stopsCount: number;
+  /// Every tour of this day (a van can run two): each has its own clients and
+  /// its own start / end of day.
+  tours?: Array<{ id: string; secteurName: string | null; stopsCount: number; startedAt: string | null; finishedAt: string | null }>;
   canChooseDay?: boolean;
   labels: Record<string, string>;
 }) {
@@ -42,8 +46,14 @@ export function StartClient({
   }, []);
   const dayMatch = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(day);
   const dateIso = shifted && dayMatch ? new Date(Number(dayMatch[1]), Number(dayMatch[2]) - 1, Number(dayMatch[3])).toISOString() : dateIsoP;
-  const tourneeId = shifted ? null : tourneeIdP;
-  const stopsCount = shifted ? 0 : stopsCountP;
+  const multi = !shifted && tours.length >= 2;
+  const [selId, setSelId] = useState<string | null>(tourneeIdP);
+  const selTour = multi ? (tours.find((x) => x.id === selId) ?? tours[0]) : null;
+  const tourneeId = shifted ? null : multi ? selTour!.id : tourneeIdP;
+  const stopsCount = shifted ? 0 : multi ? selTour!.stopsCount : stopsCountP;
+  /// One tour of the day is in progress: the other must wait for its end.
+  const otherRunning = multi && tours.some((x) => x.id !== selTour!.id && !!x.startedAt && !x.finishedAt);
+  const selFinished = !!selTour?.finishedAt;
   /// Live clock: null until mounted so server and client render the same
   /// placeholder (a ticking Date in state always mismatches hydration).
   const [now, setNow] = useState<Date | null>(null);
@@ -83,9 +93,21 @@ export function StartClient({
     }
   }
 
+  function pickTour(id: string) {
+    const tr = tours.find((x) => x.id === id);
+    if (!tr) return;
+    setSelId(id);
+    setStarted(tr.startedAt);
+    setStartError(null);
+  }
+
   async function validate() {
-    if (started) {
+    if (started || selFinished) {
       goPage(router, `/${locale}/livreur/${day}`);
+      return;
+    }
+    if (otherRunning) {
+      setStartError(labels.finishOtherFirst ?? "finish_other_first");
       return;
     }
     // Ask for location first (system popup) — but never block the day:
@@ -208,6 +230,37 @@ export function StartClient({
       <p className="font-mono text-6xl font-black tabular-nums" dir="ltr">
         {now ? now.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "…"}
       </p>
+      {/* Two tours today: each with its own clients and its own start/end. */}
+      {multi && (
+        <div className="w-full max-w-xs space-y-2" role="radiogroup" aria-label={labels.tourOf}>
+          {tours.map((tr, i) => {
+            const running = !!tr.startedAt && !tr.finishedAt;
+            const done = !!tr.finishedAt;
+            const on = (selTour?.id ?? "") === tr.id;
+            return (
+              <button
+                key={tr.id}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => pickTour(tr.id)}
+                className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-start transition-colors ${on ? "border-(--brand-500) bg-(--brand-500)/10 shadow" : "border-(--border-default) bg-(--bg-overlay)"}`}
+              >
+                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-black ${running ? "bg-emerald-500 text-white" : done ? "bg-(--bg-sunken) opacity-60" : "bg-gradient-brand text-(--brand-contrast)"}`}>
+                  {String.fromCharCode(65 + i)}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-black">{tr.secteurName ?? (labels.tourOf ?? "").replace("{n}", String(i + 1))}</span>
+                  <span className="block text-[11px] font-bold opacity-60">{tr.stopsCount} {labels.clients}</span>
+                </span>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-black ${running ? "bg-emerald-500/15 text-emerald-600" : done ? "bg-(--bg-sunken)" : "bg-amber-500/15 text-amber-600"}`}>
+                  {running ? labels.tourRunning : done ? labels.tourDone : labels.tourWait}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
       {/* Départ checklist: what's waiting today, at a glance. */}
       {!started && (
         <div className="w-full max-w-xs space-y-1.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 text-start">
@@ -231,8 +284,8 @@ export function StartClient({
           </span>
         </p>
       ) : null}
-      <Button onClick={() => void validate()} disabled={busy} className="h-14 w-full max-w-xs text-lg">
-        {busy ? "…" : started ? labels.clients : (
+      <Button onClick={() => void validate()} disabled={busy || (otherRunning && !started && !selFinished)} className="h-14 w-full max-w-xs text-lg">
+        {busy ? "…" : started || selFinished ? labels.clients : (
           <span className="flex items-center gap-2">
             <Play size={20} />
             {labels.startDay}

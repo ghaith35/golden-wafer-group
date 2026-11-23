@@ -428,11 +428,13 @@ export async function createTicket(
     // Off-tournée sale: open tournee for this van today missing this client.
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const tournee = await prisma.tournee.findFirst({
+    // A van can run two tours a day: off-tour only if NONE of today's open
+    // tours has this client.
+    const tournees = await prisma.tournee.findMany({
       where: { companyId, locationId: location.id, status: "OPEN", date: { gte: today } },
       include: { stops: { where: { clientId: client.id } } },
     });
-    if (tournee && tournee.stops.length === 0) offList = true;
+    if (tournees.length > 0 && tournees.every((t) => t.stops.length === 0)) offList = true;
   }
 
   const { priced: priced0, tierId } = await priceLines(companyId, client?.tierId ?? null, input.tierId ?? null, input.lines, settings.remiseEnabled, settings.pieceSalesEnabled);

@@ -5,16 +5,22 @@ import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../_data";
 import { parseDay } from "../_days";
 import { DayClients } from "./DayClients";
+import { ensureDayTours } from "@/lib/tournees/plans";
+import { pickCurrentTour, sortDayTours } from "@/lib/tournees/day-tours";
+import { algiersDayKey } from "@/lib/tournees/days";
 import { loadAreaScope } from "@/lib/users/area-scope.server";
 
 /// Step 2 — Clients of THIS day only: the day's tour stops and its sector.
 /// Nothing from other days; no tour planned = empty list ("no tournée").
 export default async function LivreurDayPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; day: string }>;
+  searchParams: Promise<{ tour?: string }>;
 }) {
   const { locale, day } = await params;
+  const sp = await searchParams;
   setRequestLocale(locale);
   const session = await getSession();
   if (!session) redirect(`/${locale}/login`);
@@ -32,17 +38,22 @@ export default async function LivreurDayPage({
   dayStart.setHours(0, 0, 0, 0);
   const dayEnd = new Date(date);
   dayEnd.setHours(23, 59, 59, 999);
-  const tour = await prisma.tournee.findFirst({
-    where: { companyId: session.companyId, locationId: van.id, date: { gte: dayStart, lte: dayEnd } },
-    include: {
-      secteur: { select: { name: true } },
-      stops: {
-        include: { client: { select: sel } },
-        orderBy: { position: "asc" },
+  // Recurring plans generate this day's tours on demand (one or two per van).
+  await ensureDayTours(session.companyId, van.id, algiersDayKey(dayStart));
+  const dayTours = sortDayTours(
+    await prisma.tournee.findMany({
+      where: { companyId: session.companyId, locationId: van.id, date: { gte: dayStart, lte: dayEnd } },
+      include: {
+        secteur: { select: { name: true } },
+        stops: {
+          include: { client: { select: sel } },
+          orderBy: { position: "asc" },
+        },
       },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+    }),
+  );
+  // ?tour=<id> picks one; else the tour being driven (or the next waiting).
+  const tour = dayTours.find((x) => x.id === sp.tour) ?? pickCurrentTour(dayTours);
   const planned = (tour?.stops ?? []).filter((s) => s.client).map((s) => s.client as unknown as { id: string });
   // Clients registered THIS day (new-client popup) are not tour stops, yet the
   // driver must see them right after saving.
@@ -78,6 +89,9 @@ export default async function LivreurDayPage({
       vanName={van.name}
       hasTournee={!!tour}
       hasStarted={!!tour?.startedAt}
+      tours={dayTours.map((x) => ({ id: x.id, secteurName: x.secteur?.name ?? null, stopsCount: x.stops.length, running: !!x.startedAt && !x.finishedAt, done: !!x.finishedAt }))}
+      tourId={tour?.id ?? null}
+      tourSecteurId={tour?.secteurId ?? null}
       days={daySlugs}
       sectorName={tour?.secteur?.name ?? null}
       clients={JSON.parse(JSON.stringify(clients))}
@@ -92,7 +106,7 @@ export default async function LivreurDayPage({
         locate: tg("locate"), geoDenied: tg("geoDenied"),
         unitM: tg("unitM"), unitKm: tg("unitKm"), unitMin: tg("unitMin"),
         startDay: t("startDay"), all: t("all"), showQr: t("showQr"),
-        newSale: t("newSale"), callClient: t("callClient"),
+        newSale: t("newSale"), callClient: t("callClient"), tourOf: t("tourOf"),
         newClient: t("newClient"), phoneOpt: t("phoneOpt"), addressOpt: t("addressOpt"),
         activityOpt: t("activityOpt"), wilayaOpt: t("wilayaOpt"), secteurOpt: t("secteurOpt"),
         tierOpt: t("tierOpt"), useGps: t("useGps"), confirm: t("confirm"),

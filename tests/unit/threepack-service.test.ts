@@ -8,7 +8,7 @@ vi.mock("@/lib/db", () => ({
     user: { findFirst: vi.fn() },
     store: { findFirst: vi.fn() },
     customer: { findFirst: vi.fn() },
-    tournee: { findFirst: vi.fn(async () => null) },
+    tournee: { findFirst: vi.fn(async () => null), findMany: vi.fn(async () => []) },
     product: { findMany: vi.fn() },
     priceTier: { findFirst: vi.fn(async () => null) },
     productUnitConversion: { findMany: vi.fn() },

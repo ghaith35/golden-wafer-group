@@ -46,6 +46,7 @@ CREATE TABLE "company_settings" (
     "workStartAt" TEXT,
     "maxDayHours" REAL DEFAULT 10,
     "remoteDomain" TEXT,
+    "tourPlansMigratedAt" DATETIME,
     CONSTRAINT "company_settings_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -503,10 +504,13 @@ CREATE TABLE "tournees" (
     "finishedLat" REAL,
     "finishedLng" REAL,
     "autoClosed" BOOLEAN NOT NULL DEFAULT false,
+    "planId" TEXT,
+    "slot" INTEGER NOT NULL DEFAULT 0,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "tournees_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "tournees_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "stores" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "tournees_secteurId_fkey" FOREIGN KEY ("secteurId") REFERENCES "secteurs" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "tournees_secteurId_fkey" FOREIGN KEY ("secteurId") REFERENCES "secteurs" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "tournees_planId_fkey" FOREIGN KEY ("planId") REFERENCES "tournee_plans" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -906,6 +910,26 @@ CREATE TABLE "closed_visit_photos" (
     CONSTRAINT "closed_visit_photos_visitId_fkey" FOREIGN KEY ("visitId") REFERENCES "closed_visits" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "tournee_plans" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "companyId" TEXT NOT NULL,
+    "locationId" TEXT NOT NULL,
+    "secteurId" TEXT,
+    "weekday" INTEGER NOT NULL,
+    "intervalWeeks" INTEGER NOT NULL DEFAULT 1,
+    "anchorKey" TEXT NOT NULL,
+    "slot" INTEGER NOT NULL DEFAULT 0,
+    "clientIds" TEXT,
+    "skips" TEXT NOT NULL DEFAULT '',
+    "notes" TEXT,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "tournee_plans_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "tournee_plans_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "stores" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "tournee_plans_secteurId_fkey" FOREIGN KEY ("secteurId") REFERENCES "secteurs" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "company_settings_companyId_key" ON "company_settings"("companyId");
 
@@ -1057,6 +1081,12 @@ CREATE INDEX "tournees_companyId_date_idx" ON "tournees"("companyId", "date");
 CREATE INDEX "tournees_companyId_locationId_idx" ON "tournees"("companyId", "locationId");
 
 -- CreateIndex
+CREATE INDEX "tournees_locationId_date_idx" ON "tournees"("locationId", "date");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tournees_planId_date_key" ON "tournees"("planId", "date");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "tournee_stops_tourneeId_clientId_key" ON "tournee_stops"("tourneeId", "clientId");
 
 -- CreateIndex
@@ -1178,3 +1208,9 @@ CREATE UNIQUE INDEX "closed_visits_companyId_opId_key" ON "closed_visits"("compa
 
 -- CreateIndex
 CREATE INDEX "closed_visit_photos_visitId_idx" ON "closed_visit_photos"("visitId");
+
+-- CreateIndex
+CREATE INDEX "tournee_plans_companyId_isActive_idx" ON "tournee_plans"("companyId", "isActive");
+
+-- CreateIndex
+CREATE INDEX "tournee_plans_locationId_weekday_idx" ON "tournee_plans"("locationId", "weekday");

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { pickCurrentTour } from "@/lib/tournees/day-tours";
 import { getSession } from "@/lib/auth/session";
 import { versementSchema } from "@/lib/cash/validation";
 import { ensureSeasonFor } from "@/lib/docs/sequences";
@@ -58,10 +59,12 @@ export async function POST(req: Request) {
       s.setHours(0, 0, 0, 0);
       const e = new Date(s);
       e.setDate(e.getDate() + 1);
-      const tour = await prisma.tournee.findFirst({
-        where: { companyId: session.companyId, locationId, date: { gte: s, lt: e } },
-        select: { id: true },
-      });
+      const tour = pickCurrentTour(
+        await prisma.tournee.findMany({
+          where: { companyId: session.companyId, locationId, date: { gte: s, lt: e } },
+          select: { id: true, slot: true, createdAt: true, startedAt: true, finishedAt: true, status: true },
+        }),
+      );
       tourneeId = tour?.id ?? null;
     }
     // Body-supplied location/tournee must belong to this company.

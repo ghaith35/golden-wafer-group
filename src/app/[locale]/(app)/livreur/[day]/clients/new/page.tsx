@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../../../_data";
 import { parseDay } from "../../../_days";
+import { pickCurrentTour } from "@/lib/tournees/day-tours";
 import { NewClient } from "./NewClient";
 import { loadAreaScope } from "@/lib/users/area-scope.server";
 
@@ -36,6 +37,17 @@ export default async function LivreurNewClientPage({
   ]);
 
   const areaScope = await loadAreaScope(session.userId, session.role);
+  // Sector of that day's tour (the one being driven, else the next waiting).
+  const dayDate = parseDay(day)!;
+  const dStart = new Date(dayDate);
+  dStart.setHours(0, 0, 0, 0);
+  const dEnd = new Date(dayDate);
+  dEnd.setHours(23, 59, 59, 999);
+  const dayTours = await prisma.tournee.findMany({
+    where: { companyId: session.companyId, locationId: van.id, date: { gte: dStart, lte: dEnd } },
+    select: { secteurId: true, startedAt: true, finishedAt: true, status: true, slot: true, createdAt: true },
+  });
+  const defaultSecteurId = pickCurrentTour(dayTours)?.secteurId ?? null;
 
   return (
     <NewClient
@@ -46,6 +58,7 @@ export default async function LivreurNewClientPage({
       secteurs={JSON.parse(JSON.stringify(secteurs))}
       tiers={JSON.parse(JSON.stringify(tiers))}
       areaScope={areaScope}
+      defaultSecteurId={defaultSecteurId}
       labels={{
         newClient: t("newClient"), phoneOpt: t("phoneOpt"), addressOpt: t("addressOpt"),
         activityOpt: t("activityOpt"), wilayaOpt: t("wilayaOpt"), secteurOpt: t("secteurOpt"),

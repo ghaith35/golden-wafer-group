@@ -37,8 +37,9 @@ export default async function PresencePage({
     where: { companyId: session.companyId, date: { gte: rangeStart, lt: rangeEnd } },
     include: {
       location: { select: { id: true, name: true, matricule: true, user: { select: { fullName: true } } } },
+      secteur: { select: { name: true } },
     },
-    orderBy: { date: "desc" },
+    orderBy: [{ date: "desc" }, { slot: "asc" }],
     take: 200,
   });
   const settings = await prisma.companySettings.findUnique({

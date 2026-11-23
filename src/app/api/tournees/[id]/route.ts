@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import { tourneeStopsSchema } from "@/lib/sales/validation";
 import { setStops, propagateStops, deleteSeries, closeTournee, reorderStops, startDay, finishDay, setTourneeTimes } from "@/lib/tournees/service";
 import { optimizeRoute } from "@/lib/routes/optimize";
+import { skipOccurrence } from "@/lib/tournees/plans";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -92,6 +93,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   if (new URL(req.url).searchParams.get("series") === "1") {
     await deleteSeries(session.companyId, id);
     await prisma.tournee.deleteMany({ where: { id } });
+  } else if (existing.planId) {
+    // One day of a recurring plan: the plan keeps running, this date is never regenerated.
+    await skipOccurrence(session.companyId, id);
   } else {
     await prisma.tournee.delete({ where: { id } });
   }
