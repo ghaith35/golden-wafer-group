@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { ChevronLeft, ChevronRight, Crosshair, Globe, MapPin, Navigation, RefreshCw, Route, Truck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -103,7 +103,14 @@ export function SuiviClient({
   const [trailDay, setTrailDay] = useState("");
   const [trail, setTrail] = useState<Array<[number, number]> | null>(null);
   /// After "request location": refresh every 4 s for a minute, so the answer shows as it lands.
-  const [fastUntil, setFastUntil] = useState(0);
+  /// Vans we asked just now: waiting for the phone's answer (since = when asked).
+  const [waiting, setWaiting] = useState<Record<string, number>>({});
+  /// Small message at the bottom: the phone answered / did not answer.
+  const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
+  const showToast = (ok: boolean, text: string) => {
+    setToast({ ok, text });
+    window.setTimeout(() => setToast((cur) => (cur && cur.text === text ? null : cur)), 4500);
+  };
 
   const load = useCallback(async () => {
     setSpinning(true);
@@ -129,17 +136,55 @@ export function SuiviClient({
     const id = window.setInterval(() => setTick(Date.now()), 30000);
     return () => window.clearInterval(id);
   }, []);
+  const waitingIds = Object.keys(waiting).join(",");
+  const waitingRef = useRef(waiting);
+  const setWaitingBoth = (w: Record<string, number>) => {
+    waitingRef.current = w;
+    setWaiting(w);
+  };
+  // While we wait for an answer, look every 2 s — it lands as soon as the phone sends it.
+  // Answered (the server cleared the request) → confirm and show the van.
+  // No answer within 40 s → a small red message saying so (and why, when we know).
   useEffect(() => {
-    if (fastUntil <= Date.now()) return;
-    const id = window.setInterval(() => {
-      if (Date.now() > fastUntil) {
-        window.clearInterval(id);
-        return;
+    if (!waitingIds) return;
+    let dead = false;
+    const id = window.setInterval(async () => {
+      try {
+        const res = await fetch("/api/vans/positions", { cache: "no-store" });
+        if (!res.ok || dead) return;
+        const list: VanPos[] = (await res.json()).vans ?? [];
+        setVans(list);
+        setTick(Date.now());
+        const cur = { ...waitingRef.current };
+        let changed = false;
+        for (const vid of Object.keys(cur)) {
+          const v = list.find((x) => x.id === vid);
+          if (!v) continue;
+          const answered = !v.locateRequested || (v.seenAt != null && new Date(v.seenAt).getTime() >= cur[vid] - 2000);
+          if (answered) {
+            delete cur[vid];
+            changed = true;
+            showToast(true, labels.locateOk.replace("{name}", v.name));
+            setSelectedVanId(vid);
+            bump();
+          } else if (Date.now() - cur[vid] > 40_000) {
+            delete cur[vid];
+            changed = true;
+            const why = health(v, labels);
+            showToast(false, `${labels.locateFail.replace("{name}", v.name)} — ${why && !why.ok ? why.text : labels.locateFailWhy}`);
+          }
+        }
+        if (changed) setWaitingBoth(cur);
+      } catch {
+        /* offline: keep waiting; the 40 s limit still applies on the next beat */
       }
-      void load();
-    }, 4000);
-    return () => window.clearInterval(id);
-  }, [fastUntil, load]);
+    }, 2000);
+    return () => {
+      dead = true;
+      window.clearInterval(id);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waitingIds]);
 
   /// Ask the driver's phone to send its position now.
   async function requestLocate(v: VanPos) {
@@ -148,7 +193,8 @@ export function SuiviClient({
       const res = await fetch(`/api/vans/${v.id}/locate`, { method: "POST" });
       if (res.ok) {
         setVans((prev) => prev.map((x) => (x.id === v.id ? { ...x, locateRequested: true } : x)));
-        setFastUntil(Date.now() + 60_000);
+        setWaitingBoth({ ...waitingRef.current, [v.id]: Date.now() });
+        void load();
       }
     } catch { /* offline */ } finally {
       setLocating(null);
@@ -485,7 +531,7 @@ export function SuiviClient({
                       <button type="button" onClick={() => void requestLocate(v)} disabled={locating === v.id || v.locateRequested} title={labels.locate}
                         className={cn("flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-black",
                           v.locateRequested ? "bg-amber-500/15 text-amber-600" : "bg-(--brand-500)/10 text-(--brand-600) hover:bg-(--brand-500)/20 disabled:opacity-50")}>
-                        <Crosshair size={14} className={locating === v.id ? "animate-spin" : ""} />
+                        <Crosshair size={14} className={locating === v.id || waiting[v.id] ? "animate-spin" : ""} />
                         {v.locateRequested ? labels.locateSent : labels.locate}
                       </button>
                     </div>
@@ -544,6 +590,13 @@ export function SuiviClient({
             ? <p className="text-sm opacity-60">{labels.emptyClients}</p> : null}
         </div>
       </div>
+      {toast && (
+        <div role="status" aria-live="polite"
+          className={cn("fixed inset-x-4 bottom-[calc(1.25rem+env(safe-area-inset-bottom))] z-[95] mx-auto max-w-sm rounded-2xl px-4 py-3 text-center text-sm font-black text-white shadow-xl",
+            toast.ok ? "bg-emerald-600" : "bg-red-600")}>
+          {toast.ok ? "✓ " : "⚠ "}{toast.text}
+        </div>
+      )}
     </div>
   );
 }

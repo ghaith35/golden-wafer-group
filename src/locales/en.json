@@ -1210,7 +1210,10 @@
     "healthNoFine": "Location permission denied",
     "healthNoGps": "GPS is off on the phone",
     "healthNoBg": "Background location not allowed",
-    "healthBattery": "Battery limits tracking"
+    "healthBattery": "Battery limits tracking",
+    "locateOk": "{name} location updated",
+    "locateFail": "No reply from {name}",
+    "locateFailWhy": "the phone may be off or offline"
   },
   "debts": {
     "title": "Debts",

@@ -1210,7 +1210,10 @@
     "healthNoFine": "إذن الموقع مرفوض",
     "healthNoGps": "GPS مغلق في الهاتف",
     "healthNoBg": "الموقع في الخلفية غير مفعّل",
-    "healthBattery": "البطارية تقيّد التتبع"
+    "healthBattery": "البطارية تقيّد التتبع",
+    "locateOk": "تم تحديث موقع {name}",
+    "locateFail": "لا رد من {name}",
+    "locateFailWhy": "قد يكون الهاتف مغلقًا أو بدون إنترنت"
   },
   "debts": {
     "title": "الديون",

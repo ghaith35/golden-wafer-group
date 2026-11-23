@@ -1210,7 +1210,10 @@
     "healthNoFine": "Permission de position refusée",
     "healthNoGps": "GPS coupé sur le téléphone",
     "healthNoBg": "Position en arrière-plan non activée",
-    "healthBattery": "La batterie limite le suivi"
+    "healthBattery": "La batterie limite le suivi",
+    "locateOk": "Position de {name} mise à jour",
+    "locateFail": "Pas de réponse de {name}",
+    "locateFailWhy": "le téléphone est peut-être éteint ou sans internet"
   },
   "debts": {
     "title": "Dettes",
