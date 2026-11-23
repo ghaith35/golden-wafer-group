@@ -351,7 +351,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className={cn("min-h-screen", !hideChrome && visibleTabs.length > 0 && "has-tabbar")}>
       {/* The logo layer is left off the map screens: it would sit over the tiles. */}
-      {!/\/(suivi|carte)(\/|$)|\/livreur\/[^/]+\/gps(\/|$)/.test(pathname ?? "") && <div aria-hidden className="gw-watermark" />}
+      {!/\/(suivi|carte)(\/|$)|\/livreur\/[^/]+\/gps(\/|$)/.test(pathname ?? "") && <div aria-hidden className="gw-watermark" style={{ "--gw-start": hideChrome ? "0px" : collapsed ? "68px" : "240px" } as React.CSSProperties} />}
       {/* Van APK auto GPS: activates only when a device token is bound.
           Desktop browsers have none — zero behavior change there. */}
       <ApkOnly><VanTracker /></ApkOnly>

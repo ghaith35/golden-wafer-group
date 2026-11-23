@@ -648,21 +648,32 @@ main .grid > *:nth-child(n+7), .table-shell tbody tr:nth-child(n+7) { animation-
 @media (prefers-reduced-motion: reduce) { .gw-rise { animation: none; } }
 
 
-/* Golden Wafer logo: one faint, continuous layer over the whole screen, so it
-   reads as the background of the cards too. Never intercepts a tap, sits below
-   popups (z-50) and is dropped from anything printed. */
+/* Golden Wafer logo: one faint, continuous layer over the screen, so it reads
+   as the background of the cards too. On desktop it is centred in the MAIN
+   area (the sidebar and top bar are not counted: --gw-start follows the
+   sidebar, collapsed or not). Never intercepts a tap, sits below popups (z-50)
+   and is dropped from anything printed. */
 .gw-watermark {
   position: fixed;
   inset: 0;
   z-index: 35;
   pointer-events: none;
-  background: url("/icons/logo-watermark.webp") center 46% / min(78vmin, 720px) no-repeat;
-  /* Light mode: gold on cream has little contrast, so the logo is darkened and
-     richer, and MULTIPLIED into the page — it darkens only where the logo is
-     and never greys out the text above it. */
-  opacity: 0.34;
-  filter: saturate(1.6) brightness(0.72) contrast(1.1);
+  /* Light mode: a dedicated, vivid-gold version of the logo, multiplied into
+     the page — it tints the cream/white gold and never greys the text above. */
+  background: url("/icons/logo-watermark-gold.webp") center 46% / min(78vmin, 720px) no-repeat;
+  opacity: 0.55;
   mix-blend-mode: multiply;
 }
-.dark .gw-watermark { opacity: 0.2; filter: none; mix-blend-mode: normal; }
+.dark .gw-watermark {
+  background-image: url("/icons/logo-watermark.webp");
+  opacity: 0.2;
+  mix-blend-mode: normal;
+}
+@media (min-width: 768px) {
+  .gw-watermark {
+    inset-inline-start: var(--gw-start, 0px);
+    inset-block-start: 3.5rem;
+    transition: inset-inline-start 0.3s ease-in-out;
+  }
+}
 @media print { .gw-watermark { display: none !important; } }
