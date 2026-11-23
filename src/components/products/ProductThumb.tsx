@@ -1,28 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Package, X } from "lucide-react";
 import { getVanSnapshot } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
 
-/// productId → image URLs, read from the phone's own sync snapshot (so it
-/// works offline too; images already viewed are served by the service worker
-/// cache). Empty map until the snapshot is read / when there is none.
-export function useProductImages(): Map<string, string[]> {
-  const [map, setMap] = useState<Map<string, string[]>>(new Map());
+/// productId → image URLs. `seed` (from the server-rendered page, so it is
+/// there on first paint and cached with the page for offline) wins; the
+/// phone's own sync snapshot fills any product the seed does not cover.
+export function useProductImages(seed?: Record<string, string[]>): Map<string, string[]> {
+  const [snap, setSnap] = useState<Map<string, string[]>>(new Map());
   useEffect(() => {
     let dead = false;
     getVanSnapshot()
       .then((s) => {
         if (dead || !s) return;
-        setMap(new Map((s.products ?? []).filter((p) => p.images?.length).map((p) => [p.id, p.images] as [string, string[]])));
+        setSnap(new Map((s.products ?? []).filter((p) => p.images?.length).map((p) => [p.id, p.images] as [string, string[]])));
       })
       .catch(() => {});
     return () => {
       dead = true;
     };
   }, []);
-  return map;
+  return useMemo(() => {
+    const m = new Map(snap);
+    for (const [id, urls] of Object.entries(seed ?? {})) if (urls?.length) m.set(id, urls);
+    return m;
+  }, [snap, seed]);
 }
 
 /// Small product photo; tap = full-size popup (swipe/arrows through the

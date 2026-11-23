@@ -1,6 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
+import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../../_data";
 import { parseDay } from "../../_days";
 import { VanStockClient } from "./VanStockClient";
@@ -20,8 +21,17 @@ export default async function LivreurStockPage({
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
 
+  const imgRows = await prisma.productImage.findMany({
+    where: { product: { companyId: session.companyId, isActive: true } },
+    orderBy: [{ productId: "asc" }, { sortOrder: "asc" }],
+    select: { productId: true, url: true },
+  });
+  const images: Record<string, string[]> = {};
+  for (const r of imgRows) (images[r.productId] ??= []).push(r.url);
+
   return (
     <VanStockClient
+      images={images}
       locale={locale}
       day={day}
       vanId={van.id}

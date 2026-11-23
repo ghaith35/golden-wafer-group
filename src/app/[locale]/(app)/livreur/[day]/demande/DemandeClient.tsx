@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowDownUp, ArrowLeft, Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -131,7 +131,8 @@ export function DemandeClient({
     } catch { /* ignore */ }
   }
 
-  const imgs = useProductImages();
+  const seedImgs = useMemo(() => Object.fromEntries(products.filter((p) => p.images?.length).map((p) => [p.id, p.images.map((i) => i.url)])), [products]);
+  const imgs = useProductImages(seedImgs);
   const prodName = (pid: string) => products.find((p) => p.id === pid)?.name ?? pid.slice(-4);
   /// Depot stock for the selected depot (SSR map — present in the cached
   /// page offline too), minus what this phone already queued. Snapshot

@@ -39,6 +39,7 @@ function breakdown(qty: number, h: { pack: { name: string; factor: number } | nu
 /// Vendeur (mandob) sees DEPOT stock only: held/free/order holds are hidden
 /// (van internals), the title reads depot stock.
 export function VanStockClient({
+  images,
   locale,
   day,
   vanId,
@@ -46,6 +47,7 @@ export function VanStockClient({
   role,
   labels,
 }: {
+  images?: Record<string, string[]>;
   locale: string;
   day: string;
   vanId: string;
@@ -54,7 +56,7 @@ export function VanStockClient({
   labels: Record<string, string>;
 }) {
   const depotOnly = !canSell(role);
-  const imgs = useProductImages();
+  const imgs = useProductImages(images);
   const router = useRouter();
   const [holds, setHolds] = useState<Hold[]>([]);
   const [depot, setDepot] = useState<Record<string, number>>({});
