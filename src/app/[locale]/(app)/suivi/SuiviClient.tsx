@@ -452,8 +452,8 @@ export function SuiviClient({
                 const st = statusOf(v.seenAt, tick);
                 const statusKey = st === "nosignal" ? "noSignal" : st;
                 return (
-                  <div key={v.id} className={cn("flex flex-col gap-2.5 rounded-2xl border bg-(--bg-overlay) p-3 min-[480px]:flex-row min-[480px]:flex-wrap min-[480px]:items-center", v.id === selectedVanId ? "border-(--brand-500)" : "border-(--border-default)")}>
-                    <button type="button" className="flex min-w-0 items-center gap-3 text-start min-[480px]:flex-1"
+                  <div key={v.id} className={cn("flex flex-col gap-2.5 rounded-2xl border bg-(--bg-overlay) p-3", v.id === selectedVanId ? "border-(--brand-500)" : "border-(--border-default)")}>
+                    <button type="button" className="flex w-full min-w-0 items-center gap-3 text-start"
                       onClick={() => { setSelectedVanId(v.id); bump(); }}>
                       <span className={cn("h-3 w-3 shrink-0 rounded-full", DOT[st])} />
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken) text-(--text-secondary)"><Truck size={18} /></span>
@@ -475,15 +475,15 @@ export function SuiviClient({
                       </span>
                     </button>
                     {/* Actions sit on their own row on a phone, so nothing above is squeezed. */}
-                    <div className="flex w-full gap-2 min-[480px]:w-auto">
+                    <div className="flex w-full gap-2">
                       {v.lat != null && v.lng != null && (
                         <a href={`https://www.google.com/maps?q=${v.lat},${v.lng}`} target="_blank" rel="noreferrer"
-                          className="flex min-h-10 flex-1 items-center justify-center rounded-lg bg-(--bg-sunken) px-3 py-1.5 text-center text-xs font-black hover:bg-(--brand-500)/15 min-[480px]:flex-none">
+                          className="flex min-h-10 flex-1 items-center justify-center rounded-lg bg-(--bg-sunken) px-3 py-1.5 text-center text-xs font-black hover:bg-(--brand-500)/15">
                           {labels.openMaps}
                         </a>
                       )}
                       <button type="button" onClick={() => void requestLocate(v)} disabled={locating === v.id || v.locateRequested} title={labels.locate}
-                        className={cn("flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-black min-[480px]:flex-none",
+                        className={cn("flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-black",
                           v.locateRequested ? "bg-amber-500/15 text-amber-600" : "bg-(--brand-500)/10 text-(--brand-600) hover:bg-(--brand-500)/20 disabled:opacity-50")}>
                         <Crosshair size={14} className={locating === v.id ? "animate-spin" : ""} />
                         {v.locateRequested ? labels.locateSent : labels.locate}
