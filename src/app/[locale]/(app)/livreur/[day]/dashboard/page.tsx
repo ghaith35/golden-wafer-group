@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../../_data";
 import { parseDay } from "../../_days";
+import { closeStaleDays } from "@/lib/tournees/service";
 import { vanDayCash } from "@/lib/cash/daily";
 import { DashClient } from "./DashClient";
 
@@ -39,6 +40,7 @@ export default async function LivreurDashPage({
   dayStart.setHours(0, 0, 0, 0);
   const dayEnd = new Date(date);
   dayEnd.setHours(23, 59, 59, 999);
+  await closeStaleDays(session.companyId).catch(() => {});
   const [today, readyCount, tournee, till] = await Promise.all([
     prisma.sale.aggregate({
       where: {

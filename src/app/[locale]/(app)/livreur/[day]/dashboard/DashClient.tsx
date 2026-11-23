@@ -1,7 +1,7 @@
 "use client";
 
 import { ClientName } from "@/components/clients/ClientName";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ApkOnly } from "@/components/layout/ApkOnly";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Banknote, ClipboardList, Lock, Package, PackageCheck, Plus, ReceiptText, RefreshCw, Truck, UserRound, Wallet } from "lucide-react";
@@ -78,7 +78,7 @@ export function DashClient({
   const [dayAuto, setDayAuto] = useState(false);
   /// Sync popup (both directions + progress bar).
   const [syncOpen, setSyncOpen] = useState(false);
-  const [stamp, setStamp] = useState<{ startedAt: string | null; finishedAt: string | null } | null>(
+  const [stampRaw, setStamp] = useState<{ startedAt: string | null; finishedAt: string | null } | null>(
     tournee ? { startedAt: tournee.startedAt, finishedAt: tournee.finishedAt } : null
   );
   const [stamping, setStamping] = useState(false);
@@ -97,6 +97,18 @@ export function DashClient({
   useEffect(() => {
     setMounted(true);
   }, []);
+  /// A journée ends with its own day: once that Algiers day is over, an open
+  /// one counts as finished at 23:59:59 of that day — the timer stops there
+  /// instead of running into the next day (the server stamps the same instant).
+  const dayEndMs = useMemo(() => {
+    const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(day);
+    return m ? Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 22, 59, 59, 999) : null;
+  }, [day]);
+  const pastEnd = mounted && dayEndMs != null && nowTick > dayEndMs;
+  const stamp = useMemo(
+    () => (stampRaw?.startedAt && !stampRaw.finishedAt && pastEnd ? { ...stampRaw, finishedAt: new Date(dayEndMs as number).toISOString() } : stampRaw),
+    [stampRaw, pastEnd, dayEndMs],
+  );
   useEffect(() => {
     if (!stamp?.startedAt || stamp.finishedAt) return;
     const id = window.setInterval(() => setNowTick(Date.now()), 1000);
@@ -374,7 +386,7 @@ export function DashClient({
           {dayPending && (
             <p className="mt-2 rounded-xl bg-amber-500/10 p-2 text-xs font-bold text-amber-600">{labels.dayQueued ?? ""}</p>
           )}
-          {(dayAuto || tournee?.autoClosed) && (
+          {(dayAuto || tournee?.autoClosed || (pastEnd && !stampRaw?.finishedAt)) && (
             <p className="mt-2 rounded-xl bg-red-500/10 p-2 text-xs font-bold text-red-500">⚠ {labels.autoClosedDay ?? ""}</p>
           )}
           {dayError && (
