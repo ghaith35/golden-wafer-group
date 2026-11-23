@@ -657,7 +657,12 @@ main .grid > *:nth-child(n+7), .table-shell tbody tr:nth-child(n+7) { animation-
   z-index: 35;
   pointer-events: none;
   background: url("/icons/logo-watermark.webp") center 46% / min(78vmin, 720px) no-repeat;
-  opacity: 0.13;
+  /* Light mode: gold on cream has little contrast, so the logo is darkened and
+     richer, and MULTIPLIED into the page — it darkens only where the logo is
+     and never greys out the text above it. */
+  opacity: 0.34;
+  filter: saturate(1.6) brightness(0.72) contrast(1.1);
+  mix-blend-mode: multiply;
 }
-.dark .gw-watermark { opacity: 0.2; }
+.dark .gw-watermark { opacity: 0.2; filter: none; mix-blend-mode: normal; }
 @media print { .gw-watermark { display: none !important; } }
