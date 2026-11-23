@@ -6,9 +6,9 @@ export type Proximity = "near" | "mid" | "far" | "none";
 export const NEAR_M = 15;
 export const MID_M = 50;
 
-export function proximityOf(distM: number | null | undefined): Proximity {
+export function proximityOf(distM: number | null | undefined, nearM = NEAR_M, midM = MID_M): Proximity {
   if (distM == null || !Number.isFinite(distM)) return "none";
-  return distM <= NEAR_M ? "near" : distM <= MID_M ? "mid" : "far";
+  return distM <= nearM ? "near" : distM <= midM ? "mid" : "far";
 }
 
 export const PROX_HEX: Record<Proximity, string> = {

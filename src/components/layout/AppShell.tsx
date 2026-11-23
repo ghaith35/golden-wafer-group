@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Truck, Boxes, ShoppingCart, ShoppingBag, Wallet, BarChart3, Settings, Bus, Map, Route, Store, PanelLeftClose, PanelLeftOpen, Crosshair, Package, PackageCheck, Satellite, ClipboardList, ClipboardCheck, Smartphone, Clock, Banknote, Plus, ReceiptText, UserRound, Gift } from "lucide-react";
+import { LayoutDashboard, Users, Truck, Boxes, ShoppingCart, ShoppingBag, Wallet, BarChart3, Settings, Bus, Route, Store, PanelLeftClose, PanelLeftOpen, Crosshair, Package, PackageCheck, Satellite, ClipboardList, ClipboardCheck, Smartphone, Clock, Banknote, Plus, ReceiptText, UserRound, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { recordCrumb, serverUnreachable, startReachabilityProbe } from "@/lib/sync/client";
 import { canSell } from "@/lib/staff-permissions";
@@ -54,7 +54,6 @@ const GROUPS: Array<{ label: string; items: Item[]; adminOnly?: boolean }> = [
       { key: "presence", href: "presence", Icon: Clock },
       { key: "vanStock", href: "vans/stock", Icon: Package, adminOnly: true },
       { key: "vanOrders", href: "vans/orders", Icon: ClipboardList, adminOnly: true },
-      { key: "carte", href: "carte", Icon: Map },
       { key: "livreursVendeurs", href: "users", Icon: Users, adminOnly: true },
     ],
   },

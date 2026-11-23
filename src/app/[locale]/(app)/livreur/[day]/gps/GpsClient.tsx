@@ -45,19 +45,37 @@ export function GpsClient({
   const [nonce, setNonce] = useState(0);
 
   /// Native-aware GPS fix (works offline — it is the phone's own receiver).
-  function locate() {
-    setLocating(true);
-    void import("@/lib/van-gps")
+  function locate(silent = false) {
+    if (!silent) setLocating(true);
+    return import("@/lib/van-gps")
       .then(async (m) => {
-        const f = await m.getGpsFix();
+        const f = await m.getGpsFix(silent ? 0 : 15000);
         if (f) setPos({ lat: f.lat, lng: f.lng });
       })
       .catch(() => {})
-      .finally(() => setLocating(false));
+      .finally(() => {
+        if (!silent) setLocating(false);
+      });
   }
+  /// Live GPS: first fix on open, then a fresh one every 5 s (no overlap —
+  /// the next tick waits for the previous fix; paused while the tab is hidden).
   useEffect(() => {
+    let stop = false;
+    let busy = false;
+    const tick = async () => {
+      if (stop || busy || document.hidden) return;
+      busy = true;
+      await locate(true);
+      busy = false;
+    };
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-time GPS fix
-    locate();
+    void locate();
+    const id = window.setInterval(() => void tick(), 5000);
+    return () => {
+      stop = true;
+      window.clearInterval(id);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const todaySet = useMemo(() => new Set(todayIds), [todayIds]);
@@ -123,7 +141,7 @@ export function GpsClient({
           <p className="truncate text-xs opacity-60">{locating ? labels.locating : pos ? "" : labels.noPos}</p>
         </div>
         <button
-          onClick={locate}
+          onClick={() => void locate()}
           disabled={locating}
           aria-label={labels.refresh}
           title={labels.refresh}
@@ -131,7 +149,7 @@ export function GpsClient({
         >
           <Crosshair size={16} className={cn(locating && "animate-spin")} />
         </button>
-        <RefreshButton label={labels.refresh} onLocal={locate} />
+        <RefreshButton label={labels.refresh} onLocal={() => void locate()} />
       </div>
 
       {/* Filters: clients · today · today's sector · every other sector. */}

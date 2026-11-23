@@ -403,6 +403,30 @@ export function DayClients({
   // Merge this phone's not-yet-synced clients so the driver sees and can
   // sell to them immediately (⏳ until the sync confirms them).
   const [pending, setPending] = useState<Client[]>([]);
+  /// Live position for the proximity colours: a fresh phone fix every 5 s
+  /// (local only — the saved road distances are not recomputed each tick).
+  const [livePos, setLivePos] = useState<{ lat: number; lng: number } | null>(null);
+  useEffect(() => {
+    let stop = false;
+    let busy = false;
+    const tick = async () => {
+      if (stop || busy || document.hidden) return;
+      busy = true;
+      try {
+        const m = await import("@/lib/van-gps");
+        const f = await m.getGpsFix(0);
+        if (!stop && f) setLivePos({ lat: f.lat, lng: f.lng });
+      } catch {
+        /* keep the last position */
+      }
+      busy = false;
+    };
+    const id = window.setInterval(() => void tick(), 5000);
+    return () => {
+      stop = true;
+      window.clearInterval(id);
+    };
+  }, []);
   /// New-client popup (form embedded, no page navigation).
   const [adding, setAdding] = useState(false);
   async function reloadPending() {
@@ -560,9 +584,10 @@ export function DayClients({
           // phone's own fix — works offline). No GPS on the client = neutral.
           // Live fix first (works offline); until it lands, the saved distance
           // shown on the card drives the colour so list and colour always agree.
+          const here = livePos ?? pos;
           const prox = proximityOf(
-            pos && c.gpsLat != null && c.gpsLng != null
-              ? haversineM(pos.lat, pos.lng, Number(c.gpsLat), Number(c.gpsLng))
+            here && c.gpsLat != null && c.gpsLng != null
+              ? haversineM(here.lat, here.lng, Number(c.gpsLat), Number(c.gpsLng))
               : raw.get(c.id)?.distM ?? null
           );
           return (

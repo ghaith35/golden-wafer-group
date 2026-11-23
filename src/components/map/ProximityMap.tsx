@@ -16,7 +16,7 @@ const MAX_AUTO_TILES = 400;
 /// Offline tile layer (IndexedDB-backed: already-seen tiles render with no
 /// network) + automatic background caching of the tiles around the pins, so
 /// the map the driver opens in the office is still there in the field.
-function OfflineTiles({ pins }: { pins: ProxPin[] }) {
+export function OfflineTiles({ pins }: { pins: ProxPin[] }) {
   const map = useMap();
   useEffect(() => {
     const layer = tileLayerOffline(TILE_URL, {

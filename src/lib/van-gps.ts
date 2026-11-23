@@ -44,7 +44,7 @@ function toFix(c: {
   };
 }
 
-function webFix(timeoutMs: number, highAccuracy: boolean): Promise<GpsFix | null> {
+function webFix(timeoutMs: number, highAccuracy: boolean, maxAgeMs = 15000): Promise<GpsFix | null> {
   return new Promise((resolve) => {
     try {
       if (!("geolocation" in navigator)) {
@@ -71,7 +71,7 @@ function webFix(timeoutMs: number, highAccuracy: boolean): Promise<GpsFix | null
           window.clearTimeout(to);
           resolve(null);
         },
-        { enableHighAccuracy: highAccuracy, timeout: timeoutMs, maximumAge: 15000 }
+        { enableHighAccuracy: highAccuracy, timeout: timeoutMs, maximumAge: maxAgeMs }
       );
     } catch {
       resolve(null);
@@ -82,7 +82,8 @@ function webFix(timeoutMs: number, highAccuracy: boolean): Promise<GpsFix | null
 /// Best fix available: native Capacitor GPS in the APK, browser geolocation
 /// on the web (high accuracy first, low-accuracy retry — mirrors the old
 /// inline retry so urban canyons still resolve).
-export async function getGpsFix(): Promise<GpsFix | null> {
+/// `maxAgeMs` = how old a cached fix may be (default 15 s; live polling passes ~0).
+export async function getGpsFix(maxAgeMs = 15000): Promise<GpsFix | null> {
   try {
     if (await isNative()) {
       try {
@@ -90,7 +91,7 @@ export async function getGpsFix(): Promise<GpsFix | null> {
         const p = await Geolocation.getCurrentPosition({
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 15000,
+          maximumAge: maxAgeMs,
         });
         if (p?.coords) {
           return toFix({
@@ -104,7 +105,7 @@ export async function getGpsFix(): Promise<GpsFix | null> {
         /* fall through to the WebView API */
       }
     }
-    return (await webFix(10000, true)) ?? (await webFix(15000, false));
+    return (await webFix(10000, true, maxAgeMs)) ?? (await webFix(15000, false, maxAgeMs));
   } catch {
     return null;
   }

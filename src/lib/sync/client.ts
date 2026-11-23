@@ -1065,7 +1065,8 @@ export function warmOfflineChunks(): void {
     // Offline map shells (leaflet + tiles layer): the carte page dynamic-
     // imports these — unwarmed, it dies with a chunk error offline.
     void import("@/components/map/TourneeMap").catch(() => {});
-    void import("@/components/map/VansMap").catch(() => {});
+    void import("@/components/map/CommandMap").catch(() => {});
+    void import("@/components/map/ProximityMap").catch(() => {});
     for (const f of ["/fonts/amiri-regular.ttf", "/fonts/amiri-bold.ttf"]) {
       fetch(f, { cache: "force-cache" }).catch(() => {});
     }
