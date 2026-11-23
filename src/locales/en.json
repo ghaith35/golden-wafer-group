@@ -1204,7 +1204,13 @@
     "nearestVan": "Nearest van",
     "googleView": "Google view",
     "mapView": "Map",
-    "emptyClients": "No geolocated clients yet — add the location in the client card"
+    "emptyClients": "No geolocated clients yet — add the location in the client card",
+    "trailLabel": "Today's trail",
+    "healthOk": "Always-on tracking active",
+    "healthNoFine": "Location permission denied",
+    "healthNoGps": "GPS is off on the phone",
+    "healthNoBg": "Background location not allowed",
+    "healthBattery": "Battery limits tracking"
   },
   "debts": {
     "title": "Debts",
@@ -2131,5 +2137,27 @@
     "call": "Call",
     "unknown": "—",
     "reset": "Clear filters"
+  },
+  "trackingGate": {
+    "title": "Turn on always-on tracking",
+    "intro": "So the office sees your van's position right away, even with the app closed, complete these steps. It takes a minute.",
+    "done": "Done ✓",
+    "fineTitle": "Precise location",
+    "fineHint": "Allow the app to use your precise location (GPS).",
+    "fineButton": "Allow location",
+    "alwaysTitle": "Location all the time",
+    "alwaysHint": "On the page that opens: choose “Location”, then “Allow all the time”, then come back to the app.",
+    "alwaysButton": "Open settings",
+    "notificationsTitle": "Notifications",
+    "notificationsHint": "Android shows a small permanent notification saying tracking is on.",
+    "notificationsButton": "Allow notifications",
+    "batteryTitle": "No battery restriction",
+    "batteryHint": "So the phone doesn't stop tracking to save power. Choose “Allow”.",
+    "batteryButton": "Allow",
+    "gpsTitle": "Turn on the phone's location",
+    "gpsHint": "Switch on “Location / GPS” in quick settings or in the phone's settings.",
+    "gpsButton": "Open location settings",
+    "brandHint": "On Xiaomi, Huawei, Oppo and Samsung: open the app's settings, then Battery, choose “No restrictions”, and enable “Autostart” if it exists.",
+    "openSettings": "Open app settings"
   }
 }

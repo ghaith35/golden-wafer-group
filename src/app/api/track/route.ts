@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { resolveTrackVan } from "@/lib/track";
+import { recordPositions } from "@/lib/track-store";
 
 /// APK live-position report. Called by the driver's phone every ~30-60s.
 ///
@@ -38,10 +39,11 @@ export async function POST(req: Request) {
   if (resolved.deviceId) {
     await prisma.device.update({ where: { id: resolved.deviceId }, data: { lastSyncAt: new Date() } }).catch(() => {});
   }
-  // A fresh report answers any pending locate request — clear the flag.
-  const van = await prisma.store.update({
+  // A fresh report answers any pending locate request (recordPositions clears it)
+  // and is also kept in the van's trail.
+  await recordPositions(resolved.companyId, resolved.vanId, [{ lat, lng, accuracy: parsed.data.accuracy, speed: parsed.data.speed }]);
+  const van = await prisma.store.findUniqueOrThrow({
     where: { id: resolved.vanId },
-    data: { lastLat: lat, lastLng: lng, lastSeenAt: new Date(), locateRequestedAt: null },
     select: { id: true, name: true, lastSeenAt: true },
   });
   return NextResponse.json({ ok: true, vanId: van.id, name: van.name, seenAt: van.lastSeenAt, locateRequested: false });

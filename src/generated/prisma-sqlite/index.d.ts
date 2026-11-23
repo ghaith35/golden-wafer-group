@@ -330,6 +330,12 @@ export type ClosedVisitPhoto = $Result.DefaultSelection<Prisma.$ClosedVisitPhoto
  * generated from it on demand. A van+weekday "cell" holds up to two plans.
  */
 export type TourneePlan = $Result.DefaultSelection<Prisma.$TourneePlanPayload>
+/**
+ * Model VanPosition
+ * Position history of a van phone (the always-on location service). The
+ * "last position" on the Store stays the fast path; this is the trail.
+ */
+export type VanPosition = $Result.DefaultSelection<Prisma.$VanPositionPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1021,6 +1027,16 @@ export class PrismaClient<
     * ```
     */
   get tourneePlan(): Prisma.TourneePlanDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.vanPosition`: Exposes CRUD operations for the **VanPosition** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more VanPositions
+    * const vanPositions = await prisma.vanPosition.findMany()
+    * ```
+    */
+  get vanPosition(): Prisma.VanPositionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1524,7 +1540,8 @@ export namespace Prisma {
     ThreePackItem: 'ThreePackItem',
     ClosedVisit: 'ClosedVisit',
     ClosedVisitPhoto: 'ClosedVisitPhoto',
-    TourneePlan: 'TourneePlan'
+    TourneePlan: 'TourneePlan',
+    VanPosition: 'VanPosition'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1540,7 +1557,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "userArea" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem" | "closedVisit" | "closedVisitPhoto" | "tourneePlan"
+      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "userArea" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem" | "closedVisit" | "closedVisitPhoto" | "tourneePlan" | "vanPosition"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5762,6 +5779,80 @@ export namespace Prisma {
           }
         }
       }
+      VanPosition: {
+        payload: Prisma.$VanPositionPayload<ExtArgs>
+        fields: Prisma.VanPositionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.VanPositionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VanPositionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.VanPositionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VanPositionPayload>
+          }
+          findFirst: {
+            args: Prisma.VanPositionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VanPositionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.VanPositionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VanPositionPayload>
+          }
+          findMany: {
+            args: Prisma.VanPositionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VanPositionPayload>[]
+          }
+          create: {
+            args: Prisma.VanPositionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VanPositionPayload>
+          }
+          createMany: {
+            args: Prisma.VanPositionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.VanPositionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VanPositionPayload>[]
+          }
+          delete: {
+            args: Prisma.VanPositionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VanPositionPayload>
+          }
+          update: {
+            args: Prisma.VanPositionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VanPositionPayload>
+          }
+          deleteMany: {
+            args: Prisma.VanPositionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.VanPositionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.VanPositionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VanPositionPayload>[]
+          }
+          upsert: {
+            args: Prisma.VanPositionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VanPositionPayload>
+          }
+          aggregate: {
+            args: Prisma.VanPositionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateVanPosition>
+          }
+          groupBy: {
+            args: Prisma.VanPositionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<VanPositionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.VanPositionCountArgs<ExtArgs>
+            result: $Utils.Optional<VanPositionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5942,6 +6033,7 @@ export namespace Prisma {
     closedVisit?: ClosedVisitOmit
     closedVisitPhoto?: ClosedVisitPhotoOmit
     tourneePlan?: TourneePlanOmit
+    vanPosition?: VanPositionOmit
   }
 
   /* Types for Logging */
@@ -6685,6 +6777,7 @@ export namespace Prisma {
     closedVisits: number
     tournees: number
     tourneePlans: number
+    positions: number
     expenseLinks: number
     devices: number
     dailyCloses: number
@@ -6701,6 +6794,7 @@ export namespace Prisma {
     closedVisits?: boolean | StoreCountOutputTypeCountClosedVisitsArgs
     tournees?: boolean | StoreCountOutputTypeCountTourneesArgs
     tourneePlans?: boolean | StoreCountOutputTypeCountTourneePlansArgs
+    positions?: boolean | StoreCountOutputTypeCountPositionsArgs
     expenseLinks?: boolean | StoreCountOutputTypeCountExpenseLinksArgs
     devices?: boolean | StoreCountOutputTypeCountDevicesArgs
     dailyCloses?: boolean | StoreCountOutputTypeCountDailyClosesArgs
@@ -6785,6 +6879,13 @@ export namespace Prisma {
    */
   export type StoreCountOutputTypeCountTourneePlansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TourneePlanWhereInput
+  }
+
+  /**
+   * StoreCountOutputType without action
+   */
+  export type StoreCountOutputTypeCountPositionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VanPositionWhereInput
   }
 
   /**
@@ -22632,6 +22733,7 @@ export namespace Prisma {
     lastLat: number | null
     lastLng: number | null
     lastSeenAt: Date | null
+    lastTrackState: string | null
     locateRequestedAt: Date | null
     qrSellRequired: boolean | null
     qrOrderRequired: boolean | null
@@ -22653,6 +22755,7 @@ export namespace Prisma {
     lastLat: number | null
     lastLng: number | null
     lastSeenAt: Date | null
+    lastTrackState: string | null
     locateRequestedAt: Date | null
     qrSellRequired: boolean | null
     qrOrderRequired: boolean | null
@@ -22674,6 +22777,7 @@ export namespace Prisma {
     lastLat: number
     lastLng: number
     lastSeenAt: number
+    lastTrackState: number
     locateRequestedAt: number
     qrSellRequired: number
     qrOrderRequired: number
@@ -22707,6 +22811,7 @@ export namespace Prisma {
     lastLat?: true
     lastLng?: true
     lastSeenAt?: true
+    lastTrackState?: true
     locateRequestedAt?: true
     qrSellRequired?: true
     qrOrderRequired?: true
@@ -22728,6 +22833,7 @@ export namespace Prisma {
     lastLat?: true
     lastLng?: true
     lastSeenAt?: true
+    lastTrackState?: true
     locateRequestedAt?: true
     qrSellRequired?: true
     qrOrderRequired?: true
@@ -22749,6 +22855,7 @@ export namespace Prisma {
     lastLat?: true
     lastLng?: true
     lastSeenAt?: true
+    lastTrackState?: true
     locateRequestedAt?: true
     qrSellRequired?: true
     qrOrderRequired?: true
@@ -22857,6 +22964,7 @@ export namespace Prisma {
     lastLat: number | null
     lastLng: number | null
     lastSeenAt: Date | null
+    lastTrackState: string | null
     locateRequestedAt: Date | null
     qrSellRequired: boolean
     qrOrderRequired: boolean
@@ -22897,6 +23005,7 @@ export namespace Prisma {
     lastLat?: boolean
     lastLng?: boolean
     lastSeenAt?: boolean
+    lastTrackState?: boolean
     locateRequestedAt?: boolean
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -22914,6 +23023,7 @@ export namespace Prisma {
     closedVisits?: boolean | Store$closedVisitsArgs<ExtArgs>
     tournees?: boolean | Store$tourneesArgs<ExtArgs>
     tourneePlans?: boolean | Store$tourneePlansArgs<ExtArgs>
+    positions?: boolean | Store$positionsArgs<ExtArgs>
     expenseLinks?: boolean | Store$expenseLinksArgs<ExtArgs>
     devices?: boolean | Store$devicesArgs<ExtArgs>
     dailyCloses?: boolean | Store$dailyClosesArgs<ExtArgs>
@@ -22934,6 +23044,7 @@ export namespace Prisma {
     lastLat?: boolean
     lastLng?: boolean
     lastSeenAt?: boolean
+    lastTrackState?: boolean
     locateRequestedAt?: boolean
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -22957,6 +23068,7 @@ export namespace Prisma {
     lastLat?: boolean
     lastLng?: boolean
     lastSeenAt?: boolean
+    lastTrackState?: boolean
     locateRequestedAt?: boolean
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -22980,6 +23092,7 @@ export namespace Prisma {
     lastLat?: boolean
     lastLng?: boolean
     lastSeenAt?: boolean
+    lastTrackState?: boolean
     locateRequestedAt?: boolean
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -22987,7 +23100,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type StoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "name" | "address" | "kind" | "marque" | "matricule" | "imageUrl" | "userId" | "isActive" | "lastLat" | "lastLng" | "lastSeenAt" | "locateRequestedAt" | "qrSellRequired" | "qrOrderRequired" | "createdAt" | "updatedAt", ExtArgs["result"]["store"]>
+  export type StoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "name" | "address" | "kind" | "marque" | "matricule" | "imageUrl" | "userId" | "isActive" | "lastLat" | "lastLng" | "lastSeenAt" | "lastTrackState" | "locateRequestedAt" | "qrSellRequired" | "qrOrderRequired" | "createdAt" | "updatedAt", ExtArgs["result"]["store"]>
   export type StoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     user?: boolean | Store$userArgs<ExtArgs>
@@ -23001,6 +23114,7 @@ export namespace Prisma {
     closedVisits?: boolean | Store$closedVisitsArgs<ExtArgs>
     tournees?: boolean | Store$tourneesArgs<ExtArgs>
     tourneePlans?: boolean | Store$tourneePlansArgs<ExtArgs>
+    positions?: boolean | Store$positionsArgs<ExtArgs>
     expenseLinks?: boolean | Store$expenseLinksArgs<ExtArgs>
     devices?: boolean | Store$devicesArgs<ExtArgs>
     dailyCloses?: boolean | Store$dailyClosesArgs<ExtArgs>
@@ -23030,6 +23144,7 @@ export namespace Prisma {
       closedVisits: Prisma.$ClosedVisitPayload<ExtArgs>[]
       tournees: Prisma.$TourneePayload<ExtArgs>[]
       tourneePlans: Prisma.$TourneePlanPayload<ExtArgs>[]
+      positions: Prisma.$VanPositionPayload<ExtArgs>[]
       expenseLinks: Prisma.$ExpensePayload<ExtArgs>[]
       devices: Prisma.$DevicePayload<ExtArgs>[]
       dailyCloses: Prisma.$DailyClosePayload<ExtArgs>[]
@@ -23057,6 +23172,10 @@ export namespace Prisma {
       lastLat: number | null
       lastLng: number | null
       lastSeenAt: Date | null
+      /**
+       * What the phone says about its own tracking health (permissions, battery…), JSON.
+       */
+      lastTrackState: string | null
       /**
        * Admin pressed "request location" (POST /api/vans/[id]/locate).
        * The APK polls it and reports immediately; cleared on next report.
@@ -23476,6 +23595,7 @@ export namespace Prisma {
     closedVisits<T extends Store$closedVisitsArgs<ExtArgs> = {}>(args?: Subset<T, Store$closedVisitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tournees<T extends Store$tourneesArgs<ExtArgs> = {}>(args?: Subset<T, Store$tourneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tourneePlans<T extends Store$tourneePlansArgs<ExtArgs> = {}>(args?: Subset<T, Store$tourneePlansArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    positions<T extends Store$positionsArgs<ExtArgs> = {}>(args?: Subset<T, Store$positionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VanPositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     expenseLinks<T extends Store$expenseLinksArgs<ExtArgs> = {}>(args?: Subset<T, Store$expenseLinksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     devices<T extends Store$devicesArgs<ExtArgs> = {}>(args?: Subset<T, Store$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     dailyCloses<T extends Store$dailyClosesArgs<ExtArgs> = {}>(args?: Subset<T, Store$dailyClosesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DailyClosePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -23521,6 +23641,7 @@ export namespace Prisma {
     readonly lastLat: FieldRef<"Store", 'Float'>
     readonly lastLng: FieldRef<"Store", 'Float'>
     readonly lastSeenAt: FieldRef<"Store", 'DateTime'>
+    readonly lastTrackState: FieldRef<"Store", 'String'>
     readonly locateRequestedAt: FieldRef<"Store", 'DateTime'>
     readonly qrSellRequired: FieldRef<"Store", 'Boolean'>
     readonly qrOrderRequired: FieldRef<"Store", 'Boolean'>
@@ -24181,6 +24302,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TourneePlanScalarFieldEnum | TourneePlanScalarFieldEnum[]
+  }
+
+  /**
+   * Store.positions
+   */
+  export type Store$positionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionInclude<ExtArgs> | null
+    where?: VanPositionWhereInput
+    orderBy?: VanPositionOrderByWithRelationInput | VanPositionOrderByWithRelationInput[]
+    cursor?: VanPositionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: VanPositionScalarFieldEnum | VanPositionScalarFieldEnum[]
   }
 
   /**
@@ -77867,6 +78012,1168 @@ export namespace Prisma {
 
 
   /**
+   * Model VanPosition
+   */
+
+  export type AggregateVanPosition = {
+    _count: VanPositionCountAggregateOutputType | null
+    _avg: VanPositionAvgAggregateOutputType | null
+    _sum: VanPositionSumAggregateOutputType | null
+    _min: VanPositionMinAggregateOutputType | null
+    _max: VanPositionMaxAggregateOutputType | null
+  }
+
+  export type VanPositionAvgAggregateOutputType = {
+    lat: number | null
+    lng: number | null
+    accuracy: number | null
+    speed: number | null
+  }
+
+  export type VanPositionSumAggregateOutputType = {
+    lat: number | null
+    lng: number | null
+    accuracy: number | null
+    speed: number | null
+  }
+
+  export type VanPositionMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    vanId: string | null
+    lat: number | null
+    lng: number | null
+    accuracy: number | null
+    speed: number | null
+    recordedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type VanPositionMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    vanId: string | null
+    lat: number | null
+    lng: number | null
+    accuracy: number | null
+    speed: number | null
+    recordedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type VanPositionCountAggregateOutputType = {
+    id: number
+    companyId: number
+    vanId: number
+    lat: number
+    lng: number
+    accuracy: number
+    speed: number
+    recordedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type VanPositionAvgAggregateInputType = {
+    lat?: true
+    lng?: true
+    accuracy?: true
+    speed?: true
+  }
+
+  export type VanPositionSumAggregateInputType = {
+    lat?: true
+    lng?: true
+    accuracy?: true
+    speed?: true
+  }
+
+  export type VanPositionMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    vanId?: true
+    lat?: true
+    lng?: true
+    accuracy?: true
+    speed?: true
+    recordedAt?: true
+    createdAt?: true
+  }
+
+  export type VanPositionMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    vanId?: true
+    lat?: true
+    lng?: true
+    accuracy?: true
+    speed?: true
+    recordedAt?: true
+    createdAt?: true
+  }
+
+  export type VanPositionCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    vanId?: true
+    lat?: true
+    lng?: true
+    accuracy?: true
+    speed?: true
+    recordedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type VanPositionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VanPosition to aggregate.
+     */
+    where?: VanPositionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VanPositions to fetch.
+     */
+    orderBy?: VanPositionOrderByWithRelationInput | VanPositionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: VanPositionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VanPositions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VanPositions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned VanPositions
+    **/
+    _count?: true | VanPositionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: VanPositionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: VanPositionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: VanPositionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: VanPositionMaxAggregateInputType
+  }
+
+  export type GetVanPositionAggregateType<T extends VanPositionAggregateArgs> = {
+        [P in keyof T & keyof AggregateVanPosition]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateVanPosition[P]>
+      : GetScalarType<T[P], AggregateVanPosition[P]>
+  }
+
+
+
+
+  export type VanPositionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VanPositionWhereInput
+    orderBy?: VanPositionOrderByWithAggregationInput | VanPositionOrderByWithAggregationInput[]
+    by: VanPositionScalarFieldEnum[] | VanPositionScalarFieldEnum
+    having?: VanPositionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: VanPositionCountAggregateInputType | true
+    _avg?: VanPositionAvgAggregateInputType
+    _sum?: VanPositionSumAggregateInputType
+    _min?: VanPositionMinAggregateInputType
+    _max?: VanPositionMaxAggregateInputType
+  }
+
+  export type VanPositionGroupByOutputType = {
+    id: string
+    companyId: string
+    vanId: string
+    lat: number
+    lng: number
+    accuracy: number | null
+    speed: number | null
+    recordedAt: Date
+    createdAt: Date
+    _count: VanPositionCountAggregateOutputType | null
+    _avg: VanPositionAvgAggregateOutputType | null
+    _sum: VanPositionSumAggregateOutputType | null
+    _min: VanPositionMinAggregateOutputType | null
+    _max: VanPositionMaxAggregateOutputType | null
+  }
+
+  type GetVanPositionGroupByPayload<T extends VanPositionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<VanPositionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof VanPositionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], VanPositionGroupByOutputType[P]>
+            : GetScalarType<T[P], VanPositionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type VanPositionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    vanId?: boolean
+    lat?: boolean
+    lng?: boolean
+    accuracy?: boolean
+    speed?: boolean
+    recordedAt?: boolean
+    createdAt?: boolean
+    van?: boolean | StoreDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["vanPosition"]>
+
+  export type VanPositionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    vanId?: boolean
+    lat?: boolean
+    lng?: boolean
+    accuracy?: boolean
+    speed?: boolean
+    recordedAt?: boolean
+    createdAt?: boolean
+    van?: boolean | StoreDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["vanPosition"]>
+
+  export type VanPositionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    vanId?: boolean
+    lat?: boolean
+    lng?: boolean
+    accuracy?: boolean
+    speed?: boolean
+    recordedAt?: boolean
+    createdAt?: boolean
+    van?: boolean | StoreDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["vanPosition"]>
+
+  export type VanPositionSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    vanId?: boolean
+    lat?: boolean
+    lng?: boolean
+    accuracy?: boolean
+    speed?: boolean
+    recordedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type VanPositionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "vanId" | "lat" | "lng" | "accuracy" | "speed" | "recordedAt" | "createdAt", ExtArgs["result"]["vanPosition"]>
+  export type VanPositionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    van?: boolean | StoreDefaultArgs<ExtArgs>
+  }
+  export type VanPositionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    van?: boolean | StoreDefaultArgs<ExtArgs>
+  }
+  export type VanPositionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    van?: boolean | StoreDefaultArgs<ExtArgs>
+  }
+
+  export type $VanPositionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "VanPosition"
+    objects: {
+      van: Prisma.$StorePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      vanId: string
+      lat: number
+      lng: number
+      accuracy: number | null
+      speed: number | null
+      /**
+       * When the phone took the fix (not when it reached the server).
+       */
+      recordedAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["vanPosition"]>
+    composites: {}
+  }
+
+  type VanPositionGetPayload<S extends boolean | null | undefined | VanPositionDefaultArgs> = $Result.GetResult<Prisma.$VanPositionPayload, S>
+
+  type VanPositionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<VanPositionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: VanPositionCountAggregateInputType | true
+    }
+
+  export interface VanPositionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['VanPosition'], meta: { name: 'VanPosition' } }
+    /**
+     * Find zero or one VanPosition that matches the filter.
+     * @param {VanPositionFindUniqueArgs} args - Arguments to find a VanPosition
+     * @example
+     * // Get one VanPosition
+     * const vanPosition = await prisma.vanPosition.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends VanPositionFindUniqueArgs>(args: SelectSubset<T, VanPositionFindUniqueArgs<ExtArgs>>): Prisma__VanPositionClient<$Result.GetResult<Prisma.$VanPositionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one VanPosition that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {VanPositionFindUniqueOrThrowArgs} args - Arguments to find a VanPosition
+     * @example
+     * // Get one VanPosition
+     * const vanPosition = await prisma.vanPosition.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends VanPositionFindUniqueOrThrowArgs>(args: SelectSubset<T, VanPositionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VanPositionClient<$Result.GetResult<Prisma.$VanPositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first VanPosition that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VanPositionFindFirstArgs} args - Arguments to find a VanPosition
+     * @example
+     * // Get one VanPosition
+     * const vanPosition = await prisma.vanPosition.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends VanPositionFindFirstArgs>(args?: SelectSubset<T, VanPositionFindFirstArgs<ExtArgs>>): Prisma__VanPositionClient<$Result.GetResult<Prisma.$VanPositionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first VanPosition that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VanPositionFindFirstOrThrowArgs} args - Arguments to find a VanPosition
+     * @example
+     * // Get one VanPosition
+     * const vanPosition = await prisma.vanPosition.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends VanPositionFindFirstOrThrowArgs>(args?: SelectSubset<T, VanPositionFindFirstOrThrowArgs<ExtArgs>>): Prisma__VanPositionClient<$Result.GetResult<Prisma.$VanPositionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more VanPositions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VanPositionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all VanPositions
+     * const vanPositions = await prisma.vanPosition.findMany()
+     * 
+     * // Get first 10 VanPositions
+     * const vanPositions = await prisma.vanPosition.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const vanPositionWithIdOnly = await prisma.vanPosition.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends VanPositionFindManyArgs>(args?: SelectSubset<T, VanPositionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VanPositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a VanPosition.
+     * @param {VanPositionCreateArgs} args - Arguments to create a VanPosition.
+     * @example
+     * // Create one VanPosition
+     * const VanPosition = await prisma.vanPosition.create({
+     *   data: {
+     *     // ... data to create a VanPosition
+     *   }
+     * })
+     * 
+     */
+    create<T extends VanPositionCreateArgs>(args: SelectSubset<T, VanPositionCreateArgs<ExtArgs>>): Prisma__VanPositionClient<$Result.GetResult<Prisma.$VanPositionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many VanPositions.
+     * @param {VanPositionCreateManyArgs} args - Arguments to create many VanPositions.
+     * @example
+     * // Create many VanPositions
+     * const vanPosition = await prisma.vanPosition.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends VanPositionCreateManyArgs>(args?: SelectSubset<T, VanPositionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many VanPositions and returns the data saved in the database.
+     * @param {VanPositionCreateManyAndReturnArgs} args - Arguments to create many VanPositions.
+     * @example
+     * // Create many VanPositions
+     * const vanPosition = await prisma.vanPosition.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many VanPositions and only return the `id`
+     * const vanPositionWithIdOnly = await prisma.vanPosition.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends VanPositionCreateManyAndReturnArgs>(args?: SelectSubset<T, VanPositionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VanPositionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a VanPosition.
+     * @param {VanPositionDeleteArgs} args - Arguments to delete one VanPosition.
+     * @example
+     * // Delete one VanPosition
+     * const VanPosition = await prisma.vanPosition.delete({
+     *   where: {
+     *     // ... filter to delete one VanPosition
+     *   }
+     * })
+     * 
+     */
+    delete<T extends VanPositionDeleteArgs>(args: SelectSubset<T, VanPositionDeleteArgs<ExtArgs>>): Prisma__VanPositionClient<$Result.GetResult<Prisma.$VanPositionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one VanPosition.
+     * @param {VanPositionUpdateArgs} args - Arguments to update one VanPosition.
+     * @example
+     * // Update one VanPosition
+     * const vanPosition = await prisma.vanPosition.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends VanPositionUpdateArgs>(args: SelectSubset<T, VanPositionUpdateArgs<ExtArgs>>): Prisma__VanPositionClient<$Result.GetResult<Prisma.$VanPositionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more VanPositions.
+     * @param {VanPositionDeleteManyArgs} args - Arguments to filter VanPositions to delete.
+     * @example
+     * // Delete a few VanPositions
+     * const { count } = await prisma.vanPosition.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends VanPositionDeleteManyArgs>(args?: SelectSubset<T, VanPositionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VanPositions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VanPositionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many VanPositions
+     * const vanPosition = await prisma.vanPosition.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends VanPositionUpdateManyArgs>(args: SelectSubset<T, VanPositionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VanPositions and returns the data updated in the database.
+     * @param {VanPositionUpdateManyAndReturnArgs} args - Arguments to update many VanPositions.
+     * @example
+     * // Update many VanPositions
+     * const vanPosition = await prisma.vanPosition.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more VanPositions and only return the `id`
+     * const vanPositionWithIdOnly = await prisma.vanPosition.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends VanPositionUpdateManyAndReturnArgs>(args: SelectSubset<T, VanPositionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VanPositionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one VanPosition.
+     * @param {VanPositionUpsertArgs} args - Arguments to update or create a VanPosition.
+     * @example
+     * // Update or create a VanPosition
+     * const vanPosition = await prisma.vanPosition.upsert({
+     *   create: {
+     *     // ... data to create a VanPosition
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the VanPosition we want to update
+     *   }
+     * })
+     */
+    upsert<T extends VanPositionUpsertArgs>(args: SelectSubset<T, VanPositionUpsertArgs<ExtArgs>>): Prisma__VanPositionClient<$Result.GetResult<Prisma.$VanPositionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of VanPositions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VanPositionCountArgs} args - Arguments to filter VanPositions to count.
+     * @example
+     * // Count the number of VanPositions
+     * const count = await prisma.vanPosition.count({
+     *   where: {
+     *     // ... the filter for the VanPositions we want to count
+     *   }
+     * })
+    **/
+    count<T extends VanPositionCountArgs>(
+      args?: Subset<T, VanPositionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], VanPositionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a VanPosition.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VanPositionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends VanPositionAggregateArgs>(args: Subset<T, VanPositionAggregateArgs>): Prisma.PrismaPromise<GetVanPositionAggregateType<T>>
+
+    /**
+     * Group by VanPosition.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VanPositionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends VanPositionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: VanPositionGroupByArgs['orderBy'] }
+        : { orderBy?: VanPositionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, VanPositionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVanPositionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the VanPosition model
+   */
+  readonly fields: VanPositionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for VanPosition.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__VanPositionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    van<T extends StoreDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StoreDefaultArgs<ExtArgs>>): Prisma__StoreClient<$Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the VanPosition model
+   */
+  interface VanPositionFieldRefs {
+    readonly id: FieldRef<"VanPosition", 'String'>
+    readonly companyId: FieldRef<"VanPosition", 'String'>
+    readonly vanId: FieldRef<"VanPosition", 'String'>
+    readonly lat: FieldRef<"VanPosition", 'Float'>
+    readonly lng: FieldRef<"VanPosition", 'Float'>
+    readonly accuracy: FieldRef<"VanPosition", 'Float'>
+    readonly speed: FieldRef<"VanPosition", 'Float'>
+    readonly recordedAt: FieldRef<"VanPosition", 'DateTime'>
+    readonly createdAt: FieldRef<"VanPosition", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * VanPosition findUnique
+   */
+  export type VanPositionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionInclude<ExtArgs> | null
+    /**
+     * Filter, which VanPosition to fetch.
+     */
+    where: VanPositionWhereUniqueInput
+  }
+
+  /**
+   * VanPosition findUniqueOrThrow
+   */
+  export type VanPositionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionInclude<ExtArgs> | null
+    /**
+     * Filter, which VanPosition to fetch.
+     */
+    where: VanPositionWhereUniqueInput
+  }
+
+  /**
+   * VanPosition findFirst
+   */
+  export type VanPositionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionInclude<ExtArgs> | null
+    /**
+     * Filter, which VanPosition to fetch.
+     */
+    where?: VanPositionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VanPositions to fetch.
+     */
+    orderBy?: VanPositionOrderByWithRelationInput | VanPositionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VanPositions.
+     */
+    cursor?: VanPositionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VanPositions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VanPositions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VanPositions.
+     */
+    distinct?: VanPositionScalarFieldEnum | VanPositionScalarFieldEnum[]
+  }
+
+  /**
+   * VanPosition findFirstOrThrow
+   */
+  export type VanPositionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionInclude<ExtArgs> | null
+    /**
+     * Filter, which VanPosition to fetch.
+     */
+    where?: VanPositionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VanPositions to fetch.
+     */
+    orderBy?: VanPositionOrderByWithRelationInput | VanPositionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VanPositions.
+     */
+    cursor?: VanPositionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VanPositions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VanPositions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VanPositions.
+     */
+    distinct?: VanPositionScalarFieldEnum | VanPositionScalarFieldEnum[]
+  }
+
+  /**
+   * VanPosition findMany
+   */
+  export type VanPositionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionInclude<ExtArgs> | null
+    /**
+     * Filter, which VanPositions to fetch.
+     */
+    where?: VanPositionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VanPositions to fetch.
+     */
+    orderBy?: VanPositionOrderByWithRelationInput | VanPositionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing VanPositions.
+     */
+    cursor?: VanPositionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VanPositions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VanPositions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VanPositions.
+     */
+    distinct?: VanPositionScalarFieldEnum | VanPositionScalarFieldEnum[]
+  }
+
+  /**
+   * VanPosition create
+   */
+  export type VanPositionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a VanPosition.
+     */
+    data: XOR<VanPositionCreateInput, VanPositionUncheckedCreateInput>
+  }
+
+  /**
+   * VanPosition createMany
+   */
+  export type VanPositionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many VanPositions.
+     */
+    data: VanPositionCreateManyInput | VanPositionCreateManyInput[]
+  }
+
+  /**
+   * VanPosition createManyAndReturn
+   */
+  export type VanPositionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * The data used to create many VanPositions.
+     */
+    data: VanPositionCreateManyInput | VanPositionCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * VanPosition update
+   */
+  export type VanPositionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a VanPosition.
+     */
+    data: XOR<VanPositionUpdateInput, VanPositionUncheckedUpdateInput>
+    /**
+     * Choose, which VanPosition to update.
+     */
+    where: VanPositionWhereUniqueInput
+  }
+
+  /**
+   * VanPosition updateMany
+   */
+  export type VanPositionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update VanPositions.
+     */
+    data: XOR<VanPositionUpdateManyMutationInput, VanPositionUncheckedUpdateManyInput>
+    /**
+     * Filter which VanPositions to update
+     */
+    where?: VanPositionWhereInput
+    /**
+     * Limit how many VanPositions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * VanPosition updateManyAndReturn
+   */
+  export type VanPositionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * The data used to update VanPositions.
+     */
+    data: XOR<VanPositionUpdateManyMutationInput, VanPositionUncheckedUpdateManyInput>
+    /**
+     * Filter which VanPositions to update
+     */
+    where?: VanPositionWhereInput
+    /**
+     * Limit how many VanPositions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * VanPosition upsert
+   */
+  export type VanPositionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the VanPosition to update in case it exists.
+     */
+    where: VanPositionWhereUniqueInput
+    /**
+     * In case the VanPosition found by the `where` argument doesn't exist, create a new VanPosition with this data.
+     */
+    create: XOR<VanPositionCreateInput, VanPositionUncheckedCreateInput>
+    /**
+     * In case the VanPosition was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<VanPositionUpdateInput, VanPositionUncheckedUpdateInput>
+  }
+
+  /**
+   * VanPosition delete
+   */
+  export type VanPositionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionInclude<ExtArgs> | null
+    /**
+     * Filter which VanPosition to delete.
+     */
+    where: VanPositionWhereUniqueInput
+  }
+
+  /**
+   * VanPosition deleteMany
+   */
+  export type VanPositionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VanPositions to delete
+     */
+    where?: VanPositionWhereInput
+    /**
+     * Limit how many VanPositions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * VanPosition without action
+   */
+  export type VanPositionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VanPosition
+     */
+    select?: VanPositionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VanPosition
+     */
+    omit?: VanPositionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VanPositionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -78070,6 +79377,7 @@ export namespace Prisma {
     lastLat: 'lastLat',
     lastLng: 'lastLng',
     lastSeenAt: 'lastSeenAt',
+    lastTrackState: 'lastTrackState',
     locateRequestedAt: 'locateRequestedAt',
     qrSellRequired: 'qrSellRequired',
     qrOrderRequired: 'qrOrderRequired',
@@ -78809,6 +80117,21 @@ export namespace Prisma {
   };
 
   export type TourneePlanScalarFieldEnum = (typeof TourneePlanScalarFieldEnum)[keyof typeof TourneePlanScalarFieldEnum]
+
+
+  export const VanPositionScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    vanId: 'vanId',
+    lat: 'lat',
+    lng: 'lng',
+    accuracy: 'accuracy',
+    speed: 'speed',
+    recordedAt: 'recordedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type VanPositionScalarFieldEnum = (typeof VanPositionScalarFieldEnum)[keyof typeof VanPositionScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -80004,6 +81327,7 @@ export namespace Prisma {
     lastLat?: FloatNullableFilter<"Store"> | number | null
     lastLng?: FloatNullableFilter<"Store"> | number | null
     lastSeenAt?: DateTimeNullableFilter<"Store"> | Date | string | null
+    lastTrackState?: StringNullableFilter<"Store"> | string | null
     locateRequestedAt?: DateTimeNullableFilter<"Store"> | Date | string | null
     qrSellRequired?: BoolFilter<"Store"> | boolean
     qrOrderRequired?: BoolFilter<"Store"> | boolean
@@ -80021,6 +81345,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitListRelationFilter
     tournees?: TourneeListRelationFilter
     tourneePlans?: TourneePlanListRelationFilter
+    positions?: VanPositionListRelationFilter
     expenseLinks?: ExpenseListRelationFilter
     devices?: DeviceListRelationFilter
     dailyCloses?: DailyCloseListRelationFilter
@@ -80040,6 +81365,7 @@ export namespace Prisma {
     lastLat?: SortOrderInput | SortOrder
     lastLng?: SortOrderInput | SortOrder
     lastSeenAt?: SortOrderInput | SortOrder
+    lastTrackState?: SortOrderInput | SortOrder
     locateRequestedAt?: SortOrderInput | SortOrder
     qrSellRequired?: SortOrder
     qrOrderRequired?: SortOrder
@@ -80057,6 +81383,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitOrderByRelationAggregateInput
     tournees?: TourneeOrderByRelationAggregateInput
     tourneePlans?: TourneePlanOrderByRelationAggregateInput
+    positions?: VanPositionOrderByRelationAggregateInput
     expenseLinks?: ExpenseOrderByRelationAggregateInput
     devices?: DeviceOrderByRelationAggregateInput
     dailyCloses?: DailyCloseOrderByRelationAggregateInput
@@ -80080,6 +81407,7 @@ export namespace Prisma {
     lastLat?: FloatNullableFilter<"Store"> | number | null
     lastLng?: FloatNullableFilter<"Store"> | number | null
     lastSeenAt?: DateTimeNullableFilter<"Store"> | Date | string | null
+    lastTrackState?: StringNullableFilter<"Store"> | string | null
     locateRequestedAt?: DateTimeNullableFilter<"Store"> | Date | string | null
     qrSellRequired?: BoolFilter<"Store"> | boolean
     qrOrderRequired?: BoolFilter<"Store"> | boolean
@@ -80097,6 +81425,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitListRelationFilter
     tournees?: TourneeListRelationFilter
     tourneePlans?: TourneePlanListRelationFilter
+    positions?: VanPositionListRelationFilter
     expenseLinks?: ExpenseListRelationFilter
     devices?: DeviceListRelationFilter
     dailyCloses?: DailyCloseListRelationFilter
@@ -80116,6 +81445,7 @@ export namespace Prisma {
     lastLat?: SortOrderInput | SortOrder
     lastLng?: SortOrderInput | SortOrder
     lastSeenAt?: SortOrderInput | SortOrder
+    lastTrackState?: SortOrderInput | SortOrder
     locateRequestedAt?: SortOrderInput | SortOrder
     qrSellRequired?: SortOrder
     qrOrderRequired?: SortOrder
@@ -80145,6 +81475,7 @@ export namespace Prisma {
     lastLat?: FloatNullableWithAggregatesFilter<"Store"> | number | null
     lastLng?: FloatNullableWithAggregatesFilter<"Store"> | number | null
     lastSeenAt?: DateTimeNullableWithAggregatesFilter<"Store"> | Date | string | null
+    lastTrackState?: StringNullableWithAggregatesFilter<"Store"> | string | null
     locateRequestedAt?: DateTimeNullableWithAggregatesFilter<"Store"> | Date | string | null
     qrSellRequired?: BoolWithAggregatesFilter<"Store"> | boolean
     qrOrderRequired?: BoolWithAggregatesFilter<"Store"> | boolean
@@ -84200,6 +85531,83 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"TourneePlan"> | Date | string
   }
 
+  export type VanPositionWhereInput = {
+    AND?: VanPositionWhereInput | VanPositionWhereInput[]
+    OR?: VanPositionWhereInput[]
+    NOT?: VanPositionWhereInput | VanPositionWhereInput[]
+    id?: StringFilter<"VanPosition"> | string
+    companyId?: StringFilter<"VanPosition"> | string
+    vanId?: StringFilter<"VanPosition"> | string
+    lat?: FloatFilter<"VanPosition"> | number
+    lng?: FloatFilter<"VanPosition"> | number
+    accuracy?: FloatNullableFilter<"VanPosition"> | number | null
+    speed?: FloatNullableFilter<"VanPosition"> | number | null
+    recordedAt?: DateTimeFilter<"VanPosition"> | Date | string
+    createdAt?: DateTimeFilter<"VanPosition"> | Date | string
+    van?: XOR<StoreScalarRelationFilter, StoreWhereInput>
+  }
+
+  export type VanPositionOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    vanId?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    accuracy?: SortOrderInput | SortOrder
+    speed?: SortOrderInput | SortOrder
+    recordedAt?: SortOrder
+    createdAt?: SortOrder
+    van?: StoreOrderByWithRelationInput
+  }
+
+  export type VanPositionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: VanPositionWhereInput | VanPositionWhereInput[]
+    OR?: VanPositionWhereInput[]
+    NOT?: VanPositionWhereInput | VanPositionWhereInput[]
+    companyId?: StringFilter<"VanPosition"> | string
+    vanId?: StringFilter<"VanPosition"> | string
+    lat?: FloatFilter<"VanPosition"> | number
+    lng?: FloatFilter<"VanPosition"> | number
+    accuracy?: FloatNullableFilter<"VanPosition"> | number | null
+    speed?: FloatNullableFilter<"VanPosition"> | number | null
+    recordedAt?: DateTimeFilter<"VanPosition"> | Date | string
+    createdAt?: DateTimeFilter<"VanPosition"> | Date | string
+    van?: XOR<StoreScalarRelationFilter, StoreWhereInput>
+  }, "id">
+
+  export type VanPositionOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    vanId?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    accuracy?: SortOrderInput | SortOrder
+    speed?: SortOrderInput | SortOrder
+    recordedAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: VanPositionCountOrderByAggregateInput
+    _avg?: VanPositionAvgOrderByAggregateInput
+    _max?: VanPositionMaxOrderByAggregateInput
+    _min?: VanPositionMinOrderByAggregateInput
+    _sum?: VanPositionSumOrderByAggregateInput
+  }
+
+  export type VanPositionScalarWhereWithAggregatesInput = {
+    AND?: VanPositionScalarWhereWithAggregatesInput | VanPositionScalarWhereWithAggregatesInput[]
+    OR?: VanPositionScalarWhereWithAggregatesInput[]
+    NOT?: VanPositionScalarWhereWithAggregatesInput | VanPositionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"VanPosition"> | string
+    companyId?: StringWithAggregatesFilter<"VanPosition"> | string
+    vanId?: StringWithAggregatesFilter<"VanPosition"> | string
+    lat?: FloatWithAggregatesFilter<"VanPosition"> | number
+    lng?: FloatWithAggregatesFilter<"VanPosition"> | number
+    accuracy?: FloatNullableWithAggregatesFilter<"VanPosition"> | number | null
+    speed?: FloatNullableWithAggregatesFilter<"VanPosition"> | number | null
+    recordedAt?: DateTimeWithAggregatesFilter<"VanPosition"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"VanPosition"> | Date | string
+  }
+
   export type CompanyCreateInput = {
     id?: string
     name: string
@@ -85418,6 +86826,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -85435,6 +86844,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -85454,6 +86864,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -85469,6 +86880,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -85486,6 +86898,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -85503,6 +86916,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -85522,6 +86936,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -85537,6 +86952,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -85556,6 +86972,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -85575,6 +86992,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -85596,6 +87014,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -89877,6 +91296,89 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type VanPositionCreateInput = {
+    id?: string
+    companyId: string
+    lat: number
+    lng: number
+    accuracy?: number | null
+    speed?: number | null
+    recordedAt: Date | string
+    createdAt?: Date | string
+    van: StoreCreateNestedOneWithoutPositionsInput
+  }
+
+  export type VanPositionUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    vanId: string
+    lat: number
+    lng: number
+    accuracy?: number | null
+    speed?: number | null
+    recordedAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type VanPositionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    lat?: FloatFieldUpdateOperationsInput | number
+    lng?: FloatFieldUpdateOperationsInput | number
+    accuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    speed?: NullableFloatFieldUpdateOperationsInput | number | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    van?: StoreUpdateOneRequiredWithoutPositionsNestedInput
+  }
+
+  export type VanPositionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    vanId?: StringFieldUpdateOperationsInput | string
+    lat?: FloatFieldUpdateOperationsInput | number
+    lng?: FloatFieldUpdateOperationsInput | number
+    accuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    speed?: NullableFloatFieldUpdateOperationsInput | number | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VanPositionCreateManyInput = {
+    id?: string
+    companyId: string
+    vanId: string
+    lat: number
+    lng: number
+    accuracy?: number | null
+    speed?: number | null
+    recordedAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type VanPositionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    lat?: FloatFieldUpdateOperationsInput | number
+    lng?: FloatFieldUpdateOperationsInput | number
+    accuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    speed?: NullableFloatFieldUpdateOperationsInput | number | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VanPositionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    vanId?: StringFieldUpdateOperationsInput | string
+    lat?: FloatFieldUpdateOperationsInput | number
+    lng?: FloatFieldUpdateOperationsInput | number
+    accuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    speed?: NullableFloatFieldUpdateOperationsInput | number | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -90966,6 +92468,16 @@ export namespace Prisma {
     isNot?: UserWhereInput | null
   }
 
+  export type VanPositionListRelationFilter = {
+    every?: VanPositionWhereInput
+    some?: VanPositionWhereInput
+    none?: VanPositionWhereInput
+  }
+
+  export type VanPositionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type StoreCompanyIdUserIdCompoundUniqueInput = {
     companyId: string
     userId: string
@@ -90985,6 +92497,7 @@ export namespace Prisma {
     lastLat?: SortOrder
     lastLng?: SortOrder
     lastSeenAt?: SortOrder
+    lastTrackState?: SortOrder
     locateRequestedAt?: SortOrder
     qrSellRequired?: SortOrder
     qrOrderRequired?: SortOrder
@@ -91011,6 +92524,7 @@ export namespace Prisma {
     lastLat?: SortOrder
     lastLng?: SortOrder
     lastSeenAt?: SortOrder
+    lastTrackState?: SortOrder
     locateRequestedAt?: SortOrder
     qrSellRequired?: SortOrder
     qrOrderRequired?: SortOrder
@@ -91032,6 +92546,7 @@ export namespace Prisma {
     lastLat?: SortOrder
     lastLng?: SortOrder
     lastSeenAt?: SortOrder
+    lastTrackState?: SortOrder
     locateRequestedAt?: SortOrder
     qrSellRequired?: SortOrder
     qrOrderRequired?: SortOrder
@@ -93742,6 +95257,56 @@ export namespace Prisma {
     slot?: SortOrder
   }
 
+  export type VanPositionCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    vanId?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    accuracy?: SortOrder
+    speed?: SortOrder
+    recordedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type VanPositionAvgOrderByAggregateInput = {
+    lat?: SortOrder
+    lng?: SortOrder
+    accuracy?: SortOrder
+    speed?: SortOrder
+  }
+
+  export type VanPositionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    vanId?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    accuracy?: SortOrder
+    speed?: SortOrder
+    recordedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type VanPositionMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    vanId?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    accuracy?: SortOrder
+    speed?: SortOrder
+    recordedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type VanPositionSumOrderByAggregateInput = {
+    lat?: SortOrder
+    lng?: SortOrder
+    accuracy?: SortOrder
+    speed?: SortOrder
+  }
+
   export type UserCreateNestedManyWithoutCompanyInput = {
     create?: XOR<UserCreateWithoutCompanyInput, UserUncheckedCreateWithoutCompanyInput> | UserCreateWithoutCompanyInput[] | UserUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserCreateOrConnectWithoutCompanyInput | UserCreateOrConnectWithoutCompanyInput[]
@@ -96274,6 +97839,13 @@ export namespace Prisma {
     connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
   }
 
+  export type VanPositionCreateNestedManyWithoutVanInput = {
+    create?: XOR<VanPositionCreateWithoutVanInput, VanPositionUncheckedCreateWithoutVanInput> | VanPositionCreateWithoutVanInput[] | VanPositionUncheckedCreateWithoutVanInput[]
+    connectOrCreate?: VanPositionCreateOrConnectWithoutVanInput | VanPositionCreateOrConnectWithoutVanInput[]
+    createMany?: VanPositionCreateManyVanInputEnvelope
+    connect?: VanPositionWhereUniqueInput | VanPositionWhereUniqueInput[]
+  }
+
   export type ExpenseCreateNestedManyWithoutLocationInput = {
     create?: XOR<ExpenseCreateWithoutLocationInput, ExpenseUncheckedCreateWithoutLocationInput> | ExpenseCreateWithoutLocationInput[] | ExpenseUncheckedCreateWithoutLocationInput[]
     connectOrCreate?: ExpenseCreateOrConnectWithoutLocationInput | ExpenseCreateOrConnectWithoutLocationInput[]
@@ -96363,6 +97935,13 @@ export namespace Prisma {
     connectOrCreate?: TourneePlanCreateOrConnectWithoutLocationInput | TourneePlanCreateOrConnectWithoutLocationInput[]
     createMany?: TourneePlanCreateManyLocationInputEnvelope
     connect?: TourneePlanWhereUniqueInput | TourneePlanWhereUniqueInput[]
+  }
+
+  export type VanPositionUncheckedCreateNestedManyWithoutVanInput = {
+    create?: XOR<VanPositionCreateWithoutVanInput, VanPositionUncheckedCreateWithoutVanInput> | VanPositionCreateWithoutVanInput[] | VanPositionUncheckedCreateWithoutVanInput[]
+    connectOrCreate?: VanPositionCreateOrConnectWithoutVanInput | VanPositionCreateOrConnectWithoutVanInput[]
+    createMany?: VanPositionCreateManyVanInputEnvelope
+    connect?: VanPositionWhereUniqueInput | VanPositionWhereUniqueInput[]
   }
 
   export type ExpenseUncheckedCreateNestedManyWithoutLocationInput = {
@@ -96542,6 +98121,20 @@ export namespace Prisma {
     update?: TourneePlanUpdateWithWhereUniqueWithoutLocationInput | TourneePlanUpdateWithWhereUniqueWithoutLocationInput[]
     updateMany?: TourneePlanUpdateManyWithWhereWithoutLocationInput | TourneePlanUpdateManyWithWhereWithoutLocationInput[]
     deleteMany?: TourneePlanScalarWhereInput | TourneePlanScalarWhereInput[]
+  }
+
+  export type VanPositionUpdateManyWithoutVanNestedInput = {
+    create?: XOR<VanPositionCreateWithoutVanInput, VanPositionUncheckedCreateWithoutVanInput> | VanPositionCreateWithoutVanInput[] | VanPositionUncheckedCreateWithoutVanInput[]
+    connectOrCreate?: VanPositionCreateOrConnectWithoutVanInput | VanPositionCreateOrConnectWithoutVanInput[]
+    upsert?: VanPositionUpsertWithWhereUniqueWithoutVanInput | VanPositionUpsertWithWhereUniqueWithoutVanInput[]
+    createMany?: VanPositionCreateManyVanInputEnvelope
+    set?: VanPositionWhereUniqueInput | VanPositionWhereUniqueInput[]
+    disconnect?: VanPositionWhereUniqueInput | VanPositionWhereUniqueInput[]
+    delete?: VanPositionWhereUniqueInput | VanPositionWhereUniqueInput[]
+    connect?: VanPositionWhereUniqueInput | VanPositionWhereUniqueInput[]
+    update?: VanPositionUpdateWithWhereUniqueWithoutVanInput | VanPositionUpdateWithWhereUniqueWithoutVanInput[]
+    updateMany?: VanPositionUpdateManyWithWhereWithoutVanInput | VanPositionUpdateManyWithWhereWithoutVanInput[]
+    deleteMany?: VanPositionScalarWhereInput | VanPositionScalarWhereInput[]
   }
 
   export type ExpenseUpdateManyWithoutLocationNestedInput = {
@@ -96724,6 +98317,20 @@ export namespace Prisma {
     update?: TourneePlanUpdateWithWhereUniqueWithoutLocationInput | TourneePlanUpdateWithWhereUniqueWithoutLocationInput[]
     updateMany?: TourneePlanUpdateManyWithWhereWithoutLocationInput | TourneePlanUpdateManyWithWhereWithoutLocationInput[]
     deleteMany?: TourneePlanScalarWhereInput | TourneePlanScalarWhereInput[]
+  }
+
+  export type VanPositionUncheckedUpdateManyWithoutVanNestedInput = {
+    create?: XOR<VanPositionCreateWithoutVanInput, VanPositionUncheckedCreateWithoutVanInput> | VanPositionCreateWithoutVanInput[] | VanPositionUncheckedCreateWithoutVanInput[]
+    connectOrCreate?: VanPositionCreateOrConnectWithoutVanInput | VanPositionCreateOrConnectWithoutVanInput[]
+    upsert?: VanPositionUpsertWithWhereUniqueWithoutVanInput | VanPositionUpsertWithWhereUniqueWithoutVanInput[]
+    createMany?: VanPositionCreateManyVanInputEnvelope
+    set?: VanPositionWhereUniqueInput | VanPositionWhereUniqueInput[]
+    disconnect?: VanPositionWhereUniqueInput | VanPositionWhereUniqueInput[]
+    delete?: VanPositionWhereUniqueInput | VanPositionWhereUniqueInput[]
+    connect?: VanPositionWhereUniqueInput | VanPositionWhereUniqueInput[]
+    update?: VanPositionUpdateWithWhereUniqueWithoutVanInput | VanPositionUpdateWithWhereUniqueWithoutVanInput[]
+    updateMany?: VanPositionUpdateManyWithWhereWithoutVanInput | VanPositionUpdateManyWithWhereWithoutVanInput[]
+    deleteMany?: VanPositionScalarWhereInput | VanPositionScalarWhereInput[]
   }
 
   export type ExpenseUncheckedUpdateManyWithoutLocationNestedInput = {
@@ -100128,6 +101735,20 @@ export namespace Prisma {
     deleteMany?: TourneeScalarWhereInput | TourneeScalarWhereInput[]
   }
 
+  export type StoreCreateNestedOneWithoutPositionsInput = {
+    create?: XOR<StoreCreateWithoutPositionsInput, StoreUncheckedCreateWithoutPositionsInput>
+    connectOrCreate?: StoreCreateOrConnectWithoutPositionsInput
+    connect?: StoreWhereUniqueInput
+  }
+
+  export type StoreUpdateOneRequiredWithoutPositionsNestedInput = {
+    create?: XOR<StoreCreateWithoutPositionsInput, StoreUncheckedCreateWithoutPositionsInput>
+    connectOrCreate?: StoreCreateOrConnectWithoutPositionsInput
+    upsert?: StoreUpsertWithoutPositionsInput
+    connect?: StoreWhereUniqueInput
+    update?: XOR<XOR<StoreUpdateToOneWithWhereWithoutPositionsInput, StoreUpdateWithoutPositionsInput>, StoreUncheckedUpdateWithoutPositionsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -100496,6 +102117,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -100512,6 +102134,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -100530,6 +102153,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -100545,6 +102169,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -101811,6 +103436,7 @@ export namespace Prisma {
     lastLat?: FloatNullableFilter<"Store"> | number | null
     lastLng?: FloatNullableFilter<"Store"> | number | null
     lastSeenAt?: DateTimeNullableFilter<"Store"> | Date | string | null
+    lastTrackState?: StringNullableFilter<"Store"> | string | null
     locateRequestedAt?: DateTimeNullableFilter<"Store"> | Date | string | null
     qrSellRequired?: BoolFilter<"Store"> | boolean
     qrOrderRequired?: BoolFilter<"Store"> | boolean
@@ -105261,6 +106887,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -105277,6 +106904,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -105295,6 +106923,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -105310,6 +106939,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -106595,6 +108225,37 @@ export namespace Prisma {
     data: TourneePlanCreateManyLocationInput | TourneePlanCreateManyLocationInput[]
   }
 
+  export type VanPositionCreateWithoutVanInput = {
+    id?: string
+    companyId: string
+    lat: number
+    lng: number
+    accuracy?: number | null
+    speed?: number | null
+    recordedAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type VanPositionUncheckedCreateWithoutVanInput = {
+    id?: string
+    companyId: string
+    lat: number
+    lng: number
+    accuracy?: number | null
+    speed?: number | null
+    recordedAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type VanPositionCreateOrConnectWithoutVanInput = {
+    where: VanPositionWhereUniqueInput
+    create: XOR<VanPositionCreateWithoutVanInput, VanPositionUncheckedCreateWithoutVanInput>
+  }
+
+  export type VanPositionCreateManyVanInputEnvelope = {
+    data: VanPositionCreateManyVanInput | VanPositionCreateManyVanInput[]
+  }
+
   export type ExpenseCreateWithoutLocationInput = {
     id?: string
     seasonId?: string | null
@@ -107038,6 +108699,37 @@ export namespace Prisma {
     data: XOR<TourneePlanUpdateManyMutationInput, TourneePlanUncheckedUpdateManyWithoutLocationInput>
   }
 
+  export type VanPositionUpsertWithWhereUniqueWithoutVanInput = {
+    where: VanPositionWhereUniqueInput
+    update: XOR<VanPositionUpdateWithoutVanInput, VanPositionUncheckedUpdateWithoutVanInput>
+    create: XOR<VanPositionCreateWithoutVanInput, VanPositionUncheckedCreateWithoutVanInput>
+  }
+
+  export type VanPositionUpdateWithWhereUniqueWithoutVanInput = {
+    where: VanPositionWhereUniqueInput
+    data: XOR<VanPositionUpdateWithoutVanInput, VanPositionUncheckedUpdateWithoutVanInput>
+  }
+
+  export type VanPositionUpdateManyWithWhereWithoutVanInput = {
+    where: VanPositionScalarWhereInput
+    data: XOR<VanPositionUpdateManyMutationInput, VanPositionUncheckedUpdateManyWithoutVanInput>
+  }
+
+  export type VanPositionScalarWhereInput = {
+    AND?: VanPositionScalarWhereInput | VanPositionScalarWhereInput[]
+    OR?: VanPositionScalarWhereInput[]
+    NOT?: VanPositionScalarWhereInput | VanPositionScalarWhereInput[]
+    id?: StringFilter<"VanPosition"> | string
+    companyId?: StringFilter<"VanPosition"> | string
+    vanId?: StringFilter<"VanPosition"> | string
+    lat?: FloatFilter<"VanPosition"> | number
+    lng?: FloatFilter<"VanPosition"> | number
+    accuracy?: FloatNullableFilter<"VanPosition"> | number | null
+    speed?: FloatNullableFilter<"VanPosition"> | number | null
+    recordedAt?: DateTimeFilter<"VanPosition"> | Date | string
+    createdAt?: DateTimeFilter<"VanPosition"> | Date | string
+  }
+
   export type ExpenseUpsertWithWhereUniqueWithoutLocationInput = {
     where: ExpenseWhereUniqueInput
     update: XOR<ExpenseUpdateWithoutLocationInput, ExpenseUncheckedUpdateWithoutLocationInput>
@@ -107199,6 +108891,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -107215,6 +108908,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -107234,6 +108928,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -107248,6 +108943,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -107270,6 +108966,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -107286,6 +108983,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -107305,6 +109003,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -107319,6 +109018,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -107560,6 +109260,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -107576,6 +109277,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -107595,6 +109297,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -107609,6 +109312,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -107637,6 +109341,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -107653,6 +109358,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -107672,6 +109378,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -107686,6 +109393,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -108103,6 +109811,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -108119,6 +109828,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -108138,6 +109848,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -108152,6 +109863,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -108315,6 +110027,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -108331,6 +110044,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -108350,6 +110064,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -108364,6 +110079,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -108717,6 +110433,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -108733,6 +110450,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -108752,6 +110470,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -108766,6 +110485,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -108975,6 +110695,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -108991,6 +110712,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -109010,6 +110732,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -109024,6 +110747,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -112695,6 +114419,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -112711,6 +114436,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -112730,6 +114456,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -112744,6 +114471,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -113310,6 +115038,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -113326,6 +115055,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -113345,6 +115075,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -113359,6 +115090,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -114179,6 +115911,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -114195,6 +115928,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -114214,6 +115948,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -114228,6 +115963,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -114551,6 +116287,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -114567,6 +116304,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -114586,6 +116324,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -114600,6 +116339,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -114958,6 +116698,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -114974,6 +116715,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -114993,6 +116735,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -115007,6 +116750,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -115319,6 +117063,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -115335,6 +117080,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -115354,6 +117100,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -115368,6 +117115,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -116180,6 +117928,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -116197,6 +117946,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
   }
@@ -116215,6 +117965,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -116230,6 +117981,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
   }
@@ -116449,6 +118201,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -116466,6 +118219,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
   }
@@ -116484,6 +118238,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -116499,6 +118254,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
   }
@@ -117789,6 +119545,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -117805,6 +119562,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -117824,6 +119582,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -117838,6 +119597,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -118131,6 +119891,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -118147,6 +119908,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -118166,6 +119928,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -118180,6 +119943,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -119050,6 +120814,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -119067,6 +120832,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
   }
@@ -119085,6 +120851,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -119100,6 +120867,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
   }
@@ -119266,6 +121034,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -119283,6 +121052,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
   }
@@ -119301,6 +121071,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -119316,6 +121087,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
   }
@@ -120073,6 +121845,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -120090,6 +121863,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
   }
@@ -120108,6 +121882,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -120123,6 +121898,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
   }
@@ -120262,6 +122038,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -120279,6 +122056,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
   }
@@ -120297,6 +122075,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -120312,6 +122091,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
   }
@@ -121793,6 +123573,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -121809,6 +123590,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -121828,6 +123610,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -121842,6 +123625,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -122131,6 +123915,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -122147,6 +123932,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -122166,6 +123952,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -122180,6 +123967,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -122449,6 +124237,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -122465,6 +124254,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
+    positions?: VanPositionCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -122484,6 +124274,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -122498,6 +124289,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    positions?: VanPositionUncheckedCreateNestedManyWithoutVanInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -122720,6 +124512,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -122736,6 +124529,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -122755,6 +124549,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -122769,6 +124564,7 @@ export namespace Prisma {
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -122827,6 +124623,162 @@ export namespace Prisma {
     data: XOR<TourneeUpdateManyMutationInput, TourneeUncheckedUpdateManyWithoutPlanInput>
   }
 
+  export type StoreCreateWithoutPositionsInput = {
+    id?: string
+    name: string
+    address?: string | null
+    kind?: string
+    marque?: string | null
+    matricule?: string | null
+    imageUrl?: string | null
+    isActive?: boolean
+    lastLat?: number | null
+    lastLng?: number | null
+    lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
+    locateRequestedAt?: Date | string | null
+    qrSellRequired?: boolean
+    qrOrderRequired?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutStoresInput
+    user?: UserCreateNestedOneWithoutAssignedVansInput
+    batches?: StockBatchCreateNestedManyWithoutLocationInput
+    transfersFrom?: TransferCreateNestedManyWithoutFromLocationInput
+    transfersTo?: TransferCreateNestedManyWithoutToLocationInput
+    counts?: StockCountCreateNestedManyWithoutLocationInput
+    losses?: StockLossCreateNestedManyWithoutLocationInput
+    sales?: SaleCreateNestedManyWithoutLocationInput
+    clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
+    tournees?: TourneeCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutLocationInput
+    expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
+    devices?: DeviceCreateNestedManyWithoutLocationInput
+    dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
+  }
+
+  export type StoreUncheckedCreateWithoutPositionsInput = {
+    id?: string
+    companyId: string
+    name: string
+    address?: string | null
+    kind?: string
+    marque?: string | null
+    matricule?: string | null
+    imageUrl?: string | null
+    userId?: string | null
+    isActive?: boolean
+    lastLat?: number | null
+    lastLng?: number | null
+    lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
+    locateRequestedAt?: Date | string | null
+    qrSellRequired?: boolean
+    qrOrderRequired?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    batches?: StockBatchUncheckedCreateNestedManyWithoutLocationInput
+    transfersFrom?: TransferUncheckedCreateNestedManyWithoutFromLocationInput
+    transfersTo?: TransferUncheckedCreateNestedManyWithoutToLocationInput
+    counts?: StockCountUncheckedCreateNestedManyWithoutLocationInput
+    losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
+    sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
+    clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
+    tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutLocationInput
+    expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
+    dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
+  }
+
+  export type StoreCreateOrConnectWithoutPositionsInput = {
+    where: StoreWhereUniqueInput
+    create: XOR<StoreCreateWithoutPositionsInput, StoreUncheckedCreateWithoutPositionsInput>
+  }
+
+  export type StoreUpsertWithoutPositionsInput = {
+    update: XOR<StoreUpdateWithoutPositionsInput, StoreUncheckedUpdateWithoutPositionsInput>
+    create: XOR<StoreCreateWithoutPositionsInput, StoreUncheckedCreateWithoutPositionsInput>
+    where?: StoreWhereInput
+  }
+
+  export type StoreUpdateToOneWithWhereWithoutPositionsInput = {
+    where?: StoreWhereInput
+    data: XOR<StoreUpdateWithoutPositionsInput, StoreUncheckedUpdateWithoutPositionsInput>
+  }
+
+  export type StoreUpdateWithoutPositionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    marque?: NullableStringFieldUpdateOperationsInput | string | null
+    matricule?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
+    locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
+    qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutStoresNestedInput
+    user?: UserUpdateOneWithoutAssignedVansNestedInput
+    batches?: StockBatchUpdateManyWithoutLocationNestedInput
+    transfersFrom?: TransferUpdateManyWithoutFromLocationNestedInput
+    transfersTo?: TransferUpdateManyWithoutToLocationNestedInput
+    counts?: StockCountUpdateManyWithoutLocationNestedInput
+    losses?: StockLossUpdateManyWithoutLocationNestedInput
+    sales?: SaleUpdateManyWithoutLocationNestedInput
+    clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
+    tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
+    devices?: DeviceUpdateManyWithoutLocationNestedInput
+    dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
+  }
+
+  export type StoreUncheckedUpdateWithoutPositionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    marque?: NullableStringFieldUpdateOperationsInput | string | null
+    matricule?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
+    locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
+    qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    batches?: StockBatchUncheckedUpdateManyWithoutLocationNestedInput
+    transfersFrom?: TransferUncheckedUpdateManyWithoutFromLocationNestedInput
+    transfersTo?: TransferUncheckedUpdateManyWithoutToLocationNestedInput
+    counts?: StockCountUncheckedUpdateManyWithoutLocationNestedInput
+    losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
+    sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
+    clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
+    tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
+    dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
+  }
+
   export type UserCreateManyCompanyInput = {
     id?: string
     username: string
@@ -122855,6 +124807,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -123315,6 +125268,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -123331,6 +125285,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -123349,6 +125304,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -123364,6 +125320,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -123382,6 +125339,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -125991,6 +127949,7 @@ export namespace Prisma {
     lastLat?: number | null
     lastLng?: number | null
     lastSeenAt?: Date | string | null
+    lastTrackState?: string | null
     locateRequestedAt?: Date | string | null
     qrSellRequired?: boolean
     qrOrderRequired?: boolean
@@ -126121,6 +128080,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -126137,6 +128097,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -126155,6 +128116,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -126170,6 +128132,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutLocationNestedInput
+    positions?: VanPositionUncheckedUpdateManyWithoutVanNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -126188,6 +128151,7 @@ export namespace Prisma {
     lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
     lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastTrackState?: NullableStringFieldUpdateOperationsInput | string | null
     locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
     qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
@@ -126565,6 +128529,17 @@ export namespace Prisma {
     skips?: string
     notes?: string | null
     isActive?: boolean
+    createdAt?: Date | string
+  }
+
+  export type VanPositionCreateManyVanInput = {
+    id?: string
+    companyId: string
+    lat: number
+    lng: number
+    accuracy?: number | null
+    speed?: number | null
+    recordedAt: Date | string
     createdAt?: Date | string
   }
 
@@ -127127,6 +129102,39 @@ export namespace Prisma {
     skips?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VanPositionUpdateWithoutVanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    lat?: FloatFieldUpdateOperationsInput | number
+    lng?: FloatFieldUpdateOperationsInput | number
+    accuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    speed?: NullableFloatFieldUpdateOperationsInput | number | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VanPositionUncheckedUpdateWithoutVanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    lat?: FloatFieldUpdateOperationsInput | number
+    lng?: FloatFieldUpdateOperationsInput | number
+    accuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    speed?: NullableFloatFieldUpdateOperationsInput | number | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VanPositionUncheckedUpdateManyWithoutVanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    lat?: FloatFieldUpdateOperationsInput | number
+    lng?: FloatFieldUpdateOperationsInput | number
+    accuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    speed?: NullableFloatFieldUpdateOperationsInput | number | null
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

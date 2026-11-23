@@ -10,7 +10,7 @@ export async function GET() {
     where: { companyId: session.companyId, kind: "VAN", isActive: true },
     select: {
       id: true, name: true, marque: true, matricule: true,
-      lastLat: true, lastLng: true, lastSeenAt: true, locateRequestedAt: true,
+      lastLat: true, lastLng: true, lastSeenAt: true, locateRequestedAt: true, lastTrackState: true,
       user: { select: { id: true, fullName: true, username: true } },
     },
     orderBy: { name: "asc" },
@@ -26,6 +26,13 @@ export async function GET() {
       lng: v.lastLng !== null && v.lastLng !== undefined ? Number(v.lastLng) : null,
       seenAt: v.lastSeenAt,
       locateRequested: v.locateRequestedAt != null,
+      trackState: (() => {
+        try {
+          return v.lastTrackState ? JSON.parse(v.lastTrackState) : null;
+        } catch {
+          return null;
+        }
+      })(),
       driver: v.user ? { fullName: v.user.fullName, username: v.user.username } : null,
     })),
   });

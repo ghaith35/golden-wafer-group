@@ -26,7 +26,7 @@ public final class RemoteBridgePatch {
     /// Plugins the web app may call from remote pages. Unregistered ids are
     /// skipped — this list can grow without touching anything else.
     private static final List<String> PLUGIN_IDS = Arrays.asList(
-        "TicketPrinter", "BtPrinter", "App", "Filesystem", "Share", "Browser", "Geolocation"
+        "TicketPrinter", "BtPrinter", "VanTracking", "App", "Filesystem", "Share", "Browser", "Geolocation"
     );
 
     private static String graftTemplate;

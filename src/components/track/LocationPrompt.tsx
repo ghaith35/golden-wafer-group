@@ -31,6 +31,13 @@ export function LocationPrompt({ labels }: { labels: LocationPromptLabels }) {
   const [busy, setBusy] = useState(false);
   const [denied, setDenied] = useState(false);
   const [snoozed, setSnoozed] = useState<string | null>(null);
+  /// An APK with the always-on service has its own full-screen setup (TrackingGate).
+  const [nativeGate, setNativeGate] = useState(false);
+  useEffect(() => {
+    void import("@/lib/native-tracking").then(async (m) => {
+      if (await m.trackingStatus()) setNativeGate(true);
+    });
+  }, []);
   const trigger = wanted ? "req" : "never";
   const liveRef = useRef(true);
 
@@ -95,7 +102,7 @@ export function LocationPrompt({ labels }: { labels: LocationPromptLabels }) {
     };
   }, []);
 
-  if (!token) return null;
+  if (!token || nativeGate) return null;
   const blocked = perm === "denied" || perm === "prompt" || perm === "unknown";
   if (!blocked || (!wanted && perm !== "denied")) return null;
   if (snoozed === trigger) return null;

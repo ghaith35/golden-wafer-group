@@ -179,6 +179,7 @@ CREATE TABLE "stores" (
     "lastLat" REAL,
     "lastLng" REAL,
     "lastSeenAt" DATETIME,
+    "lastTrackState" TEXT,
     "locateRequestedAt" DATETIME,
     "qrSellRequired" BOOLEAN NOT NULL DEFAULT true,
     "qrOrderRequired" BOOLEAN NOT NULL DEFAULT true,
@@ -930,6 +931,20 @@ CREATE TABLE "tournee_plans" (
     CONSTRAINT "tournee_plans_secteurId_fkey" FOREIGN KEY ("secteurId") REFERENCES "secteurs" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "van_positions" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "companyId" TEXT NOT NULL,
+    "vanId" TEXT NOT NULL,
+    "lat" REAL NOT NULL,
+    "lng" REAL NOT NULL,
+    "accuracy" REAL,
+    "speed" REAL,
+    "recordedAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "van_positions_vanId_fkey" FOREIGN KEY ("vanId") REFERENCES "stores" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "company_settings_companyId_key" ON "company_settings"("companyId");
 
@@ -1214,3 +1229,9 @@ CREATE INDEX "tournee_plans_companyId_isActive_idx" ON "tournee_plans"("companyI
 
 -- CreateIndex
 CREATE INDEX "tournee_plans_locationId_weekday_idx" ON "tournee_plans"("locationId", "weekday");
+
+-- CreateIndex
+CREATE INDEX "van_positions_vanId_recordedAt_idx" ON "van_positions"("vanId", "recordedAt");
+
+-- CreateIndex
+CREATE INDEX "van_positions_companyId_recordedAt_idx" ON "van_positions"("companyId", "recordedAt");

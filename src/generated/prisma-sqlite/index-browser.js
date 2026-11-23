@@ -274,6 +274,7 @@ exports.Prisma.StoreScalarFieldEnum = {
   lastLat: 'lastLat',
   lastLng: 'lastLng',
   lastSeenAt: 'lastSeenAt',
+  lastTrackState: 'lastTrackState',
   locateRequestedAt: 'locateRequestedAt',
   qrSellRequired: 'qrSellRequired',
   qrOrderRequired: 'qrOrderRequired',
@@ -880,6 +881,18 @@ exports.Prisma.TourneePlanScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.VanPositionScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  vanId: 'vanId',
+  lat: 'lat',
+  lng: 'lng',
+  accuracy: 'accuracy',
+  speed: 'speed',
+  recordedAt: 'recordedAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -964,7 +977,8 @@ exports.Prisma.ModelName = {
   ThreePackItem: 'ThreePackItem',
   ClosedVisit: 'ClosedVisit',
   ClosedVisitPhoto: 'ClosedVisitPhoto',
-  TourneePlan: 'TourneePlan'
+  TourneePlan: 'TourneePlan',
+  VanPosition: 'VanPosition'
 };
 
 /**

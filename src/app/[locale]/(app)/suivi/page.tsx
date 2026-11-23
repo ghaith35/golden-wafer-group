@@ -39,6 +39,7 @@ export default async function SuiviPage({ params }: { params: Promise<{ locale: 
         tabVans: t("tabVans"), layerVans: t("layerVans"), layerClients: t("layerClients"), layerZone: t("layerZone"),
         colorByVan: t("colorByVan"), pickVanHint: t("pickVanHint"),
         color_near: t("color_near"), color_mid: t("color_mid"), color_far: t("color_far"),
+        trailLabel: t("trailLabel"), healthOk: t("healthOk"), healthNoFine: t("healthNoFine"), healthNoGps: t("healthNoGps"), healthNoBg: t("healthNoBg"), healthBattery: t("healthBattery"),
         nearestVan: t("nearestVan"), googleView: t("googleView"), mapView: t("mapView"), emptyClients: t("emptyClients"),
         search: tcm("search"), openMaps: tcl("openMaps"),
         tabClient: tc("tabClient"), tabWilaya: tc("tabWilaya"), tabSecteur: tc("tabSecteur"),

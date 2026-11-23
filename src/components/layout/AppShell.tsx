@@ -13,6 +13,7 @@ import { ConnLostDialog } from "@/components/sync/ConnLostDialog";
 import { LAST_PAGE_KEY } from "@/lib/navigation-recovery";
 import { watchChunkErrors } from "@/lib/chunk-reload";
 import { VanTracker } from "@/components/track/VanTracker";
+import { TrackingGate } from "@/components/track/TrackingGate";
 import { ApkOnly } from "@/components/layout/ApkOnly";
 import { LocationPrompt } from "@/components/track/LocationPrompt";
 import { AutoUpdate } from "@/components/sync/AutoUpdate";
@@ -353,6 +354,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Van APK auto GPS: activates only when a device token is bound.
           Desktop browsers have none — zero behavior change there. */}
       <ApkOnly><VanTracker /></ApkOnly>
+      <ApkOnly><TrackingGate /></ApkOnly>
       {/* No-fix banner (van phones): summons the Android allow-location
           form when the office can't see the driver. Token-gated inside. */}
       <ApkOnly><LocationPrompt

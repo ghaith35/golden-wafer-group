@@ -32,6 +32,13 @@ export function VanTracker() {
     let stopped = false;
     let lastReport = 0;
     let inFlight = false;
+    // The APK's native always-on service (when this APK has it) owns the
+    // reporting — running this in-page loop too would only double it.
+    let nativeOwns = false;
+    void import("@/lib/native-tracking").then(async (m) => {
+      const st = await m.trackingStatus();
+      if (st) nativeOwns = true;
+    });
 
     /// Native-aware fix (Capacitor GPS in the APK — the WebView's own
     /// geolocation never prompts there — browser API on the web).
@@ -63,7 +70,7 @@ export function VanTracker() {
       // NOTE: no document.hidden guard on purpose — a backgrounded van app
       // must still answer locate requests / heartbeat whenever the OS lets
       // the timer fire. The component renders null: fully invisible.
-      if (stopped || inFlight) return;
+      if (stopped || inFlight || nativeOwns) return;
       inFlight = true;
       try {
         let wanted = Date.now() - lastReport > HEARTBEAT_MS;

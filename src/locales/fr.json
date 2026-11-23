@@ -1204,7 +1204,13 @@
     "nearestVan": "Camion le plus proche",
     "googleView": "Vue Google",
     "mapView": "Carte",
-    "emptyClients": "Aucun client géolocalisé — ajoutez la position dans la fiche client"
+    "emptyClients": "Aucun client géolocalisé — ajoutez la position dans la fiche client",
+    "trailLabel": "Trajet du jour",
+    "healthOk": "Suivi permanent actif",
+    "healthNoFine": "Permission de position refusée",
+    "healthNoGps": "GPS coupé sur le téléphone",
+    "healthNoBg": "Position en arrière-plan non activée",
+    "healthBattery": "La batterie limite le suivi"
   },
   "debts": {
     "title": "Dettes",
@@ -2131,5 +2137,27 @@
     "call": "Appeler",
     "unknown": "—",
     "reset": "Effacer les filtres"
+  },
+  "trackingGate": {
+    "title": "Activer le suivi permanent",
+    "intro": "Pour que le bureau voie la position de votre camion tout de suite, même app fermée, activez les étapes suivantes. Cela prend une minute.",
+    "done": "Fait ✓",
+    "fineTitle": "Position précise",
+    "fineHint": "Autorisez l'application à utiliser votre position précise (GPS).",
+    "fineButton": "Autoriser la position",
+    "alwaysTitle": "Position tout le temps",
+    "alwaysHint": "Sur la page qui s'ouvre : choisissez « Position » puis « Toujours autoriser », puis revenez à l'application.",
+    "alwaysButton": "Ouvrir les réglages",
+    "notificationsTitle": "Notifications",
+    "notificationsHint": "Android affiche une petite notification fixe qui indique que le suivi fonctionne.",
+    "notificationsButton": "Autoriser les notifications",
+    "batteryTitle": "Sans restriction de batterie",
+    "batteryHint": "Pour que le téléphone n'arrête pas le suivi pour économiser l'énergie. Choisissez « Autoriser ».",
+    "batteryButton": "Autoriser",
+    "gpsTitle": "Activer la position du téléphone",
+    "gpsHint": "Activez « Position / GPS » dans les réglages rapides ou dans les réglages du téléphone.",
+    "gpsButton": "Ouvrir les réglages de position",
+    "brandHint": "Sur Xiaomi, Huawei, Oppo et Samsung : ouvrez les réglages de l'application, puis Batterie, choisissez « Sans restriction » et activez « Démarrage automatique » s'il existe.",
+    "openSettings": "Ouvrir les réglages de l'application"
   }
 }

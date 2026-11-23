@@ -317,6 +317,8 @@ model Store {
   lastLat           Float?
   lastLng           Float?
   lastSeenAt        DateTime?
+  /// What the phone says about its own tracking health (permissions, battery…), JSON.
+  lastTrackState String?
   /// Admin pressed "request location" (POST /api/vans/[id]/locate).
   /// The APK polls it and reports immediately; cleared on next report.
   locateRequestedAt DateTime?
@@ -337,6 +339,7 @@ model Store {
   closedVisits  ClosedVisit[]
   tournees      Tournee[]
   tourneePlans  TourneePlan[]
+  positions     VanPosition[]
   expenseLinks  Expense[]
   devices       Device[]
   dailyCloses   DailyClose[]
@@ -1436,4 +1439,25 @@ model TourneePlan {
   @@index([companyId, isActive])
   @@index([locationId, weekday])
   @@map("tournee_plans")
+}
+
+
+/// Position history of a van phone (the always-on location service). The
+/// "last position" on the Store stays the fast path; this is the trail.
+model VanPosition {
+  id         String   @id @default(cuid())
+  companyId  String
+  vanId      String
+  van        Store    @relation(fields: [vanId], references: [id], onDelete: Cascade)
+  lat        Float
+  lng        Float
+  accuracy   Float?
+  speed      Float?
+  /// When the phone took the fix (not when it reached the server).
+  recordedAt DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([vanId, recordedAt])
+  @@index([companyId, recordedAt])
+  @@map("van_positions")
 }

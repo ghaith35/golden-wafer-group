@@ -30,6 +30,8 @@ type VanPos = {
   id: string; name: string; marque: string | null; matricule: string | null;
   lat: number | null; lng: number | null; seenAt: string | null; locateRequested: boolean;
   driver: { fullName: string; username: string } | null;
+  /// What the phone says about its own tracking health (APK ≥ 1.20).
+  trackState?: { fine?: boolean; always?: boolean; battery?: boolean; gps?: boolean; notifications?: boolean; service?: boolean; queued?: number; app?: string; at?: string } | null;
 };
 type Status = "online" | "stale" | "offline" | "nosignal";
 type Tab = "vans" | "client" | "wilaya" | "secteur";
@@ -51,6 +53,16 @@ function ago(seenAt: string | null, neverSeen: string): string {
   const h = Math.floor(mins / 60);
   if (h < 24) return `${h}h ${mins % 60}min`;
   return new Date(seenAt).toLocaleString();
+}
+/// Plain-language tracking health of a van phone (null = nothing to report).
+function health(v: VanPos, labels: Record<string, string>): { ok: boolean; text: string } | null {
+  const ts = v.trackState;
+  if (!ts) return null;
+  if (ts.fine === false) return { ok: false, text: labels.healthNoFine };
+  if (ts.gps === false) return { ok: false, text: labels.healthNoGps };
+  if (ts.always === false) return { ok: false, text: labels.healthNoBg };
+  if (ts.battery === false) return { ok: false, text: labels.healthBattery };
+  return { ok: true, text: labels.healthOk };
 }
 const fmtM = (m: number) => (m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(1)} km`);
 /// Admin scale for "distance from the selected van" (the driver screen uses
@@ -86,6 +98,12 @@ export function SuiviClient({
   const [googleView, setGoogleView] = useState(false);
   const [nonce, setNonce] = useState(0);
   const bump = () => setNonce((n) => n + 1);
+  /// The selected van's trail for one day (orange line on the map).
+  const [showTrail, setShowTrail] = useState(true);
+  const [trailDay, setTrailDay] = useState("");
+  const [trail, setTrail] = useState<Array<[number, number]> | null>(null);
+  /// After "request location": refresh every 4 s for a minute, so the answer shows as it lands.
+  const [fastUntil, setFastUntil] = useState(0);
 
   const load = useCallback(async () => {
     setSpinning(true);
@@ -111,13 +129,27 @@ export function SuiviClient({
     const id = window.setInterval(() => setTick(Date.now()), 30000);
     return () => window.clearInterval(id);
   }, []);
+  useEffect(() => {
+    if (fastUntil <= Date.now()) return;
+    const id = window.setInterval(() => {
+      if (Date.now() > fastUntil) {
+        window.clearInterval(id);
+        return;
+      }
+      void load();
+    }, 4000);
+    return () => window.clearInterval(id);
+  }, [fastUntil, load]);
 
   /// Ask the driver's phone to send its position now.
   async function requestLocate(v: VanPos) {
     setLocating(v.id);
     try {
       const res = await fetch(`/api/vans/${v.id}/locate`, { method: "POST" });
-      if (res.ok) setVans((prev) => prev.map((x) => (x.id === v.id ? { ...x, locateRequested: true } : x)));
+      if (res.ok) {
+        setVans((prev) => prev.map((x) => (x.id === v.id ? { ...x, locateRequested: true } : x)));
+        setFastUntil(Date.now() + 60_000);
+      }
     } catch { /* offline */ } finally {
       setLocating(null);
     }
@@ -182,6 +214,25 @@ export function SuiviClient({
     [vans, tick, labels]
   );
   const selVan = vans.find((v) => v.id === selectedVanId && v.lat != null && v.lng != null) ?? null;
+  // Trail of the selected van for the chosen day (re-read every refresh while it is today).
+  const trailVanId = selVan?.id ?? null;
+  useEffect(() => {
+    if (!trailVanId || !showTrail) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clears when nothing is selected
+      setTrail(null);
+      return;
+    }
+    let dead = false;
+    fetch(`/api/vans/${trailVanId}/trail${trailDay ? `?day=${trailDay}` : ""}`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!dead) setTrail(d?.points?.length ? d.points.map((p: { lat: number; lng: number }) => [p.lat, p.lng] as [number, number]) : null);
+      })
+      .catch(() => {});
+    return () => {
+      dead = true;
+    };
+  }, [trailVanId, showTrail, trailDay, tick]);
   const vanQ = q.trim().toLowerCase();
   const shownVans = tab === "vans" && vanQ
     ? vans.filter((v) => [v.name, v.matricule, v.driver?.fullName].some((x) => x?.toLowerCase().includes(vanQ)))
@@ -284,6 +335,11 @@ export function SuiviClient({
           {layerChip(showClients, setShowClients, `📍 ${labels.layerClients} (${mapClients.length})`)}
           {zoneTapped && layerChip(showZone, setShowZone, `① ${labels.layerZone} (${zonePins.length})`)}
           {layerChip(colorByVan, (b) => { setColorByVan(b); }, `🎨 ${labels.colorByVan}`)}
+          {layerChip(showTrail, setShowTrail, `〰 ${labels.trailLabel}`)}
+          {showTrail && selVan && (
+            <input type="date" value={trailDay} onChange={(e) => setTrailDay(e.target.value)} dir="ltr" aria-label={labels.trailLabel}
+              className="h-9 shrink-0 rounded-full border border-(--border-default) bg-(--bg-overlay) px-3 text-xs font-black outline-none focus:border-(--brand-500)" />
+          )}
         </div>
         {tourUrl && (
           <a href={tourUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-lg bg-(--brand-500)/10 px-3 py-2 text-xs font-bold text-(--brand-600)">
@@ -366,6 +422,7 @@ export function SuiviClient({
                 selectedClientId={selected?.id ?? null}
                 selectedVanId={selectedVanId}
                 link={link}
+                trail={trail}
                 focus={focus}
                 nonce={nonce}
                 onPickClient={(id) => { setSelectedId(id); if (tab === "vans") setTabRaw("client"); bump(); }}
@@ -395,32 +452,43 @@ export function SuiviClient({
                 const st = statusOf(v.seenAt, tick);
                 const statusKey = st === "nosignal" ? "noSignal" : st;
                 return (
-                  <div key={v.id} className={cn("flex flex-wrap items-center gap-2 rounded-2xl border bg-(--bg-overlay) p-3", v.id === selectedVanId ? "border-(--brand-500)" : "border-(--border-default)")}>
-                    <button type="button" className="flex min-w-0 flex-1 items-center gap-3 text-start"
+                  <div key={v.id} className={cn("flex flex-col gap-2.5 rounded-2xl border bg-(--bg-overlay) p-3 min-[480px]:flex-row min-[480px]:flex-wrap min-[480px]:items-center", v.id === selectedVanId ? "border-(--brand-500)" : "border-(--border-default)")}>
+                    <button type="button" className="flex min-w-0 items-center gap-3 text-start min-[480px]:flex-1"
                       onClick={() => { setSelectedVanId(v.id); bump(); }}>
                       <span className={cn("h-3 w-3 shrink-0 rounded-full", DOT[st])} />
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken) text-(--text-secondary)"><Truck size={18} /></span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-black">{v.name}</span>
-                        <span className="block truncate text-xs opacity-60">{v.driver ? `${labels.driver}: ${v.driver.fullName}` : v.matricule ?? ""}</span>
-                        <span className="block truncate text-[11px] font-bold opacity-70">
+                        <span className="block break-words text-sm font-black">{v.name}</span>
+                        <span className="block break-words text-xs opacity-60">{v.driver ? `${labels.driver}: ${v.driver.fullName}` : v.matricule ?? ""}</span>
+                        <span className="block break-words text-[11px] font-bold opacity-70">
                           {labels[statusKey] ?? st}
                           {v.seenAt ? ` · ${labels.lastSeen}: ${ago(v.seenAt, "")}` : ` · ${labels.neverSeen}`}
                         </span>
+                        {(() => {
+                          const h = health(v, labels);
+                          return h ? (
+                            <span className={cn("mt-0.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-black", h.ok ? "bg-emerald-500/15 text-emerald-600" : "bg-red-500/15 text-red-500")}>
+                              {h.ok ? "●" : "⚠"} {h.text}{v.trackState?.queued ? ` · ${v.trackState.queued}` : ""}
+                            </span>
+                          ) : null;
+                        })()}
                       </span>
                     </button>
-                    {v.lat != null && v.lng != null && (
-                      <a href={`https://www.google.com/maps?q=${v.lat},${v.lng}`} target="_blank" rel="noreferrer"
-                        className="shrink-0 rounded-lg bg-(--bg-sunken) px-2 py-1.5 text-[11px] font-black hover:bg-(--brand-500)/15">
-                        {labels.openMaps}
-                      </a>
-                    )}
-                    <button type="button" onClick={() => void requestLocate(v)} disabled={locating === v.id || v.locateRequested} title={labels.locate}
-                      className={cn("flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] font-black",
-                        v.locateRequested ? "bg-amber-500/15 text-amber-600" : "bg-(--brand-500)/10 text-(--brand-600) hover:bg-(--brand-500)/20 disabled:opacity-50")}>
-                      <Crosshair size={13} className={locating === v.id ? "animate-spin" : ""} />
-                      {v.locateRequested ? labels.locateSent : labels.locate}
-                    </button>
+                    {/* Actions sit on their own row on a phone, so nothing above is squeezed. */}
+                    <div className="flex w-full gap-2 min-[480px]:w-auto">
+                      {v.lat != null && v.lng != null && (
+                        <a href={`https://www.google.com/maps?q=${v.lat},${v.lng}`} target="_blank" rel="noreferrer"
+                          className="flex min-h-10 flex-1 items-center justify-center rounded-lg bg-(--bg-sunken) px-3 py-1.5 text-center text-xs font-black hover:bg-(--brand-500)/15 min-[480px]:flex-none">
+                          {labels.openMaps}
+                        </a>
+                      )}
+                      <button type="button" onClick={() => void requestLocate(v)} disabled={locating === v.id || v.locateRequested} title={labels.locate}
+                        className={cn("flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-black min-[480px]:flex-none",
+                          v.locateRequested ? "bg-amber-500/15 text-amber-600" : "bg-(--brand-500)/10 text-(--brand-600) hover:bg-(--brand-500)/20 disabled:opacity-50")}>
+                        <Crosshair size={14} className={locating === v.id ? "animate-spin" : ""} />
+                        {v.locateRequested ? labels.locateSent : labels.locate}
+                      </button>
+                    </div>
                   </div>
                 );
               })}

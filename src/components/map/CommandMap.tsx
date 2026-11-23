@@ -49,7 +49,7 @@ function Focus({ points, nonce }: { points: Array<[number, number]>; nonce: numb
 /// an optional van↔client link line for the current selection.
 export function CommandMap({
   vans, clients, zonePins, showVans, showClients, showZone,
-  selectedClientId, selectedVanId, link, focus, nonce, height = "100%",
+  selectedClientId, selectedVanId, link, trail, focus, nonce, height = "100%",
   onPickClient, onPickVan,
 }: {
   vans: CmdVan[];
@@ -61,6 +61,8 @@ export function CommandMap({
   selectedClientId: string | null;
   selectedVanId: string | null;
   link: [[number, number], [number, number]] | null;
+  /// The selected van's trail for the chosen day (oldest → newest).
+  trail?: Array<[number, number]> | null;
   focus: Array<[number, number]>;
   nonce: number;
   height?: number | string;
@@ -102,6 +104,12 @@ export function CommandMap({
           </Tooltip>
         </Marker>
       ))}
+      {trail && trail.length > 1 && (
+        <>
+          <Polyline positions={trail} pathOptions={{ color: "#ea580c", weight: 4, opacity: 0.85 }} />
+          <CircleMarker center={trail[0]} radius={6} pathOptions={{ color: "#fff", weight: 2, fillColor: "#16a34a", fillOpacity: 1 }} />
+        </>
+      )}
       {link && <Polyline positions={link} pathOptions={{ color: "#2563eb", weight: 3, dashArray: "6 6" }} />}
       {showVans && vans.map((v) => (
         <Marker
