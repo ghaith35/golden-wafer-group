@@ -2,9 +2,9 @@
 /// phone's own GPS fix, no network). Shared by the GPS map and client cards.
 export type Proximity = "near" | "mid" | "far" | "none";
 
-/// ≤ NEAR_M → green · ≤ MID_M → orange · beyond → red · no GPS → neutral.
-export const NEAR_M = 1000;
-export const MID_M = 5000;
+/// ≤ 15 m → green · ≤ 50 m → orange · beyond 50 m → red · no GPS → neutral.
+export const NEAR_M = 15;
+export const MID_M = 50;
 
 export function proximityOf(distM: number | null | undefined): Proximity {
   if (distM == null || !Number.isFinite(distM)) return "none";
