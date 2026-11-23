@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/settings/helpers";
 import { ruleSchema } from "@/lib/threepack/validation";
-import { assertRuleValid, listRulesForAdmin } from "@/lib/threepack/admin";
+import { assertRuleValid, itemRows, listRulesForAdmin, windowData } from "@/lib/threepack/admin";
 
 export async function GET() {
   const auth = await requireAdmin();
@@ -23,8 +23,10 @@ export async function POST(req: Request) {
         companyId,
         name: parsed.data.name,
         mode: parsed.data.mode,
+        percent: parsed.data.mode === "PERCENT" ? (parsed.data.percent ?? null) : null,
         isActive: parsed.data.isActive ?? true,
-        items: { create: parsed.data.items.map((i) => ({ role: i.role, productId: i.productId, colis: i.colis })) },
+        ...windowData(parsed.data),
+        items: { create: itemRows(parsed.data.items, parsed.data.mode) },
       },
     });
     return NextResponse.json({ id: rule.id }, { status: 201 });

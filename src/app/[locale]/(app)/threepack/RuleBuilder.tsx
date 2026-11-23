@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import { toYmd } from "@/lib/threepack/window";
 import { useTranslations } from "next-intl";
 import { ArrowRight, Check, Gift, Package, Plus, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/Toggle";
@@ -13,11 +14,13 @@ import { QtyStepper } from "./QtyStepper";
 import { EqArrow, EqPlus, MiniTile } from "./EquationArt";
 import type { Rule } from "./types";
 
-type Mode = "SINGLE" | "PACK";
-type Slot = { productId: string; colis: string };
+type Mode = "SINGLE" | "PACK" | "PERCENT" | "PRICE";
+type Slot = { productId: string; colis: string; price?: string };
 type Step = 0 | 1 | 2;
 
 const EMPTY: Slot = { productId: "", colis: "" };
+const isDealMode = (m: Mode) => m === "PERCENT" || m === "PRICE";
+const okPrice = (s: string | undefined) => s != null && s !== "" && Number.isFinite(Number(String(s).replace(",", "."))) && Number(String(s).replace(",", ".")) >= 0;
 const num = (s: string) => Number(String(s).replace(",", "."));
 const okQty = (s: string) => Number.isFinite(num(s)) && num(s) > 0;
 const slotOk = (s: Slot) => !!s.productId && okQty(s.colis);
@@ -26,7 +29,7 @@ const fit = (s: string) => (s.length > 80 ? `${s.slice(0, 79)}…` : s);
 const rise = { animation: "gw-rise 0.38s var(--ease-out) backwards" } as const;
 
 function slotsOf(rule: Rule | null | undefined, role: "BUY" | "GIVE"): Slot[] {
-  const s = rule?.items.filter((i) => i.role === role).map((i) => ({ productId: i.productId, colis: String(i.colis) })) ?? [];
+  const s = rule?.items.filter((i) => i.role === role).map((i) => ({ productId: i.productId, colis: String(i.colis), price: i.price != null ? String(i.price) : undefined })) ?? [];
   return s.length ? s : [{ ...EMPTY }];
 }
 
@@ -53,7 +56,10 @@ export function RuleBuilder({
   const [buys, setBuys] = useState<Slot[]>(() => slotsOf(initial, "BUY"));
   const [gives, setGives] = useState<Slot[]>(() => slotsOf(initial, "GIVE"));
   const [name, setName] = useState(initial?.name ?? "");
+  const [percent, setPercent] = useState(initial?.percent != null ? String(initial.percent) : "");
   const [active, setActive] = useState(initial?.isActive ?? true);
+  const [startsOn, setStartsOn] = useState(toYmd(initial?.startsAt));
+  const [endsOn, setEndsOn] = useState(toYmd(initial?.endsAt));
   const [step, setStep] = useState<Step>(initial ? 2 : presetMode ? 1 : 0);
   const [reached, setReached] = useState<Step>(initial ? 2 : presetMode ? 1 : 0);
   const [saving, setSaving] = useState(false);
@@ -67,22 +73,35 @@ export function RuleBuilder({
 
   // ── validation ──
   const buyIds = buys.map((b) => b.productId).filter(Boolean);
-  const buyValid = buys.every(slotOk) && new Set(buyIds).size === buys.length && (mode === "SINGLE" ? buys.length === 1 : buys.length >= 2);
+  const deal = isDealMode(mode);
+  const buyValid = buys.every(slotOk) && new Set(buyIds).size === buys.length && (mode === "SINGLE" ? buys.length === 1 : deal ? buys.length >= 1 : buys.length >= 2);
   const giveIds = gives.map((g) => g.productId).filter(Boolean);
-  const giveValid = gives.every(slotOk) && new Set(giveIds).size === gives.length && (mode === "SINGLE" ? gives.length === 1 : gives.length >= 1);
+  const dealTargetsOk = gives.length >= 1 && gives.every((g) => !!g.productId) && new Set(giveIds).size === gives.length;
+  const pctNum = num(percent);
+  const giveValid = deal
+    ? dealTargetsOk && (mode === "PERCENT" ? Number.isFinite(pctNum) && pctNum > 0 && pctNum <= 100 : gives.every((g) => okPrice(g.price)))
+    : gives.every(slotOk) && new Set(giveIds).size === gives.length && (mode === "SINGLE" ? gives.length === 1 : gives.length >= 1);
   const stepValid = step === 0 ? true : step === 1 ? buyValid : giveValid;
 
+  const buyText = buys.map((b) => `${num(b.colis)} × ${nameOf(b.productId)}`).join(" + ");
   const autoName = buyValid && giveValid
-    ? t("autoName", {
-        buy: buys.map((b) => `${num(b.colis)} × ${nameOf(b.productId)}`).join(" + "),
-        give: gives.map((g) => `${num(g.colis)} × ${nameOf(g.productId)}`).join(" + "),
-      })
+    ? deal
+      ? t(mode === "PERCENT" ? "autoNamePercent" : "autoNamePrice", {
+          buy: buyText,
+          target: gives.map((g) => nameOf(g.productId)).join(" + "),
+          value: mode === "PERCENT" ? String(pctNum) : gives.map((g) => `${num(g.price ?? "")}`).join(" / "),
+        })
+      : t("autoName", { buy: buyText, give: gives.map((g) => `${num(g.colis)} × ${nameOf(g.productId)}`).join(" + ") })
     : "";
 
   // ── actions ──
   function chooseMode(m: Mode) {
     setMode(m);
-    if (m === "SINGLE") {
+    if (isDealMode(m)) {
+      // Buy side: one product or a pack. Targets: one product or a pack (qty 1 = unused).
+      setBuys((b) => (b.length ? b : [{ ...EMPTY }]));
+      setGives((g) => (g.length ? g.map((x) => ({ ...x, colis: x.colis || "1" })) : [{ ...EMPTY }]));
+    } else if (m === "SINGLE") {
       setBuys((b) => [b[0] ?? { ...EMPTY }]);
       setGives((g) => [g[0] ?? { ...EMPTY }]);
     } else {
@@ -97,6 +116,8 @@ export function RuleBuilder({
     // so the common case is zero clicks.
     if (next === 2 && mode === "SINGLE" && !gives[0]?.productId && buys[0]?.productId) {
       setGives([{ productId: buys[0].productId, colis: gives[0]?.colis || "1" }]);
+    } else if (next === 2 && deal && buys.length === 1 && gives.length === 1 && !gives[0].productId && buys[0]?.productId) {
+      setGives([{ productId: buys[0].productId, colis: "1" }]);
     } else if (next === 2 && mode === "PACK" && gives.length === 1 && !gives[0].colis) {
       setGives([{ ...gives[0], colis: "1" }]);
     }
@@ -121,14 +142,19 @@ export function RuleBuilder({
     setError(null);
     const items = [
       ...buys.map((b) => ({ role: "BUY" as const, productId: b.productId, colis: num(b.colis) })),
-      ...gives.map((g) => ({ role: "GIVE" as const, productId: g.productId, colis: num(g.colis) })),
+      ...gives.map((g) => ({
+        role: "GIVE" as const,
+        productId: g.productId,
+        colis: deal ? 1 : num(g.colis),
+        ...(mode === "PRICE" ? { price: num(g.price ?? "") } : {}),
+      })),
     ];
     setSaving(true);
     try {
       const r = await fetch(initial ? `/api/threepack/rules/${initial.id}` : "/api/threepack/rules", {
         method: initial ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: fit(name.trim() || autoName), mode, isActive: active, items }),
+        body: JSON.stringify({ name: fit(name.trim() || autoName), mode, percent: mode === "PERCENT" ? pctNum : null, isActive: active, startsOn: startsOn || null, endsOn: endsOn || null, items }),
       });
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
@@ -148,11 +174,11 @@ export function RuleBuilder({
 
   // ── live preview model (the real matcher, in plain colis) ──
   const buyItems = buys.filter(slotOk).map((b) => ({ productId: b.productId, colis: num(b.colis) }));
-  const giveItems = gives.filter(slotOk).map((g) => ({ productId: g.productId, colis: num(g.colis) }));
+  const giveItems = deal ? [] : gives.filter(slotOk).map((g) => ({ productId: g.productId, colis: num(g.colis) }));
   const complete = buyValid && giveValid;
   const singleBought = previewQty ?? (buys[0]?.colis ?? "");
   const bought = complete ? (mode === "SINGLE" ? { [buys[0].productId]: num(singleBought) || 0 } : boughtForCombos(buyItems, times)) : {};
-  const gifts = complete ? simulateGifts(buyItems, giveItems, bought) : [];
+  const gifts = complete && !deal ? simulateGifts(buyItems, giveItems, bought) : [];
 
   const stepLabels = [t("stepType"), t("stepBuy"), t("stepGift")];
 
@@ -191,14 +217,14 @@ export function RuleBuilder({
         </ol>
       </div>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_23rem]">
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_23rem] 2xl:grid-cols-[minmax(0,1fr)_28rem] 2xl:gap-10">
         {/* ── step card ── */}
         <div className="min-w-0 space-y-4">
           <section key={step} style={rise} className="py-1">
             {step === 0 && (
               <div className="space-y-5">
                 <Head title={t("typeTitle")} sub={t("typeSub")} />
-                <div role="radiogroup" aria-label={t("typeTitle")} className="grid gap-3 sm:grid-cols-2">
+                <div role="radiogroup" aria-label={t("typeTitle")} className="grid gap-3 sm:grid-cols-2 min-[1500px]:grid-cols-4">
                   <TypeCard selected={mode === "SINGLE"} onSelect={() => chooseMode("SINGLE")} title={t("typeSingle")} desc={t("typeSingleDesc")}>
                     <MiniTile qty="×10" />
                     <EqArrow />
@@ -211,16 +237,26 @@ export function RuleBuilder({
                     <EqArrow />
                     <MiniTile gift qty="×1" />
                   </TypeCard>
+                  <TypeCard selected={mode === "PERCENT"} onSelect={() => chooseMode("PERCENT")} title={t("typePercent")} desc={t("typePercentDesc")}>
+                    <MiniTile qty="×10" />
+                    <EqArrow />
+                    <DealTile label="−15%" />
+                  </TypeCard>
+                  <TypeCard selected={mode === "PRICE"} onSelect={() => chooseMode("PRICE")} title={t("typePrice")} desc={t("typePriceDesc")}>
+                    <MiniTile qty="×10" />
+                    <EqArrow />
+                    <DealTile label="DA" />
+                  </TypeCard>
                 </div>
               </div>
             )}
 
             {step === 1 && (
               <div className="space-y-5">
-                <Head title={t("buyTitle")} sub={mode === "SINGLE" ? t("buySingleSub") : t("buyPackSub")} />
+                <Head title={t("buyTitle")} sub={mode === "SINGLE" ? t("buySingleSub") : deal ? t("buyDealSub") : t("buyPackSub")} />
                 <Slots
                   side="buy"
-                  mode={mode}
+                  mode={deal ? "PACK" : mode}
                   slots={buys}
                   products={products}
                   categories={categories}
@@ -235,10 +271,32 @@ export function RuleBuilder({
 
             {step === 2 && (
               <div className="space-y-6">
-                <Head title={t("giftTitle")} sub={t("giftSub")} />
+                <Head title={deal ? t(mode === "PERCENT" ? "percentTitle" : "priceTitle") : t("giftTitle")} sub={deal ? t(mode === "PERCENT" ? "percentSub" : "priceSub") : t("giftSub")} />
+                {mode === "PERCENT" && (
+                  <div className="space-y-2 rounded-2xl border border-(--border-default) bg-(--bg-surface) p-4">
+                    <span className="text-sm font-black">{t("percentLabel")}</span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="relative">
+                        <input
+                          type="number" inputMode="decimal" min={0} max={100} step="any" value={percent}
+                          onChange={(e) => setPercent(e.target.value)} dir="ltr" aria-label={t("percentLabel")}
+                          className="h-14 w-32 rounded-xl border border-(--border-default) bg-(--bg-overlay) pe-9 ps-3 text-center text-xl font-black tabular-nums outline-none focus:border-(--brand-500) focus:shadow-(--focus-ring)"
+                        />
+                        <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-lg font-black opacity-60">%</span>
+                      </div>
+                      {[5, 10, 15, 20, 25, 30].map((p) => (
+                        <button key={p} type="button" onClick={() => setPercent(String(p))}
+                          className={cn("h-11 rounded-xl px-3 text-sm font-black tabular-nums transition-colors", pctNum === p ? "bg-gradient-brand text-(--brand-contrast)" : "border border-(--border-default) hover:bg-(--bg-sunken)")}>
+                          {p}%
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <Slots
                   side="give"
-                  mode={mode}
+                  mode={deal ? "PACK" : mode}
+                  valueKind={mode === "PRICE" ? "price" : mode === "PERCENT" ? "none" : "qty"}
                   slots={gives}
                   products={products}
                   categories={categories}
@@ -246,7 +304,7 @@ export function RuleBuilder({
                   remove={remove}
                   toggleMany={toggleMany}
                   minRows={1}
-                  sameAs={mode === "SINGLE" && buys[0]?.productId && gives[0]?.productId !== buys[0].productId ? buys[0].productId : undefined}
+                  sameAs={(mode === "SINGLE" || deal) && gives.length === 1 && buys[0]?.productId && gives[0]?.productId !== buys[0].productId ? buys[0].productId : undefined}
                 />
 
                 <div className="space-y-4 border-t border-(--border-subtle) pt-5">
@@ -261,6 +319,29 @@ export function RuleBuilder({
                     />
                     {!name && autoName && <span className="block text-xs text-(--text-tertiary)">{t("nameAuto")}</span>}
                   </label>
+                  {/* Promotion window: outside it the rule gives nothing; past the
+                      end date it switches itself off. Both optional. */}
+                  <div className="rounded-xl bg-(--bg-surface) px-4 py-3">
+                    <p className="text-sm font-black">{t("promoWindow")}</p>
+                    <p className="mb-2 text-xs text-(--text-secondary)">{t("promoWindowHint")}</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="block space-y-1">
+                        <span className="text-xs font-bold text-(--text-secondary)">{t("startsOn")}</span>
+                        <input type="date" value={startsOn} max={endsOn || undefined} onChange={(e) => setStartsOn(e.target.value)} dir="ltr"
+                          className="h-12 w-full rounded-xl border border-(--border-default) bg-(--bg-overlay) px-3 text-sm font-bold outline-none focus:border-(--brand-500)" />
+                      </label>
+                      <label className="block space-y-1">
+                        <span className="text-xs font-bold text-(--text-secondary)">{t("endsOn")}</span>
+                        <input type="date" value={endsOn} min={startsOn || undefined} onChange={(e) => setEndsOn(e.target.value)} dir="ltr"
+                          className="h-12 w-full rounded-xl border border-(--border-default) bg-(--bg-overlay) px-3 text-sm font-bold outline-none focus:border-(--brand-500)" />
+                      </label>
+                    </div>
+                    {(startsOn || endsOn) && (
+                      <button type="button" onClick={() => { setStartsOn(""); setEndsOn(""); }} className="mt-2 text-xs font-bold text-(--brand-600)">
+                        {t("clearWindow")}
+                      </button>
+                    )}
+                  </div>
                   <div className="flex items-center justify-between gap-4 rounded-xl bg-(--bg-surface) px-4 py-3">
                     <div className="min-w-0">
                       <p className="text-sm font-black">{t("ruleActive")}</p>
@@ -295,6 +376,33 @@ export function RuleBuilder({
               </div>
             ) : (
               <div className="space-y-4 p-5">
+                {deal ? (
+                  <>
+                    {/* price deal: condition → what changes on the targets */}
+                    <div className="rounded-xl bg-(--bg-surface) p-3">
+                      <p className="mb-2 text-[11px] font-black uppercase tracking-wide opacity-60">{t("previewClientBuys")}</p>
+                      <ul className="space-y-2.5">
+                        {buyItems.map((b) => (
+                          <ReceiptRow key={`b-${b.productId}`} product={byId.get(b.productId)} right={`${b.colis} ${t("colis")}`} />
+                        ))}
+                      </ul>
+                      <div className="my-3 border-t border-dashed border-(--border-strong)" />
+                      <p className="mb-2 text-[11px] font-black uppercase tracking-wide text-amber-600">{t(mode === "PERCENT" ? "previewTargetsPercent" : "previewTargetsPrice")}</p>
+                      <ul className="space-y-2">
+                        {gives.map((g) => (
+                          <ReceiptRow
+                            key={`t-${g.productId}`}
+                            product={byId.get(g.productId)}
+                            deal
+                            right={mode === "PERCENT" ? `−${pctNum}%` : `${dzMoney(num(g.price ?? ""))} / ${t("colis")}`}
+                          />
+                        ))}
+                      </ul>
+                    </div>
+                    <p className="text-xs text-(--text-secondary)">{t("dealEvery")}</p>
+                  </>
+                ) : (
+                  <>
                 {/* what the test client buys */}
                 {mode === "SINGLE" ? (
                   <div className="flex items-center justify-between gap-3">
@@ -347,6 +455,8 @@ export function RuleBuilder({
                   )}
                 </div>
                 <p className="text-xs text-(--text-secondary)">{t("everyShort")}</p>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -444,9 +554,13 @@ function Slots({
   toggleMany,
   minRows,
   sameAs,
+  valueKind = "qty",
 }: {
   side: "buy" | "give";
   mode: Mode;
+  /// What sits next to each product: colis stepper (default), nothing (percent
+  /// targets), or the new price per colis (price targets).
+  valueKind?: "qty" | "none" | "price";
   slots: Slot[];
   products: PickerProduct[];
   categories: PickerCategory[];
@@ -479,7 +593,19 @@ function Slots({
               />
             </div>
             <div className="flex items-stretch gap-2 max-sm:w-full">
-              <QtyStepper value={s.colis} onChange={(v) => patch(side, i, { colis: v })} label={t("qty")} unit={t("colis")} className="max-sm:flex-1" />
+              {valueKind === "qty" && (
+                <QtyStepper value={s.colis} onChange={(v) => patch(side, i, { colis: v })} label={t("qty")} unit={t("colis")} className="max-sm:flex-1" />
+              )}
+              {valueKind === "price" && (
+                <label className="flex h-16 items-center gap-2 rounded-2xl border border-(--border-default) bg-(--bg-surface) px-3 max-sm:flex-1">
+                  <input
+                    type="number" inputMode="decimal" min={0} step="any" value={s.price ?? ""}
+                    onChange={(e) => patch(side, i, { price: e.target.value })} dir="ltr" aria-label={t("newPriceLabel")} placeholder="0"
+                    className="h-full w-28 min-w-0 bg-transparent text-end text-lg font-black tabular-nums outline-none"
+                  />
+                  <span className="shrink-0 text-xs font-black leading-tight opacity-70">{t("priceUnit")}</span>
+                </label>
+              )}
               {pack && slots.length > minRows && (
                 <button type="button" onClick={() => remove(side, i)} aria-label={t("remove")} className="flex h-16 w-11 shrink-0 items-center justify-center rounded-2xl text-(--text-tertiary) transition-colors hover:bg-(--semantic-danger)/10 hover:text-(--semantic-danger)">
                   <Trash2 size={17} />
@@ -523,9 +649,9 @@ function Slots({
   );
 }
 
-function ReceiptRow({ product, right, sub, gift, freeLabel }: { product: PickerProduct | undefined; right: string; sub?: string; gift?: boolean; freeLabel?: string }) {
+function ReceiptRow({ product, right, sub, gift, freeLabel, deal }: { product: PickerProduct | undefined; right: string; sub?: string; gift?: boolean; freeLabel?: string; deal?: boolean }) {
   return (
-    <li className={cn("flex items-center gap-2.5", gift && "rounded-lg bg-(--semantic-success)/10 p-1.5")}>
+    <li className={cn("flex items-center gap-2.5", gift && "rounded-lg bg-(--semantic-success)/10 p-1.5", deal && "rounded-lg bg-amber-500/10 p-1.5")}>
       <ProductThumb src={product?.imageUrl} name={product?.name ?? ""} size={36} className="rounded-lg" />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-black leading-tight">{product?.name ?? "—"}</span>
@@ -538,5 +664,14 @@ function ReceiptRow({ product, right, sub, gift, freeLabel }: { product: PickerP
         {sub && <span dir="ltr" className="block text-[11px] font-bold tabular-nums text-(--text-secondary)">{sub}</span>}
       </span>
     </li>
+  );
+}
+
+/// Illustration tile for the price-deal type cards (amber, tag glyph).
+function DealTile({ label }: { label: string }) {
+  return (
+    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-500/50 bg-amber-500/10 text-sm font-black tabular-nums text-amber-600" aria-hidden dir="ltr">
+      {label}
+    </span>
   );
 }

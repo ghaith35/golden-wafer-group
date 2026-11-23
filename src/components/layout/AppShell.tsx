@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Truck, Boxes, ShoppingCart, ShoppingBag, Wallet, BarChart3, Settings, Bus, Route, Store, PanelLeftClose, PanelLeftOpen, Crosshair, Package, PackageCheck, Satellite, ClipboardList, ClipboardCheck, Smartphone, Clock, Banknote, Plus, ReceiptText, UserRound, Gift } from "lucide-react";
+import { LayoutDashboard, Users, Truck, Boxes, ShoppingCart, ShoppingBag, Wallet, BarChart3, Settings, Bus, Route, Store, PanelLeftClose, PanelLeftOpen, Crosshair, Package, PackageCheck, Satellite, ClipboardList, ClipboardCheck, Smartphone, Clock, Banknote, Plus, ReceiptText, UserRound, Gift, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { recordCrumb, serverUnreachable, startReachabilityProbe } from "@/lib/sync/client";
 import { canSell } from "@/lib/staff-permissions";
@@ -52,6 +52,7 @@ const GROUPS: Array<{ label: string; items: Item[]; adminOnly?: boolean }> = [
       { key: "vans", href: "vans", Icon: Bus, adminOnly: true },
       { key: "suivi", href: "suivi", Icon: Satellite },
       { key: "presence", href: "presence", Icon: Clock },
+      { key: "closedVisits", href: "closed", Icon: Lock, adminOnly: true },
       { key: "vanStock", href: "vans/stock", Icon: Package, adminOnly: true },
       { key: "vanOrders", href: "vans/orders", Icon: ClipboardList, adminOnly: true },
       { key: "livreursVendeurs", href: "users", Icon: Users, adminOnly: true },
@@ -316,6 +317,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       { key: "vanExpense", href: `livreur/${day}/expenses`, Icon: Wallet },
       { key: "vanClients", href: `livreur/${day}`, Icon: UserRound },
       { key: "vanGps", href: `livreur/${day}/gps`, Icon: Satellite },
+      ...(threePackOn ? [{ key: "vanGifts", href: `livreur/${day}/gifts`, Icon: Gift }] : []),
       // Vendeur enters the same van flow, but it reads "Get command" —
       // never "sell van".
       { key: role === "Vendeur" ? "vendeurFlow" : "livreur", href: "livreur", Icon: Smartphone },

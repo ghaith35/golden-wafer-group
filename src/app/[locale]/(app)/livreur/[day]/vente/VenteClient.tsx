@@ -26,7 +26,7 @@ import { PdfViewer } from "@/components/sales/PdfViewer";
 import { printTicketNative } from "@/lib/print-ticket";
 
 import { checkOfflineSale, pendingEffects } from "@/lib/sync/offline-rules";
-import { GiftLineRow, colisMap, giftBodyLines, giftProductsFrom, lineBaseQty, useGifts, useThreePackRules } from "@/components/threepack/useThreePack";
+import { DealChip, GiftLineRow, colisMap, giftBodyLines, giftProductsFrom, lineBaseQty, useDealLines, useGifts, useThreePackRules } from "@/components/threepack/useThreePack";
 import type { OutboxRow } from "@/lib/sync/offline-db";
 
 import { ErrText } from "@/components/ui/ErrText";
@@ -317,6 +317,9 @@ export function VenteClient({
   const giftProducts = useMemo(() => giftProductsFrom(products, snap?.products), [products, snap]);
   const gifts = useGifts(tpRules, giftProducts, lines);
   const giftLines = useMemo(() => giftBodyLines(gifts), [gifts]);
+  // % off / new-price deals: the cart is re-priced here (same function as the
+  // server) so an offline sale shows and queues the final prices.
+  const effLines = useDealLines(tpRules, giftProducts, lines, !editingTicket);
   const effCategories = categories.length > 0 ? categories : (snap?.categories ?? []);
   const snapStock = (() => {
     if (!snap) return null;
@@ -477,7 +480,7 @@ export function VenteClient({
     closeQty();
   }
 
-  const total = lines.reduce((s, l) => s + l.qty * l.unitPrice, 0);
+  const total = effLines.reduce((s, l) => s + l.qty * l.unitPrice, 0);
 
   function bump(i: number, d: number) {
     setLines((prev) =>
@@ -502,7 +505,7 @@ export function VenteClient({
         ops,
         channel: "VAN",
         clientId: client?.id ?? null,
-        lines: [...lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })), ...giftLines],
+        lines: [...effLines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })), ...giftLines],
         remise: 0,
         paid: paidNow,
         // Edit mode rewrites server-side (no QR rule there) — don't force a
@@ -542,7 +545,7 @@ export function VenteClient({
               tierId: client?.tierId ?? null,
               paid: paidNow,
               notes: editingTicket.notes,
-              lines: [...lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })), ...giftLines],
+              lines: [...effLines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })), ...giftLines],
             }),
           });
           const d = await res.json().catch(() => null);
@@ -561,7 +564,7 @@ export function VenteClient({
         return;
       }
       // Snapshot for the print preview (lines/client are cleared below).
-      const snapLines = lines.map((l) => ({
+      const snapLines = effLines.map((l) => ({
         name: (effProducts.find((p) => p.id === l.productId)?.name) ?? products.find((p) => p.id === l.productId)?.name ?? "",
         qty: l.qty,
         baseQty: null as number | null,
@@ -595,7 +598,7 @@ export function VenteClient({
         qrScanned: scanned,
         ...(fix ? { saleLat: fix.lat, saleLng: fix.lng } : {}),
         paid: paidNow,
-        lines: [...lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })), ...giftLines],
+        lines: [...effLines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, remise: 0, tierId: l.tierId ?? null })), ...giftLines],
       };
       try {
         const res = await fetch("/api/sales/tickets", {
@@ -1024,10 +1027,14 @@ export function VenteClient({
                           {tierName(l.tierId)}
                         </span>
                       </div>
-                      <div className="shrink-0 whitespace-nowrap text-sm font-black tabular-nums" dir="ltr">{dzMoney(l.qty * l.unitPrice)}</div>
+                      <div className="shrink-0 whitespace-nowrap text-sm font-black tabular-nums" dir="ltr">{dzMoney(l.qty * effLines[i].unitPrice)}</div>
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-                      <div className="whitespace-nowrap text-[11px] tabular-nums opacity-60" dir="ltr">{dzMoney(l.unitPrice)}</div>
+                      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 whitespace-nowrap text-[11px] tabular-nums" dir="ltr">
+                        {effLines[i].deal && <span className="opacity-40 line-through">{dzMoney(l.unitPrice)}</span>}
+                        <span className={effLines[i].deal ? "font-black text-amber-700" : "opacity-60"}>{dzMoney(effLines[i].unitPrice)}</span>
+                        <DealChip deal={effLines[i].deal} money={dzMoney(effLines[i].unitPrice)} />
+                      </div>
                       <div className="flex shrink-0 items-center gap-1">
                         <button
                           type="button"

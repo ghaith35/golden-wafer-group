@@ -26,7 +26,7 @@ export const FRENCH_LABELS = {
   paid: "Payé",
   due: "Reste",
   remise: "Remise",
-  thanks: "Merci",
+  thanks: "Merci pour votre confiance",
   facture: "Facture",
   client: "Client",
   date: "Date",

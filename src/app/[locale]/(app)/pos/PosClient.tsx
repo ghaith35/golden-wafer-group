@@ -11,7 +11,8 @@ import { Modal } from "@/components/ui/Modal";
 import { UnitQty, factorOf, baseNameOf, packBreakdown, priceForUnit, saleUnits, normFactor } from "@/components/products/UnitQty";
 import { ProductCardDetails } from "@/components/products/ProductCardDetails";
 import { cn } from "@/lib/utils";
-import { GiftLineRow, giftBodyLines, useGifts, useThreePackRules } from "@/components/threepack/useThreePack";
+import { GiftLineRow, colisMap, giftBodyLines, lineBaseQty, useGifts, useThreePackRules } from "@/components/threepack/useThreePack";
+import { applyDeals } from "@/lib/threepack/match";
 
 import { ErrText } from "@/components/ui/ErrText";
 type Product = {
@@ -226,14 +227,20 @@ export function PosClient({
   }, [clients, clientQ]);
 
   const totals = useMemo(() => {
-    const linesTotal = lines.reduce((s, l) => {
+    const priced = lines.map((l) => {
       const p = byId.get(l.productId);
       const price = l.unitPrice === "" ? (p ? priceFor(p, l.unitId) : 0) : Number(l.unitPrice);
-      return s + Math.max(0, l.qty * price - l.remise);
-    }, 0);
-    return { linesTotal, total: Math.max(0, linesTotal - docRemise) };
+      return {
+        productId: l.productId, qty: l.qty, baseQty: lineBaseQty(products, l), unitPrice: price, remise: l.remise,
+        lineTotal: Math.max(0, l.qty * price - l.remise), manualPrice: l.unitPrice !== "",
+      };
+    });
+    const before = priced.reduce((s, l) => s + l.lineTotal, 0);
+    // % off / new-price deals (the server applies the same to blank-price lines).
+    const linesTotal = tpRules.length ? applyDeals(tpRules, priced, colisMap(products)).reduce((s, l) => s + l.lineTotal, 0) : before;
+    return { linesTotal, total: Math.max(0, linesTotal - docRemise), dealSaving: Math.round((before - linesTotal) * 100) / 100 };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lines, docRemise, effTier, byId]);
+  }, [lines, docRemise, effTier, byId, tpRules]);
 
   const paidNum = paid === "" ? totals.total : Number(paid);
   const diff = paidNum - totals.total;
@@ -605,6 +612,12 @@ export function PosClient({
             </div>
           )}
 
+          {totals.dealSaving > 0 && (
+            <div className="mb-1 flex items-center justify-between rounded-xl bg-amber-500/10 px-4 py-2 text-sm font-black text-amber-700">
+              <span>🏷 {t3("dealApplied")}</span>
+              <span className="tabular-nums" dir="ltr">−{fmt(totals.dealSaving)}</span>
+            </div>
+          )}
           <div className="mb-2 flex min-h-20 items-center justify-between rounded-xl bg-(--bg-sunken) px-4 py-3">
             <span className="text-base font-bold opacity-70">{labels.total}</span>
             <span className="text-3xl font-black tabular-nums">{fmt(totals.total)}</span>

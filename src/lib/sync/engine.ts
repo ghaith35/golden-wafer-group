@@ -91,6 +91,10 @@ async function existingByOpId(companyId: string, kind: string, opId: string): Pr
       const r = await prisma.transfer.findFirst({ where: { companyId, opId }, select: { id: true } });
       return r?.id ?? null;
     }
+    case "client-closed": {
+      const r = await prisma.closedVisit.findFirst({ where: { companyId, opId }, select: { id: true } });
+      return r?.id ?? null;
+    }
     default:
       return null;
   }
@@ -671,6 +675,25 @@ async function applyOp(
         skipped: p.skipped as boolean | undefined,
       });
       id = row.id;
+    } else if (op.kind === "client-closed") {
+      // "Shop closed" report: the driver photographed the closed shop (1–6
+      // photos, JPEG data URLs). Works offline; lands here at sync time with
+      // the real phone time.
+      const { createClosedVisit } = await import("@/lib/closed-visits/service");
+      const closedClientId = await resolveClientId(companyId, p.clientId, created);
+      if (!closedClientId) throw Object.assign(new Error("bad_client"), { status: 400 });
+      id = await createClosedVisit({
+        companyId,
+        userId,
+        vanId,
+        opId: op.opId,
+        occurredAt,
+        clientId: closedClientId,
+        note: typeof p.note === "string" ? p.note : null,
+        lat: p.lat == null ? null : Number(p.lat),
+        lng: p.lng == null ? null : Number(p.lng),
+        photos: p.photos,
+      });
     } else {
       throw Object.assign(new Error("bad_kind"), { status: 400 });
     }

@@ -24,6 +24,8 @@ type PricedLine = {
   /// 3pack gift line (price 0, stock still deducted).
   isBonus?: boolean;
   bonusRuleId?: string | null;
+  /// Price typed by hand (explicit unitPrice) — price deals never override it.
+  manualPrice?: boolean;
 };
 
 /// Resolve lines: tier price (explicit → client tier → salePrice), conversions → baseQty.
@@ -91,6 +93,7 @@ async function priceLines(
       remise,
       lineTotal: Math.max(0, l.qty * unitPrice - remise),
       ...(isBonus ? { isBonus: true, bonusRuleId: l.bonusRuleId ?? null } : {}),
+      ...(!isBonus && l.unitPrice != null ? { manualPrice: true } : {}),
     };
   });
   return { priced, tierId: tier?.id ?? null };

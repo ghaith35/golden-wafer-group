@@ -6,12 +6,28 @@
 /// 2; a pack of A×10 + B×10 bought 3 times gives the reward 3 times, limited by
 /// the scarcest component.
 
+import { windowState } from "@/lib/threepack/window";
+
+/// What the rule rewards: SINGLE / PACK = free goods; PERCENT = % off the target
+/// products; PRICE = target products sold at a new price. The BUY side is the
+/// same for all: one product or a pack of products, each with its colis.
+export type ThreePackMode = "SINGLE" | "PACK" | "PERCENT" | "PRICE";
+export const isDealMode = (m: ThreePackMode): m is "PERCENT" | "PRICE" => m === "PERCENT" || m === "PRICE";
+
 export type ThreePackRuleLite = {
   id: string;
   name: string;
-  mode: "SINGLE" | "PACK";
+  mode: ThreePackMode;
+  /// PERCENT rules: % off every target product.
+  percent?: number | null;
   isActive: boolean;
-  items: Array<{ role: "BUY" | "GIVE"; productId: string; colis: number }>;
+  /// Promotion window (ISO). Outside it the rule gives nothing, even from a
+  /// phone whose cached rules are older than the end date.
+  startsAt?: string | null;
+  endsAt?: string | null;
+  /// GIVE items are the free goods (SINGLE/PACK) or the TARGET products of a
+  /// PERCENT / PRICE rule; `price` = the new price per colis (PRICE only).
+  items: Array<{ role: "BUY" | "GIVE"; productId: string; colis: number; price?: number | null }>;
 };
 
 /// How a product is sold in colis: `factor` base units per colis, `unitId` the
@@ -85,12 +101,14 @@ export function computeBonus(
   rules: ThreePackRuleLite[],
   lines: MatchLine[],
   colis: Record<string, ColisInfo | undefined>,
-  opts?: { includeInactive?: boolean },
+  opts?: { includeInactive?: boolean; now?: Date },
 ): GiftLine[] {
   const bought = boughtColis(lines, colis);
   const gifts: GiftLine[] = [];
   for (const rule of rules) {
+    if (isDealMode(rule.mode)) continue; // price deals give no free goods
     if (!rule.isActive && !opts?.includeInactive) continue;
+    if (!opts?.includeInactive && windowState(rule, opts?.now ?? new Date()) !== "live") continue;
     const times = ruleMultiple(rule, bought);
     if (times <= 0) continue;
     for (const g of rule.items.filter((i) => i.role === "GIVE")) {
@@ -139,17 +157,120 @@ export function overClaimedBonus(
   return bad;
 }
 
+// ─── Price deals: % off / new price on target products ───────────────────────
+
+export type AppliedDeal = {
+  ruleId: string;
+  ruleName: string;
+  kind: "PERCENT" | "PRICE";
+  percent?: number;
+  /// New price per colis (PRICE).
+  pricePerColis?: number;
+};
+
+/// A sale line as the deal engine sees it. `baseQty` = qty × unit factor.
+export type DealLine = {
+  productId: string;
+  qty: number;
+  baseQty: number;
+  unitPrice: number;
+  remise: number;
+  lineTotal: number;
+  isBonus?: boolean;
+  /// The seller typed this price by hand — a deal never overrides it.
+  manualPrice?: boolean;
+};
+
+const round4 = (n: number) => Math.round(n * 10000) / 10000;
+
+/// Every target (product → deal) of the PERCENT / PRICE rules whose BUY side is
+/// satisfied by these purchases. A satisfied rule discounts ALL of each target
+/// product's quantity in the sale (not per multiple).
+export function computeDeals(
+  rules: ThreePackRuleLite[],
+  lines: MatchLine[],
+  colis: Record<string, ColisInfo | undefined>,
+  opts?: { now?: Date },
+): Array<AppliedDeal & { productId: string }> {
+  const bought = boughtColis(lines, colis);
+  const out: Array<AppliedDeal & { productId: string }> = [];
+  for (const rule of rules) {
+    if (!isDealMode(rule.mode) || !rule.isActive) continue;
+    if (windowState(rule, opts?.now ?? new Date()) !== "live") continue;
+    if (ruleMultiple(rule, bought) <= 0) continue;
+    for (const g of rule.items.filter((i) => i.role === "GIVE")) {
+      if (rule.mode === "PERCENT") {
+        const pct = Number(rule.percent ?? 0);
+        if (pct > 0 && pct <= 100) out.push({ ruleId: rule.id, ruleName: rule.name, kind: "PERCENT", productId: g.productId, percent: pct });
+      } else if (g.price != null && Number(g.price) >= 0) {
+        out.push({ ruleId: rule.id, ruleName: rule.name, kind: "PRICE", productId: g.productId, pricePerColis: Number(g.price) });
+      }
+    }
+  }
+  return out;
+}
+
+/// One line with one deal applied (null when it cannot apply).
+function dealtLine<L extends DealLine>(l: L, d: AppliedDeal, info: ColisInfo | undefined): L | null {
+  if (!(l.qty > 0)) return null;
+  if (d.kind === "PERCENT") {
+    // Folded into the unit price (not the line "remise"), so it works whether
+    // or not manual discounts are enabled and a phone-priced sale syncs as-is.
+    const unitPrice = round4(l.unitPrice * (1 - (d.percent ?? 0) / 100));
+    return { ...l, unitPrice, lineTotal: Math.max(0, l.qty * unitPrice - l.remise) };
+  }
+  if (!info || !(info.factor > 0) || d.pricePerColis == null) return null;
+  const unitFactor = l.baseQty / l.qty; // base units per this line's unit
+  const unitPrice = round4((d.pricePerColis / info.factor) * unitFactor);
+  return { ...l, unitPrice, lineTotal: Math.max(0, l.qty * unitPrice - l.remise) };
+}
+
+/// Apply the deals to the purchased lines. PURE and shared by the server (online
+/// sales) and the offline van phone, so both price a sale identically. Where
+/// several deals hit one product, the cheapest result for the client wins.
+/// Gift lines and hand-priced lines are left alone.
+export function applyDeals<L extends DealLine>(
+  rules: ThreePackRuleLite[],
+  lines: L[],
+  colis: Record<string, ColisInfo | undefined>,
+  opts?: { now?: Date },
+): Array<L & { deal?: AppliedDeal }> {
+  const deals = computeDeals(rules, lines.filter((l) => !l.isBonus), colis, opts);
+  if (deals.length === 0) return lines;
+  return lines.map((l) => {
+    if (l.isBonus || l.manualPrice) return l;
+    let best: (L & { deal?: AppliedDeal }) | null = null;
+    for (const d of deals) {
+      if (d.productId !== l.productId) continue;
+      const next = dealtLine(l, d, colis[l.productId]);
+      if (next && (!best || next.lineTotal < best.lineTotal)) {
+        best = { ...next, deal: { ruleId: d.ruleId, ruleName: d.ruleName, kind: d.kind, percent: d.percent, pricePerColis: d.pricePerColis } };
+      }
+    }
+    return best ?? l;
+  });
+}
+
 /// Rule-shape validation shared by the admin API and the admin form.
 /// Returns an error code or null.
 export function ruleShapeError(
-  mode: "SINGLE" | "PACK",
-  items: Array<{ role: "BUY" | "GIVE"; productId: string; colis: number }>,
+  mode: ThreePackMode,
+  items: Array<{ role: "BUY" | "GIVE"; productId: string; colis: number; price?: number | null }>,
+  percent?: number | null,
 ): string | null {
   const buys = items.filter((i) => i.role === "BUY");
   const gives = items.filter((i) => i.role === "GIVE");
   if (items.some((i) => !i.productId || !(i.colis > 0))) return "rule_bad_qty";
   const uniq = (xs: typeof items) => new Set(xs.map((x) => x.productId)).size === xs.length;
   if (!uniq(buys) || !uniq(gives)) return "rule_duplicate_product";
+  // Price deals: buy side is one product OR a pack; targets are one product OR a pack.
+  if (mode === "PERCENT" || mode === "PRICE") {
+    if (buys.length < 1) return "rule_needs_buy";
+    if (gives.length < 1) return "rule_needs_target";
+    if (mode === "PERCENT" && !(Number(percent) > 0 && Number(percent) <= 100)) return "rule_bad_percent";
+    if (mode === "PRICE" && gives.some((g) => !(g.price != null && Number(g.price) >= 0))) return "rule_bad_price";
+    return null;
+  }
   // Single = one bought product, one free product (the SAME product or ANY other).
   if (mode === "SINGLE") {
     if (buys.length !== 1 || gives.length !== 1) return "rule_single_shape";

@@ -86,7 +86,8 @@ export function ticketPrintHtml(
     `<div class="orn"><i></i><b>&#9670;</b><i></i></div>` +
     (opts?.qrDataUrl ? `<img class="qr" src="${opts.qrDataUrl}">` : "") +
     (labels.thanks ? `<div class="c b" style="font-size:13px">&#10022; ${esc(labels.thanks)} &#10022;</div>` : "") +
-    (t.sellerPhone ? `<div class="c m b" dir="ltr">&#9742; ${esc(t.sellerPhone)}</div>` : "") +
+    // 1 cm of blank paper under the thank-you (tear-off margin).
+    `<div style="height:10mm"></div>` +
     `</div></body></html>`;
 }
 

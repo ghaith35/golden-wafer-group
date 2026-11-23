@@ -27,7 +27,11 @@ export default async function LivreurGpsPage({
   const tg = await getTranslations("tournees");
 
   const { start, end } = dayBounds(date);
-  const [tour, rows] = await Promise.all([
+  const [closedRows, tour, rows] = await Promise.all([
+    prisma.closedVisit.findMany({
+      where: { companyId: session.companyId, locationId: van.id, occurredAt: { gte: start, lte: end } },
+      select: { customerId: true },
+    }),
     prisma.tournee.findFirst({
       where: { companyId: session.companyId, locationId: van.id, date: { gte: start, lte: end } },
       select: { secteurId: true, startedAt: true, stops: { select: { clientId: true } } },
@@ -55,6 +59,7 @@ export default async function LivreurGpsPage({
       locale={locale}
       day={day}
       hasStarted={!!tour?.startedAt}
+      closedToday={[...new Set(closedRows.map((c) => c.customerId))]}
       todayIds={(tour?.stops ?? []).map((s) => s.clientId)}
       todaySecteurId={tour?.secteurId ?? null}
       clients={clients}
@@ -63,6 +68,8 @@ export default async function LivreurGpsPage({
         near: t("proxNear"), mid: t("proxMid"), far: t("proxFar"), none: t("proxNone"),
         noPos: t("gpsNoPos"), refresh: t("gpsRefresh"), call: t("callClient"), locating: t("gpsLocating"),
         empty: t("gpsEmpty"), unitM: tg("unitM"), unitKm: tg("unitKm"),
+        closedShop: t("closedShop"), closedAddPhoto: t("closedAddPhoto"), closedSave: t("closedSave"), closedHint: t("closedHint"),
+        closedBadge: t("closedBadge"), closedErr: t("closedErr"), closedSaved: t("closedSaved"), closedSavedOffline: t("closedSavedOffline"),
       }}
     />
   );

@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/db";
-import { loadColis } from "@/lib/threepack/service";
+import { loadColis, expireRules } from "@/lib/threepack/service";
+import { dayStart, dayEnd } from "@/lib/threepack/window";
 import { ruleShapeError } from "@/lib/threepack/match";
 import type { RuleInput } from "@/lib/threepack/validation";
 
 /// Shape + product checks for a rule being created/edited. Throws a coded
 /// error (status 400) the UI maps through the `errors` namespace.
 export async function assertRuleValid(companyId: string, input: RuleInput): Promise<void> {
-  const shape = ruleShapeError(input.mode, input.items);
+  const shape = ruleShapeError(input.mode, input.items, input.percent);
   if (shape) throw Object.assign(new Error(shape), { status: 400 });
   const ids = [...new Set(input.items.map((i) => i.productId))];
   const found = await prisma.product.count({ where: { id: { in: ids }, companyId } });
@@ -20,6 +21,7 @@ export async function assertRuleValid(companyId: string, input: RuleInput): Prom
 /// Archived versions (replaced by an edit) stay in the DB for offline sync
 /// validation but are not listed.
 export async function listRulesForAdmin(companyId: string) {
+  await expireRules(companyId);
   const rules = await prisma.threePackRule.findMany({
     where: { companyId, isArchived: false },
     orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
@@ -44,6 +46,9 @@ export async function listRulesForAdmin(companyId: string) {
     name: r.name,
     mode: r.mode,
     isActive: r.isActive,
+    percent: r.percent != null ? Number(r.percent) : null,
+    startsAt: r.startsAt ? r.startsAt.toISOString() : null,
+    endsAt: r.endsAt ? r.endsAt.toISOString() : null,
     givenColis: givenBy.get(r.id) ?? 0,
     items: r.items.map((i) => ({
       id: i.id,
@@ -52,12 +57,25 @@ export async function listRulesForAdmin(companyId: string) {
       productName: i.product.name,
       imageUrl: i.product.images[0]?.url ?? null,
       colis: Number(i.colis),
+      price: i.price != null ? Number(i.price) : null,
     })),
   }));
 }
 
-const itemsKey = (items: Array<{ role: string; productId: string; colis: unknown }>) =>
-  items.map((i) => `${i.role}|${i.productId}|${Number(i.colis)}`).sort().join(",");
+/// Window columns from the form's "YYYY-MM-DD" fields (undefined = untouched).
+export function windowData(input: { startsOn?: string | null; endsOn?: string | null }) {
+  const out: { startsAt?: Date | null; endsAt?: Date | null } = {};
+  if (input.startsOn !== undefined) out.startsAt = input.startsOn ? dayStart(input.startsOn) : null;
+  if (input.endsOn !== undefined) out.endsAt = input.endsOn ? dayEnd(input.endsOn) : null;
+  return out;
+}
+
+const itemsKey = (items: Array<{ role: string; productId: string; colis: unknown; price?: unknown }>) =>
+  items.map((i) => `${i.role}|${i.productId}|${Number(i.colis)}|${i.price == null ? "" : Number(i.price)}`).sort().join(",");
+
+/// Item rows for create(): quantities in colis, PRICE targets carry their price.
+export const itemRows = (items: RuleInput["items"], mode: RuleInput["mode"]) =>
+  items.map((i) => ({ role: i.role, productId: i.productId, colis: i.colis, price: mode === "PRICE" && i.role === "GIVE" ? (i.price ?? null) : null }));
 
 /// Edit a rule. Rules are IMMUTABLE once created: changing the mode, products
 /// or quantities archives the old row and creates a new one (new id). A van
@@ -69,10 +87,18 @@ export async function replaceRule(companyId: string, id: string, input: RuleInpu
   const rule = await prisma.threePackRule.findFirst({ where: { id, companyId, isArchived: false }, include: { items: true } });
   if (!rule) throw Object.assign(new Error("not_found"), { status: 404 });
   await assertRuleValid(companyId, input);
-  const isActive = input.isActive ?? rule.isActive;
+  const win = windowData(input);
+  let isActive = input.isActive ?? rule.isActive;
+  // Moving an expired rule's end date into the future (or clearing it) brings
+  // it back: the auto-deactivation was only because of the old date.
+  if (input.isActive === undefined && !rule.isActive && rule.endsAt && rule.endsAt.getTime() < Date.now()) {
+    const ne = win.endsAt === undefined ? rule.endsAt : win.endsAt;
+    if (!ne || ne.getTime() >= Date.now()) isActive = true;
+  }
 
-  if (rule.mode === input.mode && itemsKey(rule.items) === itemsKey(input.items)) {
-    await prisma.threePackRule.update({ where: { id }, data: { name: input.name, isActive } });
+  const pctSame = Number(rule.percent ?? 0) === Number(input.mode === "PERCENT" ? (input.percent ?? 0) : 0);
+  if (rule.mode === input.mode && pctSame && itemsKey(rule.items) === itemsKey(itemRows(input.items, input.mode))) {
+    await prisma.threePackRule.update({ where: { id }, data: { name: input.name, isActive, ...win } });
     return { id, versioned: false };
   }
   const created = await prisma.$transaction(async (tx) => {
@@ -82,8 +108,11 @@ export async function replaceRule(companyId: string, id: string, input: RuleInpu
         companyId,
         name: input.name,
         mode: input.mode,
+        percent: input.mode === "PERCENT" ? (input.percent ?? null) : null,
         isActive,
-        items: { create: input.items.map((i) => ({ role: i.role, productId: i.productId, colis: i.colis })) },
+        ...(win.startsAt === undefined ? { startsAt: rule.startsAt } : { startsAt: win.startsAt }),
+        ...(win.endsAt === undefined ? { endsAt: rule.endsAt } : { endsAt: win.endsAt }),
+        items: { create: itemRows(input.items, input.mode) },
       },
     });
   });

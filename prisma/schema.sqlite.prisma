@@ -56,6 +56,7 @@ model Company {
   sales            Sale[]
   threePackRules   ThreePackRule[]
   clientReturns    ClientReturn[]
+  closedVisits     ClosedVisit[]
   tournees         Tournee[]
   expenses         Expense[]
   versements       Versement[]
@@ -227,6 +228,7 @@ model User {
 
   assignedVans Store[]  @relation("AssignedVan")
   devices      Device[]
+  closedVisits ClosedVisit[]
   createdSales Sale[]   @relation("CreatedSales")
 
   @@unique([companyId, username])
@@ -328,6 +330,7 @@ model Store {
   losses        StockLoss[]
   sales         Sale[]
   clientReturns ClientReturn[]
+  closedVisits  ClosedVisit[]
   tournees      Tournee[]
   expenseLinks  Expense[]
   devices       Device[]
@@ -500,6 +503,7 @@ model Customer {
   opId String?
 
   distances ClientDistance[]
+  closedVisits ClosedVisit[]
 
   sales        Sale[]
   returns      ClientReturn[]
@@ -1315,6 +1319,12 @@ model ThreePackRule {
   /// Editing a rule's products/quantities archives it and creates a new rule,
   /// so an offline sale always validates against the exact rule the phone had.
   isArchived Boolean        @default(false)
+  /// Promotion window (inclusive, whole days). Null = open-ended. Past endsAt the
+  /// rule is switched off automatically; before startsAt it does not apply yet.
+  startsAt  DateTime?
+  endsAt    DateTime?
+  /// PERCENT rules: the % taken off every target product's line.
+  percent   Decimal?
   createdAt DateTime        @default(now())
   items     ThreePackItem[]
 
@@ -1331,8 +1341,52 @@ model ThreePackItem {
   product   Product       @relation(fields: [productId], references: [id], onDelete: Restrict)
   /// Quantity in colis.
   colis     Decimal
+  /// PRICE rules, GIVE (target) items: the new price per colis.
+  price     Decimal?
 
   @@index([ruleId])
   @@index([productId])
   @@map("three_pack_items")
+}
+
+
+/// "Client closed" report from a van phone: the driver reached the client's
+/// shop, found it shut and photographed it (one or several photos). Created
+/// offline on the phone, synced later; idempotent by opId.
+model ClosedVisit {
+  id         String               @id @default(cuid())
+  companyId  String
+  company    Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   Customer             @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  /// The van the driver was on.
+  locationId String?
+  location   Store?               @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  userId     String?
+  user       User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  opId       String?
+  note       String?
+  /// Where the phone was when the photo was taken.
+  lat        Float?
+  lng        Float?
+  /// Real action time on the phone (not the sync time).
+  occurredAt DateTime
+  createdAt  DateTime             @default(now())
+  photos     ClosedVisitPhoto[]
+
+  @@unique([companyId, opId])
+  @@index([companyId, occurredAt])
+  @@index([customerId])
+  @@map("closed_visits")
+}
+
+model ClosedVisitPhoto {
+  id        String      @id @default(cuid())
+  visitId   String
+  visit     ClosedVisit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int         @default(0)
+
+  @@index([visitId])
+  @@map("closed_visit_photos")
 }

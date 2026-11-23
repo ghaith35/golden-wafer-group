@@ -859,6 +859,9 @@ CREATE TABLE "three_pack_rules" (
     "mode" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "isArchived" BOOLEAN NOT NULL DEFAULT false,
+    "startsAt" DATETIME,
+    "endsAt" DATETIME,
+    "percent" DECIMAL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "three_pack_rules_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -870,8 +873,37 @@ CREATE TABLE "three_pack_items" (
     "role" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
     "colis" DECIMAL NOT NULL,
+    "price" DECIMAL,
     CONSTRAINT "three_pack_items_ruleId_fkey" FOREIGN KEY ("ruleId") REFERENCES "three_pack_rules" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "three_pack_items_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "closed_visits" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "companyId" TEXT NOT NULL,
+    "customerId" TEXT NOT NULL,
+    "locationId" TEXT,
+    "userId" TEXT,
+    "opId" TEXT,
+    "note" TEXT,
+    "lat" REAL,
+    "lng" REAL,
+    "occurredAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "closed_visits_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "closed_visits_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "closed_visits_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "stores" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "closed_visits_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "closed_visit_photos" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "visitId" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT "closed_visit_photos_visitId_fkey" FOREIGN KEY ("visitId") REFERENCES "closed_visits" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -1134,3 +1166,15 @@ CREATE INDEX "three_pack_items_ruleId_idx" ON "three_pack_items"("ruleId");
 
 -- CreateIndex
 CREATE INDEX "three_pack_items_productId_idx" ON "three_pack_items"("productId");
+
+-- CreateIndex
+CREATE INDEX "closed_visits_companyId_occurredAt_idx" ON "closed_visits"("companyId", "occurredAt");
+
+-- CreateIndex
+CREATE INDEX "closed_visits_customerId_idx" ON "closed_visits"("customerId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "closed_visits_companyId_opId_key" ON "closed_visits"("companyId", "opId");
+
+-- CreateIndex
+CREATE INDEX "closed_visit_photos_visitId_idx" ON "closed_visit_photos"("visitId");

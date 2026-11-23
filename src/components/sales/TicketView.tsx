@@ -229,7 +229,8 @@ export function TicketView({
           <img src={qrDataUrl} alt={ticket.number} className="mx-auto h-20 w-20" />
         )}
         <div className="mt-1 text-sm font-black tracking-wide">✦ {labels.thanks} ✦</div>
-        {ticket.sellerPhone && <div className="mt-0.5 text-[11px] font-bold opacity-70" dir="ltr">☎ {ticket.sellerPhone}</div>}
+        {/* 1 cm of blank paper under the thank-you (tear-off margin). */}
+        <div aria-hidden style={{ height: "10mm" }} />
       </div>
       <style>{`.ticket, .ticket * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       @media print {

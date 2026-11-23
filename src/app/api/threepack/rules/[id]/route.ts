@@ -23,6 +23,11 @@ export async function PATCH(req: Request, { params }: Ctx) {
       const r = await replaceRule(companyId, id, parsed.data);
       return NextResponse.json({ ok: true, id: r.id, versioned: r.versioned });
     }
+    // An expired rule cannot just be switched back on — it would be turned off
+    // again at once. The admin extends / clears its end date instead.
+    if (parsed.data.isActive && rule.endsAt && rule.endsAt.getTime() < Date.now()) {
+      return NextResponse.json({ error: "rule_expired" }, { status: 400 });
+    }
     await prisma.threePackRule.update({ where: { id }, data: { isActive: parsed.data.isActive } });
     return NextResponse.json({ ok: true });
   } catch (e) {

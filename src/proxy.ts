@@ -7,7 +7,7 @@ import { isLocalMode, localEntitledCached, isDesktopUserAgent } from "@/lib/lice
 
 const handleI18nRouting = createMiddleware(routing);
 
-const PROTECTED_PREFIXES = ["/dashboard", "/clients", "/suppliers", "/inventory", "/products", "/sales", "/purchases", "/expenses", "/reports", "/settings",   "/pos", "/tournees", "/vans", "/carte", "/cash", "/cash-daily", "/journal", "/users", "/devices", "/license", "/livreur", "/dettes", "/presence", "/suivi", "/commandes", "/threepack"];
+const PROTECTED_PREFIXES = ["/dashboard", "/clients", "/suppliers", "/inventory", "/products", "/sales", "/purchases", "/expenses", "/reports", "/settings",   "/pos", "/tournees", "/vans", "/carte", "/cash", "/cash-daily", "/journal", "/users", "/devices", "/license", "/livreur", "/dettes", "/presence", "/closed", "/suivi", "/commandes", "/threepack"];
 const PORTAL_PREFIXES = ["/portal"];
 
 /// Permanent role-based access control (server-enforced, PWA/offline-safe).

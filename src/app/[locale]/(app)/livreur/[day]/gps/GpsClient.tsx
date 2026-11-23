@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Phone, Navigation, Crosshair } from "lucide-react";
-import { goPage } from "@/lib/sync/client";
+import { goPage, getOutbox } from "@/lib/sync/client";
+import { ClosedShopSheet } from "./ClosedShopSheet";
 import { haversineM, formatMeters } from "@/lib/geo-math";
 import { proximityOf, PROX_CARD, PROX_HEX, type Proximity } from "@/lib/proximity";
 import { RefreshButton } from "@/components/livreur/RefreshButton";
@@ -24,11 +25,12 @@ type C = {
 type Filter = "all" | "today" | "sector" | `s:${string}`;
 
 export function GpsClient({
-  locale, day, hasStarted, todayIds, todaySecteurId, clients, labels,
+  locale, day, hasStarted, closedToday, todayIds, todaySecteurId, clients, labels,
 }: {
   locale: string;
   day: string;
   hasStarted: boolean;
+  closedToday: string[];
   todayIds: string[];
   todaySecteurId: string | null;
   clients: C[];
@@ -43,6 +45,19 @@ export function GpsClient({
   const [pos, setPos] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
   const [nonce, setNonce] = useState(0);
+  /// Clients reported closed today: the server's list + reports still waiting
+  /// in this phone's outbox (offline).
+  const [closedIds, setClosedIds] = useState<Set<string>>(() => new Set(closedToday));
+  const [sheetFor, setSheetFor] = useState<{ id: string; name: string; code: string } | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  useEffect(() => {
+    getOutbox()
+      .then((ops) => {
+        const ids = ops.filter((o) => o.kind === "client-closed").map((o) => String((o.payload as { clientId?: unknown }).clientId ?? ""));
+        if (ids.length) setClosedIds((s) => new Set([...s, ...ids]));
+      })
+      .catch(() => {});
+  }, []);
 
   /// Native-aware GPS fix (works offline — it is the phone's own receiver).
   function locate(silent = false) {
@@ -200,9 +215,15 @@ export function GpsClient({
             >
               {c.name.trim().charAt(0)}
             </span>
-            <span className="min-w-0 flex-1">
-              <span className="flex min-w-0 items-center text-sm font-black">
+            <button
+              type="button"
+              onClick={() => setSheetFor({ id: c.id, name: c.name, code: c.code })}
+              className="min-w-0 flex-1 text-start"
+              aria-label={labels.closedShop}
+            >
+              <span className="flex min-w-0 items-center gap-1.5 text-sm font-black">
                 <ClientName name={c.name} map={false} />
+                {closedIds.has(c.id) && <span className="shrink-0 rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-black text-white">🔒</span>}
               </span>
               <span className="block truncate font-mono text-[11px] opacity-50" dir="ltr">{c.code}</span>
               {c.distM != null && (
@@ -210,7 +231,7 @@ export function GpsClient({
                   {formatMeters(c.distM, labels.unitM, labels.unitKm)}
                 </span>
               )}
-            </span>
+            </button>
             {c.phone && (
               <a
                 href={`tel:${c.phone.replace(/[^+\d]/g, "")}`}
@@ -236,6 +257,24 @@ export function GpsClient({
         ))}
         {rows.length === 0 && <p className="py-6 text-center text-sm opacity-60">{labels.empty}</p>}
       </div>
+
+      {sheetFor && (
+        <ClosedShopSheet
+          client={sheetFor}
+          pos={pos}
+          alreadyClosed={closedIds.has(sheetFor.id)}
+          labels={labels}
+          onClose={() => setSheetFor(null)}
+          onSaved={(id, offline) => {
+            setClosedIds((s) => new Set([...s, id]));
+            setToast(offline ? labels.closedSavedOffline : labels.closedSaved);
+            window.setTimeout(() => setToast(null), 3500);
+          }}
+        />
+      )}
+      {toast && (
+        <div className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-[90] rounded-2xl bg-emerald-600 p-3 text-center text-sm font-black text-white shadow-xl">{toast}</div>
+      )}
     </div>
   );
 }

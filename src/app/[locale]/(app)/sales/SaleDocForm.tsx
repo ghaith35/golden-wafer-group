@@ -17,6 +17,7 @@ import { checkOfflineSale } from "@/lib/sync/offline-rules";
 import type { OutboxRow } from "@/lib/sync/offline-db";
 import { ProductSelect, type PickerProduct } from "@/components/threepack/ProductPicker";
 import { GiftLineRow, colisMap, giftBodyLines, lineBaseQty, useGifts, useThreePackRules } from "@/components/threepack/useThreePack";
+import { applyDeals } from "@/lib/threepack/match";
 
 import { ErrText } from "@/components/ui/ErrText";
 export type DocClient = { id: string; name: string; code: string; tierId: string | null; balance: unknown };
@@ -253,14 +254,21 @@ export function SaleDocForm({
   const unitOptions = (p: DocProduct | undefined) => saleUnits(p, allowPieces);
 
   const totals = useMemo(() => {
-    const linesTotal = lines.reduce((s, l) => {
+    const priced = lines.map((l) => {
       const p = effProducts.find((x) => x.id === l.productId);
       const price = l.unitPrice === "" ? (p ? priceFor(p, l.unitId) : 0) : Number(l.unitPrice);
-      return s + Math.max(0, l.qty * price - l.remise);
-    }, 0);
-    return { linesTotal, total: Math.max(0, linesTotal - docRemise) };
+      return {
+        productId: l.productId, qty: l.qty, baseQty: lineBaseQty(effProducts, l), unitPrice: price, remise: l.remise,
+        lineTotal: Math.max(0, l.qty * price - l.remise), manualPrice: l.unitPrice !== "",
+      };
+    });
+    const before = priced.reduce((s, l) => s + l.lineTotal, 0);
+    // % off / new-price deals (the server applies the same to blank-price lines).
+    const dealt = tpRules.length ? applyDeals(tpRules, priced.filter((l) => l.productId && l.qty > 0), colisMap(effProducts)) : priced;
+    const linesTotal = tpRules.length ? dealt.reduce((s, l) => s + l.lineTotal, 0) + priced.filter((l) => !(l.productId && l.qty > 0)).reduce((s, l) => s + l.lineTotal, 0) : before;
+    return { linesTotal, total: Math.max(0, linesTotal - docRemise), dealSaving: Math.round((before - linesTotal) * 100) / 100 };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lines, docRemise, effTier, effProducts]);
+  }, [lines, docRemise, effTier, effProducts, tpRules]);
 
   const paidNum = paid === "" ? (mode === "ticket" ? totals.total : 0) : Number(paid);
 
@@ -654,6 +662,7 @@ export function SaleDocForm({
           <div className="bg-gradient-brand flex flex-col justify-center rounded-xl px-3 text-(--brand-contrast)">
             <span className="text-[10px] font-black uppercase opacity-70">{labels.total}</span>
             <span className="text-lg font-black leading-tight tabular-nums" dir="ltr">{dzMoney(totals.total)}</span>
+            {totals.dealSaving > 0 && <span className="text-[10px] font-black tabular-nums opacity-90" dir="ltr">🏷 −{dzMoney(totals.dealSaving)}</span>}
           </div>
           <button type="button" onClick={submit} disabled={busy} className="col-span-2 min-h-11 rounded-xl bg-(--text-primary) text-sm font-black text-(--bg-overlay) transition-transform hover:-translate-y-0.5 disabled:opacity-60 sm:col-span-1">
             {busy ? "…" : labels.save}

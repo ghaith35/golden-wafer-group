@@ -39,6 +39,7 @@ const TITLE_KEYS: Record<string, string> = {
   "vans/stock": "vanStock",
   suivi: "suivi",
   presence: "presence",
+  closed: "closedVisits",
   carte: "carte",
   users: "livreursVendeurs",
   livreur: "livreur",

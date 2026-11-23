@@ -825,6 +825,9 @@ exports.Prisma.ThreePackRuleScalarFieldEnum = {
   mode: 'mode',
   isActive: 'isActive',
   isArchived: 'isArchived',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  percent: 'percent',
   createdAt: 'createdAt'
 };
 
@@ -833,7 +836,29 @@ exports.Prisma.ThreePackItemScalarFieldEnum = {
   ruleId: 'ruleId',
   role: 'role',
   productId: 'productId',
-  colis: 'colis'
+  colis: 'colis',
+  price: 'price'
+};
+
+exports.Prisma.ClosedVisitScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  customerId: 'customerId',
+  locationId: 'locationId',
+  userId: 'userId',
+  opId: 'opId',
+  note: 'note',
+  lat: 'lat',
+  lng: 'lng',
+  occurredAt: 'occurredAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ClosedVisitPhotoScalarFieldEnum = {
+  id: 'id',
+  visitId: 'visitId',
+  url: 'url',
+  sortOrder: 'sortOrder'
 };
 
 exports.Prisma.SortOrder = {
@@ -917,7 +942,9 @@ exports.Prisma.ModelName = {
   DocumentSequence: 'DocumentSequence',
   ClientDistance: 'ClientDistance',
   ThreePackRule: 'ThreePackRule',
-  ThreePackItem: 'ThreePackItem'
+  ThreePackItem: 'ThreePackItem',
+  ClosedVisit: 'ClosedVisit',
+  ClosedVisitPhoto: 'ClosedVisitPhoto'
 };
 
 /**

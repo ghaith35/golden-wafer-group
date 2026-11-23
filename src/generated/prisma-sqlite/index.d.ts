@@ -311,6 +311,18 @@ export type ThreePackRule = $Result.DefaultSelection<Prisma.$ThreePackRulePayloa
  * 
  */
 export type ThreePackItem = $Result.DefaultSelection<Prisma.$ThreePackItemPayload>
+/**
+ * Model ClosedVisit
+ * "Client closed" report from a van phone: the driver reached the client's
+ * shop, found it shut and photographed it (one or several photos). Created
+ * offline on the phone, synced later; idempotent by opId.
+ */
+export type ClosedVisit = $Result.DefaultSelection<Prisma.$ClosedVisitPayload>
+/**
+ * Model ClosedVisitPhoto
+ * 
+ */
+export type ClosedVisitPhoto = $Result.DefaultSelection<Prisma.$ClosedVisitPhotoPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -972,6 +984,26 @@ export class PrismaClient<
     * ```
     */
   get threePackItem(): Prisma.ThreePackItemDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.closedVisit`: Exposes CRUD operations for the **ClosedVisit** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ClosedVisits
+    * const closedVisits = await prisma.closedVisit.findMany()
+    * ```
+    */
+  get closedVisit(): Prisma.ClosedVisitDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.closedVisitPhoto`: Exposes CRUD operations for the **ClosedVisitPhoto** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ClosedVisitPhotos
+    * const closedVisitPhotos = await prisma.closedVisitPhoto.findMany()
+    * ```
+    */
+  get closedVisitPhoto(): Prisma.ClosedVisitPhotoDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1472,7 +1504,9 @@ export namespace Prisma {
     DocumentSequence: 'DocumentSequence',
     ClientDistance: 'ClientDistance',
     ThreePackRule: 'ThreePackRule',
-    ThreePackItem: 'ThreePackItem'
+    ThreePackItem: 'ThreePackItem',
+    ClosedVisit: 'ClosedVisit',
+    ClosedVisitPhoto: 'ClosedVisitPhoto'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1488,7 +1522,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "userArea" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem"
+      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "userArea" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem" | "closedVisit" | "closedVisitPhoto"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5488,6 +5522,154 @@ export namespace Prisma {
           }
         }
       }
+      ClosedVisit: {
+        payload: Prisma.$ClosedVisitPayload<ExtArgs>
+        fields: Prisma.ClosedVisitFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ClosedVisitFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ClosedVisitFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPayload>
+          }
+          findFirst: {
+            args: Prisma.ClosedVisitFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ClosedVisitFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPayload>
+          }
+          findMany: {
+            args: Prisma.ClosedVisitFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPayload>[]
+          }
+          create: {
+            args: Prisma.ClosedVisitCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPayload>
+          }
+          createMany: {
+            args: Prisma.ClosedVisitCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ClosedVisitCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPayload>[]
+          }
+          delete: {
+            args: Prisma.ClosedVisitDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPayload>
+          }
+          update: {
+            args: Prisma.ClosedVisitUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPayload>
+          }
+          deleteMany: {
+            args: Prisma.ClosedVisitDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ClosedVisitUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ClosedVisitUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPayload>[]
+          }
+          upsert: {
+            args: Prisma.ClosedVisitUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPayload>
+          }
+          aggregate: {
+            args: Prisma.ClosedVisitAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateClosedVisit>
+          }
+          groupBy: {
+            args: Prisma.ClosedVisitGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ClosedVisitGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ClosedVisitCountArgs<ExtArgs>
+            result: $Utils.Optional<ClosedVisitCountAggregateOutputType> | number
+          }
+        }
+      }
+      ClosedVisitPhoto: {
+        payload: Prisma.$ClosedVisitPhotoPayload<ExtArgs>
+        fields: Prisma.ClosedVisitPhotoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ClosedVisitPhotoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPhotoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ClosedVisitPhotoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPhotoPayload>
+          }
+          findFirst: {
+            args: Prisma.ClosedVisitPhotoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPhotoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ClosedVisitPhotoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPhotoPayload>
+          }
+          findMany: {
+            args: Prisma.ClosedVisitPhotoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPhotoPayload>[]
+          }
+          create: {
+            args: Prisma.ClosedVisitPhotoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPhotoPayload>
+          }
+          createMany: {
+            args: Prisma.ClosedVisitPhotoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ClosedVisitPhotoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPhotoPayload>[]
+          }
+          delete: {
+            args: Prisma.ClosedVisitPhotoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPhotoPayload>
+          }
+          update: {
+            args: Prisma.ClosedVisitPhotoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPhotoPayload>
+          }
+          deleteMany: {
+            args: Prisma.ClosedVisitPhotoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ClosedVisitPhotoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ClosedVisitPhotoUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPhotoPayload>[]
+          }
+          upsert: {
+            args: Prisma.ClosedVisitPhotoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClosedVisitPhotoPayload>
+          }
+          aggregate: {
+            args: Prisma.ClosedVisitPhotoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateClosedVisitPhoto>
+          }
+          groupBy: {
+            args: Prisma.ClosedVisitPhotoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ClosedVisitPhotoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ClosedVisitPhotoCountArgs<ExtArgs>
+            result: $Utils.Optional<ClosedVisitPhotoCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5665,6 +5847,8 @@ export namespace Prisma {
     clientDistance?: ClientDistanceOmit
     threePackRule?: ThreePackRuleOmit
     threePackItem?: ThreePackItemOmit
+    closedVisit?: ClosedVisitOmit
+    closedVisitPhoto?: ClosedVisitPhotoOmit
   }
 
   /* Types for Logging */
@@ -5764,6 +5948,7 @@ export namespace Prisma {
     sales: number
     threePackRules: number
     clientReturns: number
+    closedVisits: number
     tournees: number
     expenses: number
     versements: number
@@ -5794,6 +5979,7 @@ export namespace Prisma {
     sales?: boolean | CompanyCountOutputTypeCountSalesArgs
     threePackRules?: boolean | CompanyCountOutputTypeCountThreePackRulesArgs
     clientReturns?: boolean | CompanyCountOutputTypeCountClientReturnsArgs
+    closedVisits?: boolean | CompanyCountOutputTypeCountClosedVisitsArgs
     tournees?: boolean | CompanyCountOutputTypeCountTourneesArgs
     expenses?: boolean | CompanyCountOutputTypeCountExpensesArgs
     versements?: boolean | CompanyCountOutputTypeCountVersementsArgs
@@ -5946,6 +6132,13 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountClientReturnsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ClientReturnWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountClosedVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClosedVisitWhereInput
   }
 
   /**
@@ -6268,6 +6461,7 @@ export namespace Prisma {
     areas: number
     assignedVans: number
     devices: number
+    closedVisits: number
     createdSales: number
   }
 
@@ -6276,6 +6470,7 @@ export namespace Prisma {
     areas?: boolean | UserCountOutputTypeCountAreasArgs
     assignedVans?: boolean | UserCountOutputTypeCountAssignedVansArgs
     devices?: boolean | UserCountOutputTypeCountDevicesArgs
+    closedVisits?: boolean | UserCountOutputTypeCountClosedVisitsArgs
     createdSales?: boolean | UserCountOutputTypeCountCreatedSalesArgs
   }
 
@@ -6316,6 +6511,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountDevicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DeviceWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountClosedVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClosedVisitWhereInput
   }
 
   /**
@@ -6369,6 +6571,7 @@ export namespace Prisma {
     losses: number
     sales: number
     clientReturns: number
+    closedVisits: number
     tournees: number
     expenseLinks: number
     devices: number
@@ -6383,6 +6586,7 @@ export namespace Prisma {
     losses?: boolean | StoreCountOutputTypeCountLossesArgs
     sales?: boolean | StoreCountOutputTypeCountSalesArgs
     clientReturns?: boolean | StoreCountOutputTypeCountClientReturnsArgs
+    closedVisits?: boolean | StoreCountOutputTypeCountClosedVisitsArgs
     tournees?: boolean | StoreCountOutputTypeCountTourneesArgs
     expenseLinks?: boolean | StoreCountOutputTypeCountExpenseLinksArgs
     devices?: boolean | StoreCountOutputTypeCountDevicesArgs
@@ -6447,6 +6651,13 @@ export namespace Prisma {
    */
   export type StoreCountOutputTypeCountClientReturnsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ClientReturnWhereInput
+  }
+
+  /**
+   * StoreCountOutputType without action
+   */
+  export type StoreCountOutputTypeCountClosedVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClosedVisitWhereInput
   }
 
   /**
@@ -6564,6 +6775,7 @@ export namespace Prisma {
 
   export type CustomerCountOutputType = {
     distances: number
+    closedVisits: number
     sales: number
     returns: number
     tourneeStops: number
@@ -6573,6 +6785,7 @@ export namespace Prisma {
 
   export type CustomerCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     distances?: boolean | CustomerCountOutputTypeCountDistancesArgs
+    closedVisits?: boolean | CustomerCountOutputTypeCountClosedVisitsArgs
     sales?: boolean | CustomerCountOutputTypeCountSalesArgs
     returns?: boolean | CustomerCountOutputTypeCountReturnsArgs
     tourneeStops?: boolean | CustomerCountOutputTypeCountTourneeStopsArgs
@@ -6596,6 +6809,13 @@ export namespace Prisma {
    */
   export type CustomerCountOutputTypeCountDistancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ClientDistanceWhereInput
+  }
+
+  /**
+   * CustomerCountOutputType without action
+   */
+  export type CustomerCountOutputTypeCountClosedVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClosedVisitWhereInput
   }
 
   /**
@@ -7147,6 +7367,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type ClosedVisitCountOutputType
+   */
+
+  export type ClosedVisitCountOutputType = {
+    photos: number
+  }
+
+  export type ClosedVisitCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    photos?: boolean | ClosedVisitCountOutputTypeCountPhotosArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ClosedVisitCountOutputType without action
+   */
+  export type ClosedVisitCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitCountOutputType
+     */
+    select?: ClosedVisitCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ClosedVisitCountOutputType without action
+   */
+  export type ClosedVisitCountOutputTypeCountPhotosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClosedVisitPhotoWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -7422,6 +7673,7 @@ export namespace Prisma {
     sales?: boolean | Company$salesArgs<ExtArgs>
     threePackRules?: boolean | Company$threePackRulesArgs<ExtArgs>
     clientReturns?: boolean | Company$clientReturnsArgs<ExtArgs>
+    closedVisits?: boolean | Company$closedVisitsArgs<ExtArgs>
     tournees?: boolean | Company$tourneesArgs<ExtArgs>
     expenses?: boolean | Company$expensesArgs<ExtArgs>
     versements?: boolean | Company$versementsArgs<ExtArgs>
@@ -7512,6 +7764,7 @@ export namespace Prisma {
     sales?: boolean | Company$salesArgs<ExtArgs>
     threePackRules?: boolean | Company$threePackRulesArgs<ExtArgs>
     clientReturns?: boolean | Company$clientReturnsArgs<ExtArgs>
+    closedVisits?: boolean | Company$closedVisitsArgs<ExtArgs>
     tournees?: boolean | Company$tourneesArgs<ExtArgs>
     expenses?: boolean | Company$expensesArgs<ExtArgs>
     versements?: boolean | Company$versementsArgs<ExtArgs>
@@ -7548,6 +7801,7 @@ export namespace Prisma {
       sales: Prisma.$SalePayload<ExtArgs>[]
       threePackRules: Prisma.$ThreePackRulePayload<ExtArgs>[]
       clientReturns: Prisma.$ClientReturnPayload<ExtArgs>[]
+      closedVisits: Prisma.$ClosedVisitPayload<ExtArgs>[]
       tournees: Prisma.$TourneePayload<ExtArgs>[]
       expenses: Prisma.$ExpensePayload<ExtArgs>[]
       versements: Prisma.$VersementPayload<ExtArgs>[]
@@ -7994,6 +8248,7 @@ export namespace Prisma {
     sales<T extends Company$salesArgs<ExtArgs> = {}>(args?: Subset<T, Company$salesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     threePackRules<T extends Company$threePackRulesArgs<ExtArgs> = {}>(args?: Subset<T, Company$threePackRulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ThreePackRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     clientReturns<T extends Company$clientReturnsArgs<ExtArgs> = {}>(args?: Subset<T, Company$clientReturnsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    closedVisits<T extends Company$closedVisitsArgs<ExtArgs> = {}>(args?: Subset<T, Company$closedVisitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tournees<T extends Company$tourneesArgs<ExtArgs> = {}>(args?: Subset<T, Company$tourneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     expenses<T extends Company$expensesArgs<ExtArgs> = {}>(args?: Subset<T, Company$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     versements<T extends Company$versementsArgs<ExtArgs> = {}>(args?: Subset<T, Company$versementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VersementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -8910,6 +9165,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ClientReturnScalarFieldEnum | ClientReturnScalarFieldEnum[]
+  }
+
+  /**
+   * Company.closedVisits
+   */
+  export type Company$closedVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    where?: ClosedVisitWhereInput
+    orderBy?: ClosedVisitOrderByWithRelationInput | ClosedVisitOrderByWithRelationInput[]
+    cursor?: ClosedVisitWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ClosedVisitScalarFieldEnum | ClosedVisitScalarFieldEnum[]
   }
 
   /**
@@ -16666,6 +16945,7 @@ export namespace Prisma {
     areas?: boolean | User$areasArgs<ExtArgs>
     assignedVans?: boolean | User$assignedVansArgs<ExtArgs>
     devices?: boolean | User$devicesArgs<ExtArgs>
+    closedVisits?: boolean | User$closedVisitsArgs<ExtArgs>
     createdSales?: boolean | User$createdSalesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -16727,6 +17007,7 @@ export namespace Prisma {
     areas?: boolean | User$areasArgs<ExtArgs>
     assignedVans?: boolean | User$assignedVansArgs<ExtArgs>
     devices?: boolean | User$devicesArgs<ExtArgs>
+    closedVisits?: boolean | User$closedVisitsArgs<ExtArgs>
     createdSales?: boolean | User$createdSalesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -16745,6 +17026,7 @@ export namespace Prisma {
       areas: Prisma.$UserAreaPayload<ExtArgs>[]
       assignedVans: Prisma.$StorePayload<ExtArgs>[]
       devices: Prisma.$DevicePayload<ExtArgs>[]
+      closedVisits: Prisma.$ClosedVisitPayload<ExtArgs>[]
       createdSales: Prisma.$SalePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -17176,6 +17458,7 @@ export namespace Prisma {
     areas<T extends User$areasArgs<ExtArgs> = {}>(args?: Subset<T, User$areasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedVans<T extends User$assignedVansArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedVansArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     devices<T extends User$devicesArgs<ExtArgs> = {}>(args?: Subset<T, User$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    closedVisits<T extends User$closedVisitsArgs<ExtArgs> = {}>(args?: Subset<T, User$closedVisitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     createdSales<T extends User$createdSalesArgs<ExtArgs> = {}>(args?: Subset<T, User$createdSalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -17711,6 +17994,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: DeviceScalarFieldEnum | DeviceScalarFieldEnum[]
+  }
+
+  /**
+   * User.closedVisits
+   */
+  export type User$closedVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    where?: ClosedVisitWhereInput
+    orderBy?: ClosedVisitOrderByWithRelationInput | ClosedVisitOrderByWithRelationInput[]
+    cursor?: ClosedVisitWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ClosedVisitScalarFieldEnum | ClosedVisitScalarFieldEnum[]
   }
 
   /**
@@ -22381,6 +22688,7 @@ export namespace Prisma {
     losses?: boolean | Store$lossesArgs<ExtArgs>
     sales?: boolean | Store$salesArgs<ExtArgs>
     clientReturns?: boolean | Store$clientReturnsArgs<ExtArgs>
+    closedVisits?: boolean | Store$closedVisitsArgs<ExtArgs>
     tournees?: boolean | Store$tourneesArgs<ExtArgs>
     expenseLinks?: boolean | Store$expenseLinksArgs<ExtArgs>
     devices?: boolean | Store$devicesArgs<ExtArgs>
@@ -22466,6 +22774,7 @@ export namespace Prisma {
     losses?: boolean | Store$lossesArgs<ExtArgs>
     sales?: boolean | Store$salesArgs<ExtArgs>
     clientReturns?: boolean | Store$clientReturnsArgs<ExtArgs>
+    closedVisits?: boolean | Store$closedVisitsArgs<ExtArgs>
     tournees?: boolean | Store$tourneesArgs<ExtArgs>
     expenseLinks?: boolean | Store$expenseLinksArgs<ExtArgs>
     devices?: boolean | Store$devicesArgs<ExtArgs>
@@ -22493,6 +22802,7 @@ export namespace Prisma {
       losses: Prisma.$StockLossPayload<ExtArgs>[]
       sales: Prisma.$SalePayload<ExtArgs>[]
       clientReturns: Prisma.$ClientReturnPayload<ExtArgs>[]
+      closedVisits: Prisma.$ClosedVisitPayload<ExtArgs>[]
       tournees: Prisma.$TourneePayload<ExtArgs>[]
       expenseLinks: Prisma.$ExpensePayload<ExtArgs>[]
       devices: Prisma.$DevicePayload<ExtArgs>[]
@@ -22937,6 +23247,7 @@ export namespace Prisma {
     losses<T extends Store$lossesArgs<ExtArgs> = {}>(args?: Subset<T, Store$lossesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StockLossPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sales<T extends Store$salesArgs<ExtArgs> = {}>(args?: Subset<T, Store$salesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     clientReturns<T extends Store$clientReturnsArgs<ExtArgs> = {}>(args?: Subset<T, Store$clientReturnsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    closedVisits<T extends Store$closedVisitsArgs<ExtArgs> = {}>(args?: Subset<T, Store$closedVisitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tournees<T extends Store$tourneesArgs<ExtArgs> = {}>(args?: Subset<T, Store$tourneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     expenseLinks<T extends Store$expenseLinksArgs<ExtArgs> = {}>(args?: Subset<T, Store$expenseLinksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     devices<T extends Store$devicesArgs<ExtArgs> = {}>(args?: Subset<T, Store$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -23571,6 +23882,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ClientReturnScalarFieldEnum | ClientReturnScalarFieldEnum[]
+  }
+
+  /**
+   * Store.closedVisits
+   */
+  export type Store$closedVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    where?: ClosedVisitWhereInput
+    orderBy?: ClosedVisitOrderByWithRelationInput | ClosedVisitOrderByWithRelationInput[]
+    cursor?: ClosedVisitWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ClosedVisitScalarFieldEnum | ClosedVisitScalarFieldEnum[]
   }
 
   /**
@@ -31065,6 +31400,7 @@ export namespace Prisma {
     secteur?: boolean | Customer$secteurArgs<ExtArgs>
     tier?: boolean | Customer$tierArgs<ExtArgs>
     distances?: boolean | Customer$distancesArgs<ExtArgs>
+    closedVisits?: boolean | Customer$closedVisitsArgs<ExtArgs>
     sales?: boolean | Customer$salesArgs<ExtArgs>
     returns?: boolean | Customer$returnsArgs<ExtArgs>
     tourneeStops?: boolean | Customer$tourneeStopsArgs<ExtArgs>
@@ -31175,6 +31511,7 @@ export namespace Prisma {
     secteur?: boolean | Customer$secteurArgs<ExtArgs>
     tier?: boolean | Customer$tierArgs<ExtArgs>
     distances?: boolean | Customer$distancesArgs<ExtArgs>
+    closedVisits?: boolean | Customer$closedVisitsArgs<ExtArgs>
     sales?: boolean | Customer$salesArgs<ExtArgs>
     returns?: boolean | Customer$returnsArgs<ExtArgs>
     tourneeStops?: boolean | Customer$tourneeStopsArgs<ExtArgs>
@@ -31203,6 +31540,7 @@ export namespace Prisma {
       secteur: Prisma.$SecteurPayload<ExtArgs> | null
       tier: Prisma.$PriceTierPayload<ExtArgs> | null
       distances: Prisma.$ClientDistancePayload<ExtArgs>[]
+      closedVisits: Prisma.$ClosedVisitPayload<ExtArgs>[]
       sales: Prisma.$SalePayload<ExtArgs>[]
       returns: Prisma.$ClientReturnPayload<ExtArgs>[]
       tourneeStops: Prisma.$TourneeStopPayload<ExtArgs>[]
@@ -31653,6 +31991,7 @@ export namespace Prisma {
     secteur<T extends Customer$secteurArgs<ExtArgs> = {}>(args?: Subset<T, Customer$secteurArgs<ExtArgs>>): Prisma__SecteurClient<$Result.GetResult<Prisma.$SecteurPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     tier<T extends Customer$tierArgs<ExtArgs> = {}>(args?: Subset<T, Customer$tierArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     distances<T extends Customer$distancesArgs<ExtArgs> = {}>(args?: Subset<T, Customer$distancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientDistancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    closedVisits<T extends Customer$closedVisitsArgs<ExtArgs> = {}>(args?: Subset<T, Customer$closedVisitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sales<T extends Customer$salesArgs<ExtArgs> = {}>(args?: Subset<T, Customer$salesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     returns<T extends Customer$returnsArgs<ExtArgs> = {}>(args?: Subset<T, Customer$returnsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tourneeStops<T extends Customer$tourneeStopsArgs<ExtArgs> = {}>(args?: Subset<T, Customer$tourneeStopsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneeStopPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -32190,6 +32529,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ClientDistanceScalarFieldEnum | ClientDistanceScalarFieldEnum[]
+  }
+
+  /**
+   * Customer.closedVisits
+   */
+  export type Customer$closedVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    where?: ClosedVisitWhereInput
+    orderBy?: ClosedVisitOrderByWithRelationInput | ClosedVisitOrderByWithRelationInput[]
+    cursor?: ClosedVisitWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ClosedVisitScalarFieldEnum | ClosedVisitScalarFieldEnum[]
   }
 
   /**
@@ -71217,8 +71580,18 @@ export namespace Prisma {
 
   export type AggregateThreePackRule = {
     _count: ThreePackRuleCountAggregateOutputType | null
+    _avg: ThreePackRuleAvgAggregateOutputType | null
+    _sum: ThreePackRuleSumAggregateOutputType | null
     _min: ThreePackRuleMinAggregateOutputType | null
     _max: ThreePackRuleMaxAggregateOutputType | null
+  }
+
+  export type ThreePackRuleAvgAggregateOutputType = {
+    percent: Decimal | null
+  }
+
+  export type ThreePackRuleSumAggregateOutputType = {
+    percent: Decimal | null
   }
 
   export type ThreePackRuleMinAggregateOutputType = {
@@ -71228,6 +71601,9 @@ export namespace Prisma {
     mode: string | null
     isActive: boolean | null
     isArchived: boolean | null
+    startsAt: Date | null
+    endsAt: Date | null
+    percent: Decimal | null
     createdAt: Date | null
   }
 
@@ -71238,6 +71614,9 @@ export namespace Prisma {
     mode: string | null
     isActive: boolean | null
     isArchived: boolean | null
+    startsAt: Date | null
+    endsAt: Date | null
+    percent: Decimal | null
     createdAt: Date | null
   }
 
@@ -71248,10 +71627,21 @@ export namespace Prisma {
     mode: number
     isActive: number
     isArchived: number
+    startsAt: number
+    endsAt: number
+    percent: number
     createdAt: number
     _all: number
   }
 
+
+  export type ThreePackRuleAvgAggregateInputType = {
+    percent?: true
+  }
+
+  export type ThreePackRuleSumAggregateInputType = {
+    percent?: true
+  }
 
   export type ThreePackRuleMinAggregateInputType = {
     id?: true
@@ -71260,6 +71650,9 @@ export namespace Prisma {
     mode?: true
     isActive?: true
     isArchived?: true
+    startsAt?: true
+    endsAt?: true
+    percent?: true
     createdAt?: true
   }
 
@@ -71270,6 +71663,9 @@ export namespace Prisma {
     mode?: true
     isActive?: true
     isArchived?: true
+    startsAt?: true
+    endsAt?: true
+    percent?: true
     createdAt?: true
   }
 
@@ -71280,6 +71676,9 @@ export namespace Prisma {
     mode?: true
     isActive?: true
     isArchived?: true
+    startsAt?: true
+    endsAt?: true
+    percent?: true
     createdAt?: true
     _all?: true
   }
@@ -71322,6 +71721,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: ThreePackRuleAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ThreePackRuleSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: ThreePackRuleMinAggregateInputType
@@ -71352,6 +71763,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: ThreePackRuleCountAggregateInputType | true
+    _avg?: ThreePackRuleAvgAggregateInputType
+    _sum?: ThreePackRuleSumAggregateInputType
     _min?: ThreePackRuleMinAggregateInputType
     _max?: ThreePackRuleMaxAggregateInputType
   }
@@ -71363,8 +71776,13 @@ export namespace Prisma {
     mode: string
     isActive: boolean
     isArchived: boolean
+    startsAt: Date | null
+    endsAt: Date | null
+    percent: Decimal | null
     createdAt: Date
     _count: ThreePackRuleCountAggregateOutputType | null
+    _avg: ThreePackRuleAvgAggregateOutputType | null
+    _sum: ThreePackRuleSumAggregateOutputType | null
     _min: ThreePackRuleMinAggregateOutputType | null
     _max: ThreePackRuleMaxAggregateOutputType | null
   }
@@ -71390,6 +71808,9 @@ export namespace Prisma {
     mode?: boolean
     isActive?: boolean
     isArchived?: boolean
+    startsAt?: boolean
+    endsAt?: boolean
+    percent?: boolean
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     items?: boolean | ThreePackRule$itemsArgs<ExtArgs>
@@ -71403,6 +71824,9 @@ export namespace Prisma {
     mode?: boolean
     isActive?: boolean
     isArchived?: boolean
+    startsAt?: boolean
+    endsAt?: boolean
+    percent?: boolean
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["threePackRule"]>
@@ -71414,6 +71838,9 @@ export namespace Prisma {
     mode?: boolean
     isActive?: boolean
     isArchived?: boolean
+    startsAt?: boolean
+    endsAt?: boolean
+    percent?: boolean
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["threePackRule"]>
@@ -71425,10 +71852,13 @@ export namespace Prisma {
     mode?: boolean
     isActive?: boolean
     isArchived?: boolean
+    startsAt?: boolean
+    endsAt?: boolean
+    percent?: boolean
     createdAt?: boolean
   }
 
-  export type ThreePackRuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "name" | "mode" | "isActive" | "isArchived" | "createdAt", ExtArgs["result"]["threePackRule"]>
+  export type ThreePackRuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "name" | "mode" | "isActive" | "isArchived" | "startsAt" | "endsAt" | "percent" | "createdAt", ExtArgs["result"]["threePackRule"]>
   export type ThreePackRuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     items?: boolean | ThreePackRule$itemsArgs<ExtArgs>
@@ -71458,6 +71888,16 @@ export namespace Prisma {
        * so an offline sale always validates against the exact rule the phone had.
        */
       isArchived: boolean
+      /**
+       * Promotion window (inclusive, whole days). Null = open-ended. Past endsAt the
+       * rule is switched off automatically; before startsAt it does not apply yet.
+       */
+      startsAt: Date | null
+      endsAt: Date | null
+      /**
+       * PERCENT rules: the % taken off every target product's line.
+       */
+      percent: Prisma.Decimal | null
       createdAt: Date
     }, ExtArgs["result"]["threePackRule"]>
     composites: {}
@@ -71890,6 +72330,9 @@ export namespace Prisma {
     readonly mode: FieldRef<"ThreePackRule", 'String'>
     readonly isActive: FieldRef<"ThreePackRule", 'Boolean'>
     readonly isArchived: FieldRef<"ThreePackRule", 'Boolean'>
+    readonly startsAt: FieldRef<"ThreePackRule", 'DateTime'>
+    readonly endsAt: FieldRef<"ThreePackRule", 'DateTime'>
+    readonly percent: FieldRef<"ThreePackRule", 'Decimal'>
     readonly createdAt: FieldRef<"ThreePackRule", 'DateTime'>
   }
     
@@ -72346,10 +72789,12 @@ export namespace Prisma {
 
   export type ThreePackItemAvgAggregateOutputType = {
     colis: Decimal | null
+    price: Decimal | null
   }
 
   export type ThreePackItemSumAggregateOutputType = {
     colis: Decimal | null
+    price: Decimal | null
   }
 
   export type ThreePackItemMinAggregateOutputType = {
@@ -72358,6 +72803,7 @@ export namespace Prisma {
     role: string | null
     productId: string | null
     colis: Decimal | null
+    price: Decimal | null
   }
 
   export type ThreePackItemMaxAggregateOutputType = {
@@ -72366,6 +72812,7 @@ export namespace Prisma {
     role: string | null
     productId: string | null
     colis: Decimal | null
+    price: Decimal | null
   }
 
   export type ThreePackItemCountAggregateOutputType = {
@@ -72374,16 +72821,19 @@ export namespace Prisma {
     role: number
     productId: number
     colis: number
+    price: number
     _all: number
   }
 
 
   export type ThreePackItemAvgAggregateInputType = {
     colis?: true
+    price?: true
   }
 
   export type ThreePackItemSumAggregateInputType = {
     colis?: true
+    price?: true
   }
 
   export type ThreePackItemMinAggregateInputType = {
@@ -72392,6 +72842,7 @@ export namespace Prisma {
     role?: true
     productId?: true
     colis?: true
+    price?: true
   }
 
   export type ThreePackItemMaxAggregateInputType = {
@@ -72400,6 +72851,7 @@ export namespace Prisma {
     role?: true
     productId?: true
     colis?: true
+    price?: true
   }
 
   export type ThreePackItemCountAggregateInputType = {
@@ -72408,6 +72860,7 @@ export namespace Prisma {
     role?: true
     productId?: true
     colis?: true
+    price?: true
     _all?: true
   }
 
@@ -72503,6 +72956,7 @@ export namespace Prisma {
     role: string
     productId: string
     colis: Decimal
+    price: Decimal | null
     _count: ThreePackItemCountAggregateOutputType | null
     _avg: ThreePackItemAvgAggregateOutputType | null
     _sum: ThreePackItemSumAggregateOutputType | null
@@ -72530,6 +72984,7 @@ export namespace Prisma {
     role?: boolean
     productId?: boolean
     colis?: boolean
+    price?: boolean
     rule?: boolean | ThreePackRuleDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["threePackItem"]>
@@ -72540,6 +72995,7 @@ export namespace Prisma {
     role?: boolean
     productId?: boolean
     colis?: boolean
+    price?: boolean
     rule?: boolean | ThreePackRuleDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["threePackItem"]>
@@ -72550,6 +73006,7 @@ export namespace Prisma {
     role?: boolean
     productId?: boolean
     colis?: boolean
+    price?: boolean
     rule?: boolean | ThreePackRuleDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["threePackItem"]>
@@ -72560,9 +73017,10 @@ export namespace Prisma {
     role?: boolean
     productId?: boolean
     colis?: boolean
+    price?: boolean
   }
 
-  export type ThreePackItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ruleId" | "role" | "productId" | "colis", ExtArgs["result"]["threePackItem"]>
+  export type ThreePackItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ruleId" | "role" | "productId" | "colis" | "price", ExtArgs["result"]["threePackItem"]>
   export type ThreePackItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     rule?: boolean | ThreePackRuleDefaultArgs<ExtArgs>
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -72591,6 +73049,10 @@ export namespace Prisma {
        * Quantity in colis.
        */
       colis: Prisma.Decimal
+      /**
+       * PRICE rules, GIVE (target) items: the new price per colis.
+       */
+      price: Prisma.Decimal | null
     }, ExtArgs["result"]["threePackItem"]>
     composites: {}
   }
@@ -73021,6 +73483,7 @@ export namespace Prisma {
     readonly role: FieldRef<"ThreePackItem", 'String'>
     readonly productId: FieldRef<"ThreePackItem", 'String'>
     readonly colis: FieldRef<"ThreePackItem", 'Decimal'>
+    readonly price: FieldRef<"ThreePackItem", 'Decimal'>
   }
     
 
@@ -73435,6 +73898,2366 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ThreePackItemInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ClosedVisit
+   */
+
+  export type AggregateClosedVisit = {
+    _count: ClosedVisitCountAggregateOutputType | null
+    _avg: ClosedVisitAvgAggregateOutputType | null
+    _sum: ClosedVisitSumAggregateOutputType | null
+    _min: ClosedVisitMinAggregateOutputType | null
+    _max: ClosedVisitMaxAggregateOutputType | null
+  }
+
+  export type ClosedVisitAvgAggregateOutputType = {
+    lat: number | null
+    lng: number | null
+  }
+
+  export type ClosedVisitSumAggregateOutputType = {
+    lat: number | null
+    lng: number | null
+  }
+
+  export type ClosedVisitMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    customerId: string | null
+    locationId: string | null
+    userId: string | null
+    opId: string | null
+    note: string | null
+    lat: number | null
+    lng: number | null
+    occurredAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ClosedVisitMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    customerId: string | null
+    locationId: string | null
+    userId: string | null
+    opId: string | null
+    note: string | null
+    lat: number | null
+    lng: number | null
+    occurredAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ClosedVisitCountAggregateOutputType = {
+    id: number
+    companyId: number
+    customerId: number
+    locationId: number
+    userId: number
+    opId: number
+    note: number
+    lat: number
+    lng: number
+    occurredAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ClosedVisitAvgAggregateInputType = {
+    lat?: true
+    lng?: true
+  }
+
+  export type ClosedVisitSumAggregateInputType = {
+    lat?: true
+    lng?: true
+  }
+
+  export type ClosedVisitMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    customerId?: true
+    locationId?: true
+    userId?: true
+    opId?: true
+    note?: true
+    lat?: true
+    lng?: true
+    occurredAt?: true
+    createdAt?: true
+  }
+
+  export type ClosedVisitMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    customerId?: true
+    locationId?: true
+    userId?: true
+    opId?: true
+    note?: true
+    lat?: true
+    lng?: true
+    occurredAt?: true
+    createdAt?: true
+  }
+
+  export type ClosedVisitCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    customerId?: true
+    locationId?: true
+    userId?: true
+    opId?: true
+    note?: true
+    lat?: true
+    lng?: true
+    occurredAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ClosedVisitAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClosedVisit to aggregate.
+     */
+    where?: ClosedVisitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClosedVisits to fetch.
+     */
+    orderBy?: ClosedVisitOrderByWithRelationInput | ClosedVisitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ClosedVisitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClosedVisits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClosedVisits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ClosedVisits
+    **/
+    _count?: true | ClosedVisitCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ClosedVisitAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ClosedVisitSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ClosedVisitMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ClosedVisitMaxAggregateInputType
+  }
+
+  export type GetClosedVisitAggregateType<T extends ClosedVisitAggregateArgs> = {
+        [P in keyof T & keyof AggregateClosedVisit]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateClosedVisit[P]>
+      : GetScalarType<T[P], AggregateClosedVisit[P]>
+  }
+
+
+
+
+  export type ClosedVisitGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClosedVisitWhereInput
+    orderBy?: ClosedVisitOrderByWithAggregationInput | ClosedVisitOrderByWithAggregationInput[]
+    by: ClosedVisitScalarFieldEnum[] | ClosedVisitScalarFieldEnum
+    having?: ClosedVisitScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ClosedVisitCountAggregateInputType | true
+    _avg?: ClosedVisitAvgAggregateInputType
+    _sum?: ClosedVisitSumAggregateInputType
+    _min?: ClosedVisitMinAggregateInputType
+    _max?: ClosedVisitMaxAggregateInputType
+  }
+
+  export type ClosedVisitGroupByOutputType = {
+    id: string
+    companyId: string
+    customerId: string
+    locationId: string | null
+    userId: string | null
+    opId: string | null
+    note: string | null
+    lat: number | null
+    lng: number | null
+    occurredAt: Date
+    createdAt: Date
+    _count: ClosedVisitCountAggregateOutputType | null
+    _avg: ClosedVisitAvgAggregateOutputType | null
+    _sum: ClosedVisitSumAggregateOutputType | null
+    _min: ClosedVisitMinAggregateOutputType | null
+    _max: ClosedVisitMaxAggregateOutputType | null
+  }
+
+  type GetClosedVisitGroupByPayload<T extends ClosedVisitGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ClosedVisitGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ClosedVisitGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ClosedVisitGroupByOutputType[P]>
+            : GetScalarType<T[P], ClosedVisitGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ClosedVisitSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    customerId?: boolean
+    locationId?: boolean
+    userId?: boolean
+    opId?: boolean
+    note?: boolean
+    lat?: boolean
+    lng?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    location?: boolean | ClosedVisit$locationArgs<ExtArgs>
+    user?: boolean | ClosedVisit$userArgs<ExtArgs>
+    photos?: boolean | ClosedVisit$photosArgs<ExtArgs>
+    _count?: boolean | ClosedVisitCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["closedVisit"]>
+
+  export type ClosedVisitSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    customerId?: boolean
+    locationId?: boolean
+    userId?: boolean
+    opId?: boolean
+    note?: boolean
+    lat?: boolean
+    lng?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    location?: boolean | ClosedVisit$locationArgs<ExtArgs>
+    user?: boolean | ClosedVisit$userArgs<ExtArgs>
+  }, ExtArgs["result"]["closedVisit"]>
+
+  export type ClosedVisitSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    customerId?: boolean
+    locationId?: boolean
+    userId?: boolean
+    opId?: boolean
+    note?: boolean
+    lat?: boolean
+    lng?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    location?: boolean | ClosedVisit$locationArgs<ExtArgs>
+    user?: boolean | ClosedVisit$userArgs<ExtArgs>
+  }, ExtArgs["result"]["closedVisit"]>
+
+  export type ClosedVisitSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    customerId?: boolean
+    locationId?: boolean
+    userId?: boolean
+    opId?: boolean
+    note?: boolean
+    lat?: boolean
+    lng?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type ClosedVisitOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "customerId" | "locationId" | "userId" | "opId" | "note" | "lat" | "lng" | "occurredAt" | "createdAt", ExtArgs["result"]["closedVisit"]>
+  export type ClosedVisitInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    location?: boolean | ClosedVisit$locationArgs<ExtArgs>
+    user?: boolean | ClosedVisit$userArgs<ExtArgs>
+    photos?: boolean | ClosedVisit$photosArgs<ExtArgs>
+    _count?: boolean | ClosedVisitCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ClosedVisitIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    location?: boolean | ClosedVisit$locationArgs<ExtArgs>
+    user?: boolean | ClosedVisit$userArgs<ExtArgs>
+  }
+  export type ClosedVisitIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    location?: boolean | ClosedVisit$locationArgs<ExtArgs>
+    user?: boolean | ClosedVisit$userArgs<ExtArgs>
+  }
+
+  export type $ClosedVisitPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ClosedVisit"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      customer: Prisma.$CustomerPayload<ExtArgs>
+      location: Prisma.$StorePayload<ExtArgs> | null
+      user: Prisma.$UserPayload<ExtArgs> | null
+      photos: Prisma.$ClosedVisitPhotoPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      customerId: string
+      /**
+       * The van the driver was on.
+       */
+      locationId: string | null
+      userId: string | null
+      opId: string | null
+      note: string | null
+      /**
+       * Where the phone was when the photo was taken.
+       */
+      lat: number | null
+      lng: number | null
+      /**
+       * Real action time on the phone (not the sync time).
+       */
+      occurredAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["closedVisit"]>
+    composites: {}
+  }
+
+  type ClosedVisitGetPayload<S extends boolean | null | undefined | ClosedVisitDefaultArgs> = $Result.GetResult<Prisma.$ClosedVisitPayload, S>
+
+  type ClosedVisitCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ClosedVisitFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ClosedVisitCountAggregateInputType | true
+    }
+
+  export interface ClosedVisitDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ClosedVisit'], meta: { name: 'ClosedVisit' } }
+    /**
+     * Find zero or one ClosedVisit that matches the filter.
+     * @param {ClosedVisitFindUniqueArgs} args - Arguments to find a ClosedVisit
+     * @example
+     * // Get one ClosedVisit
+     * const closedVisit = await prisma.closedVisit.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ClosedVisitFindUniqueArgs>(args: SelectSubset<T, ClosedVisitFindUniqueArgs<ExtArgs>>): Prisma__ClosedVisitClient<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ClosedVisit that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ClosedVisitFindUniqueOrThrowArgs} args - Arguments to find a ClosedVisit
+     * @example
+     * // Get one ClosedVisit
+     * const closedVisit = await prisma.closedVisit.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ClosedVisitFindUniqueOrThrowArgs>(args: SelectSubset<T, ClosedVisitFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ClosedVisitClient<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ClosedVisit that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitFindFirstArgs} args - Arguments to find a ClosedVisit
+     * @example
+     * // Get one ClosedVisit
+     * const closedVisit = await prisma.closedVisit.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ClosedVisitFindFirstArgs>(args?: SelectSubset<T, ClosedVisitFindFirstArgs<ExtArgs>>): Prisma__ClosedVisitClient<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ClosedVisit that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitFindFirstOrThrowArgs} args - Arguments to find a ClosedVisit
+     * @example
+     * // Get one ClosedVisit
+     * const closedVisit = await prisma.closedVisit.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ClosedVisitFindFirstOrThrowArgs>(args?: SelectSubset<T, ClosedVisitFindFirstOrThrowArgs<ExtArgs>>): Prisma__ClosedVisitClient<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ClosedVisits that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ClosedVisits
+     * const closedVisits = await prisma.closedVisit.findMany()
+     * 
+     * // Get first 10 ClosedVisits
+     * const closedVisits = await prisma.closedVisit.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const closedVisitWithIdOnly = await prisma.closedVisit.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ClosedVisitFindManyArgs>(args?: SelectSubset<T, ClosedVisitFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ClosedVisit.
+     * @param {ClosedVisitCreateArgs} args - Arguments to create a ClosedVisit.
+     * @example
+     * // Create one ClosedVisit
+     * const ClosedVisit = await prisma.closedVisit.create({
+     *   data: {
+     *     // ... data to create a ClosedVisit
+     *   }
+     * })
+     * 
+     */
+    create<T extends ClosedVisitCreateArgs>(args: SelectSubset<T, ClosedVisitCreateArgs<ExtArgs>>): Prisma__ClosedVisitClient<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ClosedVisits.
+     * @param {ClosedVisitCreateManyArgs} args - Arguments to create many ClosedVisits.
+     * @example
+     * // Create many ClosedVisits
+     * const closedVisit = await prisma.closedVisit.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ClosedVisitCreateManyArgs>(args?: SelectSubset<T, ClosedVisitCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ClosedVisits and returns the data saved in the database.
+     * @param {ClosedVisitCreateManyAndReturnArgs} args - Arguments to create many ClosedVisits.
+     * @example
+     * // Create many ClosedVisits
+     * const closedVisit = await prisma.closedVisit.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ClosedVisits and only return the `id`
+     * const closedVisitWithIdOnly = await prisma.closedVisit.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ClosedVisitCreateManyAndReturnArgs>(args?: SelectSubset<T, ClosedVisitCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ClosedVisit.
+     * @param {ClosedVisitDeleteArgs} args - Arguments to delete one ClosedVisit.
+     * @example
+     * // Delete one ClosedVisit
+     * const ClosedVisit = await prisma.closedVisit.delete({
+     *   where: {
+     *     // ... filter to delete one ClosedVisit
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ClosedVisitDeleteArgs>(args: SelectSubset<T, ClosedVisitDeleteArgs<ExtArgs>>): Prisma__ClosedVisitClient<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ClosedVisit.
+     * @param {ClosedVisitUpdateArgs} args - Arguments to update one ClosedVisit.
+     * @example
+     * // Update one ClosedVisit
+     * const closedVisit = await prisma.closedVisit.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ClosedVisitUpdateArgs>(args: SelectSubset<T, ClosedVisitUpdateArgs<ExtArgs>>): Prisma__ClosedVisitClient<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ClosedVisits.
+     * @param {ClosedVisitDeleteManyArgs} args - Arguments to filter ClosedVisits to delete.
+     * @example
+     * // Delete a few ClosedVisits
+     * const { count } = await prisma.closedVisit.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ClosedVisitDeleteManyArgs>(args?: SelectSubset<T, ClosedVisitDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ClosedVisits.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ClosedVisits
+     * const closedVisit = await prisma.closedVisit.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ClosedVisitUpdateManyArgs>(args: SelectSubset<T, ClosedVisitUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ClosedVisits and returns the data updated in the database.
+     * @param {ClosedVisitUpdateManyAndReturnArgs} args - Arguments to update many ClosedVisits.
+     * @example
+     * // Update many ClosedVisits
+     * const closedVisit = await prisma.closedVisit.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ClosedVisits and only return the `id`
+     * const closedVisitWithIdOnly = await prisma.closedVisit.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ClosedVisitUpdateManyAndReturnArgs>(args: SelectSubset<T, ClosedVisitUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ClosedVisit.
+     * @param {ClosedVisitUpsertArgs} args - Arguments to update or create a ClosedVisit.
+     * @example
+     * // Update or create a ClosedVisit
+     * const closedVisit = await prisma.closedVisit.upsert({
+     *   create: {
+     *     // ... data to create a ClosedVisit
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ClosedVisit we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ClosedVisitUpsertArgs>(args: SelectSubset<T, ClosedVisitUpsertArgs<ExtArgs>>): Prisma__ClosedVisitClient<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ClosedVisits.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitCountArgs} args - Arguments to filter ClosedVisits to count.
+     * @example
+     * // Count the number of ClosedVisits
+     * const count = await prisma.closedVisit.count({
+     *   where: {
+     *     // ... the filter for the ClosedVisits we want to count
+     *   }
+     * })
+    **/
+    count<T extends ClosedVisitCountArgs>(
+      args?: Subset<T, ClosedVisitCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ClosedVisitCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ClosedVisit.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ClosedVisitAggregateArgs>(args: Subset<T, ClosedVisitAggregateArgs>): Prisma.PrismaPromise<GetClosedVisitAggregateType<T>>
+
+    /**
+     * Group by ClosedVisit.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ClosedVisitGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ClosedVisitGroupByArgs['orderBy'] }
+        : { orderBy?: ClosedVisitGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ClosedVisitGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetClosedVisitGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ClosedVisit model
+   */
+  readonly fields: ClosedVisitFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ClosedVisit.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ClosedVisitClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    customer<T extends CustomerDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CustomerDefaultArgs<ExtArgs>>): Prisma__CustomerClient<$Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    location<T extends ClosedVisit$locationArgs<ExtArgs> = {}>(args?: Subset<T, ClosedVisit$locationArgs<ExtArgs>>): Prisma__StoreClient<$Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    user<T extends ClosedVisit$userArgs<ExtArgs> = {}>(args?: Subset<T, ClosedVisit$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    photos<T extends ClosedVisit$photosArgs<ExtArgs> = {}>(args?: Subset<T, ClosedVisit$photosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ClosedVisit model
+   */
+  interface ClosedVisitFieldRefs {
+    readonly id: FieldRef<"ClosedVisit", 'String'>
+    readonly companyId: FieldRef<"ClosedVisit", 'String'>
+    readonly customerId: FieldRef<"ClosedVisit", 'String'>
+    readonly locationId: FieldRef<"ClosedVisit", 'String'>
+    readonly userId: FieldRef<"ClosedVisit", 'String'>
+    readonly opId: FieldRef<"ClosedVisit", 'String'>
+    readonly note: FieldRef<"ClosedVisit", 'String'>
+    readonly lat: FieldRef<"ClosedVisit", 'Float'>
+    readonly lng: FieldRef<"ClosedVisit", 'Float'>
+    readonly occurredAt: FieldRef<"ClosedVisit", 'DateTime'>
+    readonly createdAt: FieldRef<"ClosedVisit", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ClosedVisit findUnique
+   */
+  export type ClosedVisitFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    /**
+     * Filter, which ClosedVisit to fetch.
+     */
+    where: ClosedVisitWhereUniqueInput
+  }
+
+  /**
+   * ClosedVisit findUniqueOrThrow
+   */
+  export type ClosedVisitFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    /**
+     * Filter, which ClosedVisit to fetch.
+     */
+    where: ClosedVisitWhereUniqueInput
+  }
+
+  /**
+   * ClosedVisit findFirst
+   */
+  export type ClosedVisitFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    /**
+     * Filter, which ClosedVisit to fetch.
+     */
+    where?: ClosedVisitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClosedVisits to fetch.
+     */
+    orderBy?: ClosedVisitOrderByWithRelationInput | ClosedVisitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClosedVisits.
+     */
+    cursor?: ClosedVisitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClosedVisits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClosedVisits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClosedVisits.
+     */
+    distinct?: ClosedVisitScalarFieldEnum | ClosedVisitScalarFieldEnum[]
+  }
+
+  /**
+   * ClosedVisit findFirstOrThrow
+   */
+  export type ClosedVisitFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    /**
+     * Filter, which ClosedVisit to fetch.
+     */
+    where?: ClosedVisitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClosedVisits to fetch.
+     */
+    orderBy?: ClosedVisitOrderByWithRelationInput | ClosedVisitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClosedVisits.
+     */
+    cursor?: ClosedVisitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClosedVisits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClosedVisits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClosedVisits.
+     */
+    distinct?: ClosedVisitScalarFieldEnum | ClosedVisitScalarFieldEnum[]
+  }
+
+  /**
+   * ClosedVisit findMany
+   */
+  export type ClosedVisitFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    /**
+     * Filter, which ClosedVisits to fetch.
+     */
+    where?: ClosedVisitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClosedVisits to fetch.
+     */
+    orderBy?: ClosedVisitOrderByWithRelationInput | ClosedVisitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ClosedVisits.
+     */
+    cursor?: ClosedVisitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClosedVisits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClosedVisits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClosedVisits.
+     */
+    distinct?: ClosedVisitScalarFieldEnum | ClosedVisitScalarFieldEnum[]
+  }
+
+  /**
+   * ClosedVisit create
+   */
+  export type ClosedVisitCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ClosedVisit.
+     */
+    data: XOR<ClosedVisitCreateInput, ClosedVisitUncheckedCreateInput>
+  }
+
+  /**
+   * ClosedVisit createMany
+   */
+  export type ClosedVisitCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ClosedVisits.
+     */
+    data: ClosedVisitCreateManyInput | ClosedVisitCreateManyInput[]
+  }
+
+  /**
+   * ClosedVisit createManyAndReturn
+   */
+  export type ClosedVisitCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * The data used to create many ClosedVisits.
+     */
+    data: ClosedVisitCreateManyInput | ClosedVisitCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ClosedVisit update
+   */
+  export type ClosedVisitUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ClosedVisit.
+     */
+    data: XOR<ClosedVisitUpdateInput, ClosedVisitUncheckedUpdateInput>
+    /**
+     * Choose, which ClosedVisit to update.
+     */
+    where: ClosedVisitWhereUniqueInput
+  }
+
+  /**
+   * ClosedVisit updateMany
+   */
+  export type ClosedVisitUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ClosedVisits.
+     */
+    data: XOR<ClosedVisitUpdateManyMutationInput, ClosedVisitUncheckedUpdateManyInput>
+    /**
+     * Filter which ClosedVisits to update
+     */
+    where?: ClosedVisitWhereInput
+    /**
+     * Limit how many ClosedVisits to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ClosedVisit updateManyAndReturn
+   */
+  export type ClosedVisitUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * The data used to update ClosedVisits.
+     */
+    data: XOR<ClosedVisitUpdateManyMutationInput, ClosedVisitUncheckedUpdateManyInput>
+    /**
+     * Filter which ClosedVisits to update
+     */
+    where?: ClosedVisitWhereInput
+    /**
+     * Limit how many ClosedVisits to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ClosedVisit upsert
+   */
+  export type ClosedVisitUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ClosedVisit to update in case it exists.
+     */
+    where: ClosedVisitWhereUniqueInput
+    /**
+     * In case the ClosedVisit found by the `where` argument doesn't exist, create a new ClosedVisit with this data.
+     */
+    create: XOR<ClosedVisitCreateInput, ClosedVisitUncheckedCreateInput>
+    /**
+     * In case the ClosedVisit was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ClosedVisitUpdateInput, ClosedVisitUncheckedUpdateInput>
+  }
+
+  /**
+   * ClosedVisit delete
+   */
+  export type ClosedVisitDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+    /**
+     * Filter which ClosedVisit to delete.
+     */
+    where: ClosedVisitWhereUniqueInput
+  }
+
+  /**
+   * ClosedVisit deleteMany
+   */
+  export type ClosedVisitDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClosedVisits to delete
+     */
+    where?: ClosedVisitWhereInput
+    /**
+     * Limit how many ClosedVisits to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ClosedVisit.location
+   */
+  export type ClosedVisit$locationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Store
+     */
+    select?: StoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Store
+     */
+    omit?: StoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StoreInclude<ExtArgs> | null
+    where?: StoreWhereInput
+  }
+
+  /**
+   * ClosedVisit.user
+   */
+  export type ClosedVisit$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * ClosedVisit.photos
+   */
+  export type ClosedVisit$photosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoInclude<ExtArgs> | null
+    where?: ClosedVisitPhotoWhereInput
+    orderBy?: ClosedVisitPhotoOrderByWithRelationInput | ClosedVisitPhotoOrderByWithRelationInput[]
+    cursor?: ClosedVisitPhotoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ClosedVisitPhotoScalarFieldEnum | ClosedVisitPhotoScalarFieldEnum[]
+  }
+
+  /**
+   * ClosedVisit without action
+   */
+  export type ClosedVisitDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisit
+     */
+    select?: ClosedVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisit
+     */
+    omit?: ClosedVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ClosedVisitPhoto
+   */
+
+  export type AggregateClosedVisitPhoto = {
+    _count: ClosedVisitPhotoCountAggregateOutputType | null
+    _avg: ClosedVisitPhotoAvgAggregateOutputType | null
+    _sum: ClosedVisitPhotoSumAggregateOutputType | null
+    _min: ClosedVisitPhotoMinAggregateOutputType | null
+    _max: ClosedVisitPhotoMaxAggregateOutputType | null
+  }
+
+  export type ClosedVisitPhotoAvgAggregateOutputType = {
+    sortOrder: number | null
+  }
+
+  export type ClosedVisitPhotoSumAggregateOutputType = {
+    sortOrder: number | null
+  }
+
+  export type ClosedVisitPhotoMinAggregateOutputType = {
+    id: string | null
+    visitId: string | null
+    url: string | null
+    sortOrder: number | null
+  }
+
+  export type ClosedVisitPhotoMaxAggregateOutputType = {
+    id: string | null
+    visitId: string | null
+    url: string | null
+    sortOrder: number | null
+  }
+
+  export type ClosedVisitPhotoCountAggregateOutputType = {
+    id: number
+    visitId: number
+    url: number
+    sortOrder: number
+    _all: number
+  }
+
+
+  export type ClosedVisitPhotoAvgAggregateInputType = {
+    sortOrder?: true
+  }
+
+  export type ClosedVisitPhotoSumAggregateInputType = {
+    sortOrder?: true
+  }
+
+  export type ClosedVisitPhotoMinAggregateInputType = {
+    id?: true
+    visitId?: true
+    url?: true
+    sortOrder?: true
+  }
+
+  export type ClosedVisitPhotoMaxAggregateInputType = {
+    id?: true
+    visitId?: true
+    url?: true
+    sortOrder?: true
+  }
+
+  export type ClosedVisitPhotoCountAggregateInputType = {
+    id?: true
+    visitId?: true
+    url?: true
+    sortOrder?: true
+    _all?: true
+  }
+
+  export type ClosedVisitPhotoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClosedVisitPhoto to aggregate.
+     */
+    where?: ClosedVisitPhotoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClosedVisitPhotos to fetch.
+     */
+    orderBy?: ClosedVisitPhotoOrderByWithRelationInput | ClosedVisitPhotoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ClosedVisitPhotoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClosedVisitPhotos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClosedVisitPhotos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ClosedVisitPhotos
+    **/
+    _count?: true | ClosedVisitPhotoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ClosedVisitPhotoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ClosedVisitPhotoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ClosedVisitPhotoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ClosedVisitPhotoMaxAggregateInputType
+  }
+
+  export type GetClosedVisitPhotoAggregateType<T extends ClosedVisitPhotoAggregateArgs> = {
+        [P in keyof T & keyof AggregateClosedVisitPhoto]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateClosedVisitPhoto[P]>
+      : GetScalarType<T[P], AggregateClosedVisitPhoto[P]>
+  }
+
+
+
+
+  export type ClosedVisitPhotoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClosedVisitPhotoWhereInput
+    orderBy?: ClosedVisitPhotoOrderByWithAggregationInput | ClosedVisitPhotoOrderByWithAggregationInput[]
+    by: ClosedVisitPhotoScalarFieldEnum[] | ClosedVisitPhotoScalarFieldEnum
+    having?: ClosedVisitPhotoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ClosedVisitPhotoCountAggregateInputType | true
+    _avg?: ClosedVisitPhotoAvgAggregateInputType
+    _sum?: ClosedVisitPhotoSumAggregateInputType
+    _min?: ClosedVisitPhotoMinAggregateInputType
+    _max?: ClosedVisitPhotoMaxAggregateInputType
+  }
+
+  export type ClosedVisitPhotoGroupByOutputType = {
+    id: string
+    visitId: string
+    url: string
+    sortOrder: number
+    _count: ClosedVisitPhotoCountAggregateOutputType | null
+    _avg: ClosedVisitPhotoAvgAggregateOutputType | null
+    _sum: ClosedVisitPhotoSumAggregateOutputType | null
+    _min: ClosedVisitPhotoMinAggregateOutputType | null
+    _max: ClosedVisitPhotoMaxAggregateOutputType | null
+  }
+
+  type GetClosedVisitPhotoGroupByPayload<T extends ClosedVisitPhotoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ClosedVisitPhotoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ClosedVisitPhotoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ClosedVisitPhotoGroupByOutputType[P]>
+            : GetScalarType<T[P], ClosedVisitPhotoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ClosedVisitPhotoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    visitId?: boolean
+    url?: boolean
+    sortOrder?: boolean
+    visit?: boolean | ClosedVisitDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["closedVisitPhoto"]>
+
+  export type ClosedVisitPhotoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    visitId?: boolean
+    url?: boolean
+    sortOrder?: boolean
+    visit?: boolean | ClosedVisitDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["closedVisitPhoto"]>
+
+  export type ClosedVisitPhotoSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    visitId?: boolean
+    url?: boolean
+    sortOrder?: boolean
+    visit?: boolean | ClosedVisitDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["closedVisitPhoto"]>
+
+  export type ClosedVisitPhotoSelectScalar = {
+    id?: boolean
+    visitId?: boolean
+    url?: boolean
+    sortOrder?: boolean
+  }
+
+  export type ClosedVisitPhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "visitId" | "url" | "sortOrder", ExtArgs["result"]["closedVisitPhoto"]>
+  export type ClosedVisitPhotoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    visit?: boolean | ClosedVisitDefaultArgs<ExtArgs>
+  }
+  export type ClosedVisitPhotoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    visit?: boolean | ClosedVisitDefaultArgs<ExtArgs>
+  }
+  export type ClosedVisitPhotoIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    visit?: boolean | ClosedVisitDefaultArgs<ExtArgs>
+  }
+
+  export type $ClosedVisitPhotoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ClosedVisitPhoto"
+    objects: {
+      visit: Prisma.$ClosedVisitPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      visitId: string
+      url: string
+      sortOrder: number
+    }, ExtArgs["result"]["closedVisitPhoto"]>
+    composites: {}
+  }
+
+  type ClosedVisitPhotoGetPayload<S extends boolean | null | undefined | ClosedVisitPhotoDefaultArgs> = $Result.GetResult<Prisma.$ClosedVisitPhotoPayload, S>
+
+  type ClosedVisitPhotoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ClosedVisitPhotoFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ClosedVisitPhotoCountAggregateInputType | true
+    }
+
+  export interface ClosedVisitPhotoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ClosedVisitPhoto'], meta: { name: 'ClosedVisitPhoto' } }
+    /**
+     * Find zero or one ClosedVisitPhoto that matches the filter.
+     * @param {ClosedVisitPhotoFindUniqueArgs} args - Arguments to find a ClosedVisitPhoto
+     * @example
+     * // Get one ClosedVisitPhoto
+     * const closedVisitPhoto = await prisma.closedVisitPhoto.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ClosedVisitPhotoFindUniqueArgs>(args: SelectSubset<T, ClosedVisitPhotoFindUniqueArgs<ExtArgs>>): Prisma__ClosedVisitPhotoClient<$Result.GetResult<Prisma.$ClosedVisitPhotoPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ClosedVisitPhoto that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ClosedVisitPhotoFindUniqueOrThrowArgs} args - Arguments to find a ClosedVisitPhoto
+     * @example
+     * // Get one ClosedVisitPhoto
+     * const closedVisitPhoto = await prisma.closedVisitPhoto.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ClosedVisitPhotoFindUniqueOrThrowArgs>(args: SelectSubset<T, ClosedVisitPhotoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ClosedVisitPhotoClient<$Result.GetResult<Prisma.$ClosedVisitPhotoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ClosedVisitPhoto that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitPhotoFindFirstArgs} args - Arguments to find a ClosedVisitPhoto
+     * @example
+     * // Get one ClosedVisitPhoto
+     * const closedVisitPhoto = await prisma.closedVisitPhoto.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ClosedVisitPhotoFindFirstArgs>(args?: SelectSubset<T, ClosedVisitPhotoFindFirstArgs<ExtArgs>>): Prisma__ClosedVisitPhotoClient<$Result.GetResult<Prisma.$ClosedVisitPhotoPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ClosedVisitPhoto that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitPhotoFindFirstOrThrowArgs} args - Arguments to find a ClosedVisitPhoto
+     * @example
+     * // Get one ClosedVisitPhoto
+     * const closedVisitPhoto = await prisma.closedVisitPhoto.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ClosedVisitPhotoFindFirstOrThrowArgs>(args?: SelectSubset<T, ClosedVisitPhotoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ClosedVisitPhotoClient<$Result.GetResult<Prisma.$ClosedVisitPhotoPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ClosedVisitPhotos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitPhotoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ClosedVisitPhotos
+     * const closedVisitPhotos = await prisma.closedVisitPhoto.findMany()
+     * 
+     * // Get first 10 ClosedVisitPhotos
+     * const closedVisitPhotos = await prisma.closedVisitPhoto.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const closedVisitPhotoWithIdOnly = await prisma.closedVisitPhoto.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ClosedVisitPhotoFindManyArgs>(args?: SelectSubset<T, ClosedVisitPhotoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ClosedVisitPhoto.
+     * @param {ClosedVisitPhotoCreateArgs} args - Arguments to create a ClosedVisitPhoto.
+     * @example
+     * // Create one ClosedVisitPhoto
+     * const ClosedVisitPhoto = await prisma.closedVisitPhoto.create({
+     *   data: {
+     *     // ... data to create a ClosedVisitPhoto
+     *   }
+     * })
+     * 
+     */
+    create<T extends ClosedVisitPhotoCreateArgs>(args: SelectSubset<T, ClosedVisitPhotoCreateArgs<ExtArgs>>): Prisma__ClosedVisitPhotoClient<$Result.GetResult<Prisma.$ClosedVisitPhotoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ClosedVisitPhotos.
+     * @param {ClosedVisitPhotoCreateManyArgs} args - Arguments to create many ClosedVisitPhotos.
+     * @example
+     * // Create many ClosedVisitPhotos
+     * const closedVisitPhoto = await prisma.closedVisitPhoto.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ClosedVisitPhotoCreateManyArgs>(args?: SelectSubset<T, ClosedVisitPhotoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ClosedVisitPhotos and returns the data saved in the database.
+     * @param {ClosedVisitPhotoCreateManyAndReturnArgs} args - Arguments to create many ClosedVisitPhotos.
+     * @example
+     * // Create many ClosedVisitPhotos
+     * const closedVisitPhoto = await prisma.closedVisitPhoto.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ClosedVisitPhotos and only return the `id`
+     * const closedVisitPhotoWithIdOnly = await prisma.closedVisitPhoto.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ClosedVisitPhotoCreateManyAndReturnArgs>(args?: SelectSubset<T, ClosedVisitPhotoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPhotoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ClosedVisitPhoto.
+     * @param {ClosedVisitPhotoDeleteArgs} args - Arguments to delete one ClosedVisitPhoto.
+     * @example
+     * // Delete one ClosedVisitPhoto
+     * const ClosedVisitPhoto = await prisma.closedVisitPhoto.delete({
+     *   where: {
+     *     // ... filter to delete one ClosedVisitPhoto
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ClosedVisitPhotoDeleteArgs>(args: SelectSubset<T, ClosedVisitPhotoDeleteArgs<ExtArgs>>): Prisma__ClosedVisitPhotoClient<$Result.GetResult<Prisma.$ClosedVisitPhotoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ClosedVisitPhoto.
+     * @param {ClosedVisitPhotoUpdateArgs} args - Arguments to update one ClosedVisitPhoto.
+     * @example
+     * // Update one ClosedVisitPhoto
+     * const closedVisitPhoto = await prisma.closedVisitPhoto.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ClosedVisitPhotoUpdateArgs>(args: SelectSubset<T, ClosedVisitPhotoUpdateArgs<ExtArgs>>): Prisma__ClosedVisitPhotoClient<$Result.GetResult<Prisma.$ClosedVisitPhotoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ClosedVisitPhotos.
+     * @param {ClosedVisitPhotoDeleteManyArgs} args - Arguments to filter ClosedVisitPhotos to delete.
+     * @example
+     * // Delete a few ClosedVisitPhotos
+     * const { count } = await prisma.closedVisitPhoto.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ClosedVisitPhotoDeleteManyArgs>(args?: SelectSubset<T, ClosedVisitPhotoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ClosedVisitPhotos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitPhotoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ClosedVisitPhotos
+     * const closedVisitPhoto = await prisma.closedVisitPhoto.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ClosedVisitPhotoUpdateManyArgs>(args: SelectSubset<T, ClosedVisitPhotoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ClosedVisitPhotos and returns the data updated in the database.
+     * @param {ClosedVisitPhotoUpdateManyAndReturnArgs} args - Arguments to update many ClosedVisitPhotos.
+     * @example
+     * // Update many ClosedVisitPhotos
+     * const closedVisitPhoto = await prisma.closedVisitPhoto.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ClosedVisitPhotos and only return the `id`
+     * const closedVisitPhotoWithIdOnly = await prisma.closedVisitPhoto.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ClosedVisitPhotoUpdateManyAndReturnArgs>(args: SelectSubset<T, ClosedVisitPhotoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPhotoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ClosedVisitPhoto.
+     * @param {ClosedVisitPhotoUpsertArgs} args - Arguments to update or create a ClosedVisitPhoto.
+     * @example
+     * // Update or create a ClosedVisitPhoto
+     * const closedVisitPhoto = await prisma.closedVisitPhoto.upsert({
+     *   create: {
+     *     // ... data to create a ClosedVisitPhoto
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ClosedVisitPhoto we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ClosedVisitPhotoUpsertArgs>(args: SelectSubset<T, ClosedVisitPhotoUpsertArgs<ExtArgs>>): Prisma__ClosedVisitPhotoClient<$Result.GetResult<Prisma.$ClosedVisitPhotoPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ClosedVisitPhotos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitPhotoCountArgs} args - Arguments to filter ClosedVisitPhotos to count.
+     * @example
+     * // Count the number of ClosedVisitPhotos
+     * const count = await prisma.closedVisitPhoto.count({
+     *   where: {
+     *     // ... the filter for the ClosedVisitPhotos we want to count
+     *   }
+     * })
+    **/
+    count<T extends ClosedVisitPhotoCountArgs>(
+      args?: Subset<T, ClosedVisitPhotoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ClosedVisitPhotoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ClosedVisitPhoto.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitPhotoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ClosedVisitPhotoAggregateArgs>(args: Subset<T, ClosedVisitPhotoAggregateArgs>): Prisma.PrismaPromise<GetClosedVisitPhotoAggregateType<T>>
+
+    /**
+     * Group by ClosedVisitPhoto.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClosedVisitPhotoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ClosedVisitPhotoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ClosedVisitPhotoGroupByArgs['orderBy'] }
+        : { orderBy?: ClosedVisitPhotoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ClosedVisitPhotoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetClosedVisitPhotoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ClosedVisitPhoto model
+   */
+  readonly fields: ClosedVisitPhotoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ClosedVisitPhoto.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ClosedVisitPhotoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    visit<T extends ClosedVisitDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClosedVisitDefaultArgs<ExtArgs>>): Prisma__ClosedVisitClient<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ClosedVisitPhoto model
+   */
+  interface ClosedVisitPhotoFieldRefs {
+    readonly id: FieldRef<"ClosedVisitPhoto", 'String'>
+    readonly visitId: FieldRef<"ClosedVisitPhoto", 'String'>
+    readonly url: FieldRef<"ClosedVisitPhoto", 'String'>
+    readonly sortOrder: FieldRef<"ClosedVisitPhoto", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ClosedVisitPhoto findUnique
+   */
+  export type ClosedVisitPhotoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which ClosedVisitPhoto to fetch.
+     */
+    where: ClosedVisitPhotoWhereUniqueInput
+  }
+
+  /**
+   * ClosedVisitPhoto findUniqueOrThrow
+   */
+  export type ClosedVisitPhotoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which ClosedVisitPhoto to fetch.
+     */
+    where: ClosedVisitPhotoWhereUniqueInput
+  }
+
+  /**
+   * ClosedVisitPhoto findFirst
+   */
+  export type ClosedVisitPhotoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which ClosedVisitPhoto to fetch.
+     */
+    where?: ClosedVisitPhotoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClosedVisitPhotos to fetch.
+     */
+    orderBy?: ClosedVisitPhotoOrderByWithRelationInput | ClosedVisitPhotoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClosedVisitPhotos.
+     */
+    cursor?: ClosedVisitPhotoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClosedVisitPhotos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClosedVisitPhotos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClosedVisitPhotos.
+     */
+    distinct?: ClosedVisitPhotoScalarFieldEnum | ClosedVisitPhotoScalarFieldEnum[]
+  }
+
+  /**
+   * ClosedVisitPhoto findFirstOrThrow
+   */
+  export type ClosedVisitPhotoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which ClosedVisitPhoto to fetch.
+     */
+    where?: ClosedVisitPhotoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClosedVisitPhotos to fetch.
+     */
+    orderBy?: ClosedVisitPhotoOrderByWithRelationInput | ClosedVisitPhotoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClosedVisitPhotos.
+     */
+    cursor?: ClosedVisitPhotoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClosedVisitPhotos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClosedVisitPhotos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClosedVisitPhotos.
+     */
+    distinct?: ClosedVisitPhotoScalarFieldEnum | ClosedVisitPhotoScalarFieldEnum[]
+  }
+
+  /**
+   * ClosedVisitPhoto findMany
+   */
+  export type ClosedVisitPhotoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which ClosedVisitPhotos to fetch.
+     */
+    where?: ClosedVisitPhotoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClosedVisitPhotos to fetch.
+     */
+    orderBy?: ClosedVisitPhotoOrderByWithRelationInput | ClosedVisitPhotoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ClosedVisitPhotos.
+     */
+    cursor?: ClosedVisitPhotoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClosedVisitPhotos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClosedVisitPhotos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClosedVisitPhotos.
+     */
+    distinct?: ClosedVisitPhotoScalarFieldEnum | ClosedVisitPhotoScalarFieldEnum[]
+  }
+
+  /**
+   * ClosedVisitPhoto create
+   */
+  export type ClosedVisitPhotoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ClosedVisitPhoto.
+     */
+    data: XOR<ClosedVisitPhotoCreateInput, ClosedVisitPhotoUncheckedCreateInput>
+  }
+
+  /**
+   * ClosedVisitPhoto createMany
+   */
+  export type ClosedVisitPhotoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ClosedVisitPhotos.
+     */
+    data: ClosedVisitPhotoCreateManyInput | ClosedVisitPhotoCreateManyInput[]
+  }
+
+  /**
+   * ClosedVisitPhoto createManyAndReturn
+   */
+  export type ClosedVisitPhotoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * The data used to create many ClosedVisitPhotos.
+     */
+    data: ClosedVisitPhotoCreateManyInput | ClosedVisitPhotoCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ClosedVisitPhoto update
+   */
+  export type ClosedVisitPhotoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ClosedVisitPhoto.
+     */
+    data: XOR<ClosedVisitPhotoUpdateInput, ClosedVisitPhotoUncheckedUpdateInput>
+    /**
+     * Choose, which ClosedVisitPhoto to update.
+     */
+    where: ClosedVisitPhotoWhereUniqueInput
+  }
+
+  /**
+   * ClosedVisitPhoto updateMany
+   */
+  export type ClosedVisitPhotoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ClosedVisitPhotos.
+     */
+    data: XOR<ClosedVisitPhotoUpdateManyMutationInput, ClosedVisitPhotoUncheckedUpdateManyInput>
+    /**
+     * Filter which ClosedVisitPhotos to update
+     */
+    where?: ClosedVisitPhotoWhereInput
+    /**
+     * Limit how many ClosedVisitPhotos to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ClosedVisitPhoto updateManyAndReturn
+   */
+  export type ClosedVisitPhotoUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * The data used to update ClosedVisitPhotos.
+     */
+    data: XOR<ClosedVisitPhotoUpdateManyMutationInput, ClosedVisitPhotoUncheckedUpdateManyInput>
+    /**
+     * Filter which ClosedVisitPhotos to update
+     */
+    where?: ClosedVisitPhotoWhereInput
+    /**
+     * Limit how many ClosedVisitPhotos to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ClosedVisitPhoto upsert
+   */
+  export type ClosedVisitPhotoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ClosedVisitPhoto to update in case it exists.
+     */
+    where: ClosedVisitPhotoWhereUniqueInput
+    /**
+     * In case the ClosedVisitPhoto found by the `where` argument doesn't exist, create a new ClosedVisitPhoto with this data.
+     */
+    create: XOR<ClosedVisitPhotoCreateInput, ClosedVisitPhotoUncheckedCreateInput>
+    /**
+     * In case the ClosedVisitPhoto was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ClosedVisitPhotoUpdateInput, ClosedVisitPhotoUncheckedUpdateInput>
+  }
+
+  /**
+   * ClosedVisitPhoto delete
+   */
+  export type ClosedVisitPhotoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoInclude<ExtArgs> | null
+    /**
+     * Filter which ClosedVisitPhoto to delete.
+     */
+    where: ClosedVisitPhotoWhereUniqueInput
+  }
+
+  /**
+   * ClosedVisitPhoto deleteMany
+   */
+  export type ClosedVisitPhotoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClosedVisitPhotos to delete
+     */
+    where?: ClosedVisitPhotoWhereInput
+    /**
+     * Limit how many ClosedVisitPhotos to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ClosedVisitPhoto without action
+   */
+  export type ClosedVisitPhotoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClosedVisitPhoto
+     */
+    select?: ClosedVisitPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClosedVisitPhoto
+     */
+    omit?: ClosedVisitPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClosedVisitPhotoInclude<ExtArgs> | null
   }
 
 
@@ -74313,6 +77136,9 @@ export namespace Prisma {
     mode: 'mode',
     isActive: 'isActive',
     isArchived: 'isArchived',
+    startsAt: 'startsAt',
+    endsAt: 'endsAt',
+    percent: 'percent',
     createdAt: 'createdAt'
   };
 
@@ -74324,10 +77150,38 @@ export namespace Prisma {
     ruleId: 'ruleId',
     role: 'role',
     productId: 'productId',
-    colis: 'colis'
+    colis: 'colis',
+    price: 'price'
   };
 
   export type ThreePackItemScalarFieldEnum = (typeof ThreePackItemScalarFieldEnum)[keyof typeof ThreePackItemScalarFieldEnum]
+
+
+  export const ClosedVisitScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    customerId: 'customerId',
+    locationId: 'locationId',
+    userId: 'userId',
+    opId: 'opId',
+    note: 'note',
+    lat: 'lat',
+    lng: 'lng',
+    occurredAt: 'occurredAt',
+    createdAt: 'createdAt'
+  };
+
+  export type ClosedVisitScalarFieldEnum = (typeof ClosedVisitScalarFieldEnum)[keyof typeof ClosedVisitScalarFieldEnum]
+
+
+  export const ClosedVisitPhotoScalarFieldEnum: {
+    id: 'id',
+    visitId: 'visitId',
+    url: 'url',
+    sortOrder: 'sortOrder'
+  };
+
+  export type ClosedVisitPhotoScalarFieldEnum = (typeof ClosedVisitPhotoScalarFieldEnum)[keyof typeof ClosedVisitPhotoScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -74475,6 +77329,7 @@ export namespace Prisma {
     sales?: SaleListRelationFilter
     threePackRules?: ThreePackRuleListRelationFilter
     clientReturns?: ClientReturnListRelationFilter
+    closedVisits?: ClosedVisitListRelationFilter
     tournees?: TourneeListRelationFilter
     expenses?: ExpenseListRelationFilter
     versements?: VersementListRelationFilter
@@ -74522,6 +77377,7 @@ export namespace Prisma {
     sales?: SaleOrderByRelationAggregateInput
     threePackRules?: ThreePackRuleOrderByRelationAggregateInput
     clientReturns?: ClientReturnOrderByRelationAggregateInput
+    closedVisits?: ClosedVisitOrderByRelationAggregateInput
     tournees?: TourneeOrderByRelationAggregateInput
     expenses?: ExpenseOrderByRelationAggregateInput
     versements?: VersementOrderByRelationAggregateInput
@@ -74572,6 +77428,7 @@ export namespace Prisma {
     sales?: SaleListRelationFilter
     threePackRules?: ThreePackRuleListRelationFilter
     clientReturns?: ClientReturnListRelationFilter
+    closedVisits?: ClosedVisitListRelationFilter
     tournees?: TourneeListRelationFilter
     expenses?: ExpenseListRelationFilter
     versements?: VersementListRelationFilter
@@ -75155,6 +78012,7 @@ export namespace Prisma {
     areas?: UserAreaListRelationFilter
     assignedVans?: StoreListRelationFilter
     devices?: DeviceListRelationFilter
+    closedVisits?: ClosedVisitListRelationFilter
     createdSales?: SaleListRelationFilter
   }
 
@@ -75177,6 +78035,7 @@ export namespace Prisma {
     areas?: UserAreaOrderByRelationAggregateInput
     assignedVans?: StoreOrderByRelationAggregateInput
     devices?: DeviceOrderByRelationAggregateInput
+    closedVisits?: ClosedVisitOrderByRelationAggregateInput
     createdSales?: SaleOrderByRelationAggregateInput
   }
 
@@ -75203,6 +78062,7 @@ export namespace Prisma {
     areas?: UserAreaListRelationFilter
     assignedVans?: StoreListRelationFilter
     devices?: DeviceListRelationFilter
+    closedVisits?: ClosedVisitListRelationFilter
     createdSales?: SaleListRelationFilter
   }, "id" | "qrToken" | "companyId_username">
 
@@ -75520,6 +78380,7 @@ export namespace Prisma {
     losses?: StockLossListRelationFilter
     sales?: SaleListRelationFilter
     clientReturns?: ClientReturnListRelationFilter
+    closedVisits?: ClosedVisitListRelationFilter
     tournees?: TourneeListRelationFilter
     expenseLinks?: ExpenseListRelationFilter
     devices?: DeviceListRelationFilter
@@ -75554,6 +78415,7 @@ export namespace Prisma {
     losses?: StockLossOrderByRelationAggregateInput
     sales?: SaleOrderByRelationAggregateInput
     clientReturns?: ClientReturnOrderByRelationAggregateInput
+    closedVisits?: ClosedVisitOrderByRelationAggregateInput
     tournees?: TourneeOrderByRelationAggregateInput
     expenseLinks?: ExpenseOrderByRelationAggregateInput
     devices?: DeviceOrderByRelationAggregateInput
@@ -75592,6 +78454,7 @@ export namespace Prisma {
     losses?: StockLossListRelationFilter
     sales?: SaleListRelationFilter
     clientReturns?: ClientReturnListRelationFilter
+    closedVisits?: ClosedVisitListRelationFilter
     tournees?: TourneeListRelationFilter
     expenseLinks?: ExpenseListRelationFilter
     devices?: DeviceListRelationFilter
@@ -76160,6 +79023,7 @@ export namespace Prisma {
     secteur?: XOR<SecteurNullableScalarRelationFilter, SecteurWhereInput> | null
     tier?: XOR<PriceTierNullableScalarRelationFilter, PriceTierWhereInput> | null
     distances?: ClientDistanceListRelationFilter
+    closedVisits?: ClosedVisitListRelationFilter
     sales?: SaleListRelationFilter
     returns?: ClientReturnListRelationFilter
     tourneeStops?: TourneeStopListRelationFilter
@@ -76199,6 +79063,7 @@ export namespace Prisma {
     secteur?: SecteurOrderByWithRelationInput
     tier?: PriceTierOrderByWithRelationInput
     distances?: ClientDistanceOrderByRelationAggregateInput
+    closedVisits?: ClosedVisitOrderByRelationAggregateInput
     sales?: SaleOrderByRelationAggregateInput
     returns?: ClientReturnOrderByRelationAggregateInput
     tourneeStops?: TourneeStopOrderByRelationAggregateInput
@@ -76245,6 +79110,7 @@ export namespace Prisma {
     secteur?: XOR<SecteurNullableScalarRelationFilter, SecteurWhereInput> | null
     tier?: XOR<PriceTierNullableScalarRelationFilter, PriceTierWhereInput> | null
     distances?: ClientDistanceListRelationFilter
+    closedVisits?: ClosedVisitListRelationFilter
     sales?: SaleListRelationFilter
     returns?: ClientReturnListRelationFilter
     tourneeStops?: TourneeStopListRelationFilter
@@ -79281,6 +82147,9 @@ export namespace Prisma {
     mode?: StringFilter<"ThreePackRule"> | string
     isActive?: BoolFilter<"ThreePackRule"> | boolean
     isArchived?: BoolFilter<"ThreePackRule"> | boolean
+    startsAt?: DateTimeNullableFilter<"ThreePackRule"> | Date | string | null
+    endsAt?: DateTimeNullableFilter<"ThreePackRule"> | Date | string | null
+    percent?: DecimalNullableFilter<"ThreePackRule"> | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFilter<"ThreePackRule"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     items?: ThreePackItemListRelationFilter
@@ -79293,6 +82162,9 @@ export namespace Prisma {
     mode?: SortOrder
     isActive?: SortOrder
     isArchived?: SortOrder
+    startsAt?: SortOrderInput | SortOrder
+    endsAt?: SortOrderInput | SortOrder
+    percent?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
     items?: ThreePackItemOrderByRelationAggregateInput
@@ -79308,6 +82180,9 @@ export namespace Prisma {
     mode?: StringFilter<"ThreePackRule"> | string
     isActive?: BoolFilter<"ThreePackRule"> | boolean
     isArchived?: BoolFilter<"ThreePackRule"> | boolean
+    startsAt?: DateTimeNullableFilter<"ThreePackRule"> | Date | string | null
+    endsAt?: DateTimeNullableFilter<"ThreePackRule"> | Date | string | null
+    percent?: DecimalNullableFilter<"ThreePackRule"> | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFilter<"ThreePackRule"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     items?: ThreePackItemListRelationFilter
@@ -79320,10 +82195,15 @@ export namespace Prisma {
     mode?: SortOrder
     isActive?: SortOrder
     isArchived?: SortOrder
+    startsAt?: SortOrderInput | SortOrder
+    endsAt?: SortOrderInput | SortOrder
+    percent?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: ThreePackRuleCountOrderByAggregateInput
+    _avg?: ThreePackRuleAvgOrderByAggregateInput
     _max?: ThreePackRuleMaxOrderByAggregateInput
     _min?: ThreePackRuleMinOrderByAggregateInput
+    _sum?: ThreePackRuleSumOrderByAggregateInput
   }
 
   export type ThreePackRuleScalarWhereWithAggregatesInput = {
@@ -79336,6 +82216,9 @@ export namespace Prisma {
     mode?: StringWithAggregatesFilter<"ThreePackRule"> | string
     isActive?: BoolWithAggregatesFilter<"ThreePackRule"> | boolean
     isArchived?: BoolWithAggregatesFilter<"ThreePackRule"> | boolean
+    startsAt?: DateTimeNullableWithAggregatesFilter<"ThreePackRule"> | Date | string | null
+    endsAt?: DateTimeNullableWithAggregatesFilter<"ThreePackRule"> | Date | string | null
+    percent?: DecimalNullableWithAggregatesFilter<"ThreePackRule"> | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeWithAggregatesFilter<"ThreePackRule"> | Date | string
   }
 
@@ -79348,6 +82231,7 @@ export namespace Prisma {
     role?: StringFilter<"ThreePackItem"> | string
     productId?: StringFilter<"ThreePackItem"> | string
     colis?: DecimalFilter<"ThreePackItem"> | Decimal | DecimalJsLike | number | string
+    price?: DecimalNullableFilter<"ThreePackItem"> | Decimal | DecimalJsLike | number | string | null
     rule?: XOR<ThreePackRuleScalarRelationFilter, ThreePackRuleWhereInput>
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }
@@ -79358,6 +82242,7 @@ export namespace Prisma {
     role?: SortOrder
     productId?: SortOrder
     colis?: SortOrder
+    price?: SortOrderInput | SortOrder
     rule?: ThreePackRuleOrderByWithRelationInput
     product?: ProductOrderByWithRelationInput
   }
@@ -79371,6 +82256,7 @@ export namespace Prisma {
     role?: StringFilter<"ThreePackItem"> | string
     productId?: StringFilter<"ThreePackItem"> | string
     colis?: DecimalFilter<"ThreePackItem"> | Decimal | DecimalJsLike | number | string
+    price?: DecimalNullableFilter<"ThreePackItem"> | Decimal | DecimalJsLike | number | string | null
     rule?: XOR<ThreePackRuleScalarRelationFilter, ThreePackRuleWhereInput>
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }, "id">
@@ -79381,6 +82267,7 @@ export namespace Prisma {
     role?: SortOrder
     productId?: SortOrder
     colis?: SortOrder
+    price?: SortOrderInput | SortOrder
     _count?: ThreePackItemCountOrderByAggregateInput
     _avg?: ThreePackItemAvgOrderByAggregateInput
     _max?: ThreePackItemMaxOrderByAggregateInput
@@ -79397,6 +82284,159 @@ export namespace Prisma {
     role?: StringWithAggregatesFilter<"ThreePackItem"> | string
     productId?: StringWithAggregatesFilter<"ThreePackItem"> | string
     colis?: DecimalWithAggregatesFilter<"ThreePackItem"> | Decimal | DecimalJsLike | number | string
+    price?: DecimalNullableWithAggregatesFilter<"ThreePackItem"> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type ClosedVisitWhereInput = {
+    AND?: ClosedVisitWhereInput | ClosedVisitWhereInput[]
+    OR?: ClosedVisitWhereInput[]
+    NOT?: ClosedVisitWhereInput | ClosedVisitWhereInput[]
+    id?: StringFilter<"ClosedVisit"> | string
+    companyId?: StringFilter<"ClosedVisit"> | string
+    customerId?: StringFilter<"ClosedVisit"> | string
+    locationId?: StringNullableFilter<"ClosedVisit"> | string | null
+    userId?: StringNullableFilter<"ClosedVisit"> | string | null
+    opId?: StringNullableFilter<"ClosedVisit"> | string | null
+    note?: StringNullableFilter<"ClosedVisit"> | string | null
+    lat?: FloatNullableFilter<"ClosedVisit"> | number | null
+    lng?: FloatNullableFilter<"ClosedVisit"> | number | null
+    occurredAt?: DateTimeFilter<"ClosedVisit"> | Date | string
+    createdAt?: DateTimeFilter<"ClosedVisit"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    customer?: XOR<CustomerScalarRelationFilter, CustomerWhereInput>
+    location?: XOR<StoreNullableScalarRelationFilter, StoreWhereInput> | null
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    photos?: ClosedVisitPhotoListRelationFilter
+  }
+
+  export type ClosedVisitOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    customerId?: SortOrder
+    locationId?: SortOrderInput | SortOrder
+    userId?: SortOrderInput | SortOrder
+    opId?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    lat?: SortOrderInput | SortOrder
+    lng?: SortOrderInput | SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    customer?: CustomerOrderByWithRelationInput
+    location?: StoreOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+    photos?: ClosedVisitPhotoOrderByRelationAggregateInput
+  }
+
+  export type ClosedVisitWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    companyId_opId?: ClosedVisitCompanyIdOpIdCompoundUniqueInput
+    AND?: ClosedVisitWhereInput | ClosedVisitWhereInput[]
+    OR?: ClosedVisitWhereInput[]
+    NOT?: ClosedVisitWhereInput | ClosedVisitWhereInput[]
+    companyId?: StringFilter<"ClosedVisit"> | string
+    customerId?: StringFilter<"ClosedVisit"> | string
+    locationId?: StringNullableFilter<"ClosedVisit"> | string | null
+    userId?: StringNullableFilter<"ClosedVisit"> | string | null
+    opId?: StringNullableFilter<"ClosedVisit"> | string | null
+    note?: StringNullableFilter<"ClosedVisit"> | string | null
+    lat?: FloatNullableFilter<"ClosedVisit"> | number | null
+    lng?: FloatNullableFilter<"ClosedVisit"> | number | null
+    occurredAt?: DateTimeFilter<"ClosedVisit"> | Date | string
+    createdAt?: DateTimeFilter<"ClosedVisit"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    customer?: XOR<CustomerScalarRelationFilter, CustomerWhereInput>
+    location?: XOR<StoreNullableScalarRelationFilter, StoreWhereInput> | null
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    photos?: ClosedVisitPhotoListRelationFilter
+  }, "id" | "companyId_opId">
+
+  export type ClosedVisitOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    customerId?: SortOrder
+    locationId?: SortOrderInput | SortOrder
+    userId?: SortOrderInput | SortOrder
+    opId?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    lat?: SortOrderInput | SortOrder
+    lng?: SortOrderInput | SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: ClosedVisitCountOrderByAggregateInput
+    _avg?: ClosedVisitAvgOrderByAggregateInput
+    _max?: ClosedVisitMaxOrderByAggregateInput
+    _min?: ClosedVisitMinOrderByAggregateInput
+    _sum?: ClosedVisitSumOrderByAggregateInput
+  }
+
+  export type ClosedVisitScalarWhereWithAggregatesInput = {
+    AND?: ClosedVisitScalarWhereWithAggregatesInput | ClosedVisitScalarWhereWithAggregatesInput[]
+    OR?: ClosedVisitScalarWhereWithAggregatesInput[]
+    NOT?: ClosedVisitScalarWhereWithAggregatesInput | ClosedVisitScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ClosedVisit"> | string
+    companyId?: StringWithAggregatesFilter<"ClosedVisit"> | string
+    customerId?: StringWithAggregatesFilter<"ClosedVisit"> | string
+    locationId?: StringNullableWithAggregatesFilter<"ClosedVisit"> | string | null
+    userId?: StringNullableWithAggregatesFilter<"ClosedVisit"> | string | null
+    opId?: StringNullableWithAggregatesFilter<"ClosedVisit"> | string | null
+    note?: StringNullableWithAggregatesFilter<"ClosedVisit"> | string | null
+    lat?: FloatNullableWithAggregatesFilter<"ClosedVisit"> | number | null
+    lng?: FloatNullableWithAggregatesFilter<"ClosedVisit"> | number | null
+    occurredAt?: DateTimeWithAggregatesFilter<"ClosedVisit"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"ClosedVisit"> | Date | string
+  }
+
+  export type ClosedVisitPhotoWhereInput = {
+    AND?: ClosedVisitPhotoWhereInput | ClosedVisitPhotoWhereInput[]
+    OR?: ClosedVisitPhotoWhereInput[]
+    NOT?: ClosedVisitPhotoWhereInput | ClosedVisitPhotoWhereInput[]
+    id?: StringFilter<"ClosedVisitPhoto"> | string
+    visitId?: StringFilter<"ClosedVisitPhoto"> | string
+    url?: StringFilter<"ClosedVisitPhoto"> | string
+    sortOrder?: IntFilter<"ClosedVisitPhoto"> | number
+    visit?: XOR<ClosedVisitScalarRelationFilter, ClosedVisitWhereInput>
+  }
+
+  export type ClosedVisitPhotoOrderByWithRelationInput = {
+    id?: SortOrder
+    visitId?: SortOrder
+    url?: SortOrder
+    sortOrder?: SortOrder
+    visit?: ClosedVisitOrderByWithRelationInput
+  }
+
+  export type ClosedVisitPhotoWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ClosedVisitPhotoWhereInput | ClosedVisitPhotoWhereInput[]
+    OR?: ClosedVisitPhotoWhereInput[]
+    NOT?: ClosedVisitPhotoWhereInput | ClosedVisitPhotoWhereInput[]
+    visitId?: StringFilter<"ClosedVisitPhoto"> | string
+    url?: StringFilter<"ClosedVisitPhoto"> | string
+    sortOrder?: IntFilter<"ClosedVisitPhoto"> | number
+    visit?: XOR<ClosedVisitScalarRelationFilter, ClosedVisitWhereInput>
+  }, "id">
+
+  export type ClosedVisitPhotoOrderByWithAggregationInput = {
+    id?: SortOrder
+    visitId?: SortOrder
+    url?: SortOrder
+    sortOrder?: SortOrder
+    _count?: ClosedVisitPhotoCountOrderByAggregateInput
+    _avg?: ClosedVisitPhotoAvgOrderByAggregateInput
+    _max?: ClosedVisitPhotoMaxOrderByAggregateInput
+    _min?: ClosedVisitPhotoMinOrderByAggregateInput
+    _sum?: ClosedVisitPhotoSumOrderByAggregateInput
+  }
+
+  export type ClosedVisitPhotoScalarWhereWithAggregatesInput = {
+    AND?: ClosedVisitPhotoScalarWhereWithAggregatesInput | ClosedVisitPhotoScalarWhereWithAggregatesInput[]
+    OR?: ClosedVisitPhotoScalarWhereWithAggregatesInput[]
+    NOT?: ClosedVisitPhotoScalarWhereWithAggregatesInput | ClosedVisitPhotoScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ClosedVisitPhoto"> | string
+    visitId?: StringWithAggregatesFilter<"ClosedVisitPhoto"> | string
+    url?: StringWithAggregatesFilter<"ClosedVisitPhoto"> | string
+    sortOrder?: IntWithAggregatesFilter<"ClosedVisitPhoto"> | number
   }
 
   export type CompanyCreateInput = {
@@ -79436,6 +82476,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -79483,6 +82524,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -79530,6 +82572,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -79577,6 +82620,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -80217,6 +83261,7 @@ export namespace Prisma {
     areas?: UserAreaCreateNestedManyWithoutUserInput
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
   }
 
@@ -80238,6 +83283,7 @@ export namespace Prisma {
     areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
@@ -80259,6 +83305,7 @@ export namespace Prisma {
     areas?: UserAreaUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -80280,6 +83327,7 @@ export namespace Prisma {
     areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -80608,6 +83656,7 @@ export namespace Prisma {
     losses?: StockLossCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
@@ -80640,6 +83689,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
@@ -80672,6 +83722,7 @@ export namespace Prisma {
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
@@ -80704,6 +83755,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
@@ -81278,6 +84330,7 @@ export namespace Prisma {
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
     distances?: ClientDistanceCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCustomerInput
     sales?: SaleCreateNestedManyWithoutClientInput
     returns?: ClientReturnCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopCreateNestedManyWithoutClientInput
@@ -81313,6 +84366,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     opId?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopUncheckedCreateNestedManyWithoutClientInput
@@ -81348,6 +84402,7 @@ export namespace Prisma {
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
     distances?: ClientDistanceUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCustomerNestedInput
     sales?: SaleUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUpdateManyWithoutClientNestedInput
@@ -81383,6 +84438,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUncheckedUpdateManyWithoutClientNestedInput
@@ -84620,6 +87676,9 @@ export namespace Prisma {
     mode: string
     isActive?: boolean
     isArchived?: boolean
+    startsAt?: Date | string | null
+    endsAt?: Date | string | null
+    percent?: Decimal | DecimalJsLike | number | string | null
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutThreePackRulesInput
     items?: ThreePackItemCreateNestedManyWithoutRuleInput
@@ -84632,6 +87691,9 @@ export namespace Prisma {
     mode: string
     isActive?: boolean
     isArchived?: boolean
+    startsAt?: Date | string | null
+    endsAt?: Date | string | null
+    percent?: Decimal | DecimalJsLike | number | string | null
     createdAt?: Date | string
     items?: ThreePackItemUncheckedCreateNestedManyWithoutRuleInput
   }
@@ -84642,6 +87704,9 @@ export namespace Prisma {
     mode?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isArchived?: BoolFieldUpdateOperationsInput | boolean
+    startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    percent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutThreePackRulesNestedInput
     items?: ThreePackItemUpdateManyWithoutRuleNestedInput
@@ -84654,6 +87719,9 @@ export namespace Prisma {
     mode?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isArchived?: BoolFieldUpdateOperationsInput | boolean
+    startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    percent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: ThreePackItemUncheckedUpdateManyWithoutRuleNestedInput
   }
@@ -84665,6 +87733,9 @@ export namespace Prisma {
     mode: string
     isActive?: boolean
     isArchived?: boolean
+    startsAt?: Date | string | null
+    endsAt?: Date | string | null
+    percent?: Decimal | DecimalJsLike | number | string | null
     createdAt?: Date | string
   }
 
@@ -84674,6 +87745,9 @@ export namespace Prisma {
     mode?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isArchived?: BoolFieldUpdateOperationsInput | boolean
+    startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    percent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -84684,6 +87758,9 @@ export namespace Prisma {
     mode?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isArchived?: BoolFieldUpdateOperationsInput | boolean
+    startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    percent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -84691,6 +87768,7 @@ export namespace Prisma {
     id?: string
     role: string
     colis: Decimal | DecimalJsLike | number | string
+    price?: Decimal | DecimalJsLike | number | string | null
     rule: ThreePackRuleCreateNestedOneWithoutItemsInput
     product: ProductCreateNestedOneWithoutThreePackItemsInput
   }
@@ -84701,12 +87779,14 @@ export namespace Prisma {
     role: string
     productId: string
     colis: Decimal | DecimalJsLike | number | string
+    price?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type ThreePackItemUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     rule?: ThreePackRuleUpdateOneRequiredWithoutItemsNestedInput
     product?: ProductUpdateOneRequiredWithoutThreePackItemsNestedInput
   }
@@ -84717,6 +87797,7 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
     colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ThreePackItemCreateManyInput = {
@@ -84725,12 +87806,14 @@ export namespace Prisma {
     role: string
     productId: string
     colis: Decimal | DecimalJsLike | number | string
+    price?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type ThreePackItemUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ThreePackItemUncheckedUpdateManyInput = {
@@ -84739,6 +87822,153 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
     colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type ClosedVisitCreateInput = {
+    id?: string
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutClosedVisitsInput
+    customer: CustomerCreateNestedOneWithoutClosedVisitsInput
+    location?: StoreCreateNestedOneWithoutClosedVisitsInput
+    user?: UserCreateNestedOneWithoutClosedVisitsInput
+    photos?: ClosedVisitPhotoCreateNestedManyWithoutVisitInput
+  }
+
+  export type ClosedVisitUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    customerId: string
+    locationId?: string | null
+    userId?: string | null
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    photos?: ClosedVisitPhotoUncheckedCreateNestedManyWithoutVisitInput
+  }
+
+  export type ClosedVisitUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutClosedVisitsNestedInput
+    customer?: CustomerUpdateOneRequiredWithoutClosedVisitsNestedInput
+    location?: StoreUpdateOneWithoutClosedVisitsNestedInput
+    user?: UserUpdateOneWithoutClosedVisitsNestedInput
+    photos?: ClosedVisitPhotoUpdateManyWithoutVisitNestedInput
+  }
+
+  export type ClosedVisitUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: ClosedVisitPhotoUncheckedUpdateManyWithoutVisitNestedInput
+  }
+
+  export type ClosedVisitCreateManyInput = {
+    id?: string
+    companyId: string
+    customerId: string
+    locationId?: string | null
+    userId?: string | null
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ClosedVisitUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClosedVisitUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClosedVisitPhotoCreateInput = {
+    id?: string
+    url: string
+    sortOrder?: number
+    visit: ClosedVisitCreateNestedOneWithoutPhotosInput
+  }
+
+  export type ClosedVisitPhotoUncheckedCreateInput = {
+    id?: string
+    visitId: string
+    url: string
+    sortOrder?: number
+  }
+
+  export type ClosedVisitPhotoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    visit?: ClosedVisitUpdateOneRequiredWithoutPhotosNestedInput
+  }
+
+  export type ClosedVisitPhotoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    visitId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ClosedVisitPhotoCreateManyInput = {
+    id?: string
+    visitId: string
+    url: string
+    sortOrder?: number
+  }
+
+  export type ClosedVisitPhotoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ClosedVisitPhotoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    visitId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -84899,6 +88129,12 @@ export namespace Prisma {
     none?: ClientReturnWhereInput
   }
 
+  export type ClosedVisitListRelationFilter = {
+    every?: ClosedVisitWhereInput
+    some?: ClosedVisitWhereInput
+    none?: ClosedVisitWhereInput
+  }
+
   export type TourneeListRelationFilter = {
     every?: TourneeWhereInput
     some?: TourneeWhereInput
@@ -85025,6 +88261,10 @@ export namespace Prisma {
   }
 
   export type ClientReturnOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ClosedVisitOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -88322,7 +91562,14 @@ export namespace Prisma {
     mode?: SortOrder
     isActive?: SortOrder
     isArchived?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrder
+    percent?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type ThreePackRuleAvgOrderByAggregateInput = {
+    percent?: SortOrder
   }
 
   export type ThreePackRuleMaxOrderByAggregateInput = {
@@ -88332,6 +91579,9 @@ export namespace Prisma {
     mode?: SortOrder
     isActive?: SortOrder
     isArchived?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrder
+    percent?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -88342,7 +91592,14 @@ export namespace Prisma {
     mode?: SortOrder
     isActive?: SortOrder
     isArchived?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrder
+    percent?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type ThreePackRuleSumOrderByAggregateInput = {
+    percent?: SortOrder
   }
 
   export type ThreePackRuleScalarRelationFilter = {
@@ -88356,10 +91613,12 @@ export namespace Prisma {
     role?: SortOrder
     productId?: SortOrder
     colis?: SortOrder
+    price?: SortOrder
   }
 
   export type ThreePackItemAvgOrderByAggregateInput = {
     colis?: SortOrder
+    price?: SortOrder
   }
 
   export type ThreePackItemMaxOrderByAggregateInput = {
@@ -88368,6 +91627,7 @@ export namespace Prisma {
     role?: SortOrder
     productId?: SortOrder
     colis?: SortOrder
+    price?: SortOrder
   }
 
   export type ThreePackItemMinOrderByAggregateInput = {
@@ -88376,10 +91636,113 @@ export namespace Prisma {
     role?: SortOrder
     productId?: SortOrder
     colis?: SortOrder
+    price?: SortOrder
   }
 
   export type ThreePackItemSumOrderByAggregateInput = {
     colis?: SortOrder
+    price?: SortOrder
+  }
+
+  export type ClosedVisitPhotoListRelationFilter = {
+    every?: ClosedVisitPhotoWhereInput
+    some?: ClosedVisitPhotoWhereInput
+    none?: ClosedVisitPhotoWhereInput
+  }
+
+  export type ClosedVisitPhotoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ClosedVisitCompanyIdOpIdCompoundUniqueInput = {
+    companyId: string
+    opId: string
+  }
+
+  export type ClosedVisitCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    customerId?: SortOrder
+    locationId?: SortOrder
+    userId?: SortOrder
+    opId?: SortOrder
+    note?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ClosedVisitAvgOrderByAggregateInput = {
+    lat?: SortOrder
+    lng?: SortOrder
+  }
+
+  export type ClosedVisitMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    customerId?: SortOrder
+    locationId?: SortOrder
+    userId?: SortOrder
+    opId?: SortOrder
+    note?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ClosedVisitMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    customerId?: SortOrder
+    locationId?: SortOrder
+    userId?: SortOrder
+    opId?: SortOrder
+    note?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ClosedVisitSumOrderByAggregateInput = {
+    lat?: SortOrder
+    lng?: SortOrder
+  }
+
+  export type ClosedVisitScalarRelationFilter = {
+    is?: ClosedVisitWhereInput
+    isNot?: ClosedVisitWhereInput
+  }
+
+  export type ClosedVisitPhotoCountOrderByAggregateInput = {
+    id?: SortOrder
+    visitId?: SortOrder
+    url?: SortOrder
+    sortOrder?: SortOrder
+  }
+
+  export type ClosedVisitPhotoAvgOrderByAggregateInput = {
+    sortOrder?: SortOrder
+  }
+
+  export type ClosedVisitPhotoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    visitId?: SortOrder
+    url?: SortOrder
+    sortOrder?: SortOrder
+  }
+
+  export type ClosedVisitPhotoMinOrderByAggregateInput = {
+    id?: SortOrder
+    visitId?: SortOrder
+    url?: SortOrder
+    sortOrder?: SortOrder
+  }
+
+  export type ClosedVisitPhotoSumOrderByAggregateInput = {
+    sortOrder?: SortOrder
   }
 
   export type UserCreateNestedManyWithoutCompanyInput = {
@@ -88519,6 +91882,13 @@ export namespace Prisma {
     connectOrCreate?: ClientReturnCreateOrConnectWithoutCompanyInput | ClientReturnCreateOrConnectWithoutCompanyInput[]
     createMany?: ClientReturnCreateManyCompanyInputEnvelope
     connect?: ClientReturnWhereUniqueInput | ClientReturnWhereUniqueInput[]
+  }
+
+  export type ClosedVisitCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<ClosedVisitCreateWithoutCompanyInput, ClosedVisitUncheckedCreateWithoutCompanyInput> | ClosedVisitCreateWithoutCompanyInput[] | ClosedVisitUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutCompanyInput | ClosedVisitCreateOrConnectWithoutCompanyInput[]
+    createMany?: ClosedVisitCreateManyCompanyInputEnvelope
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
   }
 
   export type TourneeCreateNestedManyWithoutCompanyInput = {
@@ -88714,6 +92084,13 @@ export namespace Prisma {
     connectOrCreate?: ClientReturnCreateOrConnectWithoutCompanyInput | ClientReturnCreateOrConnectWithoutCompanyInput[]
     createMany?: ClientReturnCreateManyCompanyInputEnvelope
     connect?: ClientReturnWhereUniqueInput | ClientReturnWhereUniqueInput[]
+  }
+
+  export type ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<ClosedVisitCreateWithoutCompanyInput, ClosedVisitUncheckedCreateWithoutCompanyInput> | ClosedVisitCreateWithoutCompanyInput[] | ClosedVisitUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutCompanyInput | ClosedVisitCreateOrConnectWithoutCompanyInput[]
+    createMany?: ClosedVisitCreateManyCompanyInputEnvelope
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
   }
 
   export type TourneeUncheckedCreateNestedManyWithoutCompanyInput = {
@@ -89058,6 +92435,20 @@ export namespace Prisma {
     update?: ClientReturnUpdateWithWhereUniqueWithoutCompanyInput | ClientReturnUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: ClientReturnUpdateManyWithWhereWithoutCompanyInput | ClientReturnUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: ClientReturnScalarWhereInput | ClientReturnScalarWhereInput[]
+  }
+
+  export type ClosedVisitUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<ClosedVisitCreateWithoutCompanyInput, ClosedVisitUncheckedCreateWithoutCompanyInput> | ClosedVisitCreateWithoutCompanyInput[] | ClosedVisitUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutCompanyInput | ClosedVisitCreateOrConnectWithoutCompanyInput[]
+    upsert?: ClosedVisitUpsertWithWhereUniqueWithoutCompanyInput | ClosedVisitUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: ClosedVisitCreateManyCompanyInputEnvelope
+    set?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    disconnect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    delete?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    update?: ClosedVisitUpdateWithWhereUniqueWithoutCompanyInput | ClosedVisitUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: ClosedVisitUpdateManyWithWhereWithoutCompanyInput | ClosedVisitUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: ClosedVisitScalarWhereInput | ClosedVisitScalarWhereInput[]
   }
 
   export type TourneeUpdateManyWithoutCompanyNestedInput = {
@@ -89446,6 +92837,20 @@ export namespace Prisma {
     update?: ClientReturnUpdateWithWhereUniqueWithoutCompanyInput | ClientReturnUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: ClientReturnUpdateManyWithWhereWithoutCompanyInput | ClientReturnUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: ClientReturnScalarWhereInput | ClientReturnScalarWhereInput[]
+  }
+
+  export type ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<ClosedVisitCreateWithoutCompanyInput, ClosedVisitUncheckedCreateWithoutCompanyInput> | ClosedVisitCreateWithoutCompanyInput[] | ClosedVisitUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutCompanyInput | ClosedVisitCreateOrConnectWithoutCompanyInput[]
+    upsert?: ClosedVisitUpsertWithWhereUniqueWithoutCompanyInput | ClosedVisitUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: ClosedVisitCreateManyCompanyInputEnvelope
+    set?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    disconnect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    delete?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    update?: ClosedVisitUpdateWithWhereUniqueWithoutCompanyInput | ClosedVisitUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: ClosedVisitUpdateManyWithWhereWithoutCompanyInput | ClosedVisitUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: ClosedVisitScalarWhereInput | ClosedVisitScalarWhereInput[]
   }
 
   export type TourneeUncheckedUpdateManyWithoutCompanyNestedInput = {
@@ -90370,6 +93775,13 @@ export namespace Prisma {
     connect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
   }
 
+  export type ClosedVisitCreateNestedManyWithoutUserInput = {
+    create?: XOR<ClosedVisitCreateWithoutUserInput, ClosedVisitUncheckedCreateWithoutUserInput> | ClosedVisitCreateWithoutUserInput[] | ClosedVisitUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutUserInput | ClosedVisitCreateOrConnectWithoutUserInput[]
+    createMany?: ClosedVisitCreateManyUserInputEnvelope
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+  }
+
   export type SaleCreateNestedManyWithoutCreatedByInput = {
     create?: XOR<SaleCreateWithoutCreatedByInput, SaleUncheckedCreateWithoutCreatedByInput> | SaleCreateWithoutCreatedByInput[] | SaleUncheckedCreateWithoutCreatedByInput[]
     connectOrCreate?: SaleCreateOrConnectWithoutCreatedByInput | SaleCreateOrConnectWithoutCreatedByInput[]
@@ -90403,6 +93815,13 @@ export namespace Prisma {
     connectOrCreate?: DeviceCreateOrConnectWithoutUserInput | DeviceCreateOrConnectWithoutUserInput[]
     createMany?: DeviceCreateManyUserInputEnvelope
     connect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+  }
+
+  export type ClosedVisitUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<ClosedVisitCreateWithoutUserInput, ClosedVisitUncheckedCreateWithoutUserInput> | ClosedVisitCreateWithoutUserInput[] | ClosedVisitUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutUserInput | ClosedVisitCreateOrConnectWithoutUserInput[]
+    createMany?: ClosedVisitCreateManyUserInputEnvelope
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
   }
 
   export type SaleUncheckedCreateNestedManyWithoutCreatedByInput = {
@@ -90476,6 +93895,20 @@ export namespace Prisma {
     deleteMany?: DeviceScalarWhereInput | DeviceScalarWhereInput[]
   }
 
+  export type ClosedVisitUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ClosedVisitCreateWithoutUserInput, ClosedVisitUncheckedCreateWithoutUserInput> | ClosedVisitCreateWithoutUserInput[] | ClosedVisitUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutUserInput | ClosedVisitCreateOrConnectWithoutUserInput[]
+    upsert?: ClosedVisitUpsertWithWhereUniqueWithoutUserInput | ClosedVisitUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ClosedVisitCreateManyUserInputEnvelope
+    set?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    disconnect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    delete?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    update?: ClosedVisitUpdateWithWhereUniqueWithoutUserInput | ClosedVisitUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ClosedVisitUpdateManyWithWhereWithoutUserInput | ClosedVisitUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ClosedVisitScalarWhereInput | ClosedVisitScalarWhereInput[]
+  }
+
   export type SaleUpdateManyWithoutCreatedByNestedInput = {
     create?: XOR<SaleCreateWithoutCreatedByInput, SaleUncheckedCreateWithoutCreatedByInput> | SaleCreateWithoutCreatedByInput[] | SaleUncheckedCreateWithoutCreatedByInput[]
     connectOrCreate?: SaleCreateOrConnectWithoutCreatedByInput | SaleCreateOrConnectWithoutCreatedByInput[]
@@ -90544,6 +93977,20 @@ export namespace Prisma {
     update?: DeviceUpdateWithWhereUniqueWithoutUserInput | DeviceUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: DeviceUpdateManyWithWhereWithoutUserInput | DeviceUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: DeviceScalarWhereInput | DeviceScalarWhereInput[]
+  }
+
+  export type ClosedVisitUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ClosedVisitCreateWithoutUserInput, ClosedVisitUncheckedCreateWithoutUserInput> | ClosedVisitCreateWithoutUserInput[] | ClosedVisitUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutUserInput | ClosedVisitCreateOrConnectWithoutUserInput[]
+    upsert?: ClosedVisitUpsertWithWhereUniqueWithoutUserInput | ClosedVisitUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ClosedVisitCreateManyUserInputEnvelope
+    set?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    disconnect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    delete?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    update?: ClosedVisitUpdateWithWhereUniqueWithoutUserInput | ClosedVisitUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ClosedVisitUpdateManyWithWhereWithoutUserInput | ClosedVisitUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ClosedVisitScalarWhereInput | ClosedVisitScalarWhereInput[]
   }
 
   export type SaleUncheckedUpdateManyWithoutCreatedByNestedInput = {
@@ -90725,6 +94172,13 @@ export namespace Prisma {
     connect?: ClientReturnWhereUniqueInput | ClientReturnWhereUniqueInput[]
   }
 
+  export type ClosedVisitCreateNestedManyWithoutLocationInput = {
+    create?: XOR<ClosedVisitCreateWithoutLocationInput, ClosedVisitUncheckedCreateWithoutLocationInput> | ClosedVisitCreateWithoutLocationInput[] | ClosedVisitUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutLocationInput | ClosedVisitCreateOrConnectWithoutLocationInput[]
+    createMany?: ClosedVisitCreateManyLocationInputEnvelope
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+  }
+
   export type TourneeCreateNestedManyWithoutLocationInput = {
     create?: XOR<TourneeCreateWithoutLocationInput, TourneeUncheckedCreateWithoutLocationInput> | TourneeCreateWithoutLocationInput[] | TourneeUncheckedCreateWithoutLocationInput[]
     connectOrCreate?: TourneeCreateOrConnectWithoutLocationInput | TourneeCreateOrConnectWithoutLocationInput[]
@@ -90800,6 +94254,13 @@ export namespace Prisma {
     connectOrCreate?: ClientReturnCreateOrConnectWithoutLocationInput | ClientReturnCreateOrConnectWithoutLocationInput[]
     createMany?: ClientReturnCreateManyLocationInputEnvelope
     connect?: ClientReturnWhereUniqueInput | ClientReturnWhereUniqueInput[]
+  }
+
+  export type ClosedVisitUncheckedCreateNestedManyWithoutLocationInput = {
+    create?: XOR<ClosedVisitCreateWithoutLocationInput, ClosedVisitUncheckedCreateWithoutLocationInput> | ClosedVisitCreateWithoutLocationInput[] | ClosedVisitUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutLocationInput | ClosedVisitCreateOrConnectWithoutLocationInput[]
+    createMany?: ClosedVisitCreateManyLocationInputEnvelope
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
   }
 
   export type TourneeUncheckedCreateNestedManyWithoutLocationInput = {
@@ -90944,6 +94405,20 @@ export namespace Prisma {
     update?: ClientReturnUpdateWithWhereUniqueWithoutLocationInput | ClientReturnUpdateWithWhereUniqueWithoutLocationInput[]
     updateMany?: ClientReturnUpdateManyWithWhereWithoutLocationInput | ClientReturnUpdateManyWithWhereWithoutLocationInput[]
     deleteMany?: ClientReturnScalarWhereInput | ClientReturnScalarWhereInput[]
+  }
+
+  export type ClosedVisitUpdateManyWithoutLocationNestedInput = {
+    create?: XOR<ClosedVisitCreateWithoutLocationInput, ClosedVisitUncheckedCreateWithoutLocationInput> | ClosedVisitCreateWithoutLocationInput[] | ClosedVisitUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutLocationInput | ClosedVisitCreateOrConnectWithoutLocationInput[]
+    upsert?: ClosedVisitUpsertWithWhereUniqueWithoutLocationInput | ClosedVisitUpsertWithWhereUniqueWithoutLocationInput[]
+    createMany?: ClosedVisitCreateManyLocationInputEnvelope
+    set?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    disconnect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    delete?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    update?: ClosedVisitUpdateWithWhereUniqueWithoutLocationInput | ClosedVisitUpdateWithWhereUniqueWithoutLocationInput[]
+    updateMany?: ClosedVisitUpdateManyWithWhereWithoutLocationInput | ClosedVisitUpdateManyWithWhereWithoutLocationInput[]
+    deleteMany?: ClosedVisitScalarWhereInput | ClosedVisitScalarWhereInput[]
   }
 
   export type TourneeUpdateManyWithoutLocationNestedInput = {
@@ -91098,6 +94573,20 @@ export namespace Prisma {
     update?: ClientReturnUpdateWithWhereUniqueWithoutLocationInput | ClientReturnUpdateWithWhereUniqueWithoutLocationInput[]
     updateMany?: ClientReturnUpdateManyWithWhereWithoutLocationInput | ClientReturnUpdateManyWithWhereWithoutLocationInput[]
     deleteMany?: ClientReturnScalarWhereInput | ClientReturnScalarWhereInput[]
+  }
+
+  export type ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput = {
+    create?: XOR<ClosedVisitCreateWithoutLocationInput, ClosedVisitUncheckedCreateWithoutLocationInput> | ClosedVisitCreateWithoutLocationInput[] | ClosedVisitUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutLocationInput | ClosedVisitCreateOrConnectWithoutLocationInput[]
+    upsert?: ClosedVisitUpsertWithWhereUniqueWithoutLocationInput | ClosedVisitUpsertWithWhereUniqueWithoutLocationInput[]
+    createMany?: ClosedVisitCreateManyLocationInputEnvelope
+    set?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    disconnect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    delete?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    update?: ClosedVisitUpdateWithWhereUniqueWithoutLocationInput | ClosedVisitUpdateWithWhereUniqueWithoutLocationInput[]
+    updateMany?: ClosedVisitUpdateManyWithWhereWithoutLocationInput | ClosedVisitUpdateManyWithWhereWithoutLocationInput[]
+    deleteMany?: ClosedVisitScalarWhereInput | ClosedVisitScalarWhereInput[]
   }
 
   export type TourneeUncheckedUpdateManyWithoutLocationNestedInput = {
@@ -91553,6 +95042,13 @@ export namespace Prisma {
     connect?: ClientDistanceWhereUniqueInput | ClientDistanceWhereUniqueInput[]
   }
 
+  export type ClosedVisitCreateNestedManyWithoutCustomerInput = {
+    create?: XOR<ClosedVisitCreateWithoutCustomerInput, ClosedVisitUncheckedCreateWithoutCustomerInput> | ClosedVisitCreateWithoutCustomerInput[] | ClosedVisitUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutCustomerInput | ClosedVisitCreateOrConnectWithoutCustomerInput[]
+    createMany?: ClosedVisitCreateManyCustomerInputEnvelope
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+  }
+
   export type SaleCreateNestedManyWithoutClientInput = {
     create?: XOR<SaleCreateWithoutClientInput, SaleUncheckedCreateWithoutClientInput> | SaleCreateWithoutClientInput[] | SaleUncheckedCreateWithoutClientInput[]
     connectOrCreate?: SaleCreateOrConnectWithoutClientInput | SaleCreateOrConnectWithoutClientInput[]
@@ -91593,6 +95089,13 @@ export namespace Prisma {
     connectOrCreate?: ClientDistanceCreateOrConnectWithoutClientInput | ClientDistanceCreateOrConnectWithoutClientInput[]
     createMany?: ClientDistanceCreateManyClientInputEnvelope
     connect?: ClientDistanceWhereUniqueInput | ClientDistanceWhereUniqueInput[]
+  }
+
+  export type ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput = {
+    create?: XOR<ClosedVisitCreateWithoutCustomerInput, ClosedVisitUncheckedCreateWithoutCustomerInput> | ClosedVisitCreateWithoutCustomerInput[] | ClosedVisitUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutCustomerInput | ClosedVisitCreateOrConnectWithoutCustomerInput[]
+    createMany?: ClosedVisitCreateManyCustomerInputEnvelope
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
   }
 
   export type SaleUncheckedCreateNestedManyWithoutClientInput = {
@@ -91680,6 +95183,20 @@ export namespace Prisma {
     update?: ClientDistanceUpdateWithWhereUniqueWithoutClientInput | ClientDistanceUpdateWithWhereUniqueWithoutClientInput[]
     updateMany?: ClientDistanceUpdateManyWithWhereWithoutClientInput | ClientDistanceUpdateManyWithWhereWithoutClientInput[]
     deleteMany?: ClientDistanceScalarWhereInput | ClientDistanceScalarWhereInput[]
+  }
+
+  export type ClosedVisitUpdateManyWithoutCustomerNestedInput = {
+    create?: XOR<ClosedVisitCreateWithoutCustomerInput, ClosedVisitUncheckedCreateWithoutCustomerInput> | ClosedVisitCreateWithoutCustomerInput[] | ClosedVisitUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutCustomerInput | ClosedVisitCreateOrConnectWithoutCustomerInput[]
+    upsert?: ClosedVisitUpsertWithWhereUniqueWithoutCustomerInput | ClosedVisitUpsertWithWhereUniqueWithoutCustomerInput[]
+    createMany?: ClosedVisitCreateManyCustomerInputEnvelope
+    set?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    disconnect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    delete?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    update?: ClosedVisitUpdateWithWhereUniqueWithoutCustomerInput | ClosedVisitUpdateWithWhereUniqueWithoutCustomerInput[]
+    updateMany?: ClosedVisitUpdateManyWithWhereWithoutCustomerInput | ClosedVisitUpdateManyWithWhereWithoutCustomerInput[]
+    deleteMany?: ClosedVisitScalarWhereInput | ClosedVisitScalarWhereInput[]
   }
 
   export type SaleUpdateManyWithoutClientNestedInput = {
@@ -91772,6 +95289,20 @@ export namespace Prisma {
     update?: ClientDistanceUpdateWithWhereUniqueWithoutClientInput | ClientDistanceUpdateWithWhereUniqueWithoutClientInput[]
     updateMany?: ClientDistanceUpdateManyWithWhereWithoutClientInput | ClientDistanceUpdateManyWithWhereWithoutClientInput[]
     deleteMany?: ClientDistanceScalarWhereInput | ClientDistanceScalarWhereInput[]
+  }
+
+  export type ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput = {
+    create?: XOR<ClosedVisitCreateWithoutCustomerInput, ClosedVisitUncheckedCreateWithoutCustomerInput> | ClosedVisitCreateWithoutCustomerInput[] | ClosedVisitUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutCustomerInput | ClosedVisitCreateOrConnectWithoutCustomerInput[]
+    upsert?: ClosedVisitUpsertWithWhereUniqueWithoutCustomerInput | ClosedVisitUpsertWithWhereUniqueWithoutCustomerInput[]
+    createMany?: ClosedVisitCreateManyCustomerInputEnvelope
+    set?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    disconnect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    delete?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    connect?: ClosedVisitWhereUniqueInput | ClosedVisitWhereUniqueInput[]
+    update?: ClosedVisitUpdateWithWhereUniqueWithoutCustomerInput | ClosedVisitUpdateWithWhereUniqueWithoutCustomerInput[]
+    updateMany?: ClosedVisitUpdateManyWithWhereWithoutCustomerInput | ClosedVisitUpdateManyWithWhereWithoutCustomerInput[]
+    deleteMany?: ClosedVisitScalarWhereInput | ClosedVisitScalarWhereInput[]
   }
 
   export type SaleUncheckedUpdateManyWithoutClientNestedInput = {
@@ -94256,6 +97787,122 @@ export namespace Prisma {
     update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutThreePackItemsInput, ProductUpdateWithoutThreePackItemsInput>, ProductUncheckedUpdateWithoutThreePackItemsInput>
   }
 
+  export type CompanyCreateNestedOneWithoutClosedVisitsInput = {
+    create?: XOR<CompanyCreateWithoutClosedVisitsInput, CompanyUncheckedCreateWithoutClosedVisitsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutClosedVisitsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type CustomerCreateNestedOneWithoutClosedVisitsInput = {
+    create?: XOR<CustomerCreateWithoutClosedVisitsInput, CustomerUncheckedCreateWithoutClosedVisitsInput>
+    connectOrCreate?: CustomerCreateOrConnectWithoutClosedVisitsInput
+    connect?: CustomerWhereUniqueInput
+  }
+
+  export type StoreCreateNestedOneWithoutClosedVisitsInput = {
+    create?: XOR<StoreCreateWithoutClosedVisitsInput, StoreUncheckedCreateWithoutClosedVisitsInput>
+    connectOrCreate?: StoreCreateOrConnectWithoutClosedVisitsInput
+    connect?: StoreWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutClosedVisitsInput = {
+    create?: XOR<UserCreateWithoutClosedVisitsInput, UserUncheckedCreateWithoutClosedVisitsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutClosedVisitsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ClosedVisitPhotoCreateNestedManyWithoutVisitInput = {
+    create?: XOR<ClosedVisitPhotoCreateWithoutVisitInput, ClosedVisitPhotoUncheckedCreateWithoutVisitInput> | ClosedVisitPhotoCreateWithoutVisitInput[] | ClosedVisitPhotoUncheckedCreateWithoutVisitInput[]
+    connectOrCreate?: ClosedVisitPhotoCreateOrConnectWithoutVisitInput | ClosedVisitPhotoCreateOrConnectWithoutVisitInput[]
+    createMany?: ClosedVisitPhotoCreateManyVisitInputEnvelope
+    connect?: ClosedVisitPhotoWhereUniqueInput | ClosedVisitPhotoWhereUniqueInput[]
+  }
+
+  export type ClosedVisitPhotoUncheckedCreateNestedManyWithoutVisitInput = {
+    create?: XOR<ClosedVisitPhotoCreateWithoutVisitInput, ClosedVisitPhotoUncheckedCreateWithoutVisitInput> | ClosedVisitPhotoCreateWithoutVisitInput[] | ClosedVisitPhotoUncheckedCreateWithoutVisitInput[]
+    connectOrCreate?: ClosedVisitPhotoCreateOrConnectWithoutVisitInput | ClosedVisitPhotoCreateOrConnectWithoutVisitInput[]
+    createMany?: ClosedVisitPhotoCreateManyVisitInputEnvelope
+    connect?: ClosedVisitPhotoWhereUniqueInput | ClosedVisitPhotoWhereUniqueInput[]
+  }
+
+  export type CompanyUpdateOneRequiredWithoutClosedVisitsNestedInput = {
+    create?: XOR<CompanyCreateWithoutClosedVisitsInput, CompanyUncheckedCreateWithoutClosedVisitsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutClosedVisitsInput
+    upsert?: CompanyUpsertWithoutClosedVisitsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutClosedVisitsInput, CompanyUpdateWithoutClosedVisitsInput>, CompanyUncheckedUpdateWithoutClosedVisitsInput>
+  }
+
+  export type CustomerUpdateOneRequiredWithoutClosedVisitsNestedInput = {
+    create?: XOR<CustomerCreateWithoutClosedVisitsInput, CustomerUncheckedCreateWithoutClosedVisitsInput>
+    connectOrCreate?: CustomerCreateOrConnectWithoutClosedVisitsInput
+    upsert?: CustomerUpsertWithoutClosedVisitsInput
+    connect?: CustomerWhereUniqueInput
+    update?: XOR<XOR<CustomerUpdateToOneWithWhereWithoutClosedVisitsInput, CustomerUpdateWithoutClosedVisitsInput>, CustomerUncheckedUpdateWithoutClosedVisitsInput>
+  }
+
+  export type StoreUpdateOneWithoutClosedVisitsNestedInput = {
+    create?: XOR<StoreCreateWithoutClosedVisitsInput, StoreUncheckedCreateWithoutClosedVisitsInput>
+    connectOrCreate?: StoreCreateOrConnectWithoutClosedVisitsInput
+    upsert?: StoreUpsertWithoutClosedVisitsInput
+    disconnect?: StoreWhereInput | boolean
+    delete?: StoreWhereInput | boolean
+    connect?: StoreWhereUniqueInput
+    update?: XOR<XOR<StoreUpdateToOneWithWhereWithoutClosedVisitsInput, StoreUpdateWithoutClosedVisitsInput>, StoreUncheckedUpdateWithoutClosedVisitsInput>
+  }
+
+  export type UserUpdateOneWithoutClosedVisitsNestedInput = {
+    create?: XOR<UserCreateWithoutClosedVisitsInput, UserUncheckedCreateWithoutClosedVisitsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutClosedVisitsInput
+    upsert?: UserUpsertWithoutClosedVisitsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutClosedVisitsInput, UserUpdateWithoutClosedVisitsInput>, UserUncheckedUpdateWithoutClosedVisitsInput>
+  }
+
+  export type ClosedVisitPhotoUpdateManyWithoutVisitNestedInput = {
+    create?: XOR<ClosedVisitPhotoCreateWithoutVisitInput, ClosedVisitPhotoUncheckedCreateWithoutVisitInput> | ClosedVisitPhotoCreateWithoutVisitInput[] | ClosedVisitPhotoUncheckedCreateWithoutVisitInput[]
+    connectOrCreate?: ClosedVisitPhotoCreateOrConnectWithoutVisitInput | ClosedVisitPhotoCreateOrConnectWithoutVisitInput[]
+    upsert?: ClosedVisitPhotoUpsertWithWhereUniqueWithoutVisitInput | ClosedVisitPhotoUpsertWithWhereUniqueWithoutVisitInput[]
+    createMany?: ClosedVisitPhotoCreateManyVisitInputEnvelope
+    set?: ClosedVisitPhotoWhereUniqueInput | ClosedVisitPhotoWhereUniqueInput[]
+    disconnect?: ClosedVisitPhotoWhereUniqueInput | ClosedVisitPhotoWhereUniqueInput[]
+    delete?: ClosedVisitPhotoWhereUniqueInput | ClosedVisitPhotoWhereUniqueInput[]
+    connect?: ClosedVisitPhotoWhereUniqueInput | ClosedVisitPhotoWhereUniqueInput[]
+    update?: ClosedVisitPhotoUpdateWithWhereUniqueWithoutVisitInput | ClosedVisitPhotoUpdateWithWhereUniqueWithoutVisitInput[]
+    updateMany?: ClosedVisitPhotoUpdateManyWithWhereWithoutVisitInput | ClosedVisitPhotoUpdateManyWithWhereWithoutVisitInput[]
+    deleteMany?: ClosedVisitPhotoScalarWhereInput | ClosedVisitPhotoScalarWhereInput[]
+  }
+
+  export type ClosedVisitPhotoUncheckedUpdateManyWithoutVisitNestedInput = {
+    create?: XOR<ClosedVisitPhotoCreateWithoutVisitInput, ClosedVisitPhotoUncheckedCreateWithoutVisitInput> | ClosedVisitPhotoCreateWithoutVisitInput[] | ClosedVisitPhotoUncheckedCreateWithoutVisitInput[]
+    connectOrCreate?: ClosedVisitPhotoCreateOrConnectWithoutVisitInput | ClosedVisitPhotoCreateOrConnectWithoutVisitInput[]
+    upsert?: ClosedVisitPhotoUpsertWithWhereUniqueWithoutVisitInput | ClosedVisitPhotoUpsertWithWhereUniqueWithoutVisitInput[]
+    createMany?: ClosedVisitPhotoCreateManyVisitInputEnvelope
+    set?: ClosedVisitPhotoWhereUniqueInput | ClosedVisitPhotoWhereUniqueInput[]
+    disconnect?: ClosedVisitPhotoWhereUniqueInput | ClosedVisitPhotoWhereUniqueInput[]
+    delete?: ClosedVisitPhotoWhereUniqueInput | ClosedVisitPhotoWhereUniqueInput[]
+    connect?: ClosedVisitPhotoWhereUniqueInput | ClosedVisitPhotoWhereUniqueInput[]
+    update?: ClosedVisitPhotoUpdateWithWhereUniqueWithoutVisitInput | ClosedVisitPhotoUpdateWithWhereUniqueWithoutVisitInput[]
+    updateMany?: ClosedVisitPhotoUpdateManyWithWhereWithoutVisitInput | ClosedVisitPhotoUpdateManyWithWhereWithoutVisitInput[]
+    deleteMany?: ClosedVisitPhotoScalarWhereInput | ClosedVisitPhotoScalarWhereInput[]
+  }
+
+  export type ClosedVisitCreateNestedOneWithoutPhotosInput = {
+    create?: XOR<ClosedVisitCreateWithoutPhotosInput, ClosedVisitUncheckedCreateWithoutPhotosInput>
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutPhotosInput
+    connect?: ClosedVisitWhereUniqueInput
+  }
+
+  export type ClosedVisitUpdateOneRequiredWithoutPhotosNestedInput = {
+    create?: XOR<ClosedVisitCreateWithoutPhotosInput, ClosedVisitUncheckedCreateWithoutPhotosInput>
+    connectOrCreate?: ClosedVisitCreateOrConnectWithoutPhotosInput
+    upsert?: ClosedVisitUpsertWithoutPhotosInput
+    connect?: ClosedVisitWhereUniqueInput
+    update?: XOR<XOR<ClosedVisitUpdateToOneWithWhereWithoutPhotosInput, ClosedVisitUpdateWithoutPhotosInput>, ClosedVisitUncheckedUpdateWithoutPhotosInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -94578,6 +98225,7 @@ export namespace Prisma {
     areas?: UserAreaCreateNestedManyWithoutUserInput
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
   }
 
@@ -94598,6 +98246,7 @@ export namespace Prisma {
     areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
@@ -94635,6 +98284,7 @@ export namespace Prisma {
     losses?: StockLossCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
@@ -94666,6 +98316,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
@@ -94708,6 +98359,7 @@ export namespace Prisma {
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
     distances?: ClientDistanceCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCustomerInput
     sales?: SaleCreateNestedManyWithoutClientInput
     returns?: ClientReturnCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopCreateNestedManyWithoutClientInput
@@ -94742,6 +98394,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     opId?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopUncheckedCreateNestedManyWithoutClientInput
@@ -95399,6 +99052,9 @@ export namespace Prisma {
     mode: string
     isActive?: boolean
     isArchived?: boolean
+    startsAt?: Date | string | null
+    endsAt?: Date | string | null
+    percent?: Decimal | DecimalJsLike | number | string | null
     createdAt?: Date | string
     items?: ThreePackItemCreateNestedManyWithoutRuleInput
   }
@@ -95409,6 +99065,9 @@ export namespace Prisma {
     mode: string
     isActive?: boolean
     isArchived?: boolean
+    startsAt?: Date | string | null
+    endsAt?: Date | string | null
+    percent?: Decimal | DecimalJsLike | number | string | null
     createdAt?: Date | string
     items?: ThreePackItemUncheckedCreateNestedManyWithoutRuleInput
   }
@@ -95461,6 +99120,43 @@ export namespace Prisma {
 
   export type ClientReturnCreateManyCompanyInputEnvelope = {
     data: ClientReturnCreateManyCompanyInput | ClientReturnCreateManyCompanyInput[]
+  }
+
+  export type ClosedVisitCreateWithoutCompanyInput = {
+    id?: string
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    customer: CustomerCreateNestedOneWithoutClosedVisitsInput
+    location?: StoreCreateNestedOneWithoutClosedVisitsInput
+    user?: UserCreateNestedOneWithoutClosedVisitsInput
+    photos?: ClosedVisitPhotoCreateNestedManyWithoutVisitInput
+  }
+
+  export type ClosedVisitUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    customerId: string
+    locationId?: string | null
+    userId?: string | null
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    photos?: ClosedVisitPhotoUncheckedCreateNestedManyWithoutVisitInput
+  }
+
+  export type ClosedVisitCreateOrConnectWithoutCompanyInput = {
+    where: ClosedVisitWhereUniqueInput
+    create: XOR<ClosedVisitCreateWithoutCompanyInput, ClosedVisitUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ClosedVisitCreateManyCompanyInputEnvelope = {
+    data: ClosedVisitCreateManyCompanyInput | ClosedVisitCreateManyCompanyInput[]
   }
 
   export type TourneeCreateWithoutCompanyInput = {
@@ -96451,6 +100147,9 @@ export namespace Prisma {
     mode?: StringFilter<"ThreePackRule"> | string
     isActive?: BoolFilter<"ThreePackRule"> | boolean
     isArchived?: BoolFilter<"ThreePackRule"> | boolean
+    startsAt?: DateTimeNullableFilter<"ThreePackRule"> | Date | string | null
+    endsAt?: DateTimeNullableFilter<"ThreePackRule"> | Date | string | null
+    percent?: DecimalNullableFilter<"ThreePackRule"> | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFilter<"ThreePackRule"> | Date | string
   }
 
@@ -96487,6 +100186,39 @@ export namespace Prisma {
     date?: DateTimeFilter<"ClientReturn"> | Date | string
     createdAt?: DateTimeFilter<"ClientReturn"> | Date | string
     opId?: StringNullableFilter<"ClientReturn"> | string | null
+  }
+
+  export type ClosedVisitUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: ClosedVisitWhereUniqueInput
+    update: XOR<ClosedVisitUpdateWithoutCompanyInput, ClosedVisitUncheckedUpdateWithoutCompanyInput>
+    create: XOR<ClosedVisitCreateWithoutCompanyInput, ClosedVisitUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type ClosedVisitUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: ClosedVisitWhereUniqueInput
+    data: XOR<ClosedVisitUpdateWithoutCompanyInput, ClosedVisitUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type ClosedVisitUpdateManyWithWhereWithoutCompanyInput = {
+    where: ClosedVisitScalarWhereInput
+    data: XOR<ClosedVisitUpdateManyMutationInput, ClosedVisitUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type ClosedVisitScalarWhereInput = {
+    AND?: ClosedVisitScalarWhereInput | ClosedVisitScalarWhereInput[]
+    OR?: ClosedVisitScalarWhereInput[]
+    NOT?: ClosedVisitScalarWhereInput | ClosedVisitScalarWhereInput[]
+    id?: StringFilter<"ClosedVisit"> | string
+    companyId?: StringFilter<"ClosedVisit"> | string
+    customerId?: StringFilter<"ClosedVisit"> | string
+    locationId?: StringNullableFilter<"ClosedVisit"> | string | null
+    userId?: StringNullableFilter<"ClosedVisit"> | string | null
+    opId?: StringNullableFilter<"ClosedVisit"> | string | null
+    note?: StringNullableFilter<"ClosedVisit"> | string | null
+    lat?: FloatNullableFilter<"ClosedVisit"> | number | null
+    lng?: FloatNullableFilter<"ClosedVisit"> | number | null
+    occurredAt?: DateTimeFilter<"ClosedVisit"> | Date | string
+    createdAt?: DateTimeFilter<"ClosedVisit"> | Date | string
   }
 
   export type TourneeUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -96800,6 +100532,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -96846,6 +100579,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -96908,6 +100642,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -96954,6 +100689,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -97000,6 +100736,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -97046,6 +100783,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -97352,6 +101090,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -97398,6 +101137,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -97520,6 +101260,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -97566,6 +101307,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -97631,6 +101373,7 @@ export namespace Prisma {
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
     distances?: ClientDistanceCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCustomerInput
     sales?: SaleCreateNestedManyWithoutClientInput
     returns?: ClientReturnCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopCreateNestedManyWithoutClientInput
@@ -97665,6 +101408,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     opId?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopUncheckedCreateNestedManyWithoutClientInput
@@ -97803,6 +101547,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -97849,6 +101594,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -97954,6 +101700,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -98000,6 +101747,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -98099,6 +101847,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -98145,6 +101894,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -98231,6 +101981,7 @@ export namespace Prisma {
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
     distances?: ClientDistanceCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCustomerInput
     sales?: SaleCreateNestedManyWithoutClientInput
     returns?: ClientReturnCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopCreateNestedManyWithoutClientInput
@@ -98265,6 +102016,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     opId?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopUncheckedCreateNestedManyWithoutClientInput
@@ -98462,6 +102214,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -98508,6 +102261,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -98573,6 +102327,7 @@ export namespace Prisma {
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
     distances?: ClientDistanceCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCustomerInput
     sales?: SaleCreateNestedManyWithoutClientInput
     returns?: ClientReturnCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopCreateNestedManyWithoutClientInput
@@ -98607,6 +102362,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     opId?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopUncheckedCreateNestedManyWithoutClientInput
@@ -98787,6 +102543,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -98833,6 +102590,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -98972,6 +102730,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -99018,6 +102777,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -99114,6 +102874,7 @@ export namespace Prisma {
     losses?: StockLossCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
@@ -99145,6 +102906,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
@@ -99191,6 +102953,43 @@ export namespace Prisma {
 
   export type DeviceCreateManyUserInputEnvelope = {
     data: DeviceCreateManyUserInput | DeviceCreateManyUserInput[]
+  }
+
+  export type ClosedVisitCreateWithoutUserInput = {
+    id?: string
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutClosedVisitsInput
+    customer: CustomerCreateNestedOneWithoutClosedVisitsInput
+    location?: StoreCreateNestedOneWithoutClosedVisitsInput
+    photos?: ClosedVisitPhotoCreateNestedManyWithoutVisitInput
+  }
+
+  export type ClosedVisitUncheckedCreateWithoutUserInput = {
+    id?: string
+    companyId: string
+    customerId: string
+    locationId?: string | null
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    photos?: ClosedVisitPhotoUncheckedCreateNestedManyWithoutVisitInput
+  }
+
+  export type ClosedVisitCreateOrConnectWithoutUserInput = {
+    where: ClosedVisitWhereUniqueInput
+    create: XOR<ClosedVisitCreateWithoutUserInput, ClosedVisitUncheckedCreateWithoutUserInput>
+  }
+
+  export type ClosedVisitCreateManyUserInputEnvelope = {
+    data: ClosedVisitCreateManyUserInput | ClosedVisitCreateManyUserInput[]
   }
 
   export type SaleCreateWithoutCreatedByInput = {
@@ -99315,6 +103114,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -99361,6 +103161,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -99435,6 +103236,22 @@ export namespace Prisma {
     data: XOR<DeviceUpdateManyMutationInput, DeviceUncheckedUpdateManyWithoutUserInput>
   }
 
+  export type ClosedVisitUpsertWithWhereUniqueWithoutUserInput = {
+    where: ClosedVisitWhereUniqueInput
+    update: XOR<ClosedVisitUpdateWithoutUserInput, ClosedVisitUncheckedUpdateWithoutUserInput>
+    create: XOR<ClosedVisitCreateWithoutUserInput, ClosedVisitUncheckedCreateWithoutUserInput>
+  }
+
+  export type ClosedVisitUpdateWithWhereUniqueWithoutUserInput = {
+    where: ClosedVisitWhereUniqueInput
+    data: XOR<ClosedVisitUpdateWithoutUserInput, ClosedVisitUncheckedUpdateWithoutUserInput>
+  }
+
+  export type ClosedVisitUpdateManyWithWhereWithoutUserInput = {
+    where: ClosedVisitScalarWhereInput
+    data: XOR<ClosedVisitUpdateManyMutationInput, ClosedVisitUncheckedUpdateManyWithoutUserInput>
+  }
+
   export type SaleUpsertWithWhereUniqueWithoutCreatedByInput = {
     where: SaleWhereUniqueInput
     update: XOR<SaleUpdateWithoutCreatedByInput, SaleUncheckedUpdateWithoutCreatedByInput>
@@ -99468,6 +103285,7 @@ export namespace Prisma {
     distances?: ClientDistanceCreateNestedManyWithoutUserInput
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
   }
 
@@ -99488,6 +103306,7 @@ export namespace Prisma {
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
@@ -99576,6 +103395,7 @@ export namespace Prisma {
     distances?: ClientDistanceUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -99596,6 +103416,7 @@ export namespace Prisma {
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -99810,6 +103631,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -99856,6 +103678,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -99888,6 +103711,7 @@ export namespace Prisma {
     distances?: ClientDistanceCreateNestedManyWithoutUserInput
     areas?: UserAreaCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
   }
 
@@ -99908,6 +103732,7 @@ export namespace Prisma {
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
     areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
@@ -100231,6 +104056,43 @@ export namespace Prisma {
     data: ClientReturnCreateManyLocationInput | ClientReturnCreateManyLocationInput[]
   }
 
+  export type ClosedVisitCreateWithoutLocationInput = {
+    id?: string
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutClosedVisitsInput
+    customer: CustomerCreateNestedOneWithoutClosedVisitsInput
+    user?: UserCreateNestedOneWithoutClosedVisitsInput
+    photos?: ClosedVisitPhotoCreateNestedManyWithoutVisitInput
+  }
+
+  export type ClosedVisitUncheckedCreateWithoutLocationInput = {
+    id?: string
+    companyId: string
+    customerId: string
+    userId?: string | null
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    photos?: ClosedVisitPhotoUncheckedCreateNestedManyWithoutVisitInput
+  }
+
+  export type ClosedVisitCreateOrConnectWithoutLocationInput = {
+    where: ClosedVisitWhereUniqueInput
+    create: XOR<ClosedVisitCreateWithoutLocationInput, ClosedVisitUncheckedCreateWithoutLocationInput>
+  }
+
+  export type ClosedVisitCreateManyLocationInputEnvelope = {
+    data: ClosedVisitCreateManyLocationInput | ClosedVisitCreateManyLocationInput[]
+  }
+
   export type TourneeCreateWithoutLocationInput = {
     id?: string
     date: Date | string
@@ -100448,6 +104310,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -100494,6 +104357,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -100532,6 +104396,7 @@ export namespace Prisma {
     distances?: ClientDistanceUpdateManyWithoutUserNestedInput
     areas?: UserAreaUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -100552,6 +104417,7 @@ export namespace Prisma {
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
     areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -100667,6 +104533,22 @@ export namespace Prisma {
     data: XOR<ClientReturnUpdateManyMutationInput, ClientReturnUncheckedUpdateManyWithoutLocationInput>
   }
 
+  export type ClosedVisitUpsertWithWhereUniqueWithoutLocationInput = {
+    where: ClosedVisitWhereUniqueInput
+    update: XOR<ClosedVisitUpdateWithoutLocationInput, ClosedVisitUncheckedUpdateWithoutLocationInput>
+    create: XOR<ClosedVisitCreateWithoutLocationInput, ClosedVisitUncheckedCreateWithoutLocationInput>
+  }
+
+  export type ClosedVisitUpdateWithWhereUniqueWithoutLocationInput = {
+    where: ClosedVisitWhereUniqueInput
+    data: XOR<ClosedVisitUpdateWithoutLocationInput, ClosedVisitUncheckedUpdateWithoutLocationInput>
+  }
+
+  export type ClosedVisitUpdateManyWithWhereWithoutLocationInput = {
+    where: ClosedVisitScalarWhereInput
+    data: XOR<ClosedVisitUpdateManyMutationInput, ClosedVisitUncheckedUpdateManyWithoutLocationInput>
+  }
+
   export type TourneeUpsertWithWhereUniqueWithoutLocationInput = {
     where: TourneeWhereUniqueInput
     update: XOR<TourneeUpdateWithoutLocationInput, TourneeUncheckedUpdateWithoutLocationInput>
@@ -100767,6 +104649,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -100813,6 +104696,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -100853,6 +104737,7 @@ export namespace Prisma {
     losses?: StockLossCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
@@ -100884,6 +104769,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
@@ -100920,6 +104806,7 @@ export namespace Prisma {
     losses?: StockLossCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
@@ -100951,6 +104838,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
@@ -101110,6 +104998,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -101156,6 +105045,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -101202,6 +105092,7 @@ export namespace Prisma {
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
@@ -101233,6 +105124,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
@@ -101275,6 +105167,7 @@ export namespace Prisma {
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
@@ -101306,6 +105199,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
@@ -101647,6 +105541,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -101693,6 +105588,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -101733,6 +105629,7 @@ export namespace Prisma {
     losses?: StockLossCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
@@ -101764,6 +105661,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
@@ -101845,6 +105743,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -101891,6 +105790,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -101937,6 +105837,7 @@ export namespace Prisma {
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
@@ -101968,6 +105869,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
@@ -102245,6 +106147,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -102291,6 +106194,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -102331,6 +106235,7 @@ export namespace Prisma {
     counts?: StockCountCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
@@ -102362,6 +106267,7 @@ export namespace Prisma {
     counts?: StockCountUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
@@ -102489,6 +106395,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -102535,6 +106442,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -102581,6 +106489,7 @@ export namespace Prisma {
     counts?: StockCountUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
@@ -102612,6 +106521,7 @@ export namespace Prisma {
     counts?: StockCountUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
@@ -102729,6 +106639,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -102775,6 +106686,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -102837,6 +106749,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -102883,6 +106796,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -102929,6 +106843,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -102975,6 +106890,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -103100,6 +107016,43 @@ export namespace Prisma {
 
   export type ClientDistanceCreateManyClientInputEnvelope = {
     data: ClientDistanceCreateManyClientInput | ClientDistanceCreateManyClientInput[]
+  }
+
+  export type ClosedVisitCreateWithoutCustomerInput = {
+    id?: string
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutClosedVisitsInput
+    location?: StoreCreateNestedOneWithoutClosedVisitsInput
+    user?: UserCreateNestedOneWithoutClosedVisitsInput
+    photos?: ClosedVisitPhotoCreateNestedManyWithoutVisitInput
+  }
+
+  export type ClosedVisitUncheckedCreateWithoutCustomerInput = {
+    id?: string
+    companyId: string
+    locationId?: string | null
+    userId?: string | null
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    photos?: ClosedVisitPhotoUncheckedCreateNestedManyWithoutVisitInput
+  }
+
+  export type ClosedVisitCreateOrConnectWithoutCustomerInput = {
+    where: ClosedVisitWhereUniqueInput
+    create: XOR<ClosedVisitCreateWithoutCustomerInput, ClosedVisitUncheckedCreateWithoutCustomerInput>
+  }
+
+  export type ClosedVisitCreateManyCustomerInputEnvelope = {
+    data: ClosedVisitCreateManyCustomerInput | ClosedVisitCreateManyCustomerInput[]
   }
 
   export type SaleCreateWithoutClientInput = {
@@ -103366,6 +107319,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -103412,6 +107366,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -103533,6 +107488,22 @@ export namespace Prisma {
   export type ClientDistanceUpdateManyWithWhereWithoutClientInput = {
     where: ClientDistanceScalarWhereInput
     data: XOR<ClientDistanceUpdateManyMutationInput, ClientDistanceUncheckedUpdateManyWithoutClientInput>
+  }
+
+  export type ClosedVisitUpsertWithWhereUniqueWithoutCustomerInput = {
+    where: ClosedVisitWhereUniqueInput
+    update: XOR<ClosedVisitUpdateWithoutCustomerInput, ClosedVisitUncheckedUpdateWithoutCustomerInput>
+    create: XOR<ClosedVisitCreateWithoutCustomerInput, ClosedVisitUncheckedCreateWithoutCustomerInput>
+  }
+
+  export type ClosedVisitUpdateWithWhereUniqueWithoutCustomerInput = {
+    where: ClosedVisitWhereUniqueInput
+    data: XOR<ClosedVisitUpdateWithoutCustomerInput, ClosedVisitUncheckedUpdateWithoutCustomerInput>
+  }
+
+  export type ClosedVisitUpdateManyWithWhereWithoutCustomerInput = {
+    where: ClosedVisitScalarWhereInput
+    data: XOR<ClosedVisitUpdateManyMutationInput, ClosedVisitUncheckedUpdateManyWithoutCustomerInput>
   }
 
   export type SaleUpsertWithWhereUniqueWithoutClientInput = {
@@ -103665,6 +107636,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -103711,6 +107683,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -104021,6 +107994,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -104067,6 +108041,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -104330,6 +108305,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -104376,6 +108352,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -104834,6 +108811,7 @@ export namespace Prisma {
     id?: string
     role: string
     colis: Decimal | DecimalJsLike | number | string
+    price?: Decimal | DecimalJsLike | number | string | null
     rule: ThreePackRuleCreateNestedOneWithoutItemsInput
   }
 
@@ -104842,6 +108820,7 @@ export namespace Prisma {
     ruleId: string
     role: string
     colis: Decimal | DecimalJsLike | number | string
+    price?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type ThreePackItemCreateOrConnectWithoutProductInput = {
@@ -104925,6 +108904,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -104971,6 +108951,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -105410,6 +109391,7 @@ export namespace Prisma {
     role?: StringFilter<"ThreePackItem"> | string
     productId?: StringFilter<"ThreePackItem"> | string
     colis?: DecimalFilter<"ThreePackItem"> | Decimal | DecimalJsLike | number | string
+    price?: DecimalNullableFilter<"ThreePackItem"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ClientReturnLineUpsertWithWhereUniqueWithoutProductInput = {
@@ -106036,6 +110018,7 @@ export namespace Prisma {
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -106082,6 +110065,7 @@ export namespace Prisma {
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -106125,6 +110109,7 @@ export namespace Prisma {
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
     distances?: ClientDistanceCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCustomerInput
     returns?: ClientReturnCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopCreateNestedManyWithoutClientInput
     versements?: VersementCreateNestedManyWithoutClientInput
@@ -106159,6 +110144,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     opId?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopUncheckedCreateNestedManyWithoutClientInput
     versements?: VersementUncheckedCreateNestedManyWithoutClientInput
@@ -106195,6 +110181,7 @@ export namespace Prisma {
     counts?: StockCountCreateNestedManyWithoutLocationInput
     losses?: StockLossCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
@@ -106226,6 +110213,7 @@ export namespace Prisma {
     counts?: StockCountUncheckedCreateNestedManyWithoutLocationInput
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
@@ -106282,6 +110270,7 @@ export namespace Prisma {
     areas?: UserAreaCreateNestedManyWithoutUserInput
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedSalesInput = {
@@ -106302,6 +110291,7 @@ export namespace Prisma {
     areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedSalesInput = {
@@ -106623,6 +110613,7 @@ export namespace Prisma {
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -106669,6 +110660,7 @@ export namespace Prisma {
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -106718,6 +110710,7 @@ export namespace Prisma {
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
     distances?: ClientDistanceUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCustomerNestedInput
     returns?: ClientReturnUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUpdateManyWithoutClientNestedInput
     versements?: VersementUpdateManyWithoutClientNestedInput
@@ -106752,6 +110745,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUncheckedUpdateManyWithoutClientNestedInput
     versements?: VersementUncheckedUpdateManyWithoutClientNestedInput
@@ -106794,6 +110788,7 @@ export namespace Prisma {
     counts?: StockCountUpdateManyWithoutLocationNestedInput
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
@@ -106825,6 +110820,7 @@ export namespace Prisma {
     counts?: StockCountUncheckedUpdateManyWithoutLocationNestedInput
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
@@ -106893,6 +110889,7 @@ export namespace Prisma {
     areas?: UserAreaUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedSalesInput = {
@@ -106913,6 +110910,7 @@ export namespace Prisma {
     areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TourneeUpsertWithoutSalesInput = {
@@ -107417,6 +111415,7 @@ export namespace Prisma {
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -107463,6 +111462,7 @@ export namespace Prisma {
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -107506,6 +111506,7 @@ export namespace Prisma {
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
     distances?: ClientDistanceCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCustomerInput
     sales?: SaleCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopCreateNestedManyWithoutClientInput
     versements?: VersementCreateNestedManyWithoutClientInput
@@ -107540,6 +111541,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     opId?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopUncheckedCreateNestedManyWithoutClientInput
     versements?: VersementUncheckedCreateNestedManyWithoutClientInput
@@ -107647,6 +111649,7 @@ export namespace Prisma {
     counts?: StockCountCreateNestedManyWithoutLocationInput
     losses?: StockLossCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
@@ -107678,6 +111681,7 @@ export namespace Prisma {
     counts?: StockCountUncheckedCreateNestedManyWithoutLocationInput
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
@@ -107761,6 +111765,7 @@ export namespace Prisma {
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -107807,6 +111812,7 @@ export namespace Prisma {
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -107856,6 +111862,7 @@ export namespace Prisma {
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
     distances?: ClientDistanceUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCustomerNestedInput
     sales?: SaleUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUpdateManyWithoutClientNestedInput
     versements?: VersementUpdateManyWithoutClientNestedInput
@@ -107890,6 +111897,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUncheckedUpdateManyWithoutClientNestedInput
     versements?: VersementUncheckedUpdateManyWithoutClientNestedInput
@@ -108009,6 +112017,7 @@ export namespace Prisma {
     counts?: StockCountUpdateManyWithoutLocationNestedInput
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
@@ -108040,6 +112049,7 @@ export namespace Prisma {
     counts?: StockCountUncheckedUpdateManyWithoutLocationNestedInput
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
@@ -108323,6 +112333,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -108369,6 +112380,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -108409,6 +112421,7 @@ export namespace Prisma {
     losses?: StockLossCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -108440,6 +112453,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -108631,6 +112645,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -108677,6 +112692,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -108723,6 +112739,7 @@ export namespace Prisma {
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -108754,6 +112771,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -108897,6 +112915,7 @@ export namespace Prisma {
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
     distances?: ClientDistanceCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCustomerInput
     sales?: SaleCreateNestedManyWithoutClientInput
     returns?: ClientReturnCreateNestedManyWithoutClientInput
     versements?: VersementCreateNestedManyWithoutClientInput
@@ -108931,6 +112950,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     opId?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
     versements?: VersementUncheckedCreateNestedManyWithoutClientInput
@@ -109030,6 +113050,7 @@ export namespace Prisma {
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
     distances?: ClientDistanceUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCustomerNestedInput
     sales?: SaleUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUpdateManyWithoutClientNestedInput
     versements?: VersementUpdateManyWithoutClientNestedInput
@@ -109064,6 +113085,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
     versements?: VersementUncheckedUpdateManyWithoutClientNestedInput
@@ -109433,6 +113455,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -109479,6 +113502,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -109519,6 +113543,7 @@ export namespace Prisma {
     losses?: StockLossCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -109550,6 +113575,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -109577,6 +113603,7 @@ export namespace Prisma {
     distances?: ClientDistanceCreateNestedManyWithoutUserInput
     areas?: UserAreaCreateNestedManyWithoutUserInput
     assignedVans?: StoreCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
   }
 
@@ -109597,6 +113624,7 @@ export namespace Prisma {
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
     areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
@@ -109686,6 +113714,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -109732,6 +113761,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -109778,6 +113808,7 @@ export namespace Prisma {
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -109809,6 +113840,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -109842,6 +113874,7 @@ export namespace Prisma {
     distances?: ClientDistanceUpdateManyWithoutUserNestedInput
     areas?: UserAreaUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -109862,6 +113895,7 @@ export namespace Prisma {
     distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
     areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -109918,6 +113952,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -109964,6 +113999,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -110055,6 +114091,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -110101,6 +114138,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -110181,6 +114219,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -110227,6 +114266,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -110447,6 +114487,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -110493,6 +114534,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -110936,6 +114978,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -110982,6 +115025,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -111091,6 +115135,7 @@ export namespace Prisma {
     losses?: StockLossCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
@@ -111122,6 +115167,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
@@ -111258,6 +115304,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -111304,6 +115351,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -111425,6 +115473,7 @@ export namespace Prisma {
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
@@ -111456,6 +115505,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
@@ -111588,6 +115638,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -111634,6 +115685,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -111805,6 +115857,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -111851,6 +115904,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -112222,6 +116276,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -112268,6 +116323,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -112329,6 +116385,7 @@ export namespace Prisma {
     losses?: StockLossCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
@@ -112360,6 +116417,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
     dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
@@ -112418,6 +116476,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -112464,6 +116523,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -112537,6 +116597,7 @@ export namespace Prisma {
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
@@ -112568,6 +116629,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
@@ -112610,6 +116672,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
@@ -112656,6 +116719,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
@@ -112698,6 +116762,7 @@ export namespace Prisma {
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
     distances?: ClientDistanceCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCustomerInput
     sales?: SaleCreateNestedManyWithoutClientInput
     returns?: ClientReturnCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopCreateNestedManyWithoutClientInput
@@ -112732,6 +116797,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     opId?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopUncheckedCreateNestedManyWithoutClientInput
@@ -112920,6 +116986,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
@@ -112966,6 +117033,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -113014,6 +117082,7 @@ export namespace Prisma {
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
     distances?: ClientDistanceUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCustomerNestedInput
     sales?: SaleUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUpdateManyWithoutClientNestedInput
@@ -113048,6 +117117,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUncheckedUpdateManyWithoutClientNestedInput
@@ -113238,6 +117308,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -113284,6 +117355,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -113324,6 +117396,7 @@ export namespace Prisma {
     losses?: StockLossCreateNestedManyWithoutLocationInput
     sales?: SaleCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutLocationInput
     tournees?: TourneeCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
     devices?: DeviceCreateNestedManyWithoutLocationInput
@@ -113355,6 +117428,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
     sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutLocationInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
     expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
     devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
@@ -113413,6 +117487,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -113459,6 +117534,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -113505,6 +117581,7 @@ export namespace Prisma {
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
@@ -113536,6 +117613,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
@@ -113578,6 +117656,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -113624,6 +117703,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -113666,6 +117746,7 @@ export namespace Prisma {
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
     distances?: ClientDistanceCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCustomerInput
     sales?: SaleCreateNestedManyWithoutClientInput
     returns?: ClientReturnCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopCreateNestedManyWithoutClientInput
@@ -113700,6 +117781,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     opId?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopUncheckedCreateNestedManyWithoutClientInput
@@ -113759,6 +117841,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -113805,6 +117888,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -113853,6 +117937,7 @@ export namespace Prisma {
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
     distances?: ClientDistanceUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCustomerNestedInput
     sales?: SaleUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUpdateManyWithoutClientNestedInput
@@ -113887,6 +117972,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUncheckedUpdateManyWithoutClientNestedInput
@@ -113930,6 +118016,7 @@ export namespace Prisma {
     sales?: SaleCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -113976,6 +118063,7 @@ export namespace Prisma {
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -114007,6 +118095,7 @@ export namespace Prisma {
     areas?: UserAreaCreateNestedManyWithoutUserInput
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
   }
 
@@ -114027,6 +118116,7 @@ export namespace Prisma {
     areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
@@ -114062,6 +118152,7 @@ export namespace Prisma {
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCustomerInput
     sales?: SaleCreateNestedManyWithoutClientInput
     returns?: ClientReturnCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopCreateNestedManyWithoutClientInput
@@ -114096,6 +118187,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
     tourneeStops?: TourneeStopUncheckedCreateNestedManyWithoutClientInput
@@ -114156,6 +118248,7 @@ export namespace Prisma {
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -114202,6 +118295,7 @@ export namespace Prisma {
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -114239,6 +118333,7 @@ export namespace Prisma {
     areas?: UserAreaUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -114259,6 +118354,7 @@ export namespace Prisma {
     areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -114300,6 +118396,7 @@ export namespace Prisma {
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCustomerNestedInput
     sales?: SaleUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUpdateManyWithoutClientNestedInput
@@ -114334,6 +118431,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUncheckedUpdateManyWithoutClientNestedInput
@@ -114377,6 +118475,7 @@ export namespace Prisma {
     stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
     sales?: SaleCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
@@ -114423,6 +118522,7 @@ export namespace Prisma {
     stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
     sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
     clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
@@ -114442,6 +118542,7 @@ export namespace Prisma {
     id?: string
     role: string
     colis: Decimal | DecimalJsLike | number | string
+    price?: Decimal | DecimalJsLike | number | string | null
     product: ProductCreateNestedOneWithoutThreePackItemsInput
   }
 
@@ -114450,6 +118551,7 @@ export namespace Prisma {
     role: string
     productId: string
     colis: Decimal | DecimalJsLike | number | string
+    price?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type ThreePackItemCreateOrConnectWithoutRuleInput = {
@@ -114508,6 +118610,7 @@ export namespace Prisma {
     stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
     sales?: SaleUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
@@ -114554,6 +118657,7 @@ export namespace Prisma {
     stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
     sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
@@ -114586,6 +118690,9 @@ export namespace Prisma {
     mode: string
     isActive?: boolean
     isArchived?: boolean
+    startsAt?: Date | string | null
+    endsAt?: Date | string | null
+    percent?: Decimal | DecimalJsLike | number | string | null
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutThreePackRulesInput
   }
@@ -114597,6 +118704,9 @@ export namespace Prisma {
     mode: string
     isActive?: boolean
     isArchived?: boolean
+    startsAt?: Date | string | null
+    endsAt?: Date | string | null
+    percent?: Decimal | DecimalJsLike | number | string | null
     createdAt?: Date | string
   }
 
@@ -114691,6 +118801,9 @@ export namespace Prisma {
     mode?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isArchived?: BoolFieldUpdateOperationsInput | boolean
+    startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    percent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutThreePackRulesNestedInput
   }
@@ -114702,6 +118815,9 @@ export namespace Prisma {
     mode?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isArchived?: BoolFieldUpdateOperationsInput | boolean
+    startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    percent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -114778,6 +118894,729 @@ export namespace Prisma {
     lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
     saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
     clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type CompanyCreateWithoutClosedVisitsInput = {
+    id?: string
+    name: string
+    phone?: string | null
+    address?: string | null
+    email?: string | null
+    rc?: string | null
+    nif?: string | null
+    ai?: string | null
+    nis?: string | null
+    bankName?: string | null
+    rib?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    stampUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    stores?: StoreCreateNestedManyWithoutCompanyInput
+    customers?: CustomerCreateNestedManyWithoutCompanyInput
+    suppliers?: SupplierCreateNestedManyWithoutCompanyInput
+    products?: ProductCreateNestedManyWithoutCompanyInput
+    seasons?: SeasonCreateNestedManyWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    units?: UnitCreateNestedManyWithoutCompanyInput
+    priceTiers?: PriceTierCreateNestedManyWithoutCompanyInput
+    expenseTypes?: ExpenseTypeCreateNestedManyWithoutCompanyInput
+    secteurs?: SecteurCreateNestedManyWithoutCompanyInput
+    purchaseInvoices?: PurchaseInvoiceCreateNestedManyWithoutCompanyInput
+    supplierReturns?: SupplierReturnCreateNestedManyWithoutCompanyInput
+    stockBatches?: StockBatchCreateNestedManyWithoutCompanyInput
+    transfers?: TransferCreateNestedManyWithoutCompanyInput
+    stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
+    stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
+    sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
+    clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    versements?: VersementCreateNestedManyWithoutCompanyInput
+    distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
+    deposits?: DepositCreateNestedManyWithoutCompanyInput
+    devices?: DeviceCreateNestedManyWithoutCompanyInput
+    syncOps?: SyncOpCreateNestedManyWithoutCompanyInput
+    dailyCloses?: DailyCloseCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutClosedVisitsInput = {
+    id?: string
+    name: string
+    phone?: string | null
+    address?: string | null
+    email?: string | null
+    rc?: string | null
+    nif?: string | null
+    ai?: string | null
+    nis?: string | null
+    bankName?: string | null
+    rib?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    stampUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    stores?: StoreUncheckedCreateNestedManyWithoutCompanyInput
+    customers?: CustomerUncheckedCreateNestedManyWithoutCompanyInput
+    suppliers?: SupplierUncheckedCreateNestedManyWithoutCompanyInput
+    products?: ProductUncheckedCreateNestedManyWithoutCompanyInput
+    seasons?: SeasonUncheckedCreateNestedManyWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    units?: UnitUncheckedCreateNestedManyWithoutCompanyInput
+    priceTiers?: PriceTierUncheckedCreateNestedManyWithoutCompanyInput
+    expenseTypes?: ExpenseTypeUncheckedCreateNestedManyWithoutCompanyInput
+    secteurs?: SecteurUncheckedCreateNestedManyWithoutCompanyInput
+    purchaseInvoices?: PurchaseInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    supplierReturns?: SupplierReturnUncheckedCreateNestedManyWithoutCompanyInput
+    stockBatches?: StockBatchUncheckedCreateNestedManyWithoutCompanyInput
+    transfers?: TransferUncheckedCreateNestedManyWithoutCompanyInput
+    stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
+    stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
+    sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
+    clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
+    distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
+    deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutCompanyInput
+    syncOps?: SyncOpUncheckedCreateNestedManyWithoutCompanyInput
+    dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutClosedVisitsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutClosedVisitsInput, CompanyUncheckedCreateWithoutClosedVisitsInput>
+  }
+
+  export type CustomerCreateWithoutClosedVisitsInput = {
+    id?: string
+    code: string
+    legacyQr?: string | null
+    name: string
+    phone?: string | null
+    address?: string | null
+    activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
+    creditLimit?: Decimal | DecimalJsLike | number | string
+    creditDays?: number
+    gpsLat?: number | null
+    gpsLng?: number | null
+    portalSecretHash?: string | null
+    balance?: Decimal | DecimalJsLike | number | string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    opId?: string | null
+    company: CompanyCreateNestedOneWithoutCustomersInput
+    wilaya?: WilayaCreateNestedOneWithoutCustomersInput
+    secteur?: SecteurCreateNestedOneWithoutCustomersInput
+    tier?: PriceTierCreateNestedOneWithoutCustomersInput
+    distances?: ClientDistanceCreateNestedManyWithoutClientInput
+    sales?: SaleCreateNestedManyWithoutClientInput
+    returns?: ClientReturnCreateNestedManyWithoutClientInput
+    tourneeStops?: TourneeStopCreateNestedManyWithoutClientInput
+    versements?: VersementCreateNestedManyWithoutClientInput
+    deposits?: DepositCreateNestedManyWithoutClientInput
+  }
+
+  export type CustomerUncheckedCreateWithoutClosedVisitsInput = {
+    id?: string
+    companyId: string
+    code: string
+    legacyQr?: string | null
+    name: string
+    phone?: string | null
+    address?: string | null
+    wilayaCode?: number | null
+    secteurId?: string | null
+    activityType?: string | null
+    rc?: string | null
+    ai?: string | null
+    nif?: string | null
+    nis?: string | null
+    rib?: string | null
+    tierId?: string | null
+    creditLimit?: Decimal | DecimalJsLike | number | string
+    creditDays?: number
+    gpsLat?: number | null
+    gpsLng?: number | null
+    portalSecretHash?: string | null
+    balance?: Decimal | DecimalJsLike | number | string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    opId?: string | null
+    distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
+    sales?: SaleUncheckedCreateNestedManyWithoutClientInput
+    returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
+    tourneeStops?: TourneeStopUncheckedCreateNestedManyWithoutClientInput
+    versements?: VersementUncheckedCreateNestedManyWithoutClientInput
+    deposits?: DepositUncheckedCreateNestedManyWithoutClientInput
+  }
+
+  export type CustomerCreateOrConnectWithoutClosedVisitsInput = {
+    where: CustomerWhereUniqueInput
+    create: XOR<CustomerCreateWithoutClosedVisitsInput, CustomerUncheckedCreateWithoutClosedVisitsInput>
+  }
+
+  export type StoreCreateWithoutClosedVisitsInput = {
+    id?: string
+    name: string
+    address?: string | null
+    kind?: string
+    marque?: string | null
+    matricule?: string | null
+    imageUrl?: string | null
+    isActive?: boolean
+    lastLat?: number | null
+    lastLng?: number | null
+    lastSeenAt?: Date | string | null
+    locateRequestedAt?: Date | string | null
+    qrSellRequired?: boolean
+    qrOrderRequired?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutStoresInput
+    user?: UserCreateNestedOneWithoutAssignedVansInput
+    batches?: StockBatchCreateNestedManyWithoutLocationInput
+    transfersFrom?: TransferCreateNestedManyWithoutFromLocationInput
+    transfersTo?: TransferCreateNestedManyWithoutToLocationInput
+    counts?: StockCountCreateNestedManyWithoutLocationInput
+    losses?: StockLossCreateNestedManyWithoutLocationInput
+    sales?: SaleCreateNestedManyWithoutLocationInput
+    clientReturns?: ClientReturnCreateNestedManyWithoutLocationInput
+    tournees?: TourneeCreateNestedManyWithoutLocationInput
+    expenseLinks?: ExpenseCreateNestedManyWithoutLocationInput
+    devices?: DeviceCreateNestedManyWithoutLocationInput
+    dailyCloses?: DailyCloseCreateNestedManyWithoutVanInput
+  }
+
+  export type StoreUncheckedCreateWithoutClosedVisitsInput = {
+    id?: string
+    companyId: string
+    name: string
+    address?: string | null
+    kind?: string
+    marque?: string | null
+    matricule?: string | null
+    imageUrl?: string | null
+    userId?: string | null
+    isActive?: boolean
+    lastLat?: number | null
+    lastLng?: number | null
+    lastSeenAt?: Date | string | null
+    locateRequestedAt?: Date | string | null
+    qrSellRequired?: boolean
+    qrOrderRequired?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    batches?: StockBatchUncheckedCreateNestedManyWithoutLocationInput
+    transfersFrom?: TransferUncheckedCreateNestedManyWithoutFromLocationInput
+    transfersTo?: TransferUncheckedCreateNestedManyWithoutToLocationInput
+    counts?: StockCountUncheckedCreateNestedManyWithoutLocationInput
+    losses?: StockLossUncheckedCreateNestedManyWithoutLocationInput
+    sales?: SaleUncheckedCreateNestedManyWithoutLocationInput
+    clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutLocationInput
+    tournees?: TourneeUncheckedCreateNestedManyWithoutLocationInput
+    expenseLinks?: ExpenseUncheckedCreateNestedManyWithoutLocationInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutLocationInput
+    dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutVanInput
+  }
+
+  export type StoreCreateOrConnectWithoutClosedVisitsInput = {
+    where: StoreWhereUniqueInput
+    create: XOR<StoreCreateWithoutClosedVisitsInput, StoreUncheckedCreateWithoutClosedVisitsInput>
+  }
+
+  export type UserCreateWithoutClosedVisitsInput = {
+    id?: string
+    username: string
+    passwordHash: string
+    phone?: string | null
+    passwordView?: string | null
+    qrToken?: string | null
+    fullName: string
+    role?: string
+    isActive?: boolean
+    canChooseDay?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutUsersInput
+    distances?: ClientDistanceCreateNestedManyWithoutUserInput
+    areas?: UserAreaCreateNestedManyWithoutUserInput
+    assignedVans?: StoreCreateNestedManyWithoutUserInput
+    devices?: DeviceCreateNestedManyWithoutUserInput
+    createdSales?: SaleCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserUncheckedCreateWithoutClosedVisitsInput = {
+    id?: string
+    companyId: string
+    username: string
+    passwordHash: string
+    phone?: string | null
+    passwordView?: string | null
+    qrToken?: string | null
+    fullName: string
+    role?: string
+    isActive?: boolean
+    canChooseDay?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
+    areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
+    assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
+    createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserCreateOrConnectWithoutClosedVisitsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutClosedVisitsInput, UserUncheckedCreateWithoutClosedVisitsInput>
+  }
+
+  export type ClosedVisitPhotoCreateWithoutVisitInput = {
+    id?: string
+    url: string
+    sortOrder?: number
+  }
+
+  export type ClosedVisitPhotoUncheckedCreateWithoutVisitInput = {
+    id?: string
+    url: string
+    sortOrder?: number
+  }
+
+  export type ClosedVisitPhotoCreateOrConnectWithoutVisitInput = {
+    where: ClosedVisitPhotoWhereUniqueInput
+    create: XOR<ClosedVisitPhotoCreateWithoutVisitInput, ClosedVisitPhotoUncheckedCreateWithoutVisitInput>
+  }
+
+  export type ClosedVisitPhotoCreateManyVisitInputEnvelope = {
+    data: ClosedVisitPhotoCreateManyVisitInput | ClosedVisitPhotoCreateManyVisitInput[]
+  }
+
+  export type CompanyUpsertWithoutClosedVisitsInput = {
+    update: XOR<CompanyUpdateWithoutClosedVisitsInput, CompanyUncheckedUpdateWithoutClosedVisitsInput>
+    create: XOR<CompanyCreateWithoutClosedVisitsInput, CompanyUncheckedCreateWithoutClosedVisitsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutClosedVisitsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutClosedVisitsInput, CompanyUncheckedUpdateWithoutClosedVisitsInput>
+  }
+
+  export type CompanyUpdateWithoutClosedVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stampUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    stores?: StoreUpdateManyWithoutCompanyNestedInput
+    customers?: CustomerUpdateManyWithoutCompanyNestedInput
+    suppliers?: SupplierUpdateManyWithoutCompanyNestedInput
+    products?: ProductUpdateManyWithoutCompanyNestedInput
+    seasons?: SeasonUpdateManyWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    units?: UnitUpdateManyWithoutCompanyNestedInput
+    priceTiers?: PriceTierUpdateManyWithoutCompanyNestedInput
+    expenseTypes?: ExpenseTypeUpdateManyWithoutCompanyNestedInput
+    secteurs?: SecteurUpdateManyWithoutCompanyNestedInput
+    purchaseInvoices?: PurchaseInvoiceUpdateManyWithoutCompanyNestedInput
+    supplierReturns?: SupplierReturnUpdateManyWithoutCompanyNestedInput
+    stockBatches?: StockBatchUpdateManyWithoutCompanyNestedInput
+    transfers?: TransferUpdateManyWithoutCompanyNestedInput
+    stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
+    stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
+    sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
+    clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    versements?: VersementUpdateManyWithoutCompanyNestedInput
+    distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
+    deposits?: DepositUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUpdateManyWithoutCompanyNestedInput
+    syncOps?: SyncOpUpdateManyWithoutCompanyNestedInput
+    dailyCloses?: DailyCloseUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutClosedVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stampUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    stores?: StoreUncheckedUpdateManyWithoutCompanyNestedInput
+    customers?: CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+    suppliers?: SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+    products?: ProductUncheckedUpdateManyWithoutCompanyNestedInput
+    seasons?: SeasonUncheckedUpdateManyWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    units?: UnitUncheckedUpdateManyWithoutCompanyNestedInput
+    priceTiers?: PriceTierUncheckedUpdateManyWithoutCompanyNestedInput
+    expenseTypes?: ExpenseTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    secteurs?: SecteurUncheckedUpdateManyWithoutCompanyNestedInput
+    purchaseInvoices?: PurchaseInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    supplierReturns?: SupplierReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    stockBatches?: StockBatchUncheckedUpdateManyWithoutCompanyNestedInput
+    transfers?: TransferUncheckedUpdateManyWithoutCompanyNestedInput
+    stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
+    stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
+    sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
+    clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
+    distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
+    deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutCompanyNestedInput
+    syncOps?: SyncOpUncheckedUpdateManyWithoutCompanyNestedInput
+    dailyCloses?: DailyCloseUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CustomerUpsertWithoutClosedVisitsInput = {
+    update: XOR<CustomerUpdateWithoutClosedVisitsInput, CustomerUncheckedUpdateWithoutClosedVisitsInput>
+    create: XOR<CustomerCreateWithoutClosedVisitsInput, CustomerUncheckedCreateWithoutClosedVisitsInput>
+    where?: CustomerWhereInput
+  }
+
+  export type CustomerUpdateToOneWithWhereWithoutClosedVisitsInput = {
+    where?: CustomerWhereInput
+    data: XOR<CustomerUpdateWithoutClosedVisitsInput, CustomerUncheckedUpdateWithoutClosedVisitsInput>
+  }
+
+  export type CustomerUpdateWithoutClosedVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
+    creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    creditDays?: IntFieldUpdateOperationsInput | number
+    gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    gpsLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    portalSecretHash?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    company?: CompanyUpdateOneRequiredWithoutCustomersNestedInput
+    wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
+    secteur?: SecteurUpdateOneWithoutCustomersNestedInput
+    tier?: PriceTierUpdateOneWithoutCustomersNestedInput
+    distances?: ClientDistanceUpdateManyWithoutClientNestedInput
+    sales?: SaleUpdateManyWithoutClientNestedInput
+    returns?: ClientReturnUpdateManyWithoutClientNestedInput
+    tourneeStops?: TourneeStopUpdateManyWithoutClientNestedInput
+    versements?: VersementUpdateManyWithoutClientNestedInput
+    deposits?: DepositUpdateManyWithoutClientNestedInput
+  }
+
+  export type CustomerUncheckedUpdateWithoutClosedVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    legacyQr?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    wilayaCode?: NullableIntFieldUpdateOperationsInput | number | null
+    secteurId?: NullableStringFieldUpdateOperationsInput | string | null
+    activityType?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
+    tierId?: NullableStringFieldUpdateOperationsInput | string | null
+    creditLimit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    creditDays?: IntFieldUpdateOperationsInput | number
+    gpsLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    gpsLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    portalSecretHash?: NullableStringFieldUpdateOperationsInput | string | null
+    balance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
+    sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
+    returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
+    tourneeStops?: TourneeStopUncheckedUpdateManyWithoutClientNestedInput
+    versements?: VersementUncheckedUpdateManyWithoutClientNestedInput
+    deposits?: DepositUncheckedUpdateManyWithoutClientNestedInput
+  }
+
+  export type StoreUpsertWithoutClosedVisitsInput = {
+    update: XOR<StoreUpdateWithoutClosedVisitsInput, StoreUncheckedUpdateWithoutClosedVisitsInput>
+    create: XOR<StoreCreateWithoutClosedVisitsInput, StoreUncheckedCreateWithoutClosedVisitsInput>
+    where?: StoreWhereInput
+  }
+
+  export type StoreUpdateToOneWithWhereWithoutClosedVisitsInput = {
+    where?: StoreWhereInput
+    data: XOR<StoreUpdateWithoutClosedVisitsInput, StoreUncheckedUpdateWithoutClosedVisitsInput>
+  }
+
+  export type StoreUpdateWithoutClosedVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    marque?: NullableStringFieldUpdateOperationsInput | string | null
+    matricule?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
+    qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutStoresNestedInput
+    user?: UserUpdateOneWithoutAssignedVansNestedInput
+    batches?: StockBatchUpdateManyWithoutLocationNestedInput
+    transfersFrom?: TransferUpdateManyWithoutFromLocationNestedInput
+    transfersTo?: TransferUpdateManyWithoutToLocationNestedInput
+    counts?: StockCountUpdateManyWithoutLocationNestedInput
+    losses?: StockLossUpdateManyWithoutLocationNestedInput
+    sales?: SaleUpdateManyWithoutLocationNestedInput
+    clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    tournees?: TourneeUpdateManyWithoutLocationNestedInput
+    expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
+    devices?: DeviceUpdateManyWithoutLocationNestedInput
+    dailyCloses?: DailyCloseUpdateManyWithoutVanNestedInput
+  }
+
+  export type StoreUncheckedUpdateWithoutClosedVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    marque?: NullableStringFieldUpdateOperationsInput | string | null
+    matricule?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    locateRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    qrSellRequired?: BoolFieldUpdateOperationsInput | boolean
+    qrOrderRequired?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    batches?: StockBatchUncheckedUpdateManyWithoutLocationNestedInput
+    transfersFrom?: TransferUncheckedUpdateManyWithoutFromLocationNestedInput
+    transfersTo?: TransferUncheckedUpdateManyWithoutToLocationNestedInput
+    counts?: StockCountUncheckedUpdateManyWithoutLocationNestedInput
+    losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
+    sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
+    clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
+    expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
+    dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
+  }
+
+  export type UserUpsertWithoutClosedVisitsInput = {
+    update: XOR<UserUpdateWithoutClosedVisitsInput, UserUncheckedUpdateWithoutClosedVisitsInput>
+    create: XOR<UserCreateWithoutClosedVisitsInput, UserUncheckedCreateWithoutClosedVisitsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutClosedVisitsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutClosedVisitsInput, UserUncheckedUpdateWithoutClosedVisitsInput>
+  }
+
+  export type UserUpdateWithoutClosedVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordView?: NullableStringFieldUpdateOperationsInput | string | null
+    qrToken?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
+    distances?: ClientDistanceUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUpdateManyWithoutUserNestedInput
+    assignedVans?: StoreUpdateManyWithoutUserNestedInput
+    devices?: DeviceUpdateManyWithoutUserNestedInput
+    createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutClosedVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordView?: NullableStringFieldUpdateOperationsInput | string | null
+    qrToken?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
+    assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
+    createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type ClosedVisitPhotoUpsertWithWhereUniqueWithoutVisitInput = {
+    where: ClosedVisitPhotoWhereUniqueInput
+    update: XOR<ClosedVisitPhotoUpdateWithoutVisitInput, ClosedVisitPhotoUncheckedUpdateWithoutVisitInput>
+    create: XOR<ClosedVisitPhotoCreateWithoutVisitInput, ClosedVisitPhotoUncheckedCreateWithoutVisitInput>
+  }
+
+  export type ClosedVisitPhotoUpdateWithWhereUniqueWithoutVisitInput = {
+    where: ClosedVisitPhotoWhereUniqueInput
+    data: XOR<ClosedVisitPhotoUpdateWithoutVisitInput, ClosedVisitPhotoUncheckedUpdateWithoutVisitInput>
+  }
+
+  export type ClosedVisitPhotoUpdateManyWithWhereWithoutVisitInput = {
+    where: ClosedVisitPhotoScalarWhereInput
+    data: XOR<ClosedVisitPhotoUpdateManyMutationInput, ClosedVisitPhotoUncheckedUpdateManyWithoutVisitInput>
+  }
+
+  export type ClosedVisitPhotoScalarWhereInput = {
+    AND?: ClosedVisitPhotoScalarWhereInput | ClosedVisitPhotoScalarWhereInput[]
+    OR?: ClosedVisitPhotoScalarWhereInput[]
+    NOT?: ClosedVisitPhotoScalarWhereInput | ClosedVisitPhotoScalarWhereInput[]
+    id?: StringFilter<"ClosedVisitPhoto"> | string
+    visitId?: StringFilter<"ClosedVisitPhoto"> | string
+    url?: StringFilter<"ClosedVisitPhoto"> | string
+    sortOrder?: IntFilter<"ClosedVisitPhoto"> | number
+  }
+
+  export type ClosedVisitCreateWithoutPhotosInput = {
+    id?: string
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutClosedVisitsInput
+    customer: CustomerCreateNestedOneWithoutClosedVisitsInput
+    location?: StoreCreateNestedOneWithoutClosedVisitsInput
+    user?: UserCreateNestedOneWithoutClosedVisitsInput
+  }
+
+  export type ClosedVisitUncheckedCreateWithoutPhotosInput = {
+    id?: string
+    companyId: string
+    customerId: string
+    locationId?: string | null
+    userId?: string | null
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ClosedVisitCreateOrConnectWithoutPhotosInput = {
+    where: ClosedVisitWhereUniqueInput
+    create: XOR<ClosedVisitCreateWithoutPhotosInput, ClosedVisitUncheckedCreateWithoutPhotosInput>
+  }
+
+  export type ClosedVisitUpsertWithoutPhotosInput = {
+    update: XOR<ClosedVisitUpdateWithoutPhotosInput, ClosedVisitUncheckedUpdateWithoutPhotosInput>
+    create: XOR<ClosedVisitCreateWithoutPhotosInput, ClosedVisitUncheckedCreateWithoutPhotosInput>
+    where?: ClosedVisitWhereInput
+  }
+
+  export type ClosedVisitUpdateToOneWithWhereWithoutPhotosInput = {
+    where?: ClosedVisitWhereInput
+    data: XOR<ClosedVisitUpdateWithoutPhotosInput, ClosedVisitUncheckedUpdateWithoutPhotosInput>
+  }
+
+  export type ClosedVisitUpdateWithoutPhotosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutClosedVisitsNestedInput
+    customer?: CustomerUpdateOneRequiredWithoutClosedVisitsNestedInput
+    location?: StoreUpdateOneWithoutClosedVisitsNestedInput
+    user?: UserUpdateOneWithoutClosedVisitsNestedInput
+  }
+
+  export type ClosedVisitUncheckedUpdateWithoutPhotosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserCreateManyCompanyInput = {
@@ -115033,6 +119872,9 @@ export namespace Prisma {
     mode: string
     isActive?: boolean
     isArchived?: boolean
+    startsAt?: Date | string | null
+    endsAt?: Date | string | null
+    percent?: Decimal | DecimalJsLike | number | string | null
     createdAt?: Date | string
   }
 
@@ -115049,6 +119891,19 @@ export namespace Prisma {
     date?: Date | string
     createdAt?: Date | string
     opId?: string | null
+  }
+
+  export type ClosedVisitCreateManyCompanyInput = {
+    id?: string
+    customerId: string
+    locationId?: string | null
+    userId?: string | null
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
   }
 
   export type TourneeCreateManyCompanyInput = {
@@ -115183,6 +120038,7 @@ export namespace Prisma {
     areas?: UserAreaUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -115203,6 +120059,7 @@ export namespace Prisma {
     areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -115246,6 +120103,7 @@ export namespace Prisma {
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
@@ -115277,6 +120135,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
@@ -115330,6 +120189,7 @@ export namespace Prisma {
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
     distances?: ClientDistanceUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCustomerNestedInput
     sales?: SaleUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUpdateManyWithoutClientNestedInput
@@ -115364,6 +120224,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUncheckedUpdateManyWithoutClientNestedInput
@@ -116037,6 +120898,9 @@ export namespace Prisma {
     mode?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isArchived?: BoolFieldUpdateOperationsInput | boolean
+    startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    percent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: ThreePackItemUpdateManyWithoutRuleNestedInput
   }
@@ -116047,6 +120911,9 @@ export namespace Prisma {
     mode?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isArchived?: BoolFieldUpdateOperationsInput | boolean
+    startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    percent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: ThreePackItemUncheckedUpdateManyWithoutRuleNestedInput
   }
@@ -116057,6 +120924,9 @@ export namespace Prisma {
     mode?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isArchived?: BoolFieldUpdateOperationsInput | boolean
+    startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    percent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -116105,6 +120975,47 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ClosedVisitUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: CustomerUpdateOneRequiredWithoutClosedVisitsNestedInput
+    location?: StoreUpdateOneWithoutClosedVisitsNestedInput
+    user?: UserUpdateOneWithoutClosedVisitsNestedInput
+    photos?: ClosedVisitPhotoUpdateManyWithoutVisitNestedInput
+  }
+
+  export type ClosedVisitUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: ClosedVisitPhotoUncheckedUpdateManyWithoutVisitNestedInput
+  }
+
+  export type ClosedVisitUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TourneeUpdateWithoutCompanyInput = {
@@ -116915,6 +121826,7 @@ export namespace Prisma {
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
     distances?: ClientDistanceUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCustomerNestedInput
     sales?: SaleUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUpdateManyWithoutClientNestedInput
@@ -116949,6 +121861,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUncheckedUpdateManyWithoutClientNestedInput
@@ -117253,6 +122166,7 @@ export namespace Prisma {
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
     distances?: ClientDistanceUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCustomerNestedInput
     sales?: SaleUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUpdateManyWithoutClientNestedInput
@@ -117287,6 +122201,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUncheckedUpdateManyWithoutClientNestedInput
@@ -117490,6 +122405,7 @@ export namespace Prisma {
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
     distances?: ClientDistanceUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCustomerNestedInput
     sales?: SaleUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUpdateManyWithoutClientNestedInput
@@ -117524,6 +122440,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
     tourneeStops?: TourneeStopUncheckedUpdateManyWithoutClientNestedInput
@@ -117738,6 +122655,19 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type ClosedVisitCreateManyUserInput = {
+    id?: string
+    companyId: string
+    customerId: string
+    locationId?: string | null
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
   export type SaleCreateManyCreatedByInput = {
     id?: string
     companyId: string
@@ -117850,6 +122780,7 @@ export namespace Prisma {
     losses?: StockLossUpdateManyWithoutLocationNestedInput
     sales?: SaleUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUpdateManyWithoutLocationNestedInput
     devices?: DeviceUpdateManyWithoutLocationNestedInput
@@ -117881,6 +122812,7 @@ export namespace Prisma {
     losses?: StockLossUncheckedUpdateManyWithoutLocationNestedInput
     sales?: SaleUncheckedUpdateManyWithoutLocationNestedInput
     clientReturns?: ClientReturnUncheckedUpdateManyWithoutLocationNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutLocationNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutLocationNestedInput
     expenseLinks?: ExpenseUncheckedUpdateManyWithoutLocationNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutLocationNestedInput
@@ -117939,6 +122871,47 @@ export namespace Prisma {
     tokenHash?: StringFieldUpdateOperationsInput | string
     lastSyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClosedVisitUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutClosedVisitsNestedInput
+    customer?: CustomerUpdateOneRequiredWithoutClosedVisitsNestedInput
+    location?: StoreUpdateOneWithoutClosedVisitsNestedInput
+    photos?: ClosedVisitPhotoUpdateManyWithoutVisitNestedInput
+  }
+
+  export type ClosedVisitUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: ClosedVisitPhotoUncheckedUpdateManyWithoutVisitNestedInput
+  }
+
+  export type ClosedVisitUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -118190,6 +123163,19 @@ export namespace Prisma {
     date?: Date | string
     createdAt?: Date | string
     opId?: string | null
+  }
+
+  export type ClosedVisitCreateManyLocationInput = {
+    id?: string
+    companyId: string
+    customerId: string
+    userId?: string | null
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
   }
 
   export type TourneeCreateManyLocationInput = {
@@ -118622,6 +123608,47 @@ export namespace Prisma {
     opId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type ClosedVisitUpdateWithoutLocationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutClosedVisitsNestedInput
+    customer?: CustomerUpdateOneRequiredWithoutClosedVisitsNestedInput
+    user?: UserUpdateOneWithoutClosedVisitsNestedInput
+    photos?: ClosedVisitPhotoUpdateManyWithoutVisitNestedInput
+  }
+
+  export type ClosedVisitUncheckedUpdateWithoutLocationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: ClosedVisitPhotoUncheckedUpdateManyWithoutVisitNestedInput
+  }
+
+  export type ClosedVisitUncheckedUpdateManyWithoutLocationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type TourneeUpdateWithoutLocationInput = {
     id?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -119006,6 +124033,19 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ClosedVisitCreateManyCustomerInput = {
+    id?: string
+    companyId: string
+    locationId?: string | null
+    userId?: string | null
+    opId?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
   export type SaleCreateManyClientInput = {
     id?: string
     companyId: string
@@ -119122,6 +124162,47 @@ export namespace Prisma {
     atLng?: FloatFieldUpdateOperationsInput | number
     source?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClosedVisitUpdateWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutClosedVisitsNestedInput
+    location?: StoreUpdateOneWithoutClosedVisitsNestedInput
+    user?: UserUpdateOneWithoutClosedVisitsNestedInput
+    photos?: ClosedVisitPhotoUpdateManyWithoutVisitNestedInput
+  }
+
+  export type ClosedVisitUncheckedUpdateWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: ClosedVisitPhotoUncheckedUpdateManyWithoutVisitNestedInput
+  }
+
+  export type ClosedVisitUncheckedUpdateManyWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    locationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    opId?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SaleUpdateWithoutClientInput = {
@@ -119871,6 +124952,7 @@ export namespace Prisma {
     ruleId: string
     role: string
     colis: Decimal | DecimalJsLike | number | string
+    price?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type ClientReturnLineCreateManyProductInput = {
@@ -120175,6 +125257,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     rule?: ThreePackRuleUpdateOneRequiredWithoutItemsNestedInput
   }
 
@@ -120183,6 +125266,7 @@ export namespace Prisma {
     ruleId?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ThreePackItemUncheckedUpdateManyWithoutProductInput = {
@@ -120190,6 +125274,7 @@ export namespace Prisma {
     ruleId?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ClientReturnLineUpdateWithoutProductInput = {
@@ -120977,12 +126062,14 @@ export namespace Prisma {
     role: string
     productId: string
     colis: Decimal | DecimalJsLike | number | string
+    price?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type ThreePackItemUpdateWithoutRuleInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     product?: ProductUpdateOneRequiredWithoutThreePackItemsNestedInput
   }
 
@@ -120991,6 +126078,7 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
     colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type ThreePackItemUncheckedUpdateManyWithoutRuleInput = {
@@ -120998,6 +126086,31 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
     colis?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type ClosedVisitPhotoCreateManyVisitInput = {
+    id?: string
+    url: string
+    sortOrder?: number
+  }
+
+  export type ClosedVisitPhotoUpdateWithoutVisitInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ClosedVisitPhotoUncheckedUpdateWithoutVisitInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ClosedVisitPhotoUncheckedUpdateManyWithoutVisitInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
   }
 
 

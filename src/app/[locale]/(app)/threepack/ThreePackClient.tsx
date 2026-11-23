@@ -12,7 +12,7 @@ import { RuleCard } from "./RuleCard";
 import { EqArrow, EqPlus, MiniTile } from "./EquationArt";
 import type { GivenRow, Rule } from "./types";
 
-type Builder = { rule: Rule | null; preset?: "SINGLE" | "PACK" };
+type Builder = { rule: Rule | null; preset?: "SINGLE" | "PACK" | "PERCENT" | "PRICE" };
 
 /// Gifted pack: free-colis rules. The list shows each rule as the equation it is
 /// (photos bought → free photos); the builder is a 3-step flow with a live
@@ -31,6 +31,8 @@ export function ThreePackClient({
   const t = useTranslations("threepack");
   const tc = useTranslations("common");
   const [tab, setTab] = useState<"rules" | "given">("rules");
+  /// Filter the list by what a rule rewards (free goods · % off · new price).
+  const [kind, setKind] = useState<"all" | "gift" | "percent" | "price">("all");
   const [rules, setRules] = useState<Rule[]>(initialRules);
   /// The whole create/edit wizard lives in a popup over the list (no page change).
   const [builder, setBuilder] = useState<Builder | null>(null);
@@ -56,12 +58,17 @@ export function ThreePackClient({
     if (!r.ok) await reload();
   }
 
+  const shown = useMemo(
+    () => rules.filter((r) => kind === "all" || (kind === "gift" ? r.mode === "SINGLE" || r.mode === "PACK" : kind === "percent" ? r.mode === "PERCENT" : r.mode === "PRICE")),
+    [rules, kind]
+  );
+  const kindCount = (k: "gift" | "percent" | "price") => rules.filter((r) => (k === "gift" ? r.mode === "SINGLE" || r.mode === "PACK" : k === "percent" ? r.mode === "PERCENT" : r.mode === "PRICE")).length;
   const activeCount = useMemo(() => rules.filter((r) => r.isActive).length, [rules]);
   const totalGiven = useMemo(() => rules.reduce((s, r) => s + r.givenColis, 0), [rules]);
   const fmtDate = (s: string) => new Date(s).toLocaleDateString(locale === "ar" ? "ar-DZ-u-nu-latn" : locale === "fr" ? "fr-DZ" : "en-GB");
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6 p-5 md:p-8">
+    <div className="mx-auto w-full max-w-[120rem] space-y-6 p-5 md:p-8 xl:px-12 xl:py-10 2xl:px-16">
       {/* header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-start gap-4">
@@ -86,8 +93,33 @@ export function ThreePackClient({
         )}
       </div>
 
-      <div className="max-w-xs">
-        <SegmentedControl value={tab} onChange={setTab} options={[{ value: "rules", label: t("tabRules") }, { value: "given", label: t("tabGiven") }]} />
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="w-full max-w-xs">
+          <SegmentedControl value={tab} onChange={setTab} options={[{ value: "rules", label: t("tabRules") }, { value: "given", label: t("tabGiven") }]} />
+        </div>
+        {tab === "rules" && rules.length > 0 && (
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label={t("filterKind")}>
+            {([
+              ["all", t("kindAll"), rules.length],
+              ["gift", t("kindGift"), kindCount("gift")],
+              ["percent", t("kindPercent"), kindCount("percent")],
+              ["price", t("kindPrice"), kindCount("price")],
+            ] as const).map(([k, label, n]) => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => setKind(k)}
+                aria-pressed={kind === k}
+                className={cn(
+                  "h-10 rounded-full px-4 text-xs font-black transition-colors",
+                  kind === k ? "bg-gradient-brand text-(--brand-contrast) shadow" : "border border-(--border-default) bg-(--bg-overlay) hover:border-(--brand-500)"
+                )}
+              >
+                {label} <span className="tabular-nums opacity-70">({n})</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {tab === "rules" && (
@@ -109,8 +141,9 @@ export function ThreePackClient({
               </button>
             </div>
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
-              {rules.map((r) => (
+            <div className="grid gap-4 lg:grid-cols-2 min-[1700px]:grid-cols-3 min-[2300px]:grid-cols-4">
+              {shown.length === 0 && <p className="col-span-full rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{t("kindEmpty")}</p>}
+              {shown.map((r) => (
                 <RuleCard key={r.id} rule={r} flash={flashId === r.id} onToggle={(v) => void toggle(r, v)} onEdit={() => setBuilder({ rule: r })} />
               ))}
             </div>
@@ -118,7 +151,7 @@ export function ThreePackClient({
         </>
       )}
 
-      <Modal open={!!builder} onClose={() => setBuilder(null)} title={builder?.rule ? t("editRule") : t("newRule")} icon={<Gift size={18} />} width="xl">
+      <Modal open={!!builder} onClose={() => setBuilder(null)} title={builder?.rule ? t("editRule") : t("newRule")} icon={<Gift size={18} />} width="2xl">
         {builder && (
           <RuleBuilder
             // a fresh builder per rule so no state leaks between sessions
@@ -151,7 +184,7 @@ export function ThreePackClient({
               <p className="text-sm font-bold text-(--text-secondary)">{t("emptyGiven")}</p>
             </div>
           ) : (
-            <ul className="divide-y divide-(--border-subtle)">
+            <ul className="divide-y divide-(--border-subtle) min-[1700px]:grid min-[1700px]:grid-cols-2 min-[1700px]:divide-y-0">
               {given.map((g) => (
                 <li key={g.id} className="flex items-center gap-3 px-4 py-3 sm:px-5">
                   <ProductThumb src={g.imageUrl} name={g.product} size={48} className="rounded-xl" />
