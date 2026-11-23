@@ -1320,15 +1320,39 @@ async function syncNowInner(
   const ordered = sortOutbox(due);
   onProgress?.({ phase: "prepare", total: ordered.length });
   onProgress?.({ phase: "upload", sent: ordered.length, total: ordered.length });
-  const res = await fetch(getSyncUrl(), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      deviceToken: token,
-      locationId: getVanId(),
-      ops: ordered.map(({ opId, kind, payload, ts }) => ({ opId, kind, payload, occurredAt: ts })),
-    }),
-  });
+  const postOps = (deviceToken: string) =>
+    fetch(getSyncUrl(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        deviceToken,
+        locationId: getVanId(),
+        ops: ordered.map(({ opId, kind, payload, ts }) => ({ opId, kind, payload, occurredAt: ts })),
+      }),
+    });
+  let res = await postOps(token);
+  // Stale device token (device row revoked/deleted or DB reset): re-pair this
+  // phone silently with the driver's live session, then retry once.
+  if (res.status === 401) {
+    const e1 = (await res.clone().json().catch(() => ({}))).error;
+    if (e1 === "bad_device") {
+      try {
+        const r = await fetch("/api/devices/self-register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+        const d = await r.json().catch(() => null);
+        if (r.ok && d?.token) {
+          setDeviceToken(d.token);
+          if (d.vanId) setVanId(d.vanId);
+          res = await postOps(d.token);
+        }
+      } catch {
+        /* offline / not logged in: fall through to the original error */
+      }
+    }
+  }
   if (!res.ok) {
     const err = (await res.json().catch(() => ({}))).error ?? "sync_failed";
     // Phone revoked or driver deactivated server-side: forget the offline

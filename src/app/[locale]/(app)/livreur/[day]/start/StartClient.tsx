@@ -6,6 +6,8 @@ import { ArrowLeft, Check, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { checkGpsPermission, requestGpsPermission, type GpsPerm } from "@/lib/gps-permission";
 import { queueOp, goPage, warmJourneePages } from "@/lib/sync/client";
+import { daySlug } from "../../_days";
+import { cn } from "@/lib/utils";
 
 /// Start-of-day gate: live clock + validate to stamp départ, then clients.
 export function StartClient({
@@ -16,6 +18,7 @@ export function StartClient({
   tourneeId: tourneeIdP,
   startedAt: startedAtP,
   stopsCount: stopsCountP,
+  canChooseDay = false,
   labels,
 }: {
   locale: string;
@@ -25,6 +28,7 @@ export function StartClient({
   tourneeId: string | null;
   startedAt: string | null;
   stopsCount: number;
+  canChooseDay?: boolean;
   labels: Record<string, string>;
 }) {
   const router = useRouter();
@@ -173,6 +177,34 @@ export function StartClient({
         {date.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}
       </p>
       <p className="text-xs font-bold opacity-60">{vanName}</p>
+      {/* Day picker: only when Settings > day access lets this user choose. */}
+      {canChooseDay && !started && (
+        <div className="flex w-full max-w-sm flex-wrap justify-center gap-1.5">
+          {Array.from({ length: 7 }, (_, i) => {
+            const base = new Date();
+            const monday = new Date(base);
+            monday.setDate(base.getDate() - ((base.getDay() + 6) % 7));
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            const slug = daySlug(d);
+            const sel = slug === day;
+            return (
+              <button
+                key={slug}
+                onClick={() => !sel && goPage(router, `/${locale}/livreur/${slug}/start`)}
+                className={cn(
+                  "min-w-[3.2rem] rounded-xl border px-2.5 py-2 text-xs font-black transition-all active:scale-95",
+                  sel
+                    ? "border-transparent bg-gradient-brand text-(--brand-contrast) shadow"
+                    : "border-(--border-default) bg-(--bg-overlay) hover:border-(--brand-500)"
+                )}
+              >
+                {d.toLocaleDateString(locale, { weekday: "short" })}
+              </button>
+            );
+          })}
+        </div>
+      )}
       <p className="font-mono text-6xl font-black tabular-nums" dir="ltr">
         {now ? now.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "…"}
       </p>

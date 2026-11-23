@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../../_data";
 import { parseDay } from "../../_days";
+import { canChooseDay as userCanChooseDay, isDayAllowed } from "@/lib/livreur/day-access";
 import { StartClient } from "./StartClient";
 
 /// Interstitial after picking a day: live clock + validate to start.
@@ -21,6 +22,9 @@ export default async function LivreurStartPage({
   const t = await getTranslations("livreur");
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
+
+  if (!(await isDayAllowed(session, van.id, date))) redirect(`/${locale}/livreur`);
+  const canChoose = await userCanChooseDay(session);
 
   const dayStart = new Date(date);
   dayStart.setHours(0, 0, 0, 0);
@@ -41,6 +45,7 @@ export default async function LivreurStartPage({
       tourneeId={tournee?.id ?? null}
       startedAt={tournee?.startedAt ? new Date(tournee.startedAt).toISOString() : null}
       stopsCount={tournee?._count.stops ?? 0}
+      canChooseDay={canChoose}
       labels={{ startDay: t("startDay"), clients: t("clients"), gpsWhy: t("gpsWhy"), gpsDenied: t("gpsDenied"), gpsGranted: t("gpsGranted"), dayQueued: t("dayQueued") }}
     />
   );
