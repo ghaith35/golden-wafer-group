@@ -4,6 +4,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { BtPrintHost } from "@/components/print/BtPrintHost";
 import { getSession } from "@/lib/auth/session";
 import { ensureMainDepot } from "@/lib/inventory/depot";
+import { prisma } from "@/lib/db";
 import { localEntitlement, isLocalMode, isDesktopUserAgent } from "@/lib/license/gate";
 
 /// Authenticated staff surface — everything here gets the sidebar shell.
@@ -28,15 +29,25 @@ export default async function StaffLayout({
     }
   }
   // Self-heal: make sure the company has its main depot (older installs).
+  // The signed-in user's role is resolved here (fresh from the DB, like
+  // /api/auth/me) so the sidebar renders correctly on the very first paint —
+  // no flash of the van menu while the client fetch is in flight.
+  let initialRole: string | null = null;
+  let initialUsername: string | null = null;
   try {
     const session = await getSession();
-    if (session) await ensureMainDepot(session.companyId);
+    if (session) {
+      await ensureMainDepot(session.companyId);
+      const user = await prisma.user.findUnique({ where: { id: session.userId }, select: { username: true, role: true } });
+      initialRole = user?.role ?? null;
+      initialUsername = user?.username ?? null;
+    }
   } catch {
     /* never block the page on this */
   }
   return (
     <>
-      <AppShell>{children}</AppShell>
+      <AppShell initialRole={initialRole} initialUsername={initialUsername}>{children}</AppShell>
       {/* APK: full-screen Bluetooth printer flow, opened by any Print button. */}
       <BtPrintHost />
     </>

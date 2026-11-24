@@ -20,11 +20,23 @@ export function SwRegister() {
           void navigator.storage?.persist?.().catch(() => {});
         } catch { /* best effort */ }
       } else {
+        // A worker left over from an earlier visit still controls this page and
+        // answers a normal reload from its cache (only Ctrl+Shift+R bypasses
+        // it). Remove it, then reload ONCE so this tab is served fresh.
+        const wasControlled = !!navigator.serviceWorker.controller;
         navigator.serviceWorker
           .getRegistrations()
           .then((regs) => Promise.all(regs.map((r) => r.unregister())))
           .then(() => (typeof caches !== "undefined" ? caches.keys() : []))
           .then((keys) => Promise.all(keys.filter((k) => /^dili|distribuili|workbox/i.test(k)).map((k) => caches.delete(k))))
+          .then(() => {
+            if (!wasControlled) return;
+            try {
+              if (sessionStorage.getItem("gw-sw-cleared")) return;
+              sessionStorage.setItem("gw-sw-cleared", "1");
+            } catch { return; }
+            window.location.reload();
+          })
           .catch(() => {});
       }
     }
