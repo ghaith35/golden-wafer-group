@@ -5,7 +5,7 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan, getDayStamp } from "../../_data";
 import { JourneeGate } from "@/components/livreur/JourneeGate";
-import { parseDay, sameDay } from "../../_days";
+import { parseDay, sameDay, todaySlug } from "../../_days";
 import { VenteClient } from "./VenteClient";
 
 /// Step 4 — Vente page: scan popup → products → facture → confirm → print.
@@ -76,7 +76,11 @@ export default async function LivreurVentePage({
   ]);
 
   // Two tours may run that day: sales attach to the one being driven.
-  const tour = pickCurrentTour(tournees.filter((x) => sameDay(new Date(x.date), date)));
+  // The journée (stamps, sales, orders) is ALWAYS today's; the picked day only
+  // chooses which clients are listed.
+  const jDate = parseDay(todaySlug())!;
+  const listTour = pickCurrentTour(tournees.filter((x) => sameDay(new Date(x.date), date)));
+  const tour = pickCurrentTour(tournees.filter((x) => sameDay(new Date(x.date), jDate)));
   // Edit mode (?edit=<ticketId>): reopen a posted ticket of THIS van as a
   // prefilled sale screen. Anything else → back to the factures list.
   const editing = sp.edit
@@ -97,7 +101,7 @@ export default async function LivreurVentePage({
   const ticketLang = settings?.ticketLang === "ar" ? "ar" : "fr";
   const tt = await getTranslations({ locale: ticketLang, namespace: "sales" });
 
-  const dayStamp = await getDayStamp(session.companyId, van.id, date);
+  const dayStamp = await getDayStamp(session.companyId, van.id, jDate);
   return (
     <JourneeGate
       locale={locale}
@@ -114,6 +118,7 @@ export default async function LivreurVentePage({
       vanId={van.id}
       vanName={van.name}
       tourneeId={tour?.id ?? null}
+      listTourneeId={listTour?.id ?? null}
       initialClient={editing ? JSON.parse(JSON.stringify(editing.client)) : client ? JSON.parse(JSON.stringify(client)) : null}
       editingTicket={
         editing

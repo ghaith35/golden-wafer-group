@@ -214,7 +214,8 @@ describe("two tours on one day run one after the other", () => {
     const s2 = await prisma.secteur.create({ data: { companyId: co.id, name: "S2", wilayaCode: 16 } });
     await prisma.customer.create({ data: { companyId: co.id, code: "D-1", name: "D1", secteurId: s1.id } });
     await prisma.customer.create({ data: { companyId: co.id, code: "D-2", name: "D2", secteurId: s2.id } });
-    const monday = nextMonday();
+    // The journée always belongs to TODAY (staff can't start another day's tour).
+    const monday = D.algiersDayKey(new Date());
     await P.createPlan(co.id, { locationId: van.id, secteurId: s1.id, dateKey: monday, intervalWeeks: 1 });
     await P.createPlan(co.id, { locationId: van.id, secteurId: s2.id, dateKey: monday, intervalWeeks: 2 });
     const tours = await toursOn(van.id, monday);
@@ -240,7 +241,7 @@ describe("two tours on one day run one after the other", () => {
     const co = await prisma.company.findFirstOrThrow({ where: { name: "Two tours Co" } });
     const user = await prisma.user.findFirstOrThrow({ where: { companyId: co.id } });
     const van = await prisma.store.findFirstOrThrow({ where: { companyId: co.id, kind: "VAN" } });
-    const later = D.addDaysKey(nextMonday(), 14); // a day with both plans due
+    const later = D.addDaysKey(D.algiersDayKey(new Date()), 14); // a day with both plans due (plans anchor on today)
     await P.ensureDayTours(co.id, van.id, later);
     const t = await toursOn(van.id, later);
     expect(t.length).toBe(2);
@@ -248,3 +249,22 @@ describe("two tours on one day run one after the other", () => {
     await expect(svc.startDay(co.id, user.id, "Livreur", t[1].id, new Date())).resolves.toBeTruthy();
   });
 });
+
+describe("journée = today", () => {
+  it("a driver starting another day's tour starts TODAY's journée instead", async () => {
+    const svc = await import("@/lib/tournees/service");
+    const co = await prisma.company.create({ data: { name: "Today Co" } });
+    await prisma.companySettings.create({ data: { companyId: co.id, tourPlansMigratedAt: new Date() } });
+    const user = await prisma.user.create({ data: { companyId: co.id, username: "driver2", passwordHash: "x", fullName: "Driver", role: "Livreur" } });
+    const van = await prisma.store.create({ data: { companyId: co.id, name: "Van T", kind: "VAN", userId: user.id } });
+    const future = D.addDaysKey(D.algiersDayKey(new Date()), 5);
+    const picked = await prisma.tournee.create({ data: { companyId: co.id, locationId: van.id, date: new Date(`${future}T00:00:00Z`) } });
+    const started = await svc.startDay(co.id, user.id, "Livreur", picked.id);
+    expect(started.id).not.toBe(picked.id);
+    expect(D.algiersDayKey(new Date(started.date))).toBe(D.algiersDayKey(new Date()));
+    expect(started.startedAt).not.toBeNull();
+    // the picked day's tour stays an untouched plan
+    expect((await prisma.tournee.findUniqueOrThrow({ where: { id: picked.id } })).startedAt).toBeNull();
+  });
+});
+

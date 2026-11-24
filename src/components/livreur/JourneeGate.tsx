@@ -5,6 +5,7 @@ import { Lock, Play, Route } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { goPage } from "@/lib/sync/client";
 import { useJourneeState, type DayStamp } from "@/lib/journee";
+import { todaySlug } from "@/app/[locale]/(app)/livreur/_days";
 
 /// Tour workflow guard for driver pages.
 ///  require="active": sales & commandes only while the tour is in progress.
@@ -29,7 +30,7 @@ export function JourneeGate({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const state = useJourneeState(stamp, day);
+  const state = useJourneeState(stamp, todaySlug())  // the journée is always today's;
   if (role === "Admin") return <>{children}</>;
   const ok = need === "active" ? state === "active" : state !== "active";
   if (ok) return <>{children}</>;

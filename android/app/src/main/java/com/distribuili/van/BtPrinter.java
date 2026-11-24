@@ -80,8 +80,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BtPrinter extends Plugin {
 
     private static final UUID SPP = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    private static final int CLASSIC_CHUNK = 512;
+    // Whole ticket = one raster image (~100 KB). Cheap thermal printers print
+    // slower than Bluetooth can deliver (dense logo areas slowest) and their
+    // input buffer is tiny: sending too fast drops bytes mid-image, the
+    // printer loses track of the raster header and prints the rest as text
+    // garbage. ~17 KB/s keeps every clone ahead of its own print head.
+    private static final int CLASSIC_CHUNK = 160;
     private static final int CLASSIC_PACE_MS = 6;
+    private static final int BLE_CHUNK_MAX = 120;
+    private static final int BLE_PACE_MS = 10;
     private static final long SCAN_MS = 12_000;
     private static final long PAIR_TIMEOUT_MS = 60_000;
 
@@ -642,8 +649,8 @@ public class BtPrinter extends Plugin {
                 int n = Math.min(CLASSIC_CHUNK, data.length - off);
                 out.write(data, off, n);
                 out.flush();
+                sleep(paceMs(data, off, n, CLASSIC_PACE_MS));
                 off += n;
-                sleep(CLASSIC_PACE_MS);
             }
             out.flush();
             sleep(700); // let the printer drain its buffer before the link drops
@@ -662,6 +669,19 @@ public class BtPrinter extends Plugin {
             s.close();
         } catch (Exception ignored) {
         }
+    }
+
+    /// Time the printer needs to consume `n` raster bytes: white rows print fast
+    /// (~24 KB/s of input), solid-black rows (QR finder squares, dense logo) are
+    /// 3x slower because the head fires the dots in several passes. Pacing by
+    /// density keeps the printer's tiny input buffer from overflowing exactly
+    /// where it used to drop bytes (the QR code).
+    private static long paceMs(byte[] data, int off, int n, long minMs) {
+        int bits = 0;
+        for (int i = off; i < off + n; i++) bits += Integer.bitCount(data[i] & 0xFF);
+        double d = bits / (n * 8.0);
+        double rate = 24000.0 * (1.0 - d) + 8000.0 * d; // bytes per second
+        return Math.max(minMs, (long) Math.ceil(n * 1000.0 / rate));
     }
 
     private static void sleep(long ms) {
@@ -754,7 +774,7 @@ public class BtPrinter extends Plugin {
             final BluetoothGattCharacteristic ch = st.ch;
             final boolean noResp = (ch.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0;
             ch.setWriteType(noResp ? BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE : BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-            final int chunk = Math.max(20, Math.min(st.mtu - 3, 180));
+            final int chunk = Math.max(20, Math.min(st.mtu - 3, BLE_CHUNK_MAX));
             int off = 0;
             while (off < data.length) {
                 if (cancelled) return "cancelled";
@@ -768,8 +788,8 @@ public class BtPrinter extends Plugin {
                     if (!gatt.writeCharacteristic(ch)) return "write_failed";
                 }
                 if (!st.writeSlot.tryAcquire(3, TimeUnit.SECONDS) || st.failed) return "write_failed";
+                sleep(paceMs(data, off, n, BLE_PACE_MS));
                 off += n;
-                sleep(4);
             }
             sleep(700);
             return null;

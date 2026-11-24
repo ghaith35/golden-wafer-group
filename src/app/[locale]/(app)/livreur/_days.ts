@@ -1,4 +1,5 @@
 /// Pure date helpers (no prisma import — safe for client components).
+import { algiersDayKey } from "@/lib/tournees/days";
 
 /// Parse a day slug `yyyy-m-d` from the URL.
 export function parseDay(slug: string): Date | null {
@@ -12,4 +13,12 @@ export const daySlug = (d: Date) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.
 
 export function sameDay(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+/// Today's slug on the Algiers calendar. The journée (départ / fin, sales,
+/// orders, cash) ALWAYS belongs to today — the day picked in the URL only
+/// chooses which tour (clients + sector) is shown.
+export function todaySlug(now = new Date()): string {
+  const [y, m, d] = algiersDayKey(now).split("-").map(Number);
+  return `${y}-${m}-${d}`;
 }

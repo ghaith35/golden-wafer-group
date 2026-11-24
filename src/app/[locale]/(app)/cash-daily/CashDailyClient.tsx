@@ -91,7 +91,7 @@ export function CashDailyClient({
       ? `${year}-${String(month).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`
       : "";
   });
-  const [modal, setModal] = useState<null | { kind: "declare" | "close"; row: Row }>(null);
+  const [modal, setModal] = useState<null | { kind: "declare" | "remit" | "close"; row: Row }>(null);
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
@@ -131,9 +131,12 @@ export function CashDailyClient({
     return (v?.name ?? "").includes(q) || (v?.driver ?? "").includes(q);
   });
 
-  const openModal = (kind: "declare" | "close", row: Row) => {
+  const openModal = (kind: "declare" | "remit" | "close", row: Row) => {
     setModal({ kind, row });
-    setAmount(row.declared != null ? String(row.declared) : "");
+    // Receiving: pre-fill what is still owed (never negative); declaring: the
+    // driver's own counted amount.
+    const remaining = Math.max(0, Math.round((row.dueCash - row.remitted) * 100) / 100);
+    setAmount(kind === "remit" ? (remaining > 0 ? String(remaining) : "") : row.declared != null ? String(row.declared) : "");
     setNotes("");
     setError(null);
   };
@@ -145,10 +148,14 @@ export function CashDailyClient({
       setError("bad_amount");
       return;
     }
+    if (kind === "remit" && !(Number(amount) > 0)) {
+      setError("bad_amount");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
-      const url = kind === "declare" ? "/api/cash-daily/declare" : "/api/cash-daily/close";
+      const url = kind === "declare" ? "/api/cash-daily/declare" : kind === "remit" ? "/api/cash-daily/remit" : "/api/cash-daily/close";
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -319,11 +326,9 @@ export function CashDailyClient({
                   </Button>
                   {isAdmin && (
                     <>
-                      <Link href={`/${locale}/cash-daily/${r.vanId}/${r.dayIso}`} className="flex-1">
-                        <Button variant="secondary" className="w-full">
-                          {labels.remit} · <bdi dir="ltr">{num(Math.max(0, r.dueCash - r.remitted))}</bdi>
-                        </Button>
-                      </Link>
+                      <Button variant="secondary" onClick={() => openModal("remit", r)} className="flex-1" data-testid="cash-remit-btn">
+                        {labels.remit} · <bdi dir="ltr">{num(Math.max(0, r.dueCash - r.remitted))}</bdi>
+                      </Button>
                       <Button onClick={() => openModal("close", r)} className="flex-1">
                         {labels.close}
                       </Button>
@@ -346,7 +351,7 @@ export function CashDailyClient({
       <Modal
         open={modal !== null}
         onClose={() => setModal(null)}
-        title={modal ? (modal.kind === "declare" ? labels.declare : labels.close) : ""}
+        title={modal ? (modal.kind === "declare" ? labels.declare : modal.kind === "remit" ? labels.remit : labels.close) : ""}
         icon="💵"
         width="sm"
       >
@@ -355,6 +360,20 @@ export function CashDailyClient({
             <div className="rounded-xl bg-(--bg-sunken) px-3 py-2 text-sm font-bold">
               {vanById.get(modal.row.vanId)?.name} · {modal.row.dayIso} · {labels.dueCash}: {num(modal.row.dueCash)}
             </div>
+            {modal.kind === "remit" && (
+              <div className="grid grid-cols-3 gap-1.5 text-center">
+                {([
+                  [labels.declared, modal.row.declared != null ? num(modal.row.declared) : "—"],
+                  [labels.remitted, num(modal.row.remitted)],
+                  [labels.remaining ?? labels.difference, num(Math.max(0, modal.row.dueCash - modal.row.remitted))],
+                ] as Array<[string, string]>).map(([k, v]) => (
+                  <div key={k} className="rounded-xl bg-(--bg-sunken) px-1.5 py-2">
+                    <div className="truncate text-[10px] font-black uppercase opacity-60">{k}</div>
+                    <div className="truncate text-sm font-black tabular-nums" dir="ltr">{v}</div>
+                  </div>
+                ))}
+              </div>
+            )}
             {modal.kind !== "close" && (
               <div>
                 <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.amount}</label>
@@ -369,6 +388,11 @@ export function CashDailyClient({
               <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
             </div>
             {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
+            {modal.kind === "remit" && (
+              <Link href={`/${locale}/cash-daily/${modal.row.vanId}/${modal.row.dayIso}`} className="block text-center text-xs font-black text-(--brand-600) underline">
+                {labels.history}
+              </Link>
+            )}
             <div className="flex gap-2">
               <Button variant="secondary" onClick={() => setModal(null)} className="flex-1">{labels.cancel}</Button>
               <Button onClick={() => void submit()} disabled={busy} className="flex-[2]">

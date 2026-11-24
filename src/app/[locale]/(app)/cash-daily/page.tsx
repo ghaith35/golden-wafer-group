@@ -62,6 +62,7 @@ export default async function CashDailyPage({
         stOpen: t("stOpen"), stDeclared: t("stDeclared"), stClosed: t("stClosed"),
         empty: t("empty"), amount: t("amount"), notes: t("notes"),
         save: t("save"), cancel: t("cancel"), sales: t("sales"), by: t("by"),
+        history: t("history"), remaining: t("remaining"),
       }}
     />
   );

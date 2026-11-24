@@ -257,6 +257,7 @@ async function applyOp(
           channel: (p.channel as "VAN" | "POS" | "DEPOT") ?? "VAN",
           qrScanned: Boolean(p.qrScanned),
           tourneeId: (p.tourneeId as string) ?? null,
+          listTourneeId: (p.listTourneeId as string) ?? null,
           remise: Number(p.remise ?? 0),
           paid: p.paid == null ? null : Number(p.paid),
           notes: (p.notes as string) ?? null,

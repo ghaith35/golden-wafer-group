@@ -17,6 +17,8 @@ import { FirstRunWarmup } from "@/components/sync/FirstRunWarmup";
 import { dzMoney } from "@/lib/format";
 import { canSell } from "@/lib/staff-permissions";
 import { cn } from "@/lib/utils";
+import { todaySlug } from "../../_days";
+import { ClosedShopButton, useClosedIds } from "@/components/livreur/ClosedShopButton";
 
 /// Step 3 — Dashboard hub: sale, factures, commande, commandes, stock, sync.
 export function DashClient({
@@ -25,6 +27,7 @@ export function DashClient({
   vanId,
   vanName,
   client,
+  closedToday = [],
   dayCount: dayCountP,
   dayTotal: dayTotalP,
   readyCount,
@@ -38,6 +41,7 @@ export function DashClient({
   day: string;
   vanId: string;
   vanName: string;
+  closedToday?: string[];
   client: { id: string; name: string; code: string; phone: string | null; gpsLat?: number | string | null; gpsLng?: number | string | null; balance: unknown } | null;
   dayCount: number;
   dayTotal: number;
@@ -101,9 +105,10 @@ export function DashClient({
   /// one counts as finished at 23:59:59 of that day — the timer stops there
   /// instead of running into the next day (the server stamps the same instant).
   const dayEndMs = useMemo(() => {
-    const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(day);
+    // The journée is always today's, whatever day is picked in the URL.
+    const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(todaySlug());
     return m ? Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 22, 59, 59, 999) : null;
-  }, [day]);
+  }, []);
   const pastEnd = mounted && dayEndMs != null && nowTick > dayEndMs;
   const stamp = useMemo(
     () => (stampRaw?.startedAt && !stampRaw.finishedAt && pastEnd ? { ...stampRaw, finishedAt: new Date(dayEndMs as number).toISOString() } : stampRaw),
@@ -134,6 +139,7 @@ export function DashClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const effClient = client ?? pendClient;
+  const closedState = useClosedIds(closedToday);
   const qs = effClient ? `?client=${effClient.id}` : "";
 
   /// Best-effort GPS fix for day stamps (never blocks).
@@ -265,7 +271,7 @@ export function DashClient({
 
   /// Tour workflow: sales/orders only while the tour runs (admins are never
   /// locked). Goods requests are open at any time, tour running or not.
-  const jstate = useJourneeState(stamp, day);
+  const jstate = useJourneeState(stamp, todaySlug());
   const lockedKeys: string[] = role === "Admin" ? [] : jstate === "active" ? [] : ["sale", "order"];
 
   const tiles: Array<{ key: string; label: string; badge?: number; Icon: typeof Plus; cls: string; go: () => void }> = [
@@ -301,7 +307,7 @@ export function DashClient({
         </button>
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-black">{labels.title}</h1>
-          <p className="truncate text-xs opacity-60">{vanName} · <time dateTime={day.split("-").map((part) => part.padStart(2, "0")).join("-")} dir="ltr">{day}</time></p>
+          <p className="truncate text-xs opacity-60">{vanName} · <time dateTime={todaySlug().split("-").map((part) => part.padStart(2, "0")).join("-")} dir="ltr">{todaySlug()}</time></p>
         </div>
         <ApkOnly><OnlineBadge onlineLabel={labels.online ?? "online"} offlineLabel={labels.offline ?? "offline"} /></ApkOnly>
       </div>
@@ -321,6 +327,21 @@ export function DashClient({
           >
             {labels.clients}
           </button>
+        </div>
+      )}
+      {/* Selected client: report the shop closed (photo required) right here. */}
+      {effClient && (
+        <div className="space-y-1.5">
+          {closedState.ids.has(effClient.id) && (
+            <p className="rounded-xl bg-red-600/10 p-2.5 text-xs font-black text-red-600">🔒 {labels.closedBadge}</p>
+          )}
+          <ClosedShopButton
+            client={{ id: effClient.id, name: effClient.name, code: effClient.code }}
+            closed={closedState.ids.has(effClient.id)}
+            canReport={jstate === "active" || role === "Admin"}
+            labels={labels}
+            onSaved={(id) => closedState.add(id)}
+          />
         </div>
       )}
 

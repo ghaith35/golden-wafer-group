@@ -6,7 +6,7 @@ import { ArrowLeft, Check, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { checkGpsPermission, requestGpsPermission, type GpsPerm } from "@/lib/gps-permission";
 import { queueOp, goPage, warmJourneePages } from "@/lib/sync/client";
-import { daySlug } from "../../_days";
+import { daySlug, todaySlug } from "../../_days";
 import { cn } from "@/lib/utils";
 
 /// Start-of-day gate: live clock + validate to stamp départ, then clients.
@@ -45,7 +45,11 @@ export function StartClient({
     if ((window as unknown as { __DILI_DAY_SHIFTED?: string }).__DILI_DAY_SHIFTED) setShifted(true);
   }, []);
   const dayMatch = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(day);
-  const dateIso = shifted && dayMatch ? new Date(Number(dayMatch[1]), Number(dayMatch[2]) - 1, Number(dayMatch[3])).toISOString() : dateIsoP;
+  // Display date = the picked day; the journée itself is stamped on TODAY.
+  const dateIso = dateIsoP;
+  const tm = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(todaySlug());
+  const todayKey = tm ? `${tm[1]}-${tm[2].padStart(2, "0")}-${tm[3].padStart(2, "0")}` : dateIsoP.slice(0, 10);
+  void dayMatch;
   const multi = !shifted && tours.length >= 2;
   const [selId, setSelId] = useState<string | null>(tourneeIdP);
   const selTour = multi ? (tours.find((x) => x.id === selId) ?? tours[0]) : null;
@@ -128,7 +132,7 @@ export function StartClient({
         const res = await fetch("/api/tournees", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ date: dateIso, locationId: "__mine__", findOrCreate: true }),
+          body: JSON.stringify({ date: todayKey, locationId: "__mine__", findOrCreate: true }),
         });
         const d = await res.json().catch(() => null);
         if (res.ok && d?.id) {
@@ -142,7 +146,7 @@ export function StartClient({
         // Offline with no planned tour: queue an ensure+stamp by van+day —
         // the server finds or creates the tour at sync time.
         try {
-          await queueOp("day-start", { dateIso: dateIso.slice(0, 10), ...stamp });
+          await queueOp("day-start", { dateIso: todayKey, ...stamp });
           setStarted(new Date().toISOString());
           setStartQueued(true);
         } catch {

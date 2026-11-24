@@ -17,6 +17,7 @@ export type TicketCompany = {
   address?: string | null;
   rc?: string | null;
   nif?: string | null;
+  nis?: string | null;
   logoUrl?: string | null;
 };
 
@@ -67,7 +68,7 @@ export function ticketPrintHtml(
     (/golden\s*wafer/i.test(company.name ?? "") ? "" : `<h1>${esc(company.name ?? "")}</h1>`) +
     (company.address ? `<div class="m">${esc(company.address)}</div>` : "") +
     (company.phone ? `<div class="m b">${esc(company.phone)}</div>` : "") +
-    (company.rc || company.nif ? `<div class="m">${esc([company.rc ? `RC: ${company.rc}` : "", company.nif ? `NIF: ${company.nif}` : ""].filter(Boolean).join(" · "))}</div>` : "") +
+    (company.rc || company.nif || company.nis ? `<div class="m b">${esc([company.rc ? `RC: ${company.rc}` : "", company.nif ? `NIF: ${company.nif}` : "", company.nis ? `NIS: ${company.nis}` : ""].filter(Boolean).join(" · "))}</div>` : "") +
     `</div><div class="orn"><i></i><b>&#9670;</b><i></i></div>` +
     `<div class="meta"><span class="b">N° ${esc(t.number ?? "")}</span><span class="b">${esc(shortDate(t.date))}</span></div>` +
     (t.location?.name ? `<div class="c m b">${esc(t.location.name)}</div>` : "") +

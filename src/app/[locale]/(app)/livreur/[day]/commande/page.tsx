@@ -5,7 +5,7 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan, getDayStamp } from "../../_data";
 import { JourneeGate } from "@/components/livreur/JourneeGate";
-import { parseDay, sameDay } from "../../_days";
+import { parseDay, sameDay, todaySlug } from "../../_days";
 import { CommandeClient } from "./CommandeClient";
 
 /// Livreur "طلب جديد" — request-only flow: scan → products → recap → send.
@@ -73,14 +73,17 @@ export default async function LivreurCommandePage({
   ]);
 
   // Two tours may run that day: sales attach to the one being driven.
-  const tour = pickCurrentTour(tournees.filter((x) => sameDay(new Date(x.date), date)));
+  // The journée (stamps, sales, orders) is ALWAYS today's; the picked day only
+  // chooses which clients are listed.
+  const jDate = parseDay(todaySlug())!;
+  const tour = pickCurrentTour(tournees.filter((x) => sameDay(new Date(x.date), jDate)));
   // Main-depot availability (null store = legacy main stock + DEPOT stores).
   const stockMap: Record<string, number> = {};
   for (const b of [...nullStock, ...locatedStock]) {
     stockMap[b.productId] = (stockMap[b.productId] ?? 0) + Number(b._sum.qty ?? 0);
   }
 
-  const dayStamp = await getDayStamp(session.companyId, van.id, date);
+  const dayStamp = await getDayStamp(session.companyId, van.id, jDate);
   return (
     <JourneeGate
       locale={locale}

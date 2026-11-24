@@ -54,6 +54,7 @@ export function VenteClient({
   vanId,
   vanName,
   tourneeId,
+  listTourneeId = null,
   initialClient,
   products,
   categories,
@@ -72,6 +73,8 @@ export function VenteClient({
   vanId: string;
   vanName: string;
   tourneeId: string | null;
+  /// Picked day's tour (its client list) — only used so its clients aren't flagged off-tour.
+  listTourneeId?: string | null;
   initialClient: Client | null;
   products: Prod[];
   categories: Array<{ id: string; name: string }>;
@@ -151,6 +154,35 @@ export function VenteClient({
   /// Until then "المقبوض" always equals "المجموع" — it follows every cart change
   /// (qty +/-, added line, deal/gift repricing), never a stale first total.
   const [paidTouched, setPaidTouched] = useState(!!editingTicket);
+  /// The order in progress is backed up in this tab's session storage, so a
+  /// reload for ANY reason (offline switch, app update, accidental refresh)
+  /// never costs the driver his selection. Per van + client; cleared the moment
+  /// the sale is saved (online or queued) or the cart is emptied.
+  const draftKey = `dili_sale_draft_v1:${vanId}:${client?.id ?? ""}`;
+  useEffect(() => {
+    if (editingTicket) return;
+    try {
+      const raw = sessionStorage.getItem(draftKey);
+      if (!raw) return;
+      const d = JSON.parse(raw) as { t?: number; lines?: Line[]; paid?: string; paidTouched?: boolean };
+      if (!d.t || Date.now() - d.t > 6 * 3600_000 || !Array.isArray(d.lines) || !d.lines.length) {
+        sessionStorage.removeItem(draftKey);
+        return;
+      }
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time restore on mount
+      setLines(d.lines);
+      if (typeof d.paid === "string") setPaid(d.paid);
+      if (d.paidTouched) setPaidTouched(true);
+    } catch { /* corrupt draft: ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (editingTicket) return;
+    try {
+      if (lines.length) sessionStorage.setItem(draftKey, JSON.stringify({ t: Date.now(), lines, paid, paidTouched }));
+      else sessionStorage.removeItem(draftKey);
+    } catch { /* storage full / private mode */ }
+  }, [lines, paid, paidTouched, draftKey, editingTicket]);
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -179,7 +211,7 @@ export function VenteClient({
   /// Print preview: created ticket (server response or local snapshot when
   /// offline) + company header/width for the TicketView.
   const [doneTicket, setDoneTicket] = useState<TicketVM | null>(null);
-  const [ticketCo, setTicketCo] = useState<{ company: { name: string; phone?: string | null; address?: string | null; rc?: string | null; nif?: string | null; logoUrl?: string | null }; width: "80"; currency: string } | null>(null);
+  const [ticketCo, setTicketCo] = useState<{ company: { name: string; phone?: string | null; address?: string | null; rc?: string | null; nif?: string | null; nis?: string | null; logoUrl?: string | null }; width: "80"; currency: string } | null>(null);
   const [ticketQr, setTicketQr] = useState<string | null>(null);
   const [gallery, setGallery] = useState<Prod | null>(null);
   const [gIdx, setGIdx] = useState(0);
@@ -603,6 +635,7 @@ export function VenteClient({
         tierId: client?.tierId ?? null,
         channel: "VAN",
         tourneeId,
+        listTourneeId,
         qrScanned: scanned,
         ...(fix ? { saleLat: fix.lat, saleLng: fix.lng } : {}),
         paid: paidNow,
@@ -714,7 +747,7 @@ export function VenteClient({
     if (doneTicket) {
       const res = await printTicketNative({
         ticket: doneTicket,
-        company: { name: ticketCo?.company.name ?? "", phone: ticketCo?.company.phone ?? null, address: ticketCo?.company.address ?? null, rc: ticketCo?.company.rc ?? null, nif: ticketCo?.company.nif ?? null, logoUrl: ticketCo?.company.logoUrl ?? null },
+        company: { name: ticketCo?.company.name ?? "", phone: ticketCo?.company.phone ?? null, address: ticketCo?.company.address ?? null, rc: ticketCo?.company.rc ?? null, nif: ticketCo?.company.nif ?? null, nis: ticketCo?.company.nis ?? null, logoUrl: ticketCo?.company.logoUrl ?? null },
         width: ticketCo?.width ?? "80",
         labels: ticketLabels,
         lang: ticketLang,
@@ -1355,7 +1388,7 @@ export function VenteClient({
               {pdfView && doneTicket && (
                 <PdfViewer
                   ticket={doneTicket}
-                  company={{ name: ticketCo?.company.name ?? "", phone: ticketCo?.company.phone ?? null, address: ticketCo?.company.address ?? null, rc: ticketCo?.company.rc ?? null, nif: ticketCo?.company.nif ?? null, logoUrl: ticketCo?.company.logoUrl ?? null }}
+                  company={{ name: ticketCo?.company.name ?? "", phone: ticketCo?.company.phone ?? null, address: ticketCo?.company.address ?? null, rc: ticketCo?.company.rc ?? null, nif: ticketCo?.company.nif ?? null, nis: ticketCo?.company.nis ?? null, logoUrl: ticketCo?.company.logoUrl ?? null }}
                   lang={ticketLang}
                   labels={ticketLabels}
                   qrDataUrl={ticketQr}

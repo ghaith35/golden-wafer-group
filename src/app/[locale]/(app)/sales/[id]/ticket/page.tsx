@@ -76,6 +76,7 @@ export default async function TicketPrintPage({ params }: { params: Promise<{ lo
           address: company?.address,
           rc: company?.rc,
           nif: company?.nif,
+          nis: company?.nis,
           logoUrl: company?.logoUrl,
         }}
         width={width}

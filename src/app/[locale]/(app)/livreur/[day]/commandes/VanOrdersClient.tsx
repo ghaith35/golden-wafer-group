@@ -178,7 +178,7 @@ export function VanOrdersClient({
   }
 
   const [printing, setPrinting] = useState(false);
-  const [ticketCo, setTicketCo] = useState<{ company: { name: string; phone?: string | null; address?: string | null; rc?: string | null; nif?: string | null; logoUrl?: string | null }; width: "80"; currency: string } | null>(null);
+  const [ticketCo, setTicketCo] = useState<{ company: { name: string; phone?: string | null; address?: string | null; rc?: string | null; nif?: string | null; nis?: string | null; logoUrl?: string | null }; width: "80"; currency: string } | null>(null);
   const [ticketQr, setTicketQr] = useState<string | null>(null);
   /// Share feedback inside the print preview (clipboard fallback notice).
   const [sharedMsg, setSharedMsg] = useState<string | null>(null);
@@ -247,7 +247,7 @@ export function VanOrdersClient({
     if (t) {
       const res = await printTicketNative({
         ticket: t,
-        company: { name: ticketCo?.company.name ?? "", phone: ticketCo?.company.phone ?? null, address: ticketCo?.company.address ?? null, rc: ticketCo?.company.rc ?? null, nif: ticketCo?.company.nif ?? null, logoUrl: ticketCo?.company.logoUrl ?? null },
+        company: { name: ticketCo?.company.name ?? "", phone: ticketCo?.company.phone ?? null, address: ticketCo?.company.address ?? null, rc: ticketCo?.company.rc ?? null, nif: ticketCo?.company.nif ?? null, nis: ticketCo?.company.nis ?? null, logoUrl: ticketCo?.company.logoUrl ?? null },
         width: ticketCo?.width ?? "80",
         labels: ticketLabels,
         lang: ticketLang,
@@ -765,7 +765,7 @@ export function VanOrdersClient({
             {pdfView && printTicket() && (
               <PdfViewer
                 ticket={printTicket()!}
-                company={{ name: ticketCo?.company.name ?? "", phone: ticketCo?.company.phone ?? null, address: ticketCo?.company.address ?? null, rc: ticketCo?.company.rc ?? null, nif: ticketCo?.company.nif ?? null, logoUrl: ticketCo?.company.logoUrl ?? null }}
+                company={{ name: ticketCo?.company.name ?? "", phone: ticketCo?.company.phone ?? null, address: ticketCo?.company.address ?? null, rc: ticketCo?.company.rc ?? null, nif: ticketCo?.company.nif ?? null, nis: ticketCo?.company.nis ?? null, logoUrl: ticketCo?.company.logoUrl ?? null }}
                 lang={ticketLang}
                 labels={ticketLabels}
                 qrDataUrl={ticketQr}

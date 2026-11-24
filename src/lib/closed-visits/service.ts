@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { uploadsRoot } from "@/lib/uploads/store";
+import { algiersDayRange } from "@/lib/tournees/days";
 
 export const MAX_PHOTOS = 6;
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
@@ -66,10 +67,30 @@ export async function createClosedVisit(i: ClosedVisitInput): Promise<string> {
       },
       select: { id: true },
     });
+    // The stop of this client on the van's tour of that day is now "visited"
+    // (not sold): the tour progress counts the closed shop as a done visit.
+    if (i.vanId) {
+      await prisma.tourneeStop
+        .updateMany({
+          where: { clientId: client.id, tournee: { companyId: i.companyId, locationId: i.vanId, date: algiersDayRange(i.occurredAt) } },
+          data: { visited: true },
+        })
+        .catch(() => {});
+    }
     return row.id;
   } catch (e) {
     // Don't leave orphan files behind a failed/duplicate insert.
     await Promise.all(saved.map((s) => unlink(s.file).catch(() => {})));
     throw e;
   }
+}
+
+/// Clients this van reported closed TODAY (Algiers calendar) — drives the 🔒
+/// badge on the clients list / dashboard. The journée is always today's.
+export async function closedClientIdsToday(companyId: string, vanId: string, now = new Date()): Promise<string[]> {
+  const rows = await prisma.closedVisit.findMany({
+    where: { companyId, locationId: vanId, occurredAt: algiersDayRange(now) },
+    select: { customerId: true },
+  });
+  return [...new Set(rows.map((r) => r.customerId))];
 }

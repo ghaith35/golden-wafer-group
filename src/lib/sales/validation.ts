@@ -31,6 +31,10 @@ export const ticketSchema = z.object({
   channel: z.enum(["VAN", "POS", "DEPOT"]).optional(),
   qrScanned: z.boolean().optional(),
   tourneeId: z.string().nullish(),
+  /// Tour whose client list the driver sold from (the PICKED day). The sale
+  /// itself always belongs to today's journée (tourneeId); this id only keeps
+  /// a client of the picked tour from being flagged "off the tour".
+  listTourneeId: z.string().nullish(),
   remise: z.coerce.number().finite().min(0).optional(),
   paid: z.coerce.number().finite().min(0).nullish(),
   notes: z.string().max(500).nullish(),

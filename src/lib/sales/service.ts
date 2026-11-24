@@ -5,6 +5,8 @@ import { consumeStock, addStock, weightedCost } from "@/lib/inventory/stock";
 import { z } from "zod";
 import { applyThreePack } from "@/lib/threepack/service";
 import { orderSchema, ticketSchema, deliverSchema, clientReturnSchema } from "@/lib/sales/validation";
+import { algiersDayKey, algiersDayRange } from "@/lib/tournees/days";
+import { pickCurrentTour } from "@/lib/tournees/day-tours";
 
 type OrderInput = z.infer<typeof orderSchema>;
 type TicketInput = z.infer<typeof ticketSchema>;
@@ -409,6 +411,20 @@ export async function createTicket(
     if (!allowed) throw Object.assign(new Error("van_not_assigned"), { status: 403 });
   }
 
+  // Journée = today. A van sale that still references another day's tour (an
+  // older phone build, or the picked day's tour) is re-attached to today's
+  // journée; the picked tour is kept only as the client-list reference.
+  if (input.tourneeId && channel === "VAN" && actor?.role !== "Admin" && !opts?.occurredAt) {
+    const ref = await prisma.tournee.findFirst({ where: { id: input.tourneeId, companyId }, select: { date: true } });
+    if (ref && algiersDayKey(new Date(ref.date)) !== algiersDayKey(new Date())) {
+      const todays = await prisma.tournee.findMany({
+        where: { companyId, locationId: input.locationId, status: "OPEN", date: algiersDayRange(new Date()) },
+        select: { id: true, slot: true, createdAt: true, startedAt: true, finishedAt: true, status: true },
+      });
+      input = { ...input, listTourneeId: input.listTourneeId ?? input.tourneeId, tourneeId: pickCurrentTour(todays)?.id ?? null };
+    }
+  }
+
   const location = await prisma.store.findFirst({ where: { id: input.locationId, companyId } });
   if (!location) throw Object.assign(new Error("bad_location"), { status: 400 });
 
@@ -434,7 +450,17 @@ export async function createTicket(
       where: { companyId, locationId: location.id, status: "OPEN", date: { gte: today } },
       include: { stops: { where: { clientId: client.id } } },
     });
-    if (tournees.length > 0 && tournees.every((t) => t.stops.length === 0)) offList = true;
+    if (tournees.length > 0 && tournees.every((t) => t.stops.length === 0)) {
+      // The driver may sell from another day's client list: the client is on
+      // the list if he is a stop of that picked tour.
+      const listed = input.listTourneeId
+        ? await prisma.tourneeStop.findFirst({
+            where: { tourneeId: input.listTourneeId, clientId: client.id, tournee: { companyId, locationId: location.id } },
+            select: { id: true },
+          })
+        : null;
+      if (!listed) offList = true;
+    }
   }
 
   const { priced: priced0, tierId } = await priceLines(companyId, client?.tierId ?? null, input.tierId ?? null, input.lines, settings.remiseEnabled, settings.pieceSalesEnabled);

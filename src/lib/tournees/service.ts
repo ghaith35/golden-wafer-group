@@ -2,7 +2,8 @@ import { prisma } from "@/lib/db";
 import { z } from "zod";
 import { tourneeSchema, tourneeStopsSchema, stopUpdateSchema } from "@/lib/sales/validation";
 import { algiersDayKey, algiersDayRange, endOfAlgiersDay, isPastAlgiersDay } from "./days";
-import { deletePlan, updatePlanStops } from "./plans";
+import { deletePlan, updatePlanStops, ensureDayTours } from "./plans";
+import { pickCurrentTour } from "./day-tours";
 
 type TourneeInput = z.infer<typeof tourneeSchema>;
 
@@ -196,6 +197,31 @@ function cleanCoord(v: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/// The journée always belongs to TODAY (Algiers). A driver who picked another
+/// day only views that day's clients: stamping its tour starts today's journée
+/// instead (find or create the van's tour for today). Old phone builds that
+/// still send the picked day's tour id are redirected here too.
+async function todayTourFor(companyId: string, vanId: string) {
+  const now = new Date();
+  const key = algiersDayKey(now);
+  await ensureDayTours(companyId, vanId, key).catch(() => {});
+  const existing = pickCurrentTour(
+    await prisma.tournee.findMany({ where: { companyId, locationId: vanId, status: "OPEN", date: algiersDayRange(now) } }),
+  );
+  if (existing) return existing;
+  try {
+    return await createTournee(companyId, { date: key, locationId: vanId } as TourneeInput);
+  } catch (err) {
+    if ((err as Error)?.message === "duplicate_day") {
+      const winner = pickCurrentTour(
+        await prisma.tournee.findMany({ where: { companyId, locationId: vanId, status: "OPEN", date: algiersDayRange(now) } }),
+      );
+      if (winner) return winner;
+    }
+    throw err;
+  }
+}
+
 export async function startDay(
   companyId: string,
   userId: string,
@@ -207,7 +233,12 @@ export async function startDay(
   // Rolling over: yesterday's unfinished journée ends here, flagged —
   // a new day never starts on top of a dangling one.
   await closeStaleDays(companyId).catch(() => {});
-  const tournee = await assertCanStamp(companyId, userId, role, tourneeId);
+  let tournee = await assertCanStamp(companyId, userId, role, tourneeId);
+  // Journée = today. Staff starting a tour of another day start today's instead
+  // (offline replays carry their own occurredAt and keep their tour).
+  if (role !== "Admin" && !occurredAt && algiersDayKey(new Date(tournee.date)) !== algiersDayKey(new Date())) {
+    tournee = await todayTourFor(companyId, tournee.locationId);
+  }
   // Idempotent: a retried/duplicated offline stamp is a success, not an error.
   if (tournee.startedAt) return tournee;
   if (tournee.status !== "OPEN") throw Object.assign(new Error("bad_status"), { status: 400 });

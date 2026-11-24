@@ -1481,7 +1481,10 @@
     "tourWait": "Waiting",
     "finishOtherFirst": "Finish the running tour first",
     "closedShoot": "Take photo",
-    "closedCancel": "Cancel"
+    "closedCancel": "Cancel",
+    "closedNeedStart": "Start the tour first to report a closed shop",
+    "closedToday": "Closed today",
+    "closedPhotoRequired": "A photo of the closed shop is required"
   },
   "presence": {
     "title": "Attendance",

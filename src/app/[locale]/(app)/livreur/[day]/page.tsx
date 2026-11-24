@@ -4,6 +4,8 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../_data";
 import { parseDay } from "../_days";
+import { todayJourneeTour } from "@/lib/tournees/journee-today";
+import { closedClientIdsToday } from "@/lib/closed-visits/service";
 import { DayClients } from "./DayClients";
 import { ensureDayTours } from "@/lib/tournees/plans";
 import { pickCurrentTour, sortDayTours } from "@/lib/tournees/day-tours";
@@ -54,6 +56,9 @@ export default async function LivreurDayPage({
   );
   // ?tour=<id> picks one; else the tour being driven (or the next waiting).
   const tour = dayTours.find((x) => x.id === sp.tour) ?? pickCurrentTour(dayTours);
+  // Départ is always today's journée — not the picked day's tour.
+  const jTour = await todayJourneeTour(session.companyId, van.id);
+  const closedToday = await closedClientIdsToday(session.companyId, van.id).catch(() => [] as string[]);
   const planned = (tour?.stops ?? []).filter((s) => s.client).map((s) => s.client as unknown as { id: string });
   // Clients registered THIS day (new-client popup) are not tour stops, yet the
   // driver must see them right after saving — only the ones HE registered, never
@@ -89,7 +94,8 @@ export default async function LivreurDayPage({
       day={day}
       vanName={van.name}
       hasTournee={!!tour}
-      hasStarted={!!tour?.startedAt}
+      hasStarted={!!jTour?.startedAt && !jTour?.finishedAt}
+      closedToday={closedToday}
       tours={dayTours.map((x) => ({ id: x.id, secteurName: x.secteur?.name ?? null, stopsCount: x.stops.length, running: !!x.startedAt && !x.finishedAt, done: !!x.finishedAt }))}
       tourId={tour?.id ?? null}
       tourSecteurId={tour?.secteurId ?? null}
@@ -104,6 +110,9 @@ export default async function LivreurDayPage({
         clients: t("clients"), searchClient: t("searchClient"), empty: t("empty"),
         online: t("online"), offline: t("offline"),
         noTournee: t("noTournee"), skip: t("skip"), actualiser: t("actualiser"),
+        closedShop: t("closedShop"), closedAddPhoto: t("closedAddPhoto"), closedSave: t("closedSave"), closedHint: t("closedHint"),
+        closedBadge: t("closedBadge"), closedErr: t("closedErr"), closedShoot: t("closedShoot"), closedCancel: t("closedCancel"), closedSaved: t("closedSaved"), closedSavedOffline: t("closedSavedOffline"),
+        closedNeedStart: t("closedNeedStart"), closedToday: t("closedToday"),
         locate: tg("locate"), geoDenied: tg("geoDenied"),
         unitM: tg("unitM"), unitKm: tg("unitKm"), unitMin: tg("unitMin"),
         startDay: t("startDay"), all: t("all"), showQr: t("showQr"),

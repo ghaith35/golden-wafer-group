@@ -1481,7 +1481,10 @@
     "tourWait": "في الانتظار",
     "finishOtherFirst": "أنهِ الجولة الجارية أولاً",
     "closedShoot": "التقاط صورة",
-    "closedCancel": "إلغاء"
+    "closedCancel": "إلغاء",
+    "closedNeedStart": "ابدأ الجولة أولاً لتسجيل محل مغلق",
+    "closedToday": "مغلق اليوم",
+    "closedPhotoRequired": "صورة المحل المغلق إلزامية"
   },
   "presence": {
     "title": "الحضور",

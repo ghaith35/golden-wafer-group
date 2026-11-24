@@ -3,13 +3,14 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../../_data";
-import { parseDay } from "../../_days";
+import { parseDay, todaySlug } from "../../_days";
 import { closeStaleDays } from "@/lib/tournees/service";
 import { ensureDayTours } from "@/lib/tournees/plans";
 import { pickCurrentTour } from "@/lib/tournees/day-tours";
 import { algiersDayKey } from "@/lib/tournees/days";
 import { vanDayCash } from "@/lib/cash/daily";
 import { DashClient } from "./DashClient";
+import { closedClientIdsToday } from "@/lib/closed-visits/service";
 
 /// Step 3 — Dashboard hub: sale, factures, commande, commandes, stock, sync.
 export default async function LivreurDashPage({
@@ -24,8 +25,10 @@ export default async function LivreurDashPage({
   setRequestLocale(locale);
   const session = await getSession();
   if (!session) redirect(`/${locale}/login`);
-  const date = parseDay(day);
-  if (!date) redirect(`/${locale}/livreur`);
+  if (!parseDay(day)) redirect(`/${locale}/livreur`);
+  // The journée dashboard is ALWAYS today's (départ, sales, cash, stock): the
+  // picked day in the URL only decides which clients are shown elsewhere.
+  const date = parseDay(todaySlug())!;
   const t = await getTranslations("livreur");
   const tc = await getTranslations("sync");
   const tm = await getTranslations("cashDaily");
@@ -46,7 +49,7 @@ export default async function LivreurDashPage({
   await closeStaleDays(session.companyId).catch(() => {});
   // Recurring plans generate this day's tours on demand (one or two per van).
   await ensureDayTours(session.companyId, van.id, algiersDayKey(dayStart)).catch(() => {});
-  const [today, readyCount, dayTours, till] = await Promise.all([
+  const [todayAll, readyCount, dayTours, till] = await Promise.all([
     prisma.sale.aggregate({
       where: {
         companyId: session.companyId,
@@ -71,8 +74,41 @@ export default async function LivreurDashPage({
     vanDayCash(session.companyId, van.id, date).catch(() => null),
   ]);
 
+  // Handover: once the admin has RECEIVED the cash (fully) or CLOSED the day, the
+  // driver's screen starts clean — counters, amount due and the declaration only
+  // reflect what happened AFTER that moment (his next tour). The admin keeps the
+  // whole day on the cash screen.
+  const dueAll = till ? till.collected + till.clientPayments - till.expenses - till.returnsCash : 0;
+  const remittedAll = till?.remittedLive ?? 0;
+  const closeRow = (till?.closeRow ?? null) as { status?: string; closedAt?: Date | string | null; declared?: unknown } | null;
+  let handoverAt: Date | null = null;
+  if (closeRow?.status === "CLOSED" && closeRow.closedAt) {
+    handoverAt = new Date(closeRow.closedAt);
+  } else if (remittedAll > 0 && remittedAll >= dueAll - 0.01) {
+    const last = await prisma.versement.findFirst({
+      where: { companyId: session.companyId, locationId: van.id, kind: "CASH_COLLECTION", date: { gte: dayStart, lte: dayEnd } },
+      orderBy: { createdAt: "desc" },
+      select: { createdAt: true },
+    });
+    handoverAt = last?.createdAt ?? null;
+  }
+  const today = handoverAt
+    ? await prisma.sale.aggregate({
+        where: {
+          companyId: session.companyId,
+          locationId: van.id,
+          kind: { in: ["DELIVERY", "TICKET"] },
+          status: { notIn: ["CANCELLED", "DRAFT"] },
+          date: { gt: handoverAt, lte: dayEnd },
+        },
+        _sum: { total: true },
+        _count: true,
+      })
+    : todayAll;
+
   // Up to two tours today: the dashboard follows the one being driven (else the next waiting).
   const tournee = pickCurrentTour(dayTours);
+  const closedToday = await closedClientIdsToday(session.companyId, van.id).catch(() => [] as string[]);
 
   return (
     <DashClient
@@ -81,17 +117,21 @@ export default async function LivreurDashPage({
       vanId={van.id}
       vanName={van.name}
       client={client ? JSON.parse(JSON.stringify(client)) : null}
+      closedToday={closedToday}
       dayCount={today._count}
       dayTotal={Number(today._sum.total ?? 0)}
       readyCount={readyCount}
       tournee={tournee ? JSON.parse(JSON.stringify(tournee)) : null}
-      dueCash={till ? till.collected + till.clientPayments - till.expenses - till.returnsCash : 0}
-      declared={(() => {
-        const d = (till?.closeRow as { declared?: unknown } | null)?.declared;
+      dueCash={handoverAt ? Math.max(0, dueAll - remittedAll) : dueAll}
+      declared={handoverAt ? null : (() => {
+        const d = closeRow?.declared;
         return d == null ? null : Number(d);
       })()}
       role={session.role}
       labels={{
+        closedShop: t("closedShop"), closedAddPhoto: t("closedAddPhoto"), closedSave: t("closedSave"), closedHint: t("closedHint"),
+        closedBadge: t("closedBadge"), closedErr: t("closedErr"), closedShoot: t("closedShoot"), closedCancel: t("closedCancel"), closedSaved: t("closedSaved"), closedSavedOffline: t("closedSavedOffline"),
+        closedNeedStart: t("closedNeedStart"), closedToday: t("closedToday"),
         title: session.role === "Vendeur" ? t("getCommand") : t("title"), newSale: t("newSale"), factures: t("factures"),
         clients: t("clients"), total: t("total"), stock: t("stock"), stockDepot: t("stockDepot"),
         ready: t("ready"),

@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../../_data";
-import { parseDay } from "../../_days";
+import { parseDay, todaySlug } from "../../_days";
+import { todayJourneeTour } from "@/lib/tournees/journee-today";
 import { dayBounds } from "@/lib/livreur/day-access";
 import { GpsClient } from "./GpsClient";
 import { ensureDayTours } from "@/lib/tournees/plans";
@@ -29,10 +30,12 @@ export default async function LivreurGpsPage({
   const tg = await getTranslations("tournees");
 
   const { start, end } = dayBounds(date);
+  // Visits are part of the journée: always today. The tour (sector / stops) is the picked day's.
+  const { start: jStart, end: jEnd } = dayBounds(parseDay(todaySlug())!);
   await ensureDayTours(session.companyId, van.id, algiersDayKey(start)).catch(() => {});
   const [closedRows, dayTours, rows] = await Promise.all([
     prisma.closedVisit.findMany({
-      where: { companyId: session.companyId, locationId: van.id, occurredAt: { gte: start, lte: end } },
+      where: { companyId: session.companyId, locationId: van.id, occurredAt: { gte: jStart, lte: jEnd } },
       select: { customerId: true },
     }),
     prisma.tournee.findMany({
@@ -56,11 +59,12 @@ export default async function LivreurGpsPage({
     secteurId: c.secteurId, secteurName: c.secteur?.name ?? null,
   }));
 
+  const jTour = await todayJourneeTour(session.companyId, van.id);
   return (
     <GpsClient
       locale={locale}
       day={day}
-      hasStarted={dayTours.some((x) => !!x.startedAt)}
+      hasStarted={!!jTour?.startedAt}
       closedToday={[...new Set(closedRows.map((c) => c.customerId))]}
       todayIds={[...new Set(dayTours.flatMap((x) => x.stops.map((s) => s.clientId)))]}
       todaySecteurIds={[...new Set(dayTours.map((x) => x.secteurId).filter((x): x is string => !!x))]}

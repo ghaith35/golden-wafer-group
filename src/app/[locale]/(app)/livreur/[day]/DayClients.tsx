@@ -26,6 +26,7 @@ import { proximityOf, PROX_CARD } from "@/lib/proximity";
 import { haversineM } from "@/lib/geo-math";
 import { RefreshButton } from "@/components/livreur/RefreshButton";
 import { matchClient } from "@/lib/clients/display";
+import { ClosedShopButton, useClosedIds } from "@/components/livreur/ClosedShopButton";
 
 type Client = {
   id: string; name: string; code: string; phone: string | null;
@@ -43,6 +44,7 @@ export function DayClients({
   vanName,
   hasTournee,
   hasStarted,
+  closedToday = [],
   tours = [],
   tourId = null,
   tourSecteurId = null,
@@ -60,6 +62,8 @@ export function DayClients({
   vanName: string;
   hasTournee: boolean;
   hasStarted: boolean;
+  /// Clients this van already reported closed today (🔒 badge).
+  closedToday?: string[];
   /// Every tour of the day (a van can run two): chips switch between them.
   tours?: Array<{ id: string; secteurName: string | null; stopsCount: number; running: boolean; done: boolean }>;
   tourId?: string | null;
@@ -105,6 +109,7 @@ export function DayClients({
   /// Client detail card (tap a row): QR + phone + GPS + balance, all
   /// on-device — works fully offline. Selling goes through the card.
   const [detailFor, setDetailFor] = useState<Client | null>(null);
+  const closedState = useClosedIds(closedToday);
   const [qrImg, setQrImg] = useState("");
   /// Debt collection (versement) state — reset per client.
   const [collectAmt, setCollectAmt] = useState("");
@@ -689,6 +694,9 @@ export function DayClients({
                   <span className="flex min-w-0 items-center text-sm font-black">
                     <ClientName name={c.name} map={false} />
                     {c.id.startsWith("pending:") && <UnsyncedBadge className="ms-1 px-1.5" />}
+                    {closedState.ids.has(c.id) && (
+                      <span className="ms-1.5 shrink-0 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-black text-white" data-testid="closed-badge">🔒 {labels.closedToday}</span>
+                    )}
                   </span>
                   <span className="block truncate font-mono text-[11px] opacity-50" dir="ltr">{c.code}</span>
                   {dist && <span className="block truncate text-[11px] font-bold text-(--brand-600)">{dist}</span>}
@@ -914,6 +922,18 @@ export function DayClients({
               </div>
             )}
             {editMsg && <p className="rounded-xl bg-emerald-500/10 p-2 text-xs font-bold text-emerald-600">{editMsg}</p>}
+            {/* Shop closed: red button → camera → photo(s) REQUIRED → saved on the
+                phone, synced to the admin. Badge shows here and in the list. */}
+            {closedState.ids.has(detailFor.id) && (
+              <p className="rounded-xl bg-red-600/10 p-2.5 text-xs font-black text-red-600">🔒 {labels.closedBadge}</p>
+            )}
+            <ClosedShopButton
+              client={{ id: detailFor.id, name: detailFor.name, code: detailFor.code }}
+              closed={closedState.ids.has(detailFor.id)}
+              canReport={hasStarted || role === "Admin"}
+              labels={labels}
+              onSaved={(id) => closedState.add(id)}
+            />
             {canSell(role) && (
             <Button
               onClick={() => {

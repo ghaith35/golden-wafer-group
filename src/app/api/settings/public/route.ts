@@ -13,7 +13,7 @@ export async function GET() {
     getOrCreateSettings(session.companyId),
     prisma.company.findUnique({
       where: { id: session.companyId },
-      select: { name: true, phone: true, address: true, rc: true, nif: true, logoUrl: true },
+      select: { name: true, phone: true, address: true, rc: true, nif: true, nis: true, logoUrl: true },
     }),
   ]);
   // Per-van QR rules: the session's own active van(s) decide (admins have none).

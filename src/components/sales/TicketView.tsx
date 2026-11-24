@@ -40,6 +40,7 @@ export type TicketCompanyVM = {
   address?: string | null;
   rc?: string | null;
   nif?: string | null;
+  nis?: string | null;
   logoUrl?: string | null;
 };
 
@@ -137,9 +138,13 @@ export function TicketView({
         {!/golden\s*wafer/i.test(company.name) && <div className="mt-1 text-lg font-black leading-tight">{company.name}</div>}
         {company.address && <div className="mt-1 text-xs font-semibold opacity-80">{company.address}</div>}
         {company.phone && <div className="text-xs font-black" dir="ltr">{company.phone}</div>}
-        {(company.rc || company.nif) && (
-          <div className="text-[10px] opacity-70">
-            {[company.rc && `RC: ${company.rc}`, company.nif && `NIF: ${company.nif}`].filter(Boolean).join(" · ")}
+        {(company.rc || company.nif || company.nis) && (
+          <div className="mt-0.5 text-[11px] font-bold leading-snug" dir="ltr">
+            {[company.rc && `RC: ${company.rc}`, company.nif && `NIF: ${company.nif}`, company.nis && `NIS: ${company.nis}`]
+              .filter(Boolean)
+              .map((x) => (
+                <div key={x as string}>{x}</div>
+              ))}
           </div>
         )}
         <Ornament />
@@ -190,9 +195,12 @@ export function TicketView({
         </div>
         <div className="my-1 border-t border-dashed border-black" />
         {packs > 0 && (
-          <div className="flex items-center justify-between text-[11px] font-bold opacity-70">
-            <span>{labels.packs}: {dz(packs, 0)}</span>
-            <span>{labels.articles}: {ticket.lines.length}</span>
+          // Same weight as NET À PAYER (18px / 900). Each "label: value" is an
+          // unbreakable unit; when both don't fit on one line (long labels, big
+          // numbers) the second drops to its own row instead of squeezing.
+          <div className="my-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 border-y-2 border-black py-1 text-lg font-black leading-tight">
+            <span className="whitespace-nowrap">{labels.packs}: <bdi className="tabular-nums">{dz(packs, 0)}</bdi></span>
+            <span className="whitespace-nowrap">{labels.articles}: <bdi className="tabular-nums">{ticket.lines.length}</bdi></span>
           </div>
         )}
         {/* ── Totals (dashed line between each row) ── */}
@@ -229,8 +237,8 @@ export function TicketView({
           <img src={qrDataUrl} alt={ticket.number} className="mx-auto h-20 w-20" />
         )}
         <div className="mt-1 text-sm font-black tracking-wide">✦ {labels.thanks} ✦</div>
-        {/* 1 cm of blank paper under the thank-you (tear-off margin). */}
-        <div aria-hidden style={{ height: "10mm" }} />
+        {/* Blank paper under the thank-you: 4 mm + the 2 mm bottom padding = 6 mm. */}
+        <div aria-hidden style={{ height: "4mm" }} />
       </div>
       <style>{`.ticket, .ticket * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       @media print {

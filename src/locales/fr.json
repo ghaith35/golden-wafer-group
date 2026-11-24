@@ -1481,7 +1481,10 @@
     "tourWait": "En attente",
     "finishOtherFirst": "Terminez d'abord la tournée en cours",
     "closedShoot": "Prendre la photo",
-    "closedCancel": "Annuler"
+    "closedCancel": "Annuler",
+    "closedNeedStart": "Démarrez d'abord la tournée pour signaler un magasin fermé",
+    "closedToday": "Fermé aujourd'hui",
+    "closedPhotoRequired": "La photo du magasin fermé est obligatoire"
   },
   "presence": {
     "title": "Pointage",
