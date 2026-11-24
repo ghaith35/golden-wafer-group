@@ -656,18 +656,23 @@ main .grid > *:nth-child(n+7), .table-shell tbody tr:nth-child(n+7) { animation-
 .gw-watermark {
   position: fixed;
   inset: 0;
-  z-index: 35;
+  /* BEHIND all content (page background is painted on the canvas, so -1 still
+     shows). Content can never be covered; cards below are slightly translucent
+     so the logo reads through them. */
+  z-index: -1;
   pointer-events: none;
-  /* Light mode: a dedicated, vivid-gold version of the logo, multiplied into
-     the page — it tints the cream/white gold and never greys the text above. */
   background: url("/icons/logo-watermark-gold.webp") center 46% / min(78vmin, 720px) no-repeat;
-  opacity: 0.55;
-  mix-blend-mode: multiply;
+  opacity: 0.7;
 }
 .dark .gw-watermark {
   background-image: url("/icons/logo-watermark.webp");
-  opacity: 0.2;
-  mix-blend-mode: normal;
+  opacity: 0.22;
+}
+/* In-flow cards let the logo show through (not modals/dropdowns: fixed/absolute). */
+[class*="bg-(--bg-overlay)"][class*="border-(--border-default)"]:not([class*="fixed"]):not([class*="absolute"]),
+.ui-panel:not([class*="fixed"]):not([class*="absolute"]),
+.table-shell {
+  background-color: color-mix(in srgb, var(--bg-overlay) 72%, transparent);
 }
 @media (min-width: 768px) {
   .gw-watermark {
