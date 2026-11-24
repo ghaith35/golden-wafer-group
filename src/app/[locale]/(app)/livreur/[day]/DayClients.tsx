@@ -31,6 +31,7 @@ type Client = {
   id: string; name: string; code: string; phone: string | null;
   tierId: string | null; balance: unknown; legacyQr?: string | null;
   gpsLat: number | null; gpsLng: number | null;
+  secteurId?: string | null;
   days: string[];
 };
 
@@ -83,6 +84,8 @@ export function DayClients({
   const [q, setQ] = useState("");
   /// "" = all clients; otherwise one day slug.
   const [dayFilter, setDayFilter] = useState("");
+  /// "" = every sector; otherwise one secteur id (chips above the list).
+  const [secFilter, setSecFilter] = useState("");
   /// Maps links need connection — hidden offline instead of dead-ending.
   /// Default online so server and client render the same (synced on mount).
   const [online, setOnline] = useState(true);
@@ -480,11 +483,27 @@ export function DayClients({
   /// SSR rows with this phone's pending edits merged in (same map as the
   /// detail card, so list and card always agree).
   const effClients = clients.map((c) => (upd[c.id] ? { ...c, ...(upd[c.id] as Partial<Client>) } : c));
-  const list = [...effClients, ...pending.filter((p) => !clients.some((c) => c.code === p.code))].filter(
+  const allRows = [...effClients, ...pending.filter((p) => !clients.some((c) => c.code === p.code))];
+  const secOf = (c: unknown) => (c as { secteurId?: string | null }).secteurId ?? "";
+  const secName = (id: string) => refs.secteurs.find((s) => s.id === id)?.name ?? "—";
+  /// Sectors present in the day's clients, biggest first, with their counts.
+  const secCounts = new Map<string, number>();
+  for (const c of allRows) secCounts.set(secOf(c), (secCounts.get(secOf(c)) ?? 0) + 1);
+  const secChips = [...secCounts.entries()].sort((a, b) => b[1] - a[1]);
+  const list = allRows.filter(
     (c) =>
       (!dayFilter || (c.days ?? []).includes(dayFilter)) &&
+      (!secFilter || secOf(c) === secFilter) &&
       (!q || matchClient(q, c))
   );
+  /// One block per sector (header shown only when the list mixes sectors).
+  const groups = new Map<string, typeof list>();
+  for (const c of list) {
+    const k = secOf(c);
+    const g = groups.get(k);
+    if (g) g.push(c); else groups.set(k, [c]);
+  }
+  const showHeaders = groups.size > 1;
 
   const mapsUrl = (c: Client) => {
     if (c.gpsLat == null || c.gpsLng == null) return null;
@@ -608,11 +627,40 @@ export function DayClients({
             })}
           </div>
         )}
+        {secChips.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto pb-1" role="tablist">
+            {[["", allRows.length] as [string, number], ...secChips].map(([id, n]) => (
+              <button
+                key={id || "all"}
+                type="button"
+                role="tab"
+                aria-selected={secFilter === id}
+                onClick={() => setSecFilter(id)}
+                className={cn(
+                  "h-9 shrink-0 rounded-full px-3.5 text-xs font-black transition-colors",
+                  secFilter === id ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken) text-(--text-secondary)"
+                )}
+              >
+                <span className="max-w-[10rem] truncate">{id === "" ? labels.all : secName(id)}</span>
+                <span className="ms-1 tabular-nums opacity-70">({n})</span>
+              </button>
+            ))}
+          </div>
+        )}
         <Input placeholder={labels.searchClient} value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
 
       <div className="space-y-1.5">
-        {list.map((c) => {
+        {[...groups.entries()].map(([gk, rows]) => (
+          <div key={gk || "none"} className="space-y-1.5">
+            {showHeaders && (
+              <div className="sticky top-0 z-10 flex items-center gap-2 bg-(--bg-page)/95 px-1 pt-2 text-[11px] font-black text-(--text-secondary) backdrop-blur">
+                <span className="truncate">{secName(gk)}</span>
+                <span className="tabular-nums opacity-60">({rows.length})</span>
+                <span className="h-px flex-1 bg-(--border-default)" />
+              </div>
+            )}
+        {rows.map((c) => {
           const dist = meta(c.id);
           const url = mapsUrl(c);
           // Green close · orange far · red very far (straight-line from the
@@ -674,6 +722,8 @@ export function DayClients({
             </div>
           );
         })}
+          </div>
+        ))}
         {list.length === 0 && <p className="text-center text-sm opacity-60">{labels.empty}</p>}
       </div>
 

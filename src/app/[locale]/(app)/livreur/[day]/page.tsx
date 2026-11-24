@@ -31,7 +31,7 @@ export default async function LivreurDayPage({
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
 
-  const sel = { id: true, name: true, code: true, legacyQr: true, phone: true, tierId: true, balance: true, gpsLat: true, gpsLng: true };
+  const sel = { id: true, name: true, code: true, legacyQr: true, phone: true, tierId: true, balance: true, gpsLat: true, gpsLng: true, secteurId: true };
   // Only THIS day's tour: its sector and its planned clients. Other days'
   // stops (and "every client" fallbacks) are never loaded.
   const dayStart = new Date(date);
