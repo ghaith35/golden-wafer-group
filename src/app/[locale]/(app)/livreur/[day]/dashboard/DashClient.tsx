@@ -263,16 +263,10 @@ export function DashClient({
     }
   }
 
-  /// Tour workflow: sales/orders only while the tour runs; goods requests
-  /// before the tour starts or after it ends, never during it (admins are never locked).
+  /// Tour workflow: sales/orders only while the tour runs (admins are never
+  /// locked). Goods requests are open at any time, tour running or not.
   const jstate = useJourneeState(stamp, day);
-  const lockedKeys: string[] =
-    role === "Admin"
-      ? []
-      : [
-          ...(jstate === "active" ? [] : ["sale", "order"]),
-          ...(jstate === "active" ? ["demande"] : []),
-        ];
+  const lockedKeys: string[] = role === "Admin" ? [] : jstate === "active" ? [] : ["sale", "order"];
 
   const tiles: Array<{ key: string; label: string; badge?: number; Icon: typeof Plus; cls: string; go: () => void }> = [
     { key: "sale", label: labels.newSale, Icon: Plus, cls: "bg-(--brand-500) text-(--brand-contrast)", go: () => goPage(router, `/${locale}/livreur/${day}/vente${qs}`) },
@@ -409,7 +403,7 @@ export function DashClient({
           return (
           <button
             key={key}
-            onClick={locked ? () => setDayError(key === "demande" ? "tour_not_ended" : "tour_not_started") : go}
+            onClick={locked ? () => setDayError("tour_not_started") : go}
             aria-disabled={locked}
             className={cn("relative flex min-h-[84px] flex-col items-center justify-center gap-1 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2 shadow-sm transition-all active:scale-[0.98] sm:min-h-20 sm:gap-1.5 sm:p-3", locked && "opacity-45")}
           >

@@ -2,8 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { getLivreurVan, getDayStamp } from "../../_data";
-import { JourneeGate } from "@/components/livreur/JourneeGate";
+import { getLivreurVan } from "../../_data";
 import { parseDay } from "../../_days";
 import { DemandeClient } from "./DemandeClient";
 
@@ -75,16 +74,8 @@ export default async function LivreurDemandePage({
     (depotStocks[b.storeId] ??= {})[b.productId] = Number(b._sum.qty ?? 0);
   }
 
-  const dayStamp = await getDayStamp(session.companyId, van.id, parseDay(day)!);
+  // A goods request is open at any time — before, during or after the tour.
   return (
-    <JourneeGate
-      locale={locale}
-      day={day}
-      role={session.role}
-      require="notActive"
-      stamp={dayStamp}
-      labels={{ gateStartT: t("gateStartT"), gateStartM: t("gateStartM"), gateStartBtn: t("gateStartBtn"), gateEndT: t("gateEndT"), gateEndM: t("gateEndM"), gateEndBtn: t("gateEndBtn") }}
-    >
     <DemandeClient
       locale={locale}
       day={day}
@@ -108,6 +99,5 @@ export default async function LivreurDemandePage({
         backToDash: t("backToDash"),
       }}
     />
-    </JourneeGate>
   );
 }
