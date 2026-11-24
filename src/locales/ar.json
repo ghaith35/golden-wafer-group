@@ -2164,5 +2164,33 @@
     "gpsButton": "فتح إعدادات الموقع",
     "brandHint": "في هواتف Xiaomi وHuawei وOppo وSamsung: افتح إعدادات التطبيق، ثم البطارية، واختر «بدون قيود»، وفعّل «التشغيل التلقائي» إن وُجد.",
     "openSettings": "فتح إعدادات التطبيق"
+  },
+  "vanRequests": {
+    "kpiPending": "طلبات قيد الانتظار",
+    "kpiColisPending": "كراتين بانتظار الاعتماد",
+    "kpiToday": "معتمدة اليوم",
+    "kpiRejected": "مرفوضة",
+    "search": "بحث: رقم، شاحنة، سائق، منتج…",
+    "allVans": "كل الشاحنات",
+    "rangeAll": "الكل",
+    "rangeToday": "اليوم",
+    "range7": "7 أيام",
+    "range30": "30 يومًا",
+    "sortNew": "الأحدث",
+    "sortOld": "الأقدم",
+    "products": "منتجات",
+    "colis": "كراتين",
+    "pieces": "قطع",
+    "view": "عرض وطباعة",
+    "print": "طباعة",
+    "openFull": "فتح كصفحة كاملة",
+    "requested": "طلبه",
+    "approved": "اعتمده",
+    "driver": "السائق",
+    "waiting": "بانتظار الاعتماد",
+    "ago": "منذ {t}",
+    "justNow": "الآن",
+    "failed": "فشلت العملية",
+    "close": "إغلاق"
   }
 }

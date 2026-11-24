@@ -2164,5 +2164,33 @@
     "gpsButton": "Ouvrir les réglages de position",
     "brandHint": "Sur Xiaomi, Huawei, Oppo et Samsung : ouvrez les réglages de l'application, puis Batterie, choisissez « Sans restriction » et activez « Démarrage automatique » s'il existe.",
     "openSettings": "Ouvrir les réglages de l'application"
+  },
+  "vanRequests": {
+    "kpiPending": "Demandes en attente",
+    "kpiColisPending": "Colis à valider",
+    "kpiToday": "Validées aujourd'hui",
+    "kpiRejected": "Rejetées",
+    "search": "Rechercher : n°, camion, livreur, produit…",
+    "allVans": "Tous les camions",
+    "rangeAll": "Tout",
+    "rangeToday": "Aujourd'hui",
+    "range7": "7 jours",
+    "range30": "30 jours",
+    "sortNew": "Plus récentes",
+    "sortOld": "Plus anciennes",
+    "products": "produits",
+    "colis": "colis",
+    "pieces": "pièces",
+    "view": "Voir et imprimer",
+    "print": "Imprimer",
+    "openFull": "Ouvrir en pleine page",
+    "requested": "Demandé par",
+    "approved": "Validé par",
+    "driver": "Livreur",
+    "waiting": "En attente de validation",
+    "ago": "il y a {t}",
+    "justNow": "à l'instant",
+    "failed": "Échec de l'opération",
+    "close": "Fermer"
   }
 }

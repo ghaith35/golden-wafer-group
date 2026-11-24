@@ -2164,5 +2164,33 @@
     "gpsButton": "Open location settings",
     "brandHint": "On Xiaomi, Huawei, Oppo and Samsung: open the app's settings, then Battery, choose “No restrictions”, and enable “Autostart” if it exists.",
     "openSettings": "Open app settings"
+  },
+  "vanRequests": {
+    "kpiPending": "Pending requests",
+    "kpiColisPending": "Packs awaiting approval",
+    "kpiToday": "Approved today",
+    "kpiRejected": "Rejected",
+    "search": "Search: number, van, driver, product…",
+    "allVans": "All vans",
+    "rangeAll": "All",
+    "rangeToday": "Today",
+    "range7": "7 days",
+    "range30": "30 days",
+    "sortNew": "Newest",
+    "sortOld": "Oldest",
+    "products": "products",
+    "colis": "packs",
+    "pieces": "pieces",
+    "view": "View & print",
+    "print": "Print",
+    "openFull": "Open as full page",
+    "requested": "Requested by",
+    "approved": "Approved by",
+    "driver": "Driver",
+    "waiting": "Awaiting approval",
+    "ago": "{t} ago",
+    "justNow": "just now",
+    "failed": "Operation failed",
+    "close": "Close"
   }
 }
