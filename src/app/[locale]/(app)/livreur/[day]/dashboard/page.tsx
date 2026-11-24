@@ -52,6 +52,9 @@ export default async function LivreurDashPage({
         companyId: session.companyId,
         locationId: van.id,
         kind: { in: ["DELIVERY", "TICKET"] },
+        // Real invoices only — same rule as the van's cash till (vanDayCash):
+        // cancelled (and unsaved draft) sales never count.
+        status: { notIn: ["CANCELLED", "DRAFT"] },
         date: { gte: dayStart, lte: dayEnd },
       },
       _sum: { total: true },
