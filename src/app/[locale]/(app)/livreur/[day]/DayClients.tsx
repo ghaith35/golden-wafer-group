@@ -484,8 +484,8 @@ export function DayClients({
   /// detail card, so list and card always agree).
   const effClients = clients.map((c) => (upd[c.id] ? { ...c, ...(upd[c.id] as Partial<Client>) } : c));
   const allRows = [...effClients, ...pending.filter((p) => !clients.some((c) => c.code === p.code))];
-  const secOf = (c: unknown) => (c as { secteurId?: string | null }).secteurId ?? "";
-  const secName = (id: string) => refs.secteurs.find((s) => s.id === id)?.name ?? "—";
+  const secOf = (c: unknown) => (c as { secteurId?: string | null }).secteurId || "__";
+  const secName = (id: string) => (id === "__" ? "—" : refs.secteurs.find((x) => x.id === id)?.name ?? "—");
   /// Sectors present in the day's clients, biggest first, with their counts.
   const secCounts = new Map<string, number>();
   for (const c of allRows) secCounts.set(secOf(c), (secCounts.get(secOf(c)) ?? 0) + 1);
