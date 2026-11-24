@@ -232,7 +232,7 @@ export function StartClient({
       </p>
       {/* Two tours today: each with its own clients and its own start/end. */}
       {multi && (
-        <div className="w-full max-w-xs space-y-2" role="radiogroup" aria-label={labels.tourOf}>
+        <div className="w-full max-w-xs space-y-2" role="radiogroup" aria-label={(labels.tourOf ?? "").replace("{n}", "").trim()}>
           {tours.map((tr, i) => {
             const running = !!tr.startedAt && !tr.finishedAt;
             const done = !!tr.finishedAt;

@@ -57,7 +57,7 @@ export default async function LivreurStartPage({
       startedAt={tournee?.startedAt ? new Date(tournee.startedAt).toISOString() : null}
       stopsCount={tournee?._count.stops ?? 0}
       canChooseDay={canChoose}
-      labels={{ startDay: t("startDay"), clients: t("clients"), gpsWhy: t("gpsWhy"), gpsDenied: t("gpsDenied"), gpsGranted: t("gpsGranted"), dayQueued: t("dayQueued"), tourOf: t("tourOf"), tourRunning: t("tourRunning"), tourDone: t("tourDone"), tourWait: t("tourWait"), finishOtherFirst: t("finishOtherFirst") }}
+      labels={{ startDay: t("startDay"), clients: t("clients"), gpsWhy: t("gpsWhy"), gpsDenied: t("gpsDenied"), gpsGranted: t("gpsGranted"), dayQueued: t("dayQueued"), tourOf: t.raw("tourOf") as string, tourRunning: t("tourRunning"), tourDone: t("tourDone"), tourWait: t("tourWait"), finishOtherFirst: t("finishOtherFirst") }}
     />
   );
 }

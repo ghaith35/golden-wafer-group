@@ -65,7 +65,7 @@ export default async function LivreurGiftsPage({
       labels={{
         title: t("giftsTitle"), live: t("giftsLive"), upcoming: t("giftsUpcoming"), buy: t("giftsBuy"), get: t("giftsGet"),
         free: t("giftsFree"), from: t("giftsFrom"), to: t("giftsTo"), openEnded: t("giftsOpenEnded"),
-        endsToday: t("giftsEndsToday"), daysLeft: t("giftsDaysLeft"), startsIn: t("giftsStartsIn"), startsTomorrow: t("giftsStartsTomorrow"),
+        endsToday: t("giftsEndsToday"), daysLeft: t.raw("giftsDaysLeft") as string, startsIn: t.raw("giftsStartsIn") as string, startsTomorrow: t("giftsStartsTomorrow"),
         empty: t("giftsEmpty"), emptyUpcoming: t("giftsEmptyUpcoming"), single: t("giftsSingle"), pack: t("giftsPack"),
         every: t("giftsEvery"), colis: t("giftsColis"), refresh: t("gpsRefresh"),
         dealPercent: t("giftsDealPercent"), dealPrice: t("giftsDealPrice"), onTargets: t("giftsOnTargets"),

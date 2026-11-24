@@ -566,7 +566,7 @@ export function DayClients({
       )}
 
       {tours.length >= 2 && (
-        <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={labels.tourOf}>
+        <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={(labels.tourOf ?? "").replace("{n}", "").trim()}>
           {tours.map((tr, i) => {
             const on = tr.id === tourId;
             return (
