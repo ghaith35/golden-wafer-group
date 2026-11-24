@@ -770,7 +770,7 @@ export function VenteClient({
   }
 
   return (
-    <div className="space-y-3 p-4 md:p-5">
+    <div className="space-y-3 p-4 pb-[calc(6.5rem+var(--bottom-chrome)+var(--safe-floor))] md:p-5 md:pb-28">
       <div className="flex items-center gap-2">
         <button
           aria-label="back"
@@ -1119,13 +1119,14 @@ export function VenteClient({
           </div>
       </BottomSheet>
 
-      {/* Cart bar: in-flow sticky (not a guessed fixed offset) so it always sits
-          just above whatever the phone shows at the bottom — Safari toolbar,
-          Android nav buttons, gesture bar, or the app's own tab bar. */}
+      {/* Cart bar: pinned to the real bottom of the screen (above the app tab bar
+          only when there is one, above the home indicator, after the sidebar on
+          desktop). Fixed — not sticky: a sticky bar slid off-screen under the
+          UI zoom (110 %) on desktop and could not be clicked. */}
       {kbInset === 0 && !showFacture && (
         <div
-          className="pointer-events-none sticky z-40 -mx-4 bg-gradient-to-t from-(--bg-page) via-(--bg-page)/85 to-transparent px-3 pt-8 md:-mx-5"
-          style={{ bottom: "var(--bottom-chrome, 0px)", paddingBottom: "calc(var(--safe-floor, 0px) + 10px)" }}
+          className="gw-bottom-bar pointer-events-none bg-gradient-to-t from-(--bg-page) via-(--bg-page)/85 to-transparent px-3 pt-8"
+          style={{ paddingBottom: "calc(var(--safe-floor, 0px) + 10px)" }}
         >
           <button
             type="button"
