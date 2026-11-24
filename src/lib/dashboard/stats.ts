@@ -8,8 +8,11 @@
 ///   profit  (bénéfice brut)      = revenue − Σ baseQty × unitCost (COGS snapshot)
 ///   net     (après dépenses)     = profit − expenses in the period
 
-export type Period = "day" | "week" | "month";
+/// "custom" = the admin's own from/to window (empty unless a range was asked for).
+export type Period = "day" | "week" | "month" | "custom";
+/// The three always-on windows (cards / table columns); "custom" is added on demand.
 export const PERIODS: Period[] = ["day", "week", "month"];
+export type CustomRange = { from: string; to: string };
 export type Channel = "DEPOT" | "VAN" | "POS";
 
 export type RawLine = {
@@ -52,6 +55,8 @@ export type VanBlock = {
 
 export type DashboardData = {
   nowIso: string;
+  /// The from/to window behind the "custom" period (null = none asked for).
+  customRange: { from: string; to: string; days: number } | null;
   periods: Record<Period, { cur: Agg; prev: Agg }>;
   /// Last 30 days, oldest first.
   trend: Array<{ date: string; revenue: number; profit: number }>;
@@ -80,15 +85,33 @@ export function weekStart(d: Date): Date {
 }
 
 /// Earliest instant the server must load so every comparison window exists.
-export function dashboardSince(now: Date): Date {
+export function dashboardSince(now: Date, custom?: CustomRange | null): Date {
   const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const wk = addDays(weekStart(now), -7);
   const thirty = addDays(startOfDay(now), -29);
-  return new Date(Math.min(prevMonth.getTime(), wk.getTime(), thirty.getTime()));
+  const times = [prevMonth.getTime(), wk.getTime(), thirty.getTime()];
+  const cr = custom ? customWindow(custom) : null;
+  if (cr) times.push(cr.prevStart.getTime());
+  return new Date(Math.min(...times));
 }
 
-type Range = { start: Date; end: Date; prevStart: Date; prevEnd: Date };
-function ranges(now: Date): Record<Period, Range> {
+const keyToLocal = (key: string, endOfDay = false) => {
+  const [y, m, d] = key.split("-").map(Number);
+  return endOfDay ? new Date(y, m - 1, d, 23, 59, 59, 999) : new Date(y, m - 1, d);
+};
+
+/// The admin's window [from 00:00, to 23:59:59] and the equally long window
+/// right before it (the "previous period" it is compared with).
+export function customWindow(c: CustomRange): Range | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(c.from) || !/^\d{4}-\d{2}-\d{2}$/.test(c.to) || c.from > c.to) return null;
+  const start = keyToLocal(c.from);
+  const end = keyToLocal(c.to, true);
+  const span = end.getTime() - start.getTime() + 1;
+  return { start, end, prevStart: new Date(start.getTime() - span), prevEnd: new Date(start.getTime() - 1) };
+}
+
+export type Range = { start: Date; end: Date; prevStart: Date; prevEnd: Date };
+function ranges(now: Date, custom?: CustomRange | null): Record<Exclude<Period, "custom">, Range> & { custom?: Range } {
   const dayS = startOfDay(now);
   const wkS = weekStart(now);
   const moS = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -103,6 +126,7 @@ function ranges(now: Date): Record<Period, Range> {
     day: win(dayS, addDays(dayS, -1)),
     week: win(wkS, addDays(wkS, -7)),
     month: win(moS, new Date(now.getFullYear(), now.getMonth() - 1, 1)),
+    ...(custom && customWindow(custom) ? { custom: customWindow(custom)! } : {}),
   };
 }
 
@@ -163,9 +187,10 @@ export function buildDashboard(args: {
   sales: RawSale[];
   expenses: RawExpense[];
   vans: RawVan[];
+  custom?: CustomRange | null;
 }): DashboardData {
   const { now, sales, expenses, vans } = args;
-  const R = ranges(now);
+  const R = ranges(now, args.custom);
   const vanIds = new Set(vans.map((v) => v.id));
   const vanName = new Map(vans.map((v) => [v.id, v.name]));
 
@@ -182,13 +207,20 @@ export function buildDashboard(args: {
       day: { ...emptyAgg(), products: [], clients: [] },
       week: { ...emptyAgg(), products: [], clients: [] },
       month: { ...emptyAgg(), products: [], clients: [] },
+      custom: { ...emptyAgg(), products: [], clients: [] },
     },
     trend: Array.from({ length: 14 }, () => ({ r: 0, p: 0 })),
   }));
   const vanIdx = new Map(vanBlocks.map((v, i) => [v.id, i]));
 
-  for (const p of PERIODS) {
-    const r = R[p];
+  // "custom" always exists (empty without a range) so every Record<Period,…> is total.
+  periods.custom = { cur: emptyAgg(), prev: emptyAgg() };
+  channels.custom = { DEPOT: 0, VAN: 0, POS: 0 };
+  other.custom = emptyAgg();
+  top.custom = { products: [], clients: [], vans: [] };
+  const active: Period[] = R.custom ? [...PERIODS, "custom"] : PERIODS;
+  for (const p of active) {
+    const r = R[p]!;
     const cur = emptyAgg();
     const prev = emptyAgg();
     const ch: Record<Channel, number> = { DEPOT: 0, VAN: 0, POS: 0 };
@@ -273,6 +305,31 @@ export function buildDashboard(args: {
     }
   }
 
+  // With a custom window the company chart follows it (≤ 120 days, ending at
+  // the window's last day or today, whichever is earlier).
+  if (R.custom) {
+    const last = startOfDay(R.custom.end > now ? now : R.custom.end);
+    const first = startOfDay(R.custom.start);
+    const n = Math.min(120, Math.max(1, Math.round((last.getTime() - first.getTime()) / 86_400_000) + 1));
+    const from = addDays(last, -(n - 1));
+    const t2: DashboardData["trend"] = [];
+    const idx2 = new Map<string, number>();
+    for (let i = 0; i < n; i++) {
+      const d = addDays(from, i);
+      idx2.set(dayKey(d), t2.length);
+      t2.push({ date: dayKey(d), revenue: 0, profit: 0 });
+    }
+    for (const s of sales) {
+      const ti = idx2.get(dayKey(s.date));
+      if (ti === undefined || !inRange(s.date, R.custom.start, R.custom.end)) continue;
+      const total = num(s.total);
+      t2[ti].revenue += total;
+      t2[ti].profit += total - saleCogs(s);
+    }
+    trend.length = 0;
+    trend.push(...t2);
+  }
+
   // Active vans first by month revenue; inactive vans only if they sold.
   const visibleVans = vanBlocks
     .filter((b) => vans[vanIdx.get(b.id)!].isActive || b.periods.month.count > 0 || b.periods.week.count > 0)
@@ -291,5 +348,8 @@ export function buildDashboard(args: {
       channel: s.channel,
     }));
 
-  return { nowIso: now.toISOString(), periods, trend, channels, top, vans: visibleVans, other, recent };
+  const customRange = R.custom && args.custom
+    ? { from: args.custom.from, to: args.custom.to, days: Math.round((R.custom.end.getTime() - R.custom.start.getTime()) / 86_400_000) }
+    : null;
+  return { nowIso: now.toISOString(), customRange, periods, trend, channels, top, vans: visibleVans, other, recent };
 }

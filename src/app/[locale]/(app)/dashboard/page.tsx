@@ -15,8 +15,9 @@ import { buildDashboard, dashboardSince } from "@/lib/dashboard/stats";
 
 const fmt = (v: number) => dzMoney(v);
 
-export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function DashboardPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ from?: string; to?: string }> }) {
   const { locale } = await params;
+  const sp = await searchParams;
   setRequestLocale(locale);
   const session = await getSession();
   if (!session) redirect(`/${locale}/login`);
@@ -31,7 +32,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
   if (session.role === "Admin") {
-    const since = dashboardSince(now);
+    // Optional custom window (?from=YYYY-MM-DD&to=YYYY-MM-DD), at most one year.
+    const okKey = (k?: string) => !!k && /^\d{4}-\d{2}-\d{2}$/.test(k) && !Number.isNaN(new Date(`${k}T00:00:00`).getTime());
+    let custom: { from: string; to: string } | null = null;
+    if (okKey(sp.from) && okKey(sp.to) && sp.from! <= sp.to!) {
+      const days = (new Date(`${sp.to}T00:00:00`).getTime() - new Date(`${sp.from}T00:00:00`).getTime()) / 86_400_000;
+      if (days <= 366) custom = { from: sp.from!, to: sp.to! };
+    }
+    const since = dashboardSince(now, custom);
     const KINDS = ["DELIVERY", "TICKET"] as ["DELIVERY", "TICKET"];
     const [sales, expenses, vans, clientDebts, supplierDebts, products] = await Promise.all([
       prisma.sale.findMany({
@@ -62,6 +70,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
       .sort((a, b) => Number(a.stockQty) - Number(b.stockQty));
     const data = buildDashboard({
       now,
+      custom,
       sales,
       expenses,
       vans: vans.map((v) => ({ id: v.id, name: v.name, matricule: v.matricule, isActive: v.isActive, driver: v.user?.fullName ?? null })),

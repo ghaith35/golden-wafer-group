@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   AlertTriangle, ArrowDownRight, ArrowLeftRight, ArrowUpRight, BarChart3, Boxes, CalendarDays, CalendarRange,
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import type { Agg, DashboardData, Period } from "@/lib/dashboard/stats";
 import { MiniBars, TrendChart, compactNum, useCountUp } from "./charts";
 import { ClientName } from "@/components/clients/ClientName";
+import { RangePicker, type RangeLabels } from "./RangePicker";
 
 const ICONS: Record<string, LucideIcon> = { Store, ShoppingCart, Users, Boxes, ArrowLeftRight, Wallet, NotebookPen, BarChart3 };
 
@@ -26,7 +27,7 @@ export type DashExtras = {
 };
 
 const PERIODS: Period[] = ["day", "week", "month"];
-const PERIOD_ICON: Record<Period, LucideIcon> = { day: Sun, week: CalendarDays, month: CalendarRange };
+const PERIOD_ICON: Record<Period, LucideIcon> = { day: Sun, week: CalendarDays, month: CalendarRange, custom: CalendarRange };
 
 function Money({ value, className }: { value: number; className?: string }) {
   const v = useCountUp(value);
@@ -156,13 +157,41 @@ function RankList({ items, max, fit, t, green }: { items: RankItem[]; max: numbe
 export function DashboardClient({ data, locale, userName, extras, actions }: { data: DashboardData; locale: string; userName: string; extras: DashExtras; actions: DashAction[] }) {
   const t = useTranslations("dashboard");
   const router = useRouter();
-  const [period, setPeriod] = React.useState<Period>("day");
+  const pathname = usePathname();
+  const [period, setPeriod] = React.useState<Period>(data.customRange ? "custom" : "day");
+  // A new custom window arriving from the server switches the view to it;
+  // clearing it (live view) falls back to today.
+  const rangeKey = data.customRange ? `${data.customRange.from}|${data.customRange.to}` : "";
+  React.useEffect(() => {
+    setPeriod((p) => (rangeKey ? "custom" : p === "custom" ? "day" : p));
+  }, [rangeKey]);
   const [prodMetric, setProdMetric] = React.useState<"revenue" | "profit" | "qty">("revenue");
   const [openVan, setOpenVan] = React.useState<string | null>(null);
   const [refreshing, startRefresh] = React.useTransition();
   const money = dzMoney;
-  const label = (p: Period) => (p === "day" ? t("day") : p === "week" ? t("week") : t("month"));
-  const vsLabel = (p: Period) => (p === "day" ? t("vsDay") : p === "week" ? t("vsWeek") : t("vsMonth"));
+  const rangeFmt = React.useMemo(() => new Intl.DateTimeFormat(`${locale === "ar" ? "ar-DZ" : locale}-u-nu-latn`, { day: "numeric", month: "short" }), [locale]);
+  const rangeText = () => {
+    const r = data.customRange;
+    if (!r) return t("rangeBtn");
+    const f = (k: string) => { const [y, m, d] = k.split("-").map(Number); return rangeFmt.format(new Date(y, m - 1, d)); };
+    return r.from === r.to ? f(r.from) : `${f(r.from)} → ${f(r.to)}`;
+  };
+  const label = (p: Period) => (p === "day" ? t("day") : p === "week" ? t("week") : p === "month" ? t("month") : rangeText());
+  const vsLabel = (p: Period) => (p === "day" ? t("vsDay") : p === "week" ? t("vsWeek") : p === "month" ? t("vsMonth") : t("vsPrev"));
+  const rangeLabels: RangeLabels = {
+    btn: t("rangeBtn"), title: t("rangeTitle"), from: t("rangeFrom"), to: t("rangeTo"), apply: t("rangeApply"), clear: t("rangeClear"),
+    days: (n: number) => t("rangeDays", { n }),
+    today: t("rangeToday"), yesterday: t("rangeYesterday"), last7: t("range7"), last30: t("range30"),
+    thisMonth: t("rangeThisMonth"), lastMonth: t("rangeLastMonth"), thisYear: t("rangeThisYear"),
+    invalid: t("rangeInvalid"), max: t("rangeMax"),
+  };
+  const applyRange = (from: string, to: string) => {
+    startRefresh(() => router.push(`${pathname}?from=${from}&to=${to}`));
+  };
+  const clearRange = () => {
+    setPeriod("day");
+    startRefresh(() => router.push(pathname));
+  };
 
   // ── One-screen "stage": on desktop the whole dashboard is laid out on a
   // virtual canvas and CSS-zoomed to exactly fill the window (no page scroll,
@@ -231,6 +260,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
   const clientItems: RankItem[] = clients.map((c) => ({ id: c.id, name: c.name, client: true, lat: c.gpsLat, lng: c.gpsLng, value: c.revenue, valueLabel: compactOrFull(c.revenue, fit), profit: c.profit, count: c.count }));
 
   /* ── reusable blocks ── */
+  const cardPeriods: Period[] = data.customRange ? ["custom", ...PERIODS] : PERIODS;
   const periodCard = (p: Period) => {
     const a = data.periods[p].cur;
     const b = data.periods[p].prev;
@@ -504,6 +534,16 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
       </div>
       <div className="flex items-center gap-2">
         <Seg small={fit} value={period} onChange={setPeriod} options={PERIODS.map((p) => ({ v: p, label: label(p) }))} />
+        <RangePicker
+          small={fit}
+          value={data.customRange}
+          now={new Date(data.nowIso)}
+          locale={locale}
+          labels={rangeLabels}
+          busy={refreshing}
+          onApply={(a, b) => { applyRange(a, b); }}
+          onClear={clearRange}
+        />
         <button
           type="button"
           onClick={() => startRefresh(() => router.refresh())}
@@ -538,7 +578,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
     <Panel
       fit={fit}
       className={fit ? "col-span-6" : "xl:col-span-8"}
-      title={t("trendTitle")}
+      title={data.customRange ? `${t("trendTitle").replace(/\d+/, String(data.trend.length))}` : t("trendTitle")}
       icon={BarChart3}
       right={
         <div className="flex items-center gap-3 text-[10.5px] font-black text-(--text-secondary)">
@@ -604,7 +644,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
       {fit && box ? (
         <div className="flex flex-col gap-2.5 p-3" style={{ zoom: scale, width: box.w / scale, height: box.h / scale } as React.CSSProperties}>
           {header}
-          <div className="grid shrink-0 grid-cols-3 gap-2.5">{PERIODS.map(periodCard)}</div>
+          <div className={cn("grid shrink-0 gap-2.5", data.customRange ? "grid-cols-4" : "grid-cols-3")}>{cardPeriods.map(periodCard)}</div>
           {kpiStrip}
           <div className="grid min-h-0 flex-1 grid-cols-12 grid-rows-[minmax(0,1fr)_minmax(0,1.14fr)] gap-2.5">
             {trendPanel}
@@ -618,7 +658,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
       ) : (
         <div className="mx-auto w-full max-w-[1800px] space-y-4 p-4 sm:p-5 md:p-6">
           {header}
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">{PERIODS.map(periodCard)}</div>
+          <div className={cn("grid grid-cols-1 gap-3", data.customRange ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-3")}>{cardPeriods.map(periodCard)}</div>
           {kpiStrip}
           <div className="grid gap-4 xl:grid-cols-12">
             {trendPanel}

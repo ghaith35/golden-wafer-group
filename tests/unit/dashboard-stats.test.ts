@@ -59,4 +59,23 @@ describe("dashboard stats", () => {
     expect(d.trend[29]).toMatchObject({ date: "2026-11-18", revenue: 1000, profit: 400 });
     expect(d.vans.find((v) => v.id === "v1")!.trend[13].r).toBe(1000);
   });
+
+  describe("custom range", () => {
+    const c = buildDashboard({ now: NOW, sales, vans, expenses: [], custom: { from: "2026-11-16", to: "2026-11-17" } });
+    it("sums only the chosen days (inclusive) and compares with the equally long window before", () => {
+      // 16th (b = 700) + 17th (d = 100); previous window = 14th–15th (nothing).
+      expect(c.periods.custom.cur).toMatchObject({ revenue: 800, count: 2 });
+      expect(c.periods.custom.prev).toMatchObject({ revenue: 0, count: 0 });
+      expect(c.customRange).toEqual({ from: "2026-11-16", to: "2026-11-17", days: 2 });
+    });
+    it("is empty without a range and leaves the standard periods untouched", () => {
+      expect(d.customRange).toBeNull();
+      expect(d.periods.custom.cur.count).toBe(0);
+      expect(c.periods.day.cur.revenue).toBe(1000);
+    });
+    it("ignores a backwards range", () => {
+      const bad = buildDashboard({ now: NOW, sales, vans, expenses: [], custom: { from: "2026-11-17", to: "2026-11-16" } });
+      expect(bad.customRange).toBeNull();
+    });
+  });
 });
