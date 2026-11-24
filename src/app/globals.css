@@ -720,3 +720,9 @@ main .grid > *:nth-child(n+7), .table-shell tbody tr:nth-child(n+7) { animation-
 /* The top-bar button switches the logo off (class set on <html>, remembered per device). */
 .gw-no-logo .gw-watermark { display: none !important; }
 @media print { .gw-watermark { display: none !important; } }
+
+/* ── Popups: while one is open the page behind never scrolls (ModalGuard also
+   makes everything outside the popup inert, so it can't be clicked/tapped). ── */
+html[data-modal-open], html[data-modal-open] body { overflow: hidden !important; overscroll-behavior: none; }
+[inert] { pointer-events: none !important; user-select: none; }
+@media print { html[data-modal-open], html[data-modal-open] body { overflow: visible !important; } }

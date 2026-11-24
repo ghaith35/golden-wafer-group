@@ -4,6 +4,9 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // Dev-only "N" badge floats bottom-left and sits on top of the sale cart bar,
+  // stealing taps. Never shown in production builds anyway.
+  devIndicators: false,
   output: "standalone",
   // Allow HMR / dev-tools WebSocket on both loopback hosts. Browsing the dev
   // server via 127.0.0.1 while Next only allows localhost (or vice versa)

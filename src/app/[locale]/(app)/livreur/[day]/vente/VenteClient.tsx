@@ -128,6 +128,10 @@ export function VenteClient({
   const [showFacture, setShowFacture] = useState(false);
   /// On-screen keyboard height: the cart bar hides while typing (search).
   const kbInset = useKeyboardInset();
+  // The floating cart bar is portaled — only after mount, so SSR and the
+  // first client render match (no hydration mismatch).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   /// Small haptic tick when a product is added to the order (phones).
   const prevLineCount = useRef(0);
   useEffect(() => {
@@ -478,10 +482,12 @@ export function VenteClient({
   }
 
   const total = effLines.reduce((s, l) => s + l.qty * l.unitPrice, 0);
+  // Exact total (decimals kept when there are any) — same text everywhere it is shown.
+  const totalTxt = dzMoney(total, Math.round(total * 100) % 100 !== 0 ? 2 : 0);
   // "المقبوض" follows "المجموع" until the driver types his own amount.
   useEffect(() => {
     if (paidTouched) return;
-    setPaid(total > 0 ? String(Math.round(total * 100) / 100) : "");
+    setPaid(total > 0 ? String(Math.floor(Math.round(total * 100) / 100)) : "");
   }, [total, paidTouched]);
 
   function bump(i: number, d: number) {
@@ -999,21 +1005,21 @@ export function VenteClient({
         open={showFacture}
         onClose={() => setShowFacture(false)}
         title={labels.facture}
-        subtitle={`${lines.length} · ${dzMoney(total)}`}
+        subtitle={`${lines.length} · ${totalTxt}`}
         testId="facture-sheet"
         footer={
           <>
           <div className="flex items-center justify-between rounded-xl bg-(--bg-sunken) px-3 py-2.5">
             <span className="text-sm font-black">{labels.total}</span>
-            <span className="text-lg font-black tabular-nums" dir="ltr">{dzMoney(total)}</span>
+            <span className="text-lg font-black tabular-nums" dir="ltr">{totalTxt}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="shrink-0 text-sm font-bold opacity-70">{labels.paid}</span>
-            <Input value={paid} onChange={(e) => { setPaid(e.target.value); setPaidTouched(e.target.value.trim() !== ""); }} inputMode="decimal" placeholder={dzMoney(total)} dir="ltr" />
+            <Input value={paid} onChange={(e) => { setPaid(e.target.value); setPaidTouched(e.target.value.trim() !== ""); }} inputMode="decimal" placeholder={String(Math.floor(Math.round(total * 100) / 100))} dir="ltr" />
           </div>
           {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
           <Button onClick={() => void confirmSale()} disabled={saving || !lines.length} data-testid="confirm-sale" className="h-12 w-full text-base">
-            {saving ? "…" : `${labels.confirm} · ${dzMoney(total)}`}
+            {saving ? "…" : `${labels.confirm} · ${totalTxt}`}
           </Button>
           </>
         }
@@ -1031,7 +1037,7 @@ export function VenteClient({
               const upr = effLines[i].unitPrice;
               const isPack = uf > 1;
               return (
-                <div key={i} className="flex gap-2 rounded-xl border border-(--border-default) p-2">
+                <div key={i} className="flex gap-2.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2.5">
                   {img ? (
                     <button
                       type="button"
@@ -1040,10 +1046,10 @@ export function VenteClient({
                       className="shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--brand-500)"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={img} alt={p?.name ?? ""} className="h-14 w-14 rounded-lg object-cover" loading="lazy" />
+                      <img src={img} alt={p?.name ?? ""} className="h-16 w-16 rounded-xl object-cover" loading="lazy" />
                     </button>
                   ) : (
-                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-xl opacity-50">📦</span>
+                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken) text-xl opacity-50">📦</span>
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
@@ -1055,51 +1061,48 @@ export function VenteClient({
                       </div>
                       <div className="shrink-0 whitespace-nowrap text-sm font-black tabular-nums" dir="ltr">{dzMoney(l.qty * effLines[i].unitPrice)}</div>
                     </div>
-                    <div className="mt-1.5 grid grid-cols-2 gap-1 text-[10.5px] font-bold leading-tight tabular-nums" dir="ltr">
+                    {/* One compact info strip: pack size once, then price per unit / per piece. */}
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1 text-[11px] font-bold leading-tight tabular-nums">
                       {isPack && (
-                        <span className="col-span-2 rounded-md bg-(--brand-500)/10 px-1.5 py-1 text-(--brand-600)">
-                          1 {uName} = <bdi>{uf}</bdi> {baseName}
+                        <span className="rounded-md bg-(--brand-500)/10 px-1.5 py-0.5 text-(--brand-600)">
+                          <bdi>1 {uName}</bdi> = <bdi>{uf} {baseName}</bdi>
                         </span>
                       )}
-                      <span className="rounded-md bg-(--bg-sunken) px-1.5 py-1">
-                        <span className="opacity-60">{uName}</span> <b>{dzMoney(upr)}</b>
+                      <span className="rounded-md bg-(--bg-sunken) px-1.5 py-0.5">
+                        {effLines[i].deal && <span className="me-1 opacity-40 line-through">{dzMoney(l.unitPrice)}</span>}
+                        <bdi className="opacity-60">{uName}</bdi> <b className={effLines[i].deal ? "text-amber-700" : undefined}>{dzMoney(upr)}</b>
                       </span>
-                      {isPack ? (
-                        <span className="rounded-md bg-(--bg-sunken) px-1.5 py-1">
-                          <span className="opacity-60">{baseName}</span> <b>{dzMoney(upr / uf)}</b>
-                        </span>
-                      ) : (
-                        <span className="rounded-md bg-(--bg-sunken) px-1.5 py-1 opacity-70">× {l.qty}</span>
-                      )}
                       {isPack && (
-                        <span className="col-span-2 rounded-md bg-(--bg-sunken) px-1.5 py-1">
-                          <bdi>{l.qty}</bdi> {uName} = <b><bdi>{Math.round(l.qty * uf * 1000) / 1000}</bdi></b> {baseName}
+                        <span className="rounded-md bg-(--bg-sunken) px-1.5 py-0.5">
+                          <bdi className="opacity-60">{baseName}</bdi> <b>{dzMoney(upr / uf)}</b>
                         </span>
                       )}
+                      <DealChip deal={effLines[i].deal} money={dzMoney(effLines[i].unitPrice)} />
                     </div>
-                    <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-                      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 whitespace-nowrap text-[11px] tabular-nums" dir="ltr">
-                        {effLines[i].deal && <span className="opacity-40 line-through">{dzMoney(l.unitPrice)}</span>}
-                        <span className={effLines[i].deal ? "font-black text-amber-700" : "opacity-60"}>{dzMoney(effLines[i].unitPrice)}</span>
-                        <DealChip deal={effLines[i].deal} money={dzMoney(effLines[i].unitPrice)} />
-                      </div>
-                      <div className="flex shrink-0 items-center gap-1">
+                    {/* Quantity row: pieces total on the start side, big thumb-friendly stepper on the end. */}
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <span className="min-w-0 truncate text-[11px] font-bold opacity-60 tabular-nums">
+                        {isPack ? <><bdi>{l.qty} {uName}</bdi> = <b><bdi>{Math.round(l.qty * uf * 1000) / 1000} {baseName}</bdi></b></> : <>× <bdi>{l.qty}</bdi></>}
+                      </span>
+                      <div className="flex shrink-0 items-center gap-1.5">
                         <button
                           type="button"
                           aria-label={labels.remove ?? "Remove"}
                           title={labels.remove ?? "Remove"}
                           onClick={() => setLines((prev) => prev.filter((_, j) => j !== i))}
-                          className="flex h-9 w-9 items-center justify-center min-[380px]:h-10 min-[380px]:w-10 rounded-lg text-red-500 hover:bg-red-500/10"
+                          className="flex h-10 w-10 items-center justify-center rounded-xl text-red-500 active:bg-red-500/15"
                         >
-                          <Trash2 size={15} />
+                          <Trash2 size={16} />
                         </button>
-                        <button aria-label="-" onClick={() => bump(i, -1)} className="flex h-9 w-9 items-center justify-center min-[380px]:h-10 min-[380px]:w-10 rounded-lg bg-(--bg-sunken)">
-                          <Minus size={15} />
-                        </button>
-                        <span className="min-w-7 text-center text-sm font-black tabular-nums">{l.qty}</span>
-                        <button aria-label="+" onClick={() => bump(i, 1)} className="flex h-9 w-9 items-center justify-center min-[380px]:h-10 min-[380px]:w-10 rounded-lg bg-(--bg-sunken)">
-                          <Plus size={15} />
-                        </button>
+                        <div className="flex items-center rounded-xl bg-(--bg-sunken)">
+                          <button aria-label="-" onClick={() => bump(i, -1)} className="flex h-10 w-10 items-center justify-center rounded-xl active:bg-black/10">
+                            <Minus size={16} />
+                          </button>
+                          <span className="min-w-8 text-center text-base font-black tabular-nums">{l.qty}</span>
+                          <button aria-label="+" onClick={() => bump(i, 1)} className="flex h-10 w-10 items-center justify-center rounded-xl active:bg-black/10">
+                            <Plus size={16} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1119,13 +1122,13 @@ export function VenteClient({
           </div>
       </BottomSheet>
 
-      {/* Cart bar: in-flow sticky (not a guessed fixed offset) so it always sits
-          just above whatever the phone shows at the bottom — Safari toolbar,
-          Android nav buttons, gesture bar, or the app's own tab bar. */}
-      {kbInset === 0 && !showFacture && (
+      {/* Cart bar: floats over the screen, always visible (no scrolling to find
+          it). Rendered in the app shell via a portal so no page container, zoom
+          or stacking context can sit between it and the click. */}
+      {mounted && kbInset === 0 && !showFacture && createPortal(
         <div
-          className="pointer-events-none sticky z-40 -mx-4 bg-gradient-to-t from-(--bg-page) via-(--bg-page)/85 to-transparent px-3 pt-8 md:-mx-5"
-          style={{ bottom: "var(--bottom-chrome, 0px)", paddingBottom: "calc(var(--safe-floor, 0px) + 10px)" }}
+          className="gw-bottom-bar pointer-events-none bg-gradient-to-t from-(--bg-page) via-(--bg-page)/85 to-transparent px-3 pt-8 print:hidden"
+          style={{ position: "fixed", insetInlineEnd: 0, bottom: "var(--bottom-chrome, 0px)", zIndex: 45, paddingBottom: "calc(var(--safe-floor, 0px) + 10px)" }}
         >
           <button
             type="button"
@@ -1148,7 +1151,8 @@ export function VenteClient({
             </span>
             <ChevronUp size={22} className="shrink-0" />
           </button>
-        </div>
+        </div>,
+        document.querySelector("[data-shell-content]")?.parentElement ?? document.body
       )}
 
       {/* Scan popup — locked: no ✕, no skip, no manual pick. The sale

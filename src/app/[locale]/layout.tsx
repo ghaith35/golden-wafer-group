@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { UiZoomBoot } from "@/components/layout/UiZoomBoot";
+import { ModalGuard } from "@/components/layout/ModalGuard";
 import { DataSyncBoot } from "@/components/layout/DataSyncBoot";
 
 export function generateStaticParams() {
@@ -23,6 +24,7 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <UiZoomBoot />
+      <ModalGuard />
       <DataSyncBoot />
       {children}
     </NextIntlClientProvider>
