@@ -143,14 +143,11 @@ export function VenteClient({
   /// line — one line per product, never duplicates.
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [paid, setPaid] = useState(editingTicket ? String(editingTicket.paid) : "");
-  // The received amount defaults to the full total when the facture opens
-  // (the driver edits it down only for partial payments).
-  useEffect(() => {
-    if (showFacture && paid === "" && total > 0) {
-      setPaid(String(Math.round(total * 100) / 100));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showFacture]);
+  /// true once the driver typed his OWN received amount (partial payment).
+  /// Until then "المقبوض" always equals "المجموع" — it follows every cart change
+  /// (qty +/-, added line, deal/gift repricing), never a stale first total.
+  const [paidTouched, setPaidTouched] = useState(!!editingTicket);
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   /// Silent sale-site fix (admin eyes only — no UI, never blocks the sale):
@@ -481,6 +478,11 @@ export function VenteClient({
   }
 
   const total = effLines.reduce((s, l) => s + l.qty * l.unitPrice, 0);
+  // "المقبوض" follows "المجموع" until the driver types his own amount.
+  useEffect(() => {
+    if (paidTouched) return;
+    setPaid(total > 0 ? String(Math.round(total * 100) / 100) : "");
+  }, [total, paidTouched]);
 
   function bump(i: number, d: number) {
     setLines((prev) =>
@@ -645,6 +647,7 @@ export function VenteClient({
         setLines([]);
         setShowFacture(false);
         setPaid("");
+        setPaidTouched(false);
       } catch {
         // Offline: queue the ticket, it syncs as an immediate sale later.
         // Preview renders from the local snapshot (number assigned on sync).
@@ -675,6 +678,7 @@ export function VenteClient({
         setLines([]);
         setShowFacture(false);
         setPaid("");
+        setPaidTouched(false);
       } finally {
         setSaving(false);
       }
@@ -991,7 +995,7 @@ export function VenteClient({
           </div>
           <div className="flex items-center gap-2">
             <span className="shrink-0 text-sm font-bold opacity-70">{labels.paid}</span>
-            <Input value={paid} onChange={(e) => setPaid(e.target.value)} inputMode="decimal" placeholder={dzMoney(total)} dir="ltr" />
+            <Input value={paid} onChange={(e) => { setPaid(e.target.value); setPaidTouched(e.target.value.trim() !== ""); }} inputMode="decimal" placeholder={dzMoney(total)} dir="ltr" />
           </div>
           {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
           <Button onClick={() => void confirmSale()} disabled={saving || !lines.length} data-testid="confirm-sale" className="h-12 w-full text-base">
@@ -1004,6 +1008,14 @@ export function VenteClient({
             {lines.map((l, i) => {
               const p = effProducts.find((x) => x.id === l.productId) ?? products.find((x) => x.id === l.productId);
               const img = p?.images?.[0]?.url;
+              // Full detail of the line: the unit sold, how many pieces it holds,
+              // and the price per unit AND per piece.
+              const conv = p?.conversions.find((c) => c.unitId === l.unitId);
+              const uf = conv ? normFactor(Number(conv.factor)) : 1;
+              const baseName = p?.baseUnit?.name ?? "";
+              const uName = conv?.unit.name ?? baseName;
+              const upr = effLines[i].unitPrice;
+              const isPack = uf > 1;
               return (
                 <div key={i} className="flex gap-2 rounded-xl border border-(--border-default) p-2">
                   {img ? (
@@ -1028,6 +1040,28 @@ export function VenteClient({
                         </span>
                       </div>
                       <div className="shrink-0 whitespace-nowrap text-sm font-black tabular-nums" dir="ltr">{dzMoney(l.qty * effLines[i].unitPrice)}</div>
+                    </div>
+                    <div className="mt-1.5 grid grid-cols-2 gap-1 text-[10.5px] font-bold leading-tight tabular-nums" dir="ltr">
+                      {isPack && (
+                        <span className="col-span-2 rounded-md bg-(--brand-500)/10 px-1.5 py-1 text-(--brand-600)">
+                          1 {uName} = <bdi>{uf}</bdi> {baseName}
+                        </span>
+                      )}
+                      <span className="rounded-md bg-(--bg-sunken) px-1.5 py-1">
+                        <span className="opacity-60">{uName}</span> <b>{dzMoney(upr)}</b>
+                      </span>
+                      {isPack ? (
+                        <span className="rounded-md bg-(--bg-sunken) px-1.5 py-1">
+                          <span className="opacity-60">{baseName}</span> <b>{dzMoney(upr / uf)}</b>
+                        </span>
+                      ) : (
+                        <span className="rounded-md bg-(--bg-sunken) px-1.5 py-1 opacity-70">× {l.qty}</span>
+                      )}
+                      {isPack && (
+                        <span className="col-span-2 rounded-md bg-(--bg-sunken) px-1.5 py-1">
+                          <bdi>{l.qty}</bdi> {uName} = <b><bdi>{Math.round(l.qty * uf * 1000) / 1000}</bdi></b> {baseName}
+                        </span>
+                      )}
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
                       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 whitespace-nowrap text-[11px] tabular-nums" dir="ltr">
