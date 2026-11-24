@@ -133,7 +133,7 @@ function RankList({ items, max, fit, t, green }: { items: RankItem[]; max: numbe
         <li key={it.id} className="min-w-0">
           <div className="flex items-center gap-2">
             <Rank i={i} small={fit} />
-            <span className={cn("min-w-0 flex-1 truncate font-black", fit ? "text-[12px]" : "text-[13px]")}>
+            <span className={cn("min-w-0 flex-1 line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight font-black", fit ? "text-[12px]" : "text-[13px]")}>
               {it.client ? <ClientName name={it.name} lat={it.lat} lng={it.lng} /> : it.name}
               {it.sub && <span className="ms-1.5 text-[10px] font-bold text-(--text-tertiary)" dir="ltr">{it.sub}</span>}
             </span>
@@ -314,11 +314,11 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
       <div className="grid shrink-0 grid-cols-2 gap-1.5">
         <div className="min-w-0 rounded-lg bg-red-500/10 px-2 py-1.5">
           <div className="flex items-center gap-1 text-[10px] font-bold text-(--text-secondary)"><Users size={11} />{t("clientsOwe")}</div>
-          <div className="truncate text-[12px] font-black tabular-nums text-(--semantic-danger)">{money(extras.clientDebt)}</div>
+          <div className="whitespace-nowrap text-[12px] font-black tabular-nums text-(--semantic-danger)">{money(extras.clientDebt)}</div>
         </div>
         <div className="min-w-0 rounded-lg bg-orange-500/10 px-2 py-1.5">
           <div className="flex items-center gap-1 text-[10px] font-bold text-(--text-secondary)"><Truck size={11} />{t("weOwe")}</div>
-          <div className="truncate text-[12px] font-black tabular-nums text-orange-500">{money(extras.supplierDebt)}</div>
+          <div className="whitespace-nowrap text-[12px] font-black tabular-nums text-orange-500">{money(extras.supplierDebt)}</div>
         </div>
       </div>
       <div className="mt-1.5 shrink-0 text-[10px] font-black text-(--text-tertiary)">{t("lowStockList")} ({extras.lowCount})</div>
@@ -328,7 +328,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
         <ul className="shrink-0 space-y-0.5">
           {extras.lowList.slice(0, fit ? 2 : 5).map((p) => (
             <li key={p.name} className="flex items-center justify-between gap-2 text-[11px] font-bold">
-              <span className="truncate">{p.name}</span>
+              <span className="min-w-0 line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight" title={p.name}>{p.name}</span>
               <span className="shrink-0 rounded-full bg-amber-500/15 px-1.5 text-[10px] font-black tabular-nums text-amber-600" dir="ltr">{qty(p.qty)} / {qty(p.min)}</span>
             </li>
           ))}
@@ -344,8 +344,8 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
           <li key={s.id} className="flex items-center gap-2 py-1.5">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-(--gold-wash) text-(--gold-text)"><Receipt size={12} /></span>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[11.5px] font-black">{s.client || t("walkIn")}</div>
-              <div className="truncate text-[9.5px] font-bold text-(--text-tertiary)" dir="auto">{[s.van, nf.format(new Date(s.dateIso)) + " " + timeFmt.format(new Date(s.dateIso))].filter(Boolean).join(" · ")}</div>
+              <div className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[11.5px] font-black">{s.client || t("walkIn")}</div>
+              <div className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[9.5px] font-bold text-(--text-tertiary)" dir="auto">{[s.van, nf.format(new Date(s.dateIso)) + " " + timeFmt.format(new Date(s.dateIso))].filter(Boolean).join(" · ")}</div>
             </div>
             <div className="shrink-0 text-[11.5px] font-black tabular-nums">{money(Math.round(s.total))}</div>
           </li>
@@ -358,17 +358,22 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
       <div className="grid grid-cols-3 gap-2 lg:col-span-12">
         {PERIODS.map((p) => {
           const a: Agg = v.periods[p];
+          const net = a.profit - a.expenses;
           return (
             <div key={p} className="min-w-0 rounded-xl border border-(--border-default) bg-(--bg-overlay) p-2.5">
-              <div className="mb-0.5 flex items-center justify-between gap-1 text-[10.5px] font-black text-(--text-secondary)">
+              <div className="mb-1 flex items-center justify-between gap-1 text-[10.5px] font-black text-(--text-secondary)">
                 <span>{label(p)}</span>
                 <span className="text-(--text-tertiary)">{a.count} {t("inv")}</span>
               </div>
-              <div className="truncate text-[clamp(13px,1.4vw,18px)] font-black tabular-nums">{money(Math.round(a.revenue))}</div>
-              <div className={cn("truncate text-[clamp(11px,1.1vw,14px)] font-black tabular-nums", a.profit >= 0 ? "text-(--semantic-success)" : "text-(--semantic-danger)")}>
-                {money(Math.round(a.profit))} <span className="text-[9.5px] font-bold text-(--text-tertiary)">{t("profit")}</span>
+              <div className="whitespace-nowrap text-[clamp(13px,1.3vw,17px)] font-black tabular-nums">{money(Math.round(a.revenue))}</div>
+              <div className="mt-0.5 flex flex-wrap items-baseline justify-between gap-x-2 text-[10px] font-bold text-(--text-tertiary)">
+                <span className="whitespace-nowrap">{t("profit")} <span className={cn("font-black tabular-nums", a.profit >= 0 ? "text-(--semantic-success)" : "text-(--semantic-danger)")}>{money(Math.round(a.profit))}</span></span>
+                <span className="whitespace-nowrap">{t("expenses")} <span className="font-black tabular-nums text-orange-500">{money(Math.round(a.expenses))}</span></span>
               </div>
-              {a.expenses > 0 && <div className="truncate text-[9.5px] font-bold text-(--text-tertiary)">{t("expenses")} {money(Math.round(a.expenses))}</div>}
+              <div className={cn("mt-1.5 flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 ring-1", net >= 0 ? "bg-emerald-500/12 ring-emerald-500/30" : "bg-red-500/12 ring-red-500/30")}>
+                <span className="flex items-center gap-1 text-[10.5px] font-black text-(--text-secondary)"><PiggyBank size={13} className={net >= 0 ? "text-emerald-600" : "text-red-500"} />{t("netProfit")}</span>
+                <span className={cn("whitespace-nowrap text-[clamp(14px,1.5vw,19px)] font-black leading-none tabular-nums", net >= 0 ? "text-emerald-600" : "text-red-500")}>{money(Math.round(net))}</span>
+              </div>
             </div>
           );
         })}
@@ -391,7 +396,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
                 {v.periods[period][k].slice(0, fit ? 3 : 5).map((x, i) => (
                   <li key={x.id} className="flex items-center gap-1.5 text-[11px] font-bold">
                     <Rank i={i} />
-                    <span className="min-w-0 flex-1 truncate">{k === "clients" ? <ClientName name={x.name} lat={(x as { gpsLat?: number | null }).gpsLat} lng={(x as { gpsLng?: number | null }).gpsLng} /> : x.name}</span>
+                    <span className="min-w-0 flex-1 line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight">{k === "clients" ? <ClientName name={x.name} lat={(x as { gpsLat?: number | null }).gpsLat} lng={(x as { gpsLng?: number | null }).gpsLng} /> : x.name}</span>
                     <span className="shrink-0 text-end font-black tabular-nums">{compactNum(x.revenue)}</span>
                   </li>
                 ))}
@@ -424,8 +429,8 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
                 <div className="flex min-w-0 items-center gap-2">
                   <span className={cn("flex shrink-0 items-center justify-center rounded-lg bg-(--gold-wash) text-(--gold-text)", fit ? "h-6 w-6" : "h-9 w-9")}><Truck size={fit ? 13 : 17} /></span>
                   <div className="min-w-0">
-                    <div className="truncate text-[12.5px] font-black">{v.name}{fit && <span className="ms-1.5 text-[10px] font-bold text-(--text-tertiary)">{v.driver}</span>}</div>
-                    {!fit && <div className="truncate text-[10px] font-bold text-(--text-tertiary)">{[v.driver, v.matricule].filter(Boolean).join(" · ") || "—"}</div>}
+                    <div className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[12.5px] font-black">{v.name}{fit && <span className="ms-1.5 text-[10px] font-bold text-(--text-tertiary)">{v.driver}</span>}</div>
+                    {!fit && <div className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[10px] font-bold text-(--text-tertiary)">{[v.driver, v.matricule].filter(Boolean).join(" · ") || "—"}</div>}
                   </div>
                   <ChevronDown size={15} className={cn("ms-auto shrink-0 text-(--text-tertiary) transition-transform duration-300 md:hidden", open && "rotate-180")} />
                 </div>
@@ -433,8 +438,8 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
                   {PERIODS.map((p) => (
                     <div key={p} className="min-w-0 rounded-lg bg-(--bg-sunken) px-2 py-1 md:bg-transparent md:p-0 md:text-end">
                       <div className="text-[9.5px] font-black text-(--text-tertiary) md:hidden">{label(p)}</div>
-                      <div className="truncate text-[12px] font-black tabular-nums">{money(Math.round(v.periods[p].revenue))}</div>
-                      <div className={cn("truncate text-[10.5px] font-black tabular-nums", v.periods[p].profit >= 0 ? "text-(--semantic-success)" : "text-(--semantic-danger)")}>{money(Math.round(v.periods[p].profit))}</div>
+                      <div className="whitespace-nowrap text-[12px] font-black tabular-nums">{money(Math.round(v.periods[p].revenue))}</div>
+                      <div className={cn("whitespace-nowrap text-[10.5px] font-black tabular-nums", v.periods[p].profit >= 0 ? "text-(--semantic-success)" : "text-(--semantic-danger)")}>{money(Math.round(v.periods[p].profit))}</div>
                     </div>
                   ))}
                 </div>
@@ -449,8 +454,8 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
           <div className="grid grid-cols-3 gap-2 md:contents">
             {PERIODS.map((p) => (
               <div key={p} className="min-w-0 md:text-end">
-                <div className="truncate text-[12px] font-black tabular-nums text-(--text-secondary)">{money(Math.round(data.other[p].revenue))}</div>
-                <div className="truncate text-[10.5px] font-black tabular-nums text-(--text-tertiary)">{money(Math.round(data.other[p].profit))}</div>
+                <div className="whitespace-nowrap text-[12px] font-black tabular-nums text-(--text-secondary)">{money(Math.round(data.other[p].revenue))}</div>
+                <div className="whitespace-nowrap text-[10.5px] font-black tabular-nums text-(--text-tertiary)">{money(Math.round(data.other[p].profit))}</div>
               </div>
             ))}
           </div>
@@ -475,8 +480,8 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
           <div className="mb-2 flex shrink-0 items-center justify-between gap-2">
             <h3 className="flex min-w-0 items-center gap-2 text-[12.5px] font-black">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-brand text-(--brand-contrast)"><Truck size={13} /></span>
-              <span className="truncate">{openVanObj.name}</span>
-              <span className="truncate text-[10.5px] font-bold text-(--text-tertiary)">{[openVanObj.driver, openVanObj.matricule].filter(Boolean).join(" · ")}</span>
+              <span className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight">{openVanObj.name}</span>
+              <span className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[10.5px] font-bold text-(--text-tertiary)">{[openVanObj.driver, openVanObj.matricule].filter(Boolean).join(" · ")}</span>
             </h3>
             <button type="button" onClick={() => setOpenVan(null)} aria-label="close" className="flex h-6 min-h-0 w-6 min-w-0 items-center justify-center rounded-lg border border-(--border-default) text-(--text-secondary) hover:border-(--brand-500)">×</button>
           </div>
@@ -522,7 +527,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
               <span className="truncate text-[10.5px] font-bold text-(--text-tertiary)">{k.l}</span>
               {k.sub}
             </div>
-            <div className="truncate text-[clamp(13px,1.2vw,17px)] font-black leading-tight tabular-nums">{k.v}</div>
+            <div className="whitespace-nowrap text-[clamp(13px,1.2vw,17px)] font-black leading-tight tabular-nums">{k.v}</div>
           </div>
         </div>
       ))}
