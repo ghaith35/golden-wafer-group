@@ -648,6 +648,7 @@ export function VenteClient({
         setShowFacture(false);
         setPaid("");
         setPaidTouched(false);
+        endClientSelection();
       } catch {
         // Offline: queue the ticket, it syncs as an immediate sale later.
         // Preview renders from the local snapshot (number assigned on sync).
@@ -679,6 +680,7 @@ export function VenteClient({
         setShowFacture(false);
         setPaid("");
         setPaidTouched(false);
+        endClientSelection();
       } finally {
         setSaving(false);
       }
@@ -740,6 +742,18 @@ export function VenteClient({
     setDoneId(null);
     setDoneTicket(null);
     setTicketQr(null);
+    // QR strict: the next sale needs its own scan — ask for it right away.
+    if (qrStrict || liveQr) setScanOpen(true);
+  }
+  /// The sale is finished: the client selection ends with it. The next sale
+  /// starts clean (no client, base price tier) — never silently on the previous
+  /// customer. The ticket preview keeps its own copy of the client.
+  function endClientSelection() {
+    setClient(null);
+    setScanned(false);
+    setScanError(null);
+    setClientQ("");
+    setClientHits([]);
   }
 
   function startPress(p: Prod) {
