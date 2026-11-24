@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ApkOnly } from "@/components/layout/ApkOnly";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Banknote, Clock, Crosshair, MapPin, Navigation, Phone, QrCode, UserPlus } from "lucide-react";
+import { ArrowLeft, ArrowRight, Banknote, Clock, Crosshair, MapPin, Navigation, Phone, QrCode, UserPlus } from "lucide-react";
 import QRCode from "qrcode";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -515,7 +515,7 @@ export function DayClients({
   };
 
   return (
-    <div className="space-y-3 p-4 pb-28 md:p-5 md:pb-28">
+    <div className="space-y-3 p-4 pb-[calc(6.5rem+var(--bottom-chrome)+var(--safe-floor))] md:p-5 md:pb-28">
       <div className="flex items-center gap-2">
         <button
           aria-label="back"
@@ -727,12 +727,12 @@ export function DayClients({
         {list.length === 0 && <p className="text-center text-sm opacity-60">{labels.empty}</p>}
       </div>
 
-      <button
-        onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard`)}
-        className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-40 flex items-center justify-center gap-2 border-t border-(--border-default) bg-(--bg-overlay) py-3.5 text-base font-black lg:bottom-0"
-      >
-        {labels.skip} →
-      </button>
+      <div className="gw-bottom-bar gw-continue">
+        <button type="button" onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard`)}>
+          <span>{labels.skip}</span>
+          <ArrowRight size={20} className="shrink-0 rtl:rotate-180" />
+        </button>
+      </div>
 
       {/* New client — popup form, no page navigation. */}
       <Modal open={adding} onClose={() => setAdding(false)} title={labels.newClient ?? ""} icon={<UserPlus size={18} />} width="sm">

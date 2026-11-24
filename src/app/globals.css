@@ -470,6 +470,42 @@ img, video, canvas, svg { max-width: 100%; }
    drivers have none; desktop/tablet hide it). Sticky bottom bars sit above it. */
 .has-tabbar { --bottom-chrome: calc(56px + env(safe-area-inset-bottom)); --safe-floor: 0px; }
 @media (min-width: 768px) { .has-tabbar { --bottom-chrome: 0px; --safe-floor: env(safe-area-inset-bottom); } }
+@layer components {
+/* Bottom action bar of the journée screens: pinned to the REAL bottom of the
+   screen (above the app tab bar only when there is one — --bottom-chrome — and
+   above the iPhone home indicator — --safe-floor). On tablet/desktop it starts
+   after the sidebar (--gw-start). */
+.gw-bottom-bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: var(--bottom-chrome);
+  z-index: 40;
+  padding-bottom: var(--safe-floor);
+}
+@media (min-width: 768px) {
+  .gw-bottom-bar { bottom: 0; inset-inline-start: var(--gw-start, 0px); transition: inset-inline-start 0.3s ease-in-out; }
+}
+/* The "continue" bar: soft fade over the list + one big, thumb-friendly button. */
+.gw-continue {
+  pointer-events: none;
+  padding: 1.25rem 0.875rem calc(0.625rem + var(--safe-floor));
+  background: linear-gradient(to top, var(--bg-page) 62%, transparent);
+}
+.gw-continue > button {
+  pointer-events: auto;
+  display: flex; align-items: center; justify-content: center; gap: 0.625rem;
+  width: 100%; max-width: 36rem; margin-inline: auto;
+  min-height: 3.25rem; border-radius: 1rem; padding: 0.75rem 1.25rem;
+  font-size: 1rem; font-weight: 900; line-height: 1.1;
+  color: var(--brand-contrast);
+  background: linear-gradient(135deg, var(--brand-400), var(--brand-600));
+  box-shadow: 0 14px 30px -14px var(--brand-600), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.15s var(--ease-out), filter 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.gw-continue > button:active { transform: scale(0.98); filter: brightness(0.95); }
+@media (min-width: 768px) { .gw-continue > button { min-height: 3rem; font-size: 0.9375rem; } }
+}
 @keyframes gw-sheet-up { from { transform: translateY(100%); } to { transform: none; } }
 .gw-sheet { animation: gw-sheet-up 0.3s var(--ease-out) !important; }
 @keyframes gw-bump { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }

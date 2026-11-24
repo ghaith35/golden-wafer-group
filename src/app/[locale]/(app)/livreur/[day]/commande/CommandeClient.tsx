@@ -496,7 +496,7 @@ export function CommandeClient({
       {/* Bottom arrow: products ⇄ request recap */}
       <button
         onClick={() => setShowRecap((v) => !v)}
-        className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-40 flex items-center justify-center gap-2 border-t border-(--border-default) bg-(--bg-overlay) py-3 text-sm font-black shadow-[0_-4px_16px_rgba(0,0,0,0.08)] lg:bottom-0"
+        className="gw-bottom-bar pb-[calc(0.75rem+var(--safe-floor))] flex items-center justify-center gap-2 border-t border-(--border-default) bg-(--bg-overlay) py-3 text-sm font-black shadow-[0_-4px_16px_rgba(0,0,0,0.08)]"
       >
         <ArrowDownUp size={17} className="text-(--brand-600)" />
         {showRecap ? labels.backToProducts : `${labels.request} · ${lines.length}`}

@@ -90,7 +90,7 @@ const GROUPS: Array<{ label: string; items: Item[]; adminOnly?: boolean }> = [
 const TAB_KEYS = ["dashboard", "clients", "suppliers", "sales"];
 const TABS: Item[] = TAB_KEYS.flatMap((k) => GROUPS.flatMap((g) => g.items).filter((i) => i.key === k));
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, initialRole = null, initialUsername = null }: { children: React.ReactNode; initialRole?: string | null; initialUsername?: string | null }) {
   const t = useTranslations("nav");
   const ts = useTranslations("sync");
   const locale = useLocale();
@@ -246,8 +246,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // inside the day flow for Vendeur, so the tiles never render there.
   // Unknown role (still loading, offline PWA shell, fetch failed) defaults
   // to the most restricted view — never the full admin menu.
-  const [role, setRole] = useState<string | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(initialRole);
+  const [username, setUsername] = useState<string | null>(initialUsername);
   useEffect(() => {
     // Finish a logout that happened while offline: the server never heard
     // it, so kill the resurrected session as soon as we're back online.
@@ -354,7 +354,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       });
 
   return (
-    <div className={cn("min-h-screen", !hideChrome && visibleTabs.length > 0 && "has-tabbar")}>
+    <div className={cn("min-h-screen", !hideChrome && visibleTabs.length > 0 && "has-tabbar")} style={{ "--gw-start": hideChrome ? "0px" : collapsed ? "68px" : "240px" } as React.CSSProperties}>
       {/* The logo layer is left off the map screens: it would sit over the tiles. */}
       {!/\/(suivi|carte)(\/|$)|\/livreur\/[^/]+\/gps(\/|$)/.test(pathname ?? "") && <div aria-hidden className="gw-watermark" style={{ "--gw-start": hideChrome ? "0px" : collapsed ? "68px" : "240px" } as React.CSSProperties} />}
       {/* Van APK auto GPS: activates only when a device token is bound.

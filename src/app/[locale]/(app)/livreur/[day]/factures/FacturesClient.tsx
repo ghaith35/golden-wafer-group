@@ -585,7 +585,7 @@ export function FacturesClient({
         {rows.length + pending.length === 0 && <p className="text-center text-sm opacity-60">{labels.empty}</p>}
       </div>
       {selected.size > 0 && (
-        <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-40 flex items-center gap-2 border-t border-(--border-default) bg-(--bg-overlay) px-3 py-2.5 shadow-lg lg:bottom-0">
+        <div className="gw-bottom-bar pb-[calc(0.75rem+var(--safe-floor))] flex items-center gap-2 border-t border-(--border-default) bg-(--bg-overlay) px-3 py-2.5 shadow-lg">
           <button type="button" onClick={() => setSelected(new Set())} aria-label={labels.cancel} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken)">
             <X size={18} />
           </button>
