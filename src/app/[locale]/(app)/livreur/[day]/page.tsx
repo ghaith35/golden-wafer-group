@@ -56,10 +56,11 @@ export default async function LivreurDayPage({
   const tour = dayTours.find((x) => x.id === sp.tour) ?? pickCurrentTour(dayTours);
   const planned = (tour?.stops ?? []).filter((s) => s.client).map((s) => s.client as unknown as { id: string });
   // Clients registered THIS day (new-client popup) are not tour stops, yet the
-  // driver must see them right after saving.
+  // driver must see them right after saving — only the ones HE registered, never
+  // another driver's or the office's.
   const plannedIds = new Set(planned.map((c) => c.id));
   const createdToday = await prisma.customer.findMany({
-    where: { companyId: session.companyId, isActive: true, createdAt: { gte: dayStart, lte: dayEnd }, id: { notIn: [...plannedIds] } },
+    where: { companyId: session.companyId, isActive: true, createdById: session.userId, createdAt: { gte: dayStart, lte: dayEnd }, id: { notIn: [...plannedIds] } },
     select: sel,
     orderBy: { createdAt: "desc" },
     take: 200,

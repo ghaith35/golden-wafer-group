@@ -509,6 +509,9 @@ model Customer {
 
   /// Offline idempotency key: the sync opId that created this client.
   opId String?
+  /// Staff member who registered this client (null = created before this was
+  /// tracked, or imported). Drives the driver's "clients I created today" list.
+  createdById String?
 
   distances ClientDistance[]
   closedVisits ClosedVisit[]

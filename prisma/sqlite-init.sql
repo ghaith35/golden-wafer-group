@@ -304,6 +304,7 @@ CREATE TABLE "customers" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "opId" TEXT,
+    "createdById" TEXT,
     CONSTRAINT "customers_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "customers_wilayaCode_fkey" FOREIGN KEY ("wilayaCode") REFERENCES "Wilaya" ("code") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "customers_secteurId_fkey" FOREIGN KEY ("secteurId") REFERENCES "secteurs" ("id") ON DELETE SET NULL ON UPDATE CASCADE,

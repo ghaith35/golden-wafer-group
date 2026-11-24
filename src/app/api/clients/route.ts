@@ -99,6 +99,7 @@ export async function POST(req: Request) {
           gpsLng: d.gpsLng ?? null,
           portalSecretHash: await bcrypt.hash(secret, 10),
           isActive: d.isActive ?? true,
+          createdById: session.userId,
         },
         include: { tier: true, secteur: true, wilaya: true },
       });

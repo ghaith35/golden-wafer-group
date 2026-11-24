@@ -351,6 +351,7 @@ async function applyOp(
             portalSecretHash: await bcrypt.hash(secret, 10),
             isActive: d.isActive ?? true,
             opId: op.opId,
+            createdById: userId,
           },
         });
       });
