@@ -14,8 +14,10 @@ import { queueOp, goPage, getUnsyncedDocKeys, getPendingDocs, discardOutboxOp, q
 import { PdfViewer } from "@/components/sales/PdfViewer";
 import { printTicketNative } from "@/lib/print-ticket";
 
-import { dzMoney, fmtDT } from "@/lib/format";
+import { dz, dzMoney, fmtDT } from "@/lib/format";
+import { ProductThumb, useProductImages } from "@/components/products/ProductThumb";
 import { useSyncedState } from "@/lib/data-sync";
+import { cn } from "@/lib/utils";
 
 import { ErrText } from "@/components/ui/ErrText";
 type Row = { id: string; number: string; total: unknown; date: unknown; confirmedAt?: unknown; client: { name: string; gpsLat?: number | string | null; gpsLng?: number | string | null } | null };
@@ -31,7 +33,12 @@ type Detail = {
     id: string; productId: string; qty: unknown; baseQty: unknown; unitId: string | null; unitPrice: unknown; remise: unknown; lineTotal: unknown;
     /// 3pack gift line.
     isBonus?: boolean;
-    product: { name: string } | null;
+    product: {
+      name: string;
+      images?: Array<{ url: string }>;
+      conversions?: Array<{ unitId: string; factor: unknown; unit?: { name: string } | null }>;
+      baseUnit?: { name: string } | null;
+    } | null;
   }>;
 };
 
@@ -61,6 +68,8 @@ export function FacturesClient({
   const router = useRouter();
   const t3 = useTranslations("threepack");
   const [rows, setRows] = useSyncedState(initial);
+  /// Product photos for lines whose detail carries none (offline-created tickets).
+  const phoneImages = useProductImages();
   const [unsynced, setUnsynced] = useState<Set<string>>(new Set());
   /// Tickets created offline (still in the outbox): shown first, openable,
   /// printable and shareable — the driver sees his sale the moment he saves
@@ -634,45 +643,152 @@ export function FacturesClient({
       </Modal>
 
       {/* ── In-place facture detail ── */}
-      <Modal open={detail !== null} onClose={() => { setDetail(null); setError(null); }} title={detail?.number ?? ""} subtitle={detail?.client?.name ?? ""} icon={<Printer size={18} />}>
-        {detail && (
-          <div className="space-y-2">
-            <div className="max-h-[calc(var(--vh)*0.4)] space-y-1.5 overflow-y-auto pe-0.5">
-              {detail.lines.map((l, i) => (
-                <div key={l.id ?? i} className="flex items-center gap-2 rounded-xl bg-(--bg-sunken) px-3 py-2">
-                  <span className="min-w-0 flex-1 truncate text-sm font-bold">
-                    {l.product?.name ?? ""}
-                    {l.isBonus && <span className="ms-1.5 rounded-full bg-emerald-600 px-1.5 py-px text-[9px] font-black uppercase text-white">★ {t3("free")}</span>}
+      <Modal open={detail !== null} onClose={() => { setDetail(null); setError(null); }} title={detail?.number ?? ""} subtitle={detail?.client?.name ?? ""} icon={<Printer size={18} />} width="lg">
+        {detail && (() => {
+          const total = Number(detail.total ?? 0);
+          const paid = Number(detail.paid ?? 0);
+          const remise = Number(detail.remise ?? 0);
+          const remaining = Math.round((total - paid) * 100) / 100;
+          const confirmed = !!rows.find((r) => r.id === detail.id)?.confirmedAt;
+          const queued = detail.status === "QUEUED" || detail.id.startsWith("pending:");
+          const lineInfo = detail.lines.map((l) => {
+            const conv = l.product?.conversions?.find((c) => c.unitId === l.unitId);
+            const f = conv ? Math.round(Number(conv.factor) * 1000) / 1000 : 1;
+            const base = l.product?.baseUnit?.name ?? "";
+            const unit = conv?.unit?.name ?? base;
+            const pack = f > 1;
+            const qty = Number(l.qty);
+            return { unit, base, pack, f, qty, pieces: pack ? Math.round(qty * f * 1000) / 1000 : qty };
+          });
+          const packsCount = lineInfo.reduce((x, i) => x + (i.pack ? i.qty : 0), 0);
+          return (
+            <div className="space-y-3" data-testid="invoice-detail">
+              {/* ── Header: number, date, status, client ── */}
+              <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="truncate font-mono text-xl font-black tabular-nums" dir="ltr">{detail.number}</div>
+                    <div className="text-xs font-bold opacity-60">{fmtDT(detail.date as string, locale)}{detail.location?.name ? ` · ${detail.location.name}` : ""}</div>
+                  </div>
+                  <span
+                    className={cn(
+                      "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black",
+                      queued ? "bg-amber-500/15 text-amber-600" : confirmed ? "bg-emerald-600/15 text-emerald-600" : "bg-sky-500/15 text-sky-600",
+                    )}
+                  >
+                    {queued ? "⏳" : confirmed ? "🔒" : "●"} {queued ? labels.unsynced : confirmed ? labels.factureConfirmed : labels.factureHold}
                   </span>
-                  <span className="shrink-0 text-[11px] tabular-nums opacity-60" dir="ltr">
-                    {dzMoney(Number(l.qty))} × {dzMoney(Number(l.unitPrice))}
-                  </span>
-                  <span className="shrink-0 text-sm font-black tabular-nums" dir="ltr">{dzMoney(Number(l.lineTotal))}</span>
                 </div>
-              ))}
-            </div>
-            <div className="flex items-center justify-between rounded-xl bg-(--brand-500)/10 px-3 py-2 text-sm font-black">
-              <span>{labels.total}</span>
-              <span dir="ltr">{dzMoney(Number(detail.total))}</span>
-            </div>
-            <div className="flex items-center justify-between rounded-xl bg-(--bg-sunken) px-3 py-2 text-sm font-bold">
-              <span className="opacity-60">{labels.paid}</span>
-              <span dir="ltr">{dzMoney(Number(detail.paid ?? 0))}</span>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="secondary" onClick={() => { setDetail(null); setError(null); }} className="flex-1">{labels.cancel}</Button>
-              {online && !detail.id.startsWith("pending:") && (isAdmin || !rows.find((r) => r.id === detail.id)?.confirmedAt) && (
-                <Button variant="secondary" onClick={() => setEditing(true)} className="flex-1">
-                  ✎ {labels.edit ?? "Edit"}
-                </Button>
+                {detail.client && (
+                  <div className="mt-2.5 flex items-center gap-2.5 rounded-xl bg-(--bg-sunken) p-2.5">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--brand-500)/15 text-base font-black text-(--brand-600)">
+                      {detail.client.name.trim().charAt(0)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-black">{detail.client.name}</div>
+                      <div className="truncate font-mono text-[11px] opacity-60" dir="ltr">
+                        {detail.client.code}{detail.client.phone ? ` · ${detail.client.phone}` : ""}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* ── Items table ── */}
+              <div className="overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay)">
+                <div className="grid grid-cols-[3rem_minmax(0,1fr)_auto] items-center gap-x-2 bg-(--bg-sunken) px-3 py-2 text-[10px] font-black uppercase tracking-wide opacity-70 sm:grid-cols-[3rem_minmax(0,1fr)_6rem_6.5rem_7.5rem]">
+                  <span>#</span>
+                  <span>{labels.product}</span>
+                  <span className="hidden text-center sm:block">{labels.qty}</span>
+                  <span className="hidden text-center sm:block">{labels.price}</span>
+                  <span className="text-end">{labels.total}</span>
+                </div>
+                <div className="max-h-[calc(var(--vh)*0.42)] divide-y divide-(--border-default) overflow-y-auto">
+                  {detail.lines.length === 0 && <p className="p-4 text-center text-sm opacity-60">{labels.invNoLines}</p>}
+                  {detail.lines.map((l, i) => {
+                    const info = lineInfo[i];
+                    const imgs = l.product?.images?.map((x) => x.url) ?? phoneImages.get(l.productId) ?? [];
+                    return (
+                      <div
+                        key={l.id ?? i}
+                        className="grid grid-cols-[3rem_minmax(0,1fr)_auto] items-center gap-x-2 px-3 py-2.5 sm:grid-cols-[3rem_minmax(0,1fr)_6rem_6.5rem_7.5rem]"
+                      >
+                        <ProductThumb name={l.product?.name ?? ""} images={imgs} className="h-12 w-12 rounded-xl" />
+                        <div className="min-w-0">
+                          <div className="line-clamp-2 break-words text-sm font-black leading-tight">
+                            {l.product?.name ?? ""}
+                            {l.isBonus && <span className="ms-1.5 rounded-full bg-emerald-600 px-1.5 py-px align-middle text-[9px] font-black uppercase text-white">★ {t3("free")}</span>}
+                          </div>
+                          {/* phone: quantity × price on one compact line under the name */}
+                          <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11px] font-bold tabular-nums opacity-70 sm:hidden" dir="ltr">
+                            <span><bdi>{dz(info.qty)}</bdi> {info.unit}</span>
+                            <span>×</span>
+                            <span>{dzMoney(Number(l.unitPrice))}</span>
+                          </div>
+                          {info.pack && (
+                            <div className="mt-0.5 text-[10.5px] font-bold text-(--brand-600)">
+                              <bdi>1 {info.unit}</bdi> = <bdi>{info.f} {info.base}</bdi>
+                              {info.qty > 0 && <> · <bdi>{dz(info.pieces)} {labels.invPieces}</bdi></>}
+                            </div>
+                          )}
+                        </div>
+                        <div className="hidden text-center text-sm font-black tabular-nums sm:block" dir="ltr">
+                          <bdi>{dz(info.qty)}</bdi>
+                          {info.unit && <div className="text-[10px] font-bold opacity-60">{info.unit}</div>}
+                        </div>
+                        <div className="hidden text-center text-sm font-bold tabular-nums sm:block" dir="ltr">{dzMoney(Number(l.unitPrice))}</div>
+                        <div className="text-end text-sm font-black tabular-nums" dir="ltr">{dzMoney(Number(l.lineTotal))}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ── Totals ── */}
+              <div className="overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay)">
+                <div className="flex items-center justify-between px-3 py-2 text-xs font-bold opacity-70">
+                  <span>{labels.articles}: <bdi className="tabular-nums">{detail.lines.length}</bdi></span>
+                  {packsCount > 0 && <span>{labels.packs}: <bdi className="tabular-nums">{dz(packsCount, 0)}</bdi></span>}
+                </div>
+                {remise > 0 && (
+                  <div className="flex items-center justify-between border-t border-(--border-default) px-3 py-2 text-sm font-bold">
+                    <span className="opacity-70">{labels.remise}</span>
+                    <span className="tabular-nums" dir="ltr">− {dzMoney(remise)}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between border-t-2 border-(--brand-500) bg-(--brand-500)/10 px-3 py-2.5 text-lg font-black">
+                  <span>{labels.total}</span>
+                  <span className="tabular-nums" dir="ltr" data-testid="invoice-total">{dzMoney(total)}</span>
+                </div>
+                <div className="flex items-center justify-between border-t border-(--border-default) px-3 py-2 text-sm font-bold">
+                  <span className="opacity-70">{labels.paid}</span>
+                  <span className="tabular-nums" dir="ltr">{dzMoney(paid)}</span>
+                </div>
+                <div className={cn("flex items-center justify-between border-t border-(--border-default) px-3 py-2 text-sm font-black", remaining > 0.005 ? "bg-red-500/10 text-red-600" : "bg-emerald-600/10 text-emerald-600")}>
+                  <span>{remaining > 0.005 ? labels.invRemaining : labels.invSettled}</span>
+                  {remaining > 0.005 && <span className="tabular-nums" dir="ltr">{dzMoney(remaining)}</span>}
+                </div>
+              </div>
+              {detail.notes && (
+                <p className="rounded-xl bg-(--bg-sunken) px-3 py-2 text-xs font-bold"><span className="opacity-60">{labels.notes}: </span>{detail.notes}</p>
               )}
-              <Button onClick={() => void openPrint()} data-testid="pv-print" className="flex-[2]">
-                <Printer size={16} className="me-1" />
-                {labels.print}
-              </Button>
+
+              {/* ── Actions ── */}
+              <div className="flex gap-2">
+                <Button variant="secondary" onClick={() => { setDetail(null); setError(null); }} className="flex-1">{labels.invClose}</Button>
+                {online && !detail.id.startsWith("pending:") && (isAdmin || !confirmed) && (
+                  <Button variant="secondary" onClick={() => setEditing(true)} className="flex-1">
+                    ✎ {labels.edit ?? "Edit"}
+                  </Button>
+                )}
+                <Button onClick={() => void openPrint()} data-testid="pv-print" className="flex-[2]">
+                  <Printer size={16} className="me-1" />
+                  {labels.print}
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </Modal>
 
       <Modal open={editing && detail !== null} onClose={() => setEditing(false)} title={`${labels.edit ?? "Edit"} · ${detail?.number ?? ""}`} icon="✎" width="lg">

@@ -1484,7 +1484,12 @@
     "closedCancel": "إلغاء",
     "closedNeedStart": "ابدأ الجولة أولاً لتسجيل محل مغلق",
     "closedToday": "مغلق اليوم",
-    "closedPhotoRequired": "صورة المحل المغلق إلزامية"
+    "closedPhotoRequired": "صورة المحل المغلق إلزامية",
+    "invClose": "إغلاق",
+    "invRemaining": "المتبقي على الزبون",
+    "invSettled": "خالصة ✓",
+    "invPieces": "قطعة",
+    "invNoLines": "لا توجد مواد"
   },
   "presence": {
     "title": "الحضور",

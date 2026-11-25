@@ -1484,7 +1484,12 @@
     "closedCancel": "Cancel",
     "closedNeedStart": "Start the tour first to report a closed shop",
     "closedToday": "Closed today",
-    "closedPhotoRequired": "A photo of the closed shop is required"
+    "closedPhotoRequired": "A photo of the closed shop is required",
+    "invClose": "Close",
+    "invRemaining": "Remaining",
+    "invSettled": "Paid in full ✓",
+    "invPieces": "pieces",
+    "invNoLines": "No items"
   },
   "presence": {
     "title": "Attendance",

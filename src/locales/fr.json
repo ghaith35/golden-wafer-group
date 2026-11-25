@@ -1484,7 +1484,12 @@
     "closedCancel": "Annuler",
     "closedNeedStart": "Démarrez d'abord la tournée pour signaler un magasin fermé",
     "closedToday": "Fermé aujourd'hui",
-    "closedPhotoRequired": "La photo du magasin fermé est obligatoire"
+    "closedPhotoRequired": "La photo du magasin fermé est obligatoire",
+    "invClose": "Fermer",
+    "invRemaining": "Reste à payer",
+    "invSettled": "Soldée ✓",
+    "invPieces": "pièces",
+    "invNoLines": "Aucun article"
   },
   "presence": {
     "title": "Pointage",
