@@ -441,55 +441,61 @@ export function FacturesClient({
   }
 
   return (
-    <div className={`space-y-3 p-4 md:p-5 ${selected.size ? "pb-32" : "pb-8"}`}>
-      <div className="flex items-center gap-2">
+    <div className={`space-y-2.5 px-3 py-3 sm:space-y-3 sm:p-4 md:p-5 ${selected.size ? "pb-36 sm:pb-32" : "pb-10"}`}>
+      <div className="flex min-w-0 items-center gap-2">
         <button
           aria-label="back"
           onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard`)}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default) bg-(--bg-overlay)"
         >
           <ArrowLeft size={18} className="rtl:rotate-180" />
         </button>
-        <h1 className="text-lg font-black">{labels.factures} ({rows.length + pending.length})</h1>
+        <h1 className="min-w-0 flex-1 truncate text-[17px] font-black sm:text-lg">{labels.factures} <span className="tabular-nums" dir="ltr">({rows.length + pending.length})</span></h1>
       </div>
       {notice && <p className="rounded-xl bg-emerald-500/10 p-2.5 text-xs font-bold text-emerald-600">{notice}</p>}
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
-      <div className="space-y-1.5">
+      <div className="space-y-2 sm:space-y-1.5">
         {pending.map((doc) => {
           const pr: Row = { id: `pending:${doc.opId}`, number: "…", total: doc.total ?? 0, date: new Date(doc.ts).toISOString(), client: doc.clientName ? { name: doc.clientName } : null };
           return (
-            <div key={pr.id} className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-(--bg-overlay) p-2.5">
-              <div className="min-w-0 flex-1">
-                <div className="flex min-w-0 items-center gap-1 text-sm font-bold"><span className="shrink-0">… ·</span><ClientName name={doc.clientName} map={false} /></div>
-                <div className="flex items-center gap-1.5 text-[11px] opacity-60">
-                  <span>{fmtDT(pr.date as string, locale)} · <b className="tabular-nums">{dzMoney(Number(pr.total))}</b></span>
-                  <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-1.5 py-px text-[10px] font-black opacity-100">
-                    <WifiOff size={11} />
-                    {labels.unsynced ?? "…"}
+            <div key={pr.id} className="rounded-xl border border-amber-500/40 bg-(--bg-overlay) p-2.5">
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="h-6 w-6 shrink-0" aria-hidden />
+                <button
+                  type="button"
+                  onClick={() => void openDetail(pr)}
+                  data-testid="view-doc"
+                  className="min-w-0 flex-1 text-start"
+                >
+                  <span className="flex min-w-0 items-baseline gap-1.5">
+                    <span className="shrink-0 text-[13px] font-black tabular-nums" dir="ltr">… ·</span>
+                    <span className="min-w-0 flex-1 truncate text-[13px] font-bold"><ClientName name={doc.clientName} map={false} /></span>
+                    <b className="shrink-0 whitespace-nowrap text-[13px] font-black tabular-nums" dir="ltr">{dzMoney(Number(pr.total))}</b>
                   </span>
-                </div>
+                  <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] opacity-70">
+                    <span className="shrink-0 whitespace-nowrap tabular-nums" dir="ltr">{fmtDT(pr.date as string, locale)}</span>
+                    <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-1.5 py-px text-[10px] font-black opacity-100">
+                      <WifiOff size={11} />
+                      {labels.unsynced ?? "…"}
+                    </span>
+                  </span>
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => void openDetail(pr)}
-                data-testid="view-doc"
-                className="shrink-0 rounded-lg bg-(--bg-sunken) px-3 py-2 text-xs font-black"
-              >
-                {labels.viewSale}
-              </button>
-              <button
-                type="button"
-                onClick={() => void printRow(pr)}
-                aria-label={labels.print}
-                title={labels.print}
-                data-testid="print-doc"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-(--brand-600)"
-              >
-                <Printer size={16} />
-              </button>
-              <button onClick={() => setDeleting(pr)} aria-label={labels.deleteSale} data-testid="delete-doc" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10">
-                <Trash2 size={16} />
-              </button>
+              <div className="no-scrollbar mt-1.5 flex items-center gap-1.5 overflow-x-auto">
+                <button
+                  type="button"
+                  onClick={() => void printRow(pr)}
+                  aria-label={labels.print}
+                  title={labels.print}
+                  data-testid="print-doc"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-(--brand-600)"
+                >
+                  <Printer size={16} />
+                </button>
+                <button onClick={() => setDeleting(pr)} aria-label={labels.deleteSale} data-testid="delete-doc" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10">
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
           );
         })}
@@ -498,123 +504,130 @@ export function FacturesClient({
           const locked = !isAdmin && !held;
           const isPending = t.id.startsWith("pending:");
           return (
-          <div key={t.id} className={`flex items-center gap-2 rounded-xl border bg-(--bg-overlay) p-2.5 ${held ? "border-amber-500/40" : "border-(--border-default)"}`}>
-            {selectable(t) ? (
+          <div key={t.id} className={`rounded-xl border bg-(--bg-overlay) p-2.5 ${held ? "border-amber-500/40" : "border-(--border-default)"}`}>
+            <div className="flex min-w-0 items-center gap-2">
+              {selectable(t) ? (
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={selected.has(t.id)}
+                  onClick={() => toggleSel(t.id)}
+                  data-testid="select-doc"
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${selected.has(t.id) ? "border-(--brand-600) bg-(--brand-600) text-white" : "border-(--border-default)"}`}
+                >
+                  {selected.has(t.id) && <Check size={13} strokeWidth={3.5} />}
+                </button>
+              ) : (
+                <span className="hidden h-6 w-6 shrink-0 sm:block" aria-hidden />
+              )}
+              {/* Tapping the title opens the detail — no separate full-width عرض button. */}
               <button
                 type="button"
-                role="checkbox"
-                aria-checked={selected.has(t.id)}
-                onClick={() => toggleSel(t.id)}
-                data-testid="select-doc"
-                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${selected.has(t.id) ? "border-(--brand-600) bg-(--brand-600) text-white" : "border-(--border-default)"}`}
+                onClick={() => void openDetail(t)}
+                data-testid="view-doc"
+                className="min-w-0 flex-1 text-start"
               >
-                {selected.has(t.id) && <Check size={14} strokeWidth={3} />}
+                <span className="flex min-w-0 items-baseline gap-1.5">
+                  <span className="shrink-0 text-[13px] font-black tabular-nums" dir="ltr">{t.number} ·</span>
+                  <span className="min-w-0 flex-1 truncate text-[13px] font-bold"><ClientName name={t.client?.name} lat={t.client?.gpsLat} lng={t.client?.gpsLng} /></span>
+                  <b className="shrink-0 whitespace-nowrap text-[13px] font-black tabular-nums" dir="ltr">{dzMoney(Number(t.total))}</b>
+                </span>
+                <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] opacity-70">
+                  <span className="shrink-0 whitespace-nowrap tabular-nums" dir="ltr">{fmtDT(t.date as string, locale)}</span>
+                  {unsynced.has(t.id) && (
+                    <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-1.5 py-px text-[10px] font-black opacity-100">
+                      <WifiOff size={11} />
+                      {labels.unsynced ?? "…"}
+                    </span>
+                  )}
+                  {held ? (
+                    <span className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-amber-500/15 px-1.5 py-px text-[10px] font-black text-amber-600 opacity-100">
+                      <Clock size={11} />
+                      {labels.factureHold}
+                    </span>
+                  ) : (
+                    <span className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-emerald-500/15 px-1.5 py-px text-[10px] font-black text-emerald-600 opacity-100">
+                      <CheckCircle2 size={11} />
+                      {labels.factureConfirmed}
+                    </span>
+                  )}
+                </span>
               </button>
-            ) : (
-              <span className="h-6 w-6 shrink-0" aria-hidden />
-            )}
-            <div className="min-w-0 flex-1">
-              <div className="flex min-w-0 items-center gap-1 text-sm font-bold"><span className="shrink-0">{t.number} ·</span><ClientName name={t.client?.name} lat={t.client?.gpsLat} lng={t.client?.gpsLng} /></div>
-              <div className="flex flex-wrap items-center gap-1.5 text-[11px] opacity-60">
-                <span>{fmtDT(t.date as string, locale)} · <b className="tabular-nums">{dzMoney(Number(t.total))}</b></span>
-                {unsynced.has(t.id) && (
-                  <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-1.5 py-px text-[10px] font-black opacity-100">
-                    <WifiOff size={11} />
-                    {labels.unsynced ?? "…"}
-                  </span>
-                )}
-                {held ? (
-                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-500/15 px-1.5 py-px text-[10px] font-black text-amber-600 opacity-100">
-                    <Clock size={11} />
-                    {labels.factureHold}
-                  </span>
-                ) : (
-                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-px text-[10px] font-black text-emerald-600 opacity-100">
-                    <CheckCircle2 size={11} />
-                    {labels.factureConfirmed}
-                  </span>
-                )}
-              </div>
             </div>
-            <button
-              type="button"
-              onClick={() => void openDetail(t)}
-              data-testid="view-doc"
-              className="shrink-0 rounded-lg bg-(--bg-sunken) px-3 py-2 text-xs font-black"
-            >
-              {labels.viewSale}
-            </button>
-            {held && !isPending && (
+            {/* One non-wrapping action strip (scrolls sideways on tiny screens, never grows tall). */}
+            <div className="no-scrollbar mt-1.5 flex items-center gap-1.5 overflow-x-auto">
+              {held && !isPending && (
+                <button
+                  type="button"
+                  onClick={() => { setError(null); setConfirming(t); }}
+                  data-testid="confirm-doc"
+                  className="flex h-9 shrink-0 items-center gap-1 rounded-lg bg-emerald-600 px-3 text-xs font-black text-white"
+                >
+                  <CheckCircle2 size={14} />
+                  <span className="whitespace-nowrap">{labels.confirmFacture}</span>
+                </button>
+              )}
+              {!locked && (
+                <button
+                  type="button"
+                  onClick={() => goPage(router, `/${locale}/livreur/${day}/vente?edit=${t.id}`)}
+                  aria-label={labels.edit ?? "Edit"}
+                  title={labels.edit ?? "Edit"}
+                  // Pending (offline-created) tickets have no server id to edit —
+                  // and edits need the server anyway.
+                  disabled={!online || isPending}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-sm font-black text-(--brand-600) disabled:opacity-40"
+                >
+                  ✎
+                </button>
+              )}
               <button
                 type="button"
-                onClick={() => { setError(null); setConfirming(t); }}
-                data-testid="confirm-doc"
-                className="flex h-9 shrink-0 items-center gap-1 rounded-lg bg-emerald-600 px-2.5 text-xs font-black text-white"
+                onClick={() => void printRow(t)}
+                aria-label={labels.print}
+                title={labels.print}
+                data-testid="print-doc"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-(--brand-600)"
               >
-                <CheckCircle2 size={14} />
-                {labels.confirmFacture}
+                <Printer size={16} />
               </button>
-            )}
-            {!locked && (
-              <button
-                type="button"
-                onClick={() => goPage(router, `/${locale}/livreur/${day}/vente?edit=${t.id}`)}
-                aria-label={labels.edit ?? "Edit"}
-                title={labels.edit ?? "Edit"}
-                // Pending (offline-created) tickets have no server id to edit —
-                // and edits need the server anyway.
-                disabled={!online || isPending}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-(--brand-600) disabled:opacity-40"
-              >
-                ✎
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => void printRow(t)}
-              aria-label={labels.print}
-              title={labels.print}
-              data-testid="print-doc"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-(--brand-600)"
-            >
-              <Printer size={16} />
-            </button>
-            {locked ? (
-              <span title={labels.factureLocked} aria-label={labels.factureLocked} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-(--text-muted) opacity-60">
-                <Lock size={15} />
-              </span>
-            ) : (
-              <button onClick={() => setDeleting(t)} aria-label={labels.deleteSale} data-testid="delete-doc" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10">
-                <Trash2 size={16} />
-              </button>
-            )}
+              {locked ? (
+                <span title={labels.factureLocked} aria-label={labels.factureLocked} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-(--text-muted) opacity-60">
+                  <Lock size={15} />
+                </span>
+              ) : (
+                <button onClick={() => setDeleting(t)} aria-label={labels.deleteSale} data-testid="delete-doc" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10">
+                  <Trash2 size={16} />
+                </button>
+              )}
+            </div>
           </div>
           );
         })}
         {rows.length + pending.length === 0 && <p className="text-center text-sm opacity-60">{labels.empty}</p>}
       </div>
       {selected.size > 0 && (
-        <div className="gw-bottom-bar pb-[calc(0.75rem+var(--safe-floor))] flex items-center gap-2 border-t border-(--border-default) bg-(--bg-overlay) px-3 py-2.5 shadow-lg">
-          <button type="button" onClick={() => setSelected(new Set())} aria-label={labels.cancel} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken)">
+        <div className="gw-bottom-bar pb-[calc(0.75rem+var(--safe-floor))] flex flex-wrap items-center gap-2 border-t border-(--border-default) bg-(--bg-overlay) px-3 py-2.5 shadow-lg">
+          <button type="button" onClick={() => setSelected(new Set())} aria-label={labels.cancel} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken)">
             <X size={18} />
           </button>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-black tabular-nums">{selected.size} {labels.facturesSelected}</div>
+          <div className="min-w-[90px] flex-1">
+            <div className="whitespace-nowrap text-sm font-black tabular-nums" dir="ltr">{selected.size} · <span dir="auto">{labels.facturesSelected}</span></div>
             <button
               type="button"
               onClick={() => setSelected(new Set(rows.filter(selectable).map((r) => r.id)))}
-              className="text-[11px] font-bold text-(--brand-600)"
+              className="whitespace-nowrap text-[11px] font-bold text-(--brand-600)"
             >
               {labels.selectAllFactures}
             </button>
           </div>
           {rows.some((r) => selected.has(r.id) && !r.confirmedAt) && (
-            <button type="button" onClick={() => setBulk("confirm")} data-testid="bulk-confirm" className="flex h-10 shrink-0 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-sm font-black text-white">
+            <button type="button" onClick={() => setBulk("confirm")} data-testid="bulk-confirm" className="flex h-11 min-w-[130px] flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-emerald-600 px-3 text-[13px] font-black text-white sm:flex-none">
               <CheckCircle2 size={16} />
-              {labels.confirmFacture} ({rows.filter((r) => selected.has(r.id) && !r.confirmedAt).length})
+              {labels.confirmFacture} <span className="tabular-nums" dir="ltr">({rows.filter((r) => selected.has(r.id) && !r.confirmedAt).length})</span>
             </button>
           )}
-          <button type="button" onClick={() => setBulk("delete")} data-testid="bulk-delete" aria-label={labels.deleteSale} className="flex h-10 shrink-0 items-center gap-1.5 rounded-lg bg-red-500/10 px-3 text-sm font-black text-red-500">
+          <button type="button" onClick={() => setBulk("delete")} data-testid="bulk-delete" aria-label={labels.deleteSale} className="flex h-11 min-w-[110px] flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-red-500/10 px-3 text-[13px] font-black text-red-500 sm:flex-none">
             <Trash2 size={16} />
             {labels.deleteSale}
           </button>
