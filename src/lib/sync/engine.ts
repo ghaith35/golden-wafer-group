@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { getOrCreateSettings } from "@/lib/settings/helpers";
 import { createOrder, createTicket } from "@/lib/sales/service";
 import { clientSchema, generatePortalSecret, legacyQrSchema } from "@/lib/clients/validation";
+import { pickDefaultTierId } from "@/lib/clients/tier-default";
 import { vanHolds } from "@/lib/holds";
 import { nextDocNumber } from "@/lib/docs/sequences";
 import { declareTransfer } from "@/lib/inventory/service";
@@ -297,11 +298,13 @@ async function applyOp(
         const tier = await prisma.priceTier.findFirst({ where: { id: tierId, companyId } });
         if (!tier) throw Object.assign(new Error("bad_tier"), { status: 400 });
       } else {
-        const first = await prisma.priceTier.findFirst({
+        // Same rule as POST /api/clients: détail (normal sell price) first.
+        const all = await prisma.priceTier.findMany({
           where: { companyId, isActive: true },
           orderBy: { sortOrder: "asc" },
+          select: { id: true, name: true },
         });
-        tierId = first?.id ?? null;
+        tierId = pickDefaultTierId(all);
       }
       if (d.secteurId) {
         const sec = await prisma.secteur.findFirst({ where: { id: d.secteurId, companyId } });

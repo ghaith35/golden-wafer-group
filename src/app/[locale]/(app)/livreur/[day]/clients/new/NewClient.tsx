@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { queueOp, discardOutboxOp, getVanSnapshot, getOutbox, goPage, saleErrText, queueErrText } from "@/lib/sync/client";
 import { checkOfflineClient } from "@/lib/sync/offline-rules";
+import { pickDefaultTierId } from "@/lib/clients/tier-default";
 import { clientQrPayload, generateOfflineClientCode } from "@/lib/clients/validation";
 import { compareNatural } from "@/lib/sort";
 import QRCode from "qrcode";
@@ -62,6 +63,9 @@ export function NewClient({
   const [wilaya, setWilaya] = useState("");
   const [secteur, setSecteur] = useState("");
   const [tier, setTier] = useState("");
+  /// Price-type default: détail (normal sell price) pre-selected until the
+  /// driver picks something himself — a new client never lands on gros.
+  const [tierTouched, setTierTouched] = useState(false);
   const [secteurList, setSecteurList] = useSyncedState(secteurs);
   const [showSecteur, setShowSecteur] = useState(false);
   const [secteurName, setSecteurName] = useState("");
@@ -121,6 +125,7 @@ export function NewClient({
   const secteurEff = secteur || (daySec && String(daySec.wilayaCode) === wilayaEff ? daySec.id : "") || (restricted && wilayaEff && secteurOpts.length === 1 ? secteurOpts[0].id : "");
   const canAddSecteur = !!wilayaEff && canCreateSecteurIn(scope, Number(wilayaEff));
   const effTiers = tiers.length ? tiers : (snapRefs?.tiers ?? []);
+  const tierEff = tierTouched ? tier : (tier || pickDefaultTierId(effTiers) || "");
 
   async function createSecteur() {
     const name = secteurName.trim();
@@ -243,7 +248,7 @@ export function NewClient({
       ...(activity.trim() ? { activityType: activity.trim() } : {}),
       ...(wilayaEff ? { wilayaCode: Number(wilayaEff) } : {}),
       ...(secteurEff ? { secteurId: secteurEff } : {}),
-      ...(tier ? { tierId: tier } : {}),
+      ...(tierEff ? { tierId: tierEff } : {}),
       ...(() => {
         const g = gps ?? typedGps();
         return g ? { gpsLat: g.lat, gpsLng: g.lng } : {};
@@ -291,7 +296,7 @@ export function NewClient({
   function reset() {
     setName(""); setPhone(""); setAddress(""); setActivity("");
     setTouched(false); // next client: the day's sector again
-    setWilaya(""); setSecteur(""); setTier("");
+    setWilaya(""); setSecteur(""); setTier(""); setTierTouched(false);
     manualGps.current = false; // live GPS resumes for the next client
     setGps(null); setGpsText(""); setError(null);
     setQueued(false); setCreated(null);
@@ -539,8 +544,8 @@ export function NewClient({
           <div>
             <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.tierOpt}</label>
             <select
-              value={tier}
-              onChange={(e) => setTier(e.target.value)}
+              value={tierEff}
+              onChange={(e) => { setTierTouched(true); setTier(e.target.value); }}
               className="h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)"
             >
               <option value="">—</option>

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { clientSchema, generatePortalSecret } from "@/lib/clients/validation";
+import { pickDefaultTierId } from "@/lib/clients/tier-default";
 import { nextDocNumber } from "@/lib/docs/sequences";
 import { checkClientArea } from "@/lib/users/area-scope";
 import { loadAreaScope } from "@/lib/users/area-scope.server";
@@ -37,17 +38,20 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "validation_error", issues: parsed.error.issues }, { status: 400 });
   const d = parsed.data;
 
-  // Tier assigned at creation: default to the first active tier.
+  // Tier assigned at creation: the "normal sell price" tier (détail) — never
+  // wholesale by accident. Falls back to the first active tier, then null
+  // (base sale price).
   let tierId = d.tierId ?? null;
   if (tierId) {
     const tier = await prisma.priceTier.findFirst({ where: { id: tierId, companyId: session.companyId } });
     if (!tier) return NextResponse.json({ error: "bad_tier" }, { status: 400 });
   } else {
-    const first = await prisma.priceTier.findFirst({
+    const all = await prisma.priceTier.findMany({
       where: { companyId: session.companyId, isActive: true },
       orderBy: { sortOrder: "asc" },
+      select: { id: true, name: true },
     });
-    tierId = first?.id ?? null;
+    tierId = pickDefaultTierId(all);
   }
   if (d.secteurId) {
     const sec = await prisma.secteur.findFirst({ where: { id: d.secteurId, companyId: session.companyId } });

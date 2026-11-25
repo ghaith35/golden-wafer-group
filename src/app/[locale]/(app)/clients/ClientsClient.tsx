@@ -9,6 +9,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { RowActions } from "@/components/ui/RowActions";
 import { KpiCard } from "@/components/ui/Card";
 import { ClientForm, type ClientData } from "./ClientForm";
+import { pickDefaultTierId } from "@/lib/clients/tier-default";
 import { ClientImportModal } from "./ClientImportModal";
 import { QrPrintWizard } from "./qr/print/QrPrintWizard";
 import { dzMoney } from "@/lib/format";
@@ -385,7 +386,7 @@ export function ClientsClient({
         <ClientForm
           key="new"
           locale={locale}
-          initial={EMPTY}
+          initial={{ ...EMPTY, tierId: pickDefaultTierId(tiers) ?? "" }}
           wilayas={wilayas}
           secteurs={secteurs}
           tiers={tiers}

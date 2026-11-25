@@ -5,10 +5,11 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { generatePortalSecret, generateOfflineClientCode } from "@/lib/clients/validation";
 import { normalizeImportPhone } from "@/lib/clients/import";
+import { pickDefaultTierId } from "@/lib/clients/tier-default";
 
 /// Bulk client import: the upload modal sends shaped rows in batches (≤100)
 /// so a 400-line Excel never hits a request timeout and shows progress.
-/// Per-row rules mirror POST /api/clients: first default tier, unique code,
+/// Per-row rules mirror POST /api/clients: détail default tier, unique code,
 /// unique phone per company. Duplicates (DB or inside the batch) are skipped
 /// and reported — never merged, never overwritten.
 
@@ -30,10 +31,12 @@ export async function POST(req: Request) {
   const parsed = bodySchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return NextResponse.json({ error: "validation_error" }, { status: 400 });
 
-  const tier = await prisma.priceTier.findFirst({
+  const tier = await prisma.priceTier.findMany({
     where: { companyId: session.companyId, isActive: true },
     orderBy: { sortOrder: "asc" },
+    select: { id: true, name: true },
   });
+  const defaultTierId = pickDefaultTierId(tier);
 
   // Phones already in the company (skip-list, one query for the batch).
   const wantPhones = parsed.data.rows
@@ -71,7 +74,7 @@ export async function POST(req: Request) {
           name: r.name.trim(),
           phone,
           address: r.address?.trim() || null,
-          tierId: tier?.id ?? null,
+          tierId: defaultTierId,
           creditLimit: 0,
           creditDays: 0,
           portalSecretHash: await bcrypt.hash(secret, 10),
