@@ -92,7 +92,7 @@ function setupPageHtml(current: string, error: string): string {
   const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
   return `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Golden Wafer — Server</title>
+<title>Golden Wafer Group — Server</title>
 <style>body{font-family:system-ui;background:#070708;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
 .card{background:#121214;border-radius:16px;padding:28px;max-width:420px;width:92%;box-shadow:0 10px 40px #0008}
 h1{font-size:18px;margin:0 0 6px}p{font-size:13px;opacity:.7;margin:0 0 14px}
@@ -765,11 +765,11 @@ function setupTray(log: (m: string) => void): void {
   if (tray) return;
   try {
     tray = new Tray(trayIcon());
-    tray.setToolTip("Golden Wafer — server running");
+    tray.setToolTip("Golden Wafer Group — server running");
     tray.setContextMenu(
       Menu.buildFromTemplate([
         {
-          label: "فتح Golden Wafer",
+          label: "فتح Golden Wafer Group",
           click: () => {
             mainWindow?.show();
             mainWindow?.focus();
@@ -1244,7 +1244,7 @@ function bootErrorPageHtml(error: string, logPath: string): string {
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").slice(0, 4000);
   return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Golden Wafer — تعذر التشغيل</title>
+<title>Golden Wafer Group — تعذر التشغيل</title>
 <style>body{font-family:system-ui;background:#070708;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}
 .card{background:#121214;border-radius:16px;padding:28px;max-width:560px;width:94%;box-shadow:0 10px 40px #0008}
 h1{font-size:18px;margin:0 0 8px;color:#f87171}p{font-size:13px;opacity:.85;line-height:1.9}
@@ -1267,7 +1267,7 @@ function startupPageHtml(
 ): string {
   return `<!doctype html><html lang="ar"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Golden Wafer</title>
+<title>Golden Wafer Group</title>
 <style>
 *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#030303;color:#f7f9f5;font-family:-apple-system,BlinkMacSystemFont,"Geeza Pro",sans-serif}
 main{width:min(100% - 40px,440px);padding:40px 24px;text-align:center}

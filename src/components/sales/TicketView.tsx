@@ -138,15 +138,6 @@ export function TicketView({
         {!/golden\s*wafer/i.test(company.name) && <div className="mt-1 text-lg font-black leading-tight">{company.name}</div>}
         {company.address && <div className="mt-1 text-xs font-semibold opacity-80">{company.address}</div>}
         {company.phone && <div className="text-xs font-black" dir="ltr">{company.phone}</div>}
-        {(company.rc || company.nif || company.nis) && (
-          <div className="mt-0.5 text-[11px] font-bold leading-snug" dir="ltr">
-            {[company.rc && `RC: ${company.rc}`, company.nif && `NIF: ${company.nif}`, company.nis && `NIS: ${company.nis}`]
-              .filter(Boolean)
-              .map((x) => (
-                <div key={x as string}>{x}</div>
-              ))}
-          </div>
-        )}
         <Ornament />
         {/* ── Meta: number · van name · date, one row ── */}
         <div className="flex items-center justify-between gap-1 border-y-[3px] border-double border-black py-1 text-xs">
@@ -181,13 +172,13 @@ export function TicketView({
             const rowBorder = lastRow ? "" : "border-b border-dotted border-black/10";
             return (
               <Fragment key={i}>
-                <span className={`min-w-0 break-words px-1 py-1 text-start font-bold ${rowBorder}`}>
+                <span className={`min-w-0 break-words px-1 py-1 text-start font-black ${rowBorder}`}>
                   {l.name}
                   {l.bonus && <span className="block text-[9px] font-black uppercase">★ {lang === "fr" ? "Gratuit" : "مجاني"}</span>}
                 </span>
-              <span className={`whitespace-nowrap border-s border-dotted border-black/10 px-1 py-1 text-center ${rowBorder}`} dir="ltr">{f > 1 && perPiece > 0 ? money(perPiece) : "—"}</span>
-              <span className={`whitespace-nowrap border-s border-dotted border-black/10 px-1 py-1 text-center ${rowBorder}`} dir="ltr">{dz(num(l.qty))}{f > 1 ? ` × [${f % 1 === 0 ? f : f.toFixed(2)}]` : ""}</span>
-              <span className={`whitespace-nowrap border-s border-dotted border-black/10 px-1 py-1 text-center ${rowBorder}`} dir="ltr">{money(num(l.unitPrice))}</span>
+              <span className={`whitespace-nowrap border-s border-dotted border-black/10 px-1 py-1 text-center font-black ${rowBorder}`} dir="ltr">{f > 1 && perPiece > 0 ? money(perPiece) : "—"}</span>
+              <span className={`whitespace-nowrap border-s border-dotted border-black/10 px-1 py-1 text-center font-black ${rowBorder}`} dir="ltr">{dz(num(l.qty))}{f > 1 ? ` × [${f % 1 === 0 ? f : f.toFixed(2)}]` : ""}</span>
+              <span className={`whitespace-nowrap border-s border-dotted border-black/10 px-1 py-1 text-center font-black ${rowBorder}`} dir="ltr">{money(num(l.unitPrice))}</span>
               <span className={`whitespace-nowrap border-s border-dotted border-black/10 px-1 py-1 text-end font-black ${rowBorder}`} dir="ltr">{money(num(l.lineTotal))}</span>
               </Fragment>
             );

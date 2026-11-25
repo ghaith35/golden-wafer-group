@@ -118,13 +118,6 @@ export async function buildTicketPdf(input: TicketPdfInput): Promise<Blob> {
     doc.text(T(`Tél : ${company.phone}`), infoX, y, { align: "right" });
     y += 4.5;
   }
-  const fiscal = [company.rc && `RC : ${company.rc}`, company.nif && `NIF : ${company.nif}`]
-    .filter(Boolean)
-    .join("  ·  ");
-  if (fiscal) {
-    doc.text(T(fiscal), infoX, y, { align: "right" });
-    y += 4.5;
-  }
   // Left: FACTURE title + number + date.
   doc.setFont(F, "bold");
   doc.setFontSize(24);

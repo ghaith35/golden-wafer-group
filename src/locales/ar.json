@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Golden Wafer",
+    "name": "Golden Wafer Group",
     "tagline": "نظام إدارة التوزيع"
   },
   "nav": {
@@ -94,7 +94,7 @@
   },
   "dashboard": {
     "title": "لوحة القيادة",
-    "welcome": "مرحباً بك في Golden Wafer",
+    "welcome": "مرحباً بك في Golden Wafer Group",
     "empty": "الوحدات التجارية (زبائن، مخزون، مبيعات…) ستُبنى هنا.",
     "today": "اليوم",
     "month": "الشهر",
@@ -866,7 +866,7 @@
     "areasNoSecteurs": "لا توجد قطاعات في هذه الولاية"
   },
   "onboard": {
-    "title": "ابدأ مع Golden Wafer",
+    "title": "ابدأ مع Golden Wafer Group",
     "subtitle": "أنشئ بيانات مؤسستك وحساب المالك، ثم ابدأ إدارة التوزيع مباشرة.",
     "heroTitle": "كل حركة توزيع، في مكانها الصحيح.",
     "heroCopy": "من المخزون والمشتريات إلى التسليم والتحصيل، صورة واضحة لعملك كل يوم.",

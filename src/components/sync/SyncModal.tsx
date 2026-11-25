@@ -325,7 +325,7 @@ export function SyncModal({
             {webUpdate.nativeRequired ? (
               <div className="space-y-2">
                 <p className="text-[11px] font-bold opacity-70">{labels.nativeTitle ?? ""}</p>
-                <a href="/apk/Distribuili-Van.apk" className="flex h-11 items-center justify-center rounded-xl bg-(--brand-500) px-4 text-sm font-black text-(--brand-contrast)">
+                <a href="/apk/Distribuili-Van.apk" download="Golden-Wafer-Group.apk" className="flex h-11 items-center justify-center rounded-xl bg-(--brand-500) px-4 text-sm font-black text-(--brand-contrast)">
                   {labels.nativeGo ?? labels.downloadApk ?? "download"}
                 </a>
               </div>

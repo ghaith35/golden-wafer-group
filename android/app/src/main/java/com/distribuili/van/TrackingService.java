@@ -144,7 +144,7 @@ public class TrackingService extends Service {
         PendingIntent pi = PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         return new NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setContentTitle("Golden Wafer")
+            .setContentTitle("Golden Wafer Group")
             .setContentText(notifText())
             .setOngoing(true)
             .setOnlyAlertOnce(true)

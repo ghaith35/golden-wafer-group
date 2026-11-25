@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Golden Wafer",
+    "name": "Golden Wafer Group",
     "tagline": "Système de gestion de distribution"
   },
   "nav": {
@@ -94,7 +94,7 @@
   },
   "dashboard": {
     "title": "Tableau de bord",
-    "welcome": "Bienvenue sur Golden Wafer",
+    "welcome": "Bienvenue sur Golden Wafer Group",
     "empty": "Les modules métier (clients, stock, ventes…) seront construits ici.",
     "today": "Aujourd'hui",
     "month": "Mois",
@@ -866,7 +866,7 @@
     "areasNoSecteurs": "Aucun secteur dans cette wilaya"
   },
   "onboard": {
-    "title": "Commencez avec Golden Wafer",
+    "title": "Commencez avec Golden Wafer Group",
     "subtitle": "Créez votre entreprise et le compte du propriétaire, puis gérez votre distribution.",
     "heroTitle": "Chaque mouvement de distribution, à sa place.",
     "heroCopy": "Du stock aux achats, jusqu'à la livraison et l'encaissement : une vue claire chaque jour.",

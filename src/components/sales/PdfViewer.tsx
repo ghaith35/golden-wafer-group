@@ -146,7 +146,7 @@ export function PdfViewer({
             <div className="p-4">
               <div className="text-center">
                 <div className="text-lg font-black">{company.name}</div>
-                {[company.address, company.phone, [company.rc && `RC: ${company.rc}`, company.nif && `NIF: ${company.nif}`].filter(Boolean).join(" · ")]
+                {[company.address, company.phone]
                   .filter(Boolean)
                   .map((line, i) => (
                     <div key={i} className="text-[11px] text-neutral-600">{line}</div>
