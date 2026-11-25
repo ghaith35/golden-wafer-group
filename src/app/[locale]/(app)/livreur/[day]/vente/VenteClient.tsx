@@ -7,7 +7,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { ArrowLeft, Check, ChevronDown, ChevronUp, Minus, Plus, Printer, QrCode, Search, Share2, ShoppingBag, Trash2, X } from "lucide-react";
+import { ArrowLeft, Check, ChevronUp, Minus, Plus, Printer, QrCode, Search, Share2, ShoppingBag, Trash2, X } from "lucide-react";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { useKeyboardInset } from "@/lib/useKeyboardInset";
 import { Button } from "@/components/ui/Button";
@@ -145,8 +145,8 @@ export function VenteClient({
     setSelTier(client?.tierId ?? null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client?.id]);
-  const [cat, setCat] = useState("");
-  const [menu, setMenu] = useState<null | "tier" | "cat">(null);
+  /// Category filter removed from the UI (the sale screen is one long list).
+  const cat = "";
   const [searchOpen, setSearchOpen] = useState(false);
   const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
   const [pq, setPq] = useState("");
@@ -160,6 +160,15 @@ export function VenteClient({
   // first client render match (no hydration mismatch).
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+  /// md+ screens have the sidebar: the fixed toolbar starts after it and sits under the taller top bar.
+  const [desk, setDesk] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const upd = () => setDesk(mq.matches);
+    upd();
+    mq.addEventListener("change", upd);
+    return () => mq.removeEventListener("change", upd);
+  }, []);
   /// Small haptic tick when a product is added to the order (phones).
   const prevLineCount = useRef(0);
   useEffect(() => {
@@ -378,7 +387,6 @@ export function VenteClient({
   // % off / new-price deals: the cart is re-priced here (same function as the
   // server) so an offline sale shows and queues the final prices.
   const effLines = useDealLines(tpRules, giftProducts, lines, !editingTicket);
-  const effCategories = categories.length > 0 ? categories : (snap?.categories ?? []);
   const snapStock = (() => {
     if (!snap) return null;
     const m: Record<string, number> = {};
@@ -871,141 +879,100 @@ export function VenteClient({
     window.clearTimeout(pressTimer.current);
   }
 
+  /// Top toolbar: row 1 = back · scan client QR · search; row 2 = price buttons.
+  /// Tier = which price NEW lines take (default: the client's own tier, else the
+  /// regular sell price); lines already added keep their price — a sale can mix tiers.
+  /// Rendered twice: the real one is FIXED to the screen top (never scrolls); an
+  /// invisible copy stays in the flow so the products start right below it.
+  const renderToolbar = (ghost: boolean) => (
+    <>
+        <div className="flex items-center gap-2">
+          <button
+            aria-label="back"
+            onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard${client ? `?client=${client.id}` : ""}`)}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-(--border-default) bg-(--bg-overlay)"
+          >
+            <ArrowLeft size={16} className="rtl:rotate-180" />
+          </button>
+          <button
+            onClick={() => setScanOpen(true)}
+            disabled={!!editingTicket}
+            data-testid={ghost ? undefined : "scan-client"}
+            className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-xl border border-(--brand-500) bg-(--brand-500)/5 px-2.5 text-start disabled:opacity-80"
+          >
+            <QrCode size={15} className="shrink-0 text-(--brand-600)" />
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block truncate text-[13px] font-black leading-none">{client ? <ClientName name={client.name} lat={client.gpsLat} lng={client.gpsLng} /> : labels.scanTitle}</span>
+              <span className="block truncate font-mono text-[9px] leading-tight opacity-60" dir="ltr">{client?.code ?? labels.scanHint}</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            aria-label={labels.searchProduct}
+            data-testid={ghost ? undefined : "search-toggle"}
+            onClick={() => { if (searchOpen) { setSearchOpen(false); setPq(""); } else setSearchOpen(true); }}
+            className={cn(
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-sm",
+              searchOpen || pq ? "border-(--brand-500) bg-(--brand-500) text-(--brand-contrast)" : "border-(--border-default) bg-(--bg-overlay) text-(--brand-600)"
+            )}
+          >
+            {searchOpen ? <X size={16} /> : <Search size={16} />}
+          </button>
+        </div>
+        {searchOpen && (
+          <div className="relative">
+            <Search size={16} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-(--brand-600)" />
+            <Input autoFocus={!ghost} tabIndex={ghost ? -1 : undefined} className="!h-9 ps-9 text-sm" placeholder={labels.searchProduct} value={pq} onChange={(e) => setPq(e.target.value)} />
+          </div>
+        )}
+        {effTiers.length > 0 && (
+          <div role="radiogroup" aria-label={labels.tierBase} className="no-scrollbar flex gap-1.5 overflow-x-auto" data-testid={ghost ? undefined : "tier-buttons"}>
+            {[{ id: null as string | null, name: labels.tierBaseBtn ?? labels.tierBase ?? "" },
+              ...[...effTiers].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" })).map((t) => ({ id: t.id as string | null, name: t.name }))].map((t) => {
+              const on = selTier === t.id;
+              return (
+                <button
+                  key={t.id ?? "base"}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  data-testid={ghost ? undefined : t.id ? `tier-${t.id}` : "tier-base"}
+                  onClick={() => setSelTier(t.id)}
+                  className={cn(
+                    "h-8 shrink-0 grow whitespace-nowrap rounded-lg border px-3 text-xs font-black shadow-sm transition-colors active:scale-[0.98]",
+                    on
+                      ? "border-(--brand-500) bg-(--brand-500) text-(--brand-contrast)"
+                      : "border-(--border-default) bg-(--bg-overlay) hover:border-(--brand-500)"
+                  )}
+                >
+                  {t.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+    </>
+  );
+
   return (
     <div className="space-y-3 p-4 md:p-5">
-      <div className="flex items-center gap-2">
-        <button
-          aria-label="back"
-          onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard${client ? `?client=${client.id}` : ""}`)}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
-        >
-          <ArrowLeft size={18} className="rtl:rotate-180" />
-        </button>
-        <button
-          onClick={() => setScanOpen(true)}
-          disabled={!!editingTicket}
-          className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-(--brand-500) bg-(--brand-500)/5 p-2.5 text-start disabled:opacity-80"
-        >
-          <QrCode size={17} className="shrink-0 text-(--brand-600)" />
-          <span className="min-w-0 flex-1">
-            <span className="block text-sm font-black">{client ? <ClientName name={client.name} lat={client.gpsLat} lng={client.gpsLng} /> : <span className="block truncate">{labels.scanTitle}</span>}</span>
-            <span className="block truncate font-mono text-[11px] opacity-60" dir="ltr">{client?.code ?? labels.scanHint}</span>
-          </span>
-        </button>
+      {/* Invisible placeholder (same content) keeps the products below the fixed bar. */}
+      <div aria-hidden inert className="pointer-events-none invisible -mx-4 -mt-4 space-y-1.5 px-4 pb-1.5 pt-2 md:-mx-5 md:-mt-5 md:px-5 md:pt-2">
+        {renderToolbar(true)}
       </div>
-
-      {/* One compact toolbar: price tier ▾ · category ▾ · search 🔍.
-          Tier = which price NEW lines take (default: the client's own);
-          already-added lines keep their price — a sale can mix tiers. */}
-      {(() => {
-        const tierLabel = selTier == null ? (labels.tierBase ?? "") : tierName(selTier);
-        const catLabel = cat === "" ? labels.allCats : (effCategories.find((c) => c.id === cat)?.name ?? labels.allCats);
-        const chip = (active: boolean) =>
-          cn(
-            "flex min-h-11 w-full min-w-0 items-center justify-between gap-1.5 rounded-2xl border px-3 py-1 text-start text-[13px] font-black shadow-sm transition-colors",
-            active
-              ? "border-(--brand-500) bg-(--brand-500) text-(--brand-contrast)"
-              : "border-(--border-default) bg-(--bg-overlay) hover:border-(--brand-500)"
-          );
-        const optCls = (on: boolean) =>
-          cn(
-            "flex min-h-11 w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-start text-[13px] font-bold transition-colors",
-            on ? "bg-(--brand-500)/12 text-(--brand-600)" : "hover:bg-(--bg-sunken)"
-          );
-        const popover = (children: React.ReactNode) => (
-          <>
-            <button type="button" aria-hidden tabIndex={-1} className="fixed inset-0 z-30 cursor-default" onClick={() => setMenu(null)} />
-            <div className="absolute inset-x-0 top-full z-40 mt-1.5 max-h-[min(18rem,50vh)] overflow-y-auto overscroll-contain rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-1.5 shadow-[0_18px_40px_-12px_rgba(15,40,100,0.35)]">
-              {children}
-            </div>
-          </>
-        );
-        if (searchOpen) {
-          return (
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search size={16} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-(--brand-600)" />
-                <Input
-                  autoFocus
-                  className="ps-9"
-                  placeholder={labels.searchProduct}
-                  value={pq}
-                  onChange={(e) => setPq(e.target.value)}
-                />
-              </div>
-              <button
-                type="button"
-                aria-label="close search"
-                onClick={() => { setSearchOpen(false); setPq(""); }}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-(--border-default) bg-(--bg-overlay)"
-              >
-                <X size={18} />
-              </button>
-            </div>
-          );
-        }
-        return (
-          <div className="relative flex flex-wrap items-center gap-2">
-            {effTiers.length > 0 && (
-              <div className="min-w-[8.5rem] flex-1">
-                <button type="button" data-testid="tier-trigger" onClick={() => setMenu(menu === "tier" ? null : "tier")} className={chip(menu === "tier")}>
-                  <span className="min-w-0 break-words leading-tight">{tierLabel}</span>
-                  <ChevronDown size={16} className={cn("shrink-0 transition-transform", menu === "tier" && "rotate-180")} />
-                </button>
-                {menu === "tier" && (
-                  popover(<>
-                    <button type="button" data-testid="tier-base" onClick={() => { setSelTier(null); setMenu(null); }} className={optCls(selTier == null)}>
-                      <span className="min-w-0 break-words leading-tight">{labels.tierBase ?? ""}</span>
-                      {selTier == null && <Check size={16} />}
-                    </button>
-                    {[...effTiers].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" })).map((t) => (
-                      <button key={t.id} type="button" data-testid={`tier-${t.id}`} onClick={() => { setSelTier(t.id); setMenu(null); }} className={optCls(selTier === t.id)}>
-                        <span className="min-w-0 break-words leading-tight">{t.name}</span>
-                        {selTier === t.id && <Check size={16} />}
-                      </button>
-                    ))}
-                  </>)
-                )}
-              </div>
-            )}
-            {(
-              <div className="min-w-[8.5rem] flex-1">
-                <button type="button" data-testid="cat-trigger" onClick={() => setMenu(menu === "cat" ? null : "cat")} className={chip(menu === "cat" || cat !== "")}>
-                  <span className="min-w-0 break-words leading-tight">{catLabel}</span>
-                  <ChevronDown size={16} className={cn("shrink-0 transition-transform", menu === "cat" && "rotate-180")} />
-                </button>
-                {menu === "cat" && (
-                  popover(<>
-                    <button type="button" onClick={() => { setCat(""); setMenu(null); }} className={optCls(cat === "")}>
-                      <span className="min-w-0 break-words leading-tight">{labels.allCats}</span>
-                      {cat === "" && <Check size={16} />}
-                    </button>
-                    {[...effCategories].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" })).map((c) => (
-                      <button key={c.id} type="button" onClick={() => { setCat(c.id); setMenu(null); }} className={optCls(cat === c.id)}>
-                        <span className="min-w-0 break-words leading-tight">{c.name}</span>
-                        {cat === c.id && <Check size={16} />}
-                      </button>
-                    ))}
-                  </>)
-                )}
-              </div>
-            )}
-            {(
-              <button
-                type="button"
-                aria-label={labels.searchProduct}
-                onClick={() => { setMenu(null); setSearchOpen(true); }}
-                className={cn(
-                  "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border shadow-sm",
-                  pq ? "border-(--brand-500) bg-(--brand-500) text-(--brand-contrast)" : "border-(--border-default) bg-(--bg-overlay) text-(--brand-600)"
-                )}
-              >
-                <Search size={18} />
-              </button>
-            )}
-          </div>
-        );
-      })()}
+      {/* The real toolbar: fixed under the app bar — it never scrolls away. */}
+      <div
+        className="z-30 space-y-1.5 bg-(--bg-page)/95 px-4 pb-1.5 pt-2 backdrop-blur md:px-5"
+        data-testid="sale-toolbar"
+        style={{
+          position: "fixed",
+          top: desk ? "calc(3.5rem + env(safe-area-inset-top))" : "calc(60px + env(safe-area-inset-top))",
+          insetInlineEnd: 0,
+          insetInlineStart: desk ? "var(--gw-start, 0px)" : 0,
+        }}
+      >
+        {renderToolbar(false)}
+      </div>
 
       {/* Products stay on screen; the order lives in a bottom sheet. */}
         <>

@@ -1416,6 +1416,7 @@
     "errDupPhone": "Ce numéro est déjà utilisé",
     "clientName": "Nom du client",
     "tierBase": "Prix de vente",
+    "tierBaseBtn": "Prix normal",
     "restock": "Demande stock",
     "restockHint": "Choisissez depuis le dépôt — envoyé au camion après validation",
     "myRequests": "Mes demandes",

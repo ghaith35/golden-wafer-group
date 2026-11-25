@@ -158,7 +158,7 @@ export default async function LivreurVentePage({
         errCashOnly: t("errCashOnly"), errDebtOff: t("errDebtOff"),
         errClientReq: t("errClientReq"), errCreditLimit: t("errCreditLimit"),
         errOverpaid: t("errOverpaid"), errSaveFailed: t("errSaveFailed"),
-        syncFirst: t("syncFirst"), tierBase: t("tierBase"),
+        syncFirst: t("syncFirst"), tierBase: t("tierBase"), tierBaseBtn: t("tierBaseBtn"),
       }}
       ticketLabels={{
         total: tt("total"), paid: tt("paid"), due: tt("due"), remise: tt("remise"),
