@@ -6,6 +6,7 @@ import { getOrCreateSettings } from "@/lib/settings/helpers";
 import { getLivreurVan } from "../../_data";
 import { parseDay } from "../../_days";
 import { FacturesClient } from "./FacturesClient";
+import { algiersDayRange } from "@/lib/tournees/days";
 /// Step 5 — Factures: van tickets, view + cancel.
 export default async function LivreurFacturesPage({
   params,
@@ -31,8 +32,16 @@ export default async function LivreurFacturesPage({
   if (!van) redirect(`/${locale}/livreur`);
   const driver = await prisma.user.findFirst({ where: { id: session.userId, companyId: session.companyId }, select: { fullName: true, phone: true } });
 
+  // A driver only sees the invoices of the CURRENT day (Algiers calendar): the
+  // previous days are closed and live on the admin side. Admins keep the full list.
   const rows = await prisma.sale.findMany({
-    where: { companyId: session.companyId, locationId: van.id, kind: "TICKET", status: { not: "CANCELLED" } },
+    where: {
+      companyId: session.companyId,
+      locationId: van.id,
+      kind: "TICKET",
+      status: { not: "CANCELLED" },
+      ...(session.role === "Admin" ? {} : { date: algiersDayRange(new Date()) }),
+    },
     include: { client: { select: { name: true, gpsLat: true, gpsLng: true } } },
     orderBy: { createdAt: "desc" },
     take: 100,
