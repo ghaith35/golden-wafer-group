@@ -15,7 +15,7 @@ import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { SaleDocForm } from "../SaleDocForm";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PackInfo, factorOf, normFactor, LinePriceSummary } from "@/components/products/UnitQty";
-import { dz, dzMoney } from "@/lib/format";
+import { dz, dzMoney, BUSINESS_TZ } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { ErrText } from "@/components/ui/ErrText";
@@ -381,7 +381,7 @@ export function SaleActions({
                 {when && (
                   <span className="flex items-center gap-1" dir="auto">
                     <CalendarClock size={12} />
-                    {when.toLocaleDateString(dloc, { day: "numeric", month: "short", year: "numeric" })} · {when.toLocaleTimeString(dloc, { hour: "2-digit", minute: "2-digit", hour12: false })}
+                    {when.toLocaleDateString(dloc, { day: "numeric", month: "short", year: "numeric", timeZone: BUSINESS_TZ })} · {when.toLocaleTimeString(dloc, { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: BUSINESS_TZ })}
                   </span>
                 )}
                 <span className="flex items-center gap-1"><Layers size={12} />{sale.lines?.length ?? 0} {labels.linesCount ?? ""}</span>

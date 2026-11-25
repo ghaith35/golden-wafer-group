@@ -11,6 +11,8 @@ import { SaleDocForm } from "./SaleDocForm";
 import { SaleActions, type SaleDetail } from "./[id]/SaleActions";
 import type { SaleFormData } from "./saleRefs";
 import { dzMoney } from "@/lib/format";
+import { BUSINESS_TZ } from "@/lib/format";
+import { algiersDayKey } from "@/lib/tournees/days";
 import { compareNatural } from "@/lib/sort";
 import { getUnsyncedDocKeys } from "@/lib/sync/client";
 import { cn } from "@/lib/utils";
@@ -154,14 +156,19 @@ export function SalesClient({
 
   const loc = `${locale === "ar" ? "ar-DZ" : locale}-u-nu-latn`;
   const now = useMemo(() => new Date(stats.nowIso), [stats.nowIso]);
-  const timeFmt = useMemo(() => new Intl.DateTimeFormat(loc, { hour: "2-digit", minute: "2-digit", hour12: false }), [loc]);
+  // All wall-clock text is pinned to the business timezone (Africa/Algiers):
+  // the server renders on UTC and the browsers on Algiers time, and any
+  // unpinned toLocale* prints different strings on each side — a React
+  // hydration mismatch (#418) that crashes the page. Same rule for the
+  // grouping below: Algiers day keys, never local-date components.
+  const timeFmt = useMemo(() => new Intl.DateTimeFormat(loc, { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: BUSINESS_TZ }), [loc]);
   const dayLabel = (d: Date) => {
-    const sameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-    if (sameDay(d, now)) return labels.today;
-    if (sameDay(d, new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1))) return labels.yesterday;
-    return new Intl.DateTimeFormat(loc, { weekday: "long", day: "numeric", month: "long" }).format(d);
+    if (algiersDayKey(d) === algiersDayKey(now)) return labels.today;
+    const yd = new Date(now.getTime() - 86400000);
+    if (algiersDayKey(d) === algiersDayKey(yd)) return labels.yesterday;
+    return new Intl.DateTimeFormat(loc, { weekday: "long", day: "numeric", month: "long", timeZone: BUSINESS_TZ }).format(d);
   };
-  const monthName = (m: number) => new Intl.DateTimeFormat(loc, { month: "long" }).format(new Date(year, m - 1, 1));
+  const monthName = (m: number) => new Intl.DateTimeFormat(loc, { month: "long", timeZone: "UTC" }).format(new Date(Date.UTC(year, m - 1, 1)));
   const kindLabel = (k?: string) => (k === "TICKET" ? labels.kindTicket : k === "DELIVERY" ? labels.kindDelivery : k === "INVOICE" ? labels.kindInvoice : "");
   const statusLabel = (s: string) => labels[s.toLowerCase()] ?? s;
 
@@ -204,16 +211,23 @@ export function SalesClient({
     return { total, paid, due: total - paid };
   }, [visible]);
 
-  /// Rows grouped by calendar day (newest first) with per-day totals.
+  /// Rows grouped by Algiers calendar day (newest first) with per-day totals.
+  /// The key AND the representative date both come from the pinned business
+  /// timezone — local-date components would attribute the same sale to two
+  /// different days on a UTC server vs an Algiers browser (#418).
   const groups = useMemo(() => {
     const m = new Map<string, { date: Date; rows: Row[]; total: number }>();
     for (const r of visible) {
       const d = new Date(r.date as string);
-      const k = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-      const g = m.get(k) ?? { date: new Date(d.getFullYear(), d.getMonth(), d.getDate()), rows: [], total: 0 };
-      g.rows.push(r);
-      g.total += Number(r.total);
-      m.set(k, g);
+      const k = algiersDayKey(d);
+      const g = m.get(k);
+      if (g) {
+        g.rows.push(r);
+        g.total += Number(r.total);
+      } else {
+        const [y, mo, da] = k.split("-").map(Number);
+        m.set(k, { date: new Date(y, mo - 1, da), rows: [r], total: Number(r.total) });
+      }
     }
     return [...m.values()];
   }, [visible]);
@@ -430,8 +444,10 @@ export function SalesClient({
         {Array.from({ length: days }, (_, i) => i + 1).map((d) => {
           const active = day === d;
           const dt = new Date(year, month - 1, d);
-          const isToday = dt.toDateString() === now.toDateString();
-          const future = dt.getTime() > now.getTime();
+          // Algiers day keys — dt.toDateString()/getTime() mix the server
+          // and browser timezones and disagree across them (#418).
+          const isToday = algiersDayKey(dt) === algiersDayKey(now);
+          const future = algiersDayKey(dt) > algiersDayKey(now);
           const v = stats.series[d - 1] ?? 0;
           return (
             <button
@@ -446,7 +462,7 @@ export function SalesClient({
                 !active && v === 0 && !future && "opacity-60"
               )}
             >
-              <span className="text-[9.5px] font-bold opacity-70 lg:[@media(max-height:820px)]:hidden">{new Intl.DateTimeFormat(loc, { weekday: "short" }).format(dt)}</span>
+              <span className="text-[9.5px] font-bold opacity-70 lg:[@media(max-height:820px)]:hidden">{new Intl.DateTimeFormat(loc, { weekday: "short", timeZone: BUSINESS_TZ }).format(dt)}</span>
               <span className="text-[14px] font-black leading-none tabular-nums">{d}</span>
               <span aria-hidden className={cn("absolute inset-x-0 bottom-0 h-[3px]", active ? "bg-(--brand-contrast)/40" : "bg-(--brand-500)/60")} style={{ transform: `scaleX(${v / maxDay})`, transformOrigin: "left" }} />
             </button>

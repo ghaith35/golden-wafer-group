@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { dz, dzMoney } from "@/lib/format";
+import { BUSINESS_TZ } from "@/lib/format";
 import { TICKET_HERO, TICKET_HERO_RATIO } from "@/lib/brand/ticketHero";
 
 /// Shared thermal ticket (80mm paper, 72mm printable), Arabic RTL.
@@ -75,7 +76,8 @@ const num = (v: number | string | null | undefined): number => Number(v ?? 0);
 
 function fmtDate(d: string | Date, locale: string): string {
   const dt = d instanceof Date ? d : new Date(d);
-  return `${dt.toLocaleDateString(locale)} · ${dt.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}`;
+  // Pinned business timezone — see fmtDT in lib/format.ts (hydration #418).
+  return `${dt.toLocaleDateString(locale, { timeZone: BUSINESS_TZ })} · ${dt.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}`;
 }
 
 /// Pack factor for a line (e.g. 1 carton × [24]): base units per sale unit.

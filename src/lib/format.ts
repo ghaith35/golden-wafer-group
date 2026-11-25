@@ -44,12 +44,20 @@ export function dzMoney(v: number, maxFrac?: number): string {
 
 /// Date + hour for record rows (sales, orders, expenses…): short local date
 /// plus HH:MM, e.g. "02/10/2026 · 14:35". Invalid dates render "—".
+///
+/// Timezone is pinned to the business calendar (Africa/Algiers): the prod
+/// server runs on UTC while the browsers run on Algiers time, and an
+/// unpinned toLocale* renders different strings on each side — a React
+/// hydration mismatch (#418) that crashes the whole page. Never format a
+/// stored instant without this pin.
+export const BUSINESS_TZ = "Africa/Algiers";
+
 export function fmtDT(value: string | Date | null | undefined, locale: string): string {
   if (!value) return "—";
   const d = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(d.getTime())) return "—";
   try {
-    return `${d.toLocaleDateString(locale)} · ${d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}`;
+    return `${d.toLocaleDateString(locale, { timeZone: BUSINESS_TZ })} · ${d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}`;
   } catch {
     return d.toISOString().slice(0, 16).replace("T", " · ");
   }

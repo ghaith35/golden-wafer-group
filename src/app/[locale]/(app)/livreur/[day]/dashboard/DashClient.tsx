@@ -383,15 +383,18 @@ export function DashClient({
         <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
           <div className="mb-2 flex items-center justify-between text-xs font-bold opacity-60">
             <span>{labels.startDay}</span>
+            {/* Hydration-safe: time text renders only after mount — the
+                server timezone and the phone timezone would print different
+                strings for the same instant (React #418). */}
             <span className="tabular-nums" dir="ltr">
-              {stamp?.startedAt ? new Date(stamp.startedAt).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" }) : "—"}
+              {mounted && stamp?.startedAt ? new Date(stamp.startedAt).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" }) : "—"}
               {dayPending && !stamp?.startedAt ? ` ⏳` : ""}
             </span>
           </div>
           <div className="mb-2 flex items-center justify-between text-xs font-bold opacity-60">
             <span>{labels.finishDay}</span>
             <span className="tabular-nums" dir="ltr">
-              {stamp?.finishedAt ? new Date(stamp.finishedAt).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" }) : "—"}
+              {mounted && stamp?.finishedAt ? new Date(stamp.finishedAt).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" }) : "—"}
               {dayPending && stamp?.startedAt && !stamp?.finishedAt ? ` ⏳` : ""}
             </span>
           </div>
