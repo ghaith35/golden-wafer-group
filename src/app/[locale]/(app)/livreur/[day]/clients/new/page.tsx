@@ -60,7 +60,7 @@ export default async function LivreurNewClientPage({
       areaScope={areaScope}
       defaultSecteurId={defaultSecteurId}
       labels={{
-        newClient: t("newClient"), phoneOpt: t("phoneOpt"), addressOpt: t("addressOpt"),
+        newClient: t("newClient"), clientName: t("clientName"), phoneOpt: t("phoneOpt"), addressOpt: t("addressOpt"),
         activityOpt: t("activityOpt"), wilayaOpt: t("wilayaOpt"), secteurOpt: t("secteurOpt"),
         tierOpt: t("tierOpt"), useGps: t("useGps"), confirm: t("confirm"),
         cancel: t("cancel"), empty: t("empty"), clients: t("clients"),

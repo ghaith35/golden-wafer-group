@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { ClientName } from "@/components/clients/ClientName";
 import { proximityOf, PROX_CARD } from "@/lib/proximity";
 import { haversineM } from "@/lib/geo-math";
+import { sortClosestFirst } from "@/lib/clients/proximity-sort";
 import { RefreshButton } from "@/components/livreur/RefreshButton";
 import { matchClient } from "@/lib/clients/display";
 import { ClosedShopButton, useClosedIds } from "@/components/livreur/ClosedShopButton";
@@ -509,11 +510,19 @@ export function DayClients({
       (!q || matchClient(q, c))
   );
   /// One block per sector (header shown only when the list mixes sectors).
+  /// Inside every block the closest clients come first (live GPS, else the
+  /// saved fix, else the last synced road distance); clients without GPS
+  /// keep their tour order at the end.
   const groups = new Map<string, typeof list>();
   for (const c of list) {
     const k = secOf(c);
     const g = groups.get(k);
     if (g) g.push(c); else groups.set(k, [c]);
+  }
+  {
+    const anchor = livePos ?? pos;
+    const roadDist = (id: string) => raw.get(id)?.distM ?? null;
+    for (const [k, g] of groups) groups.set(k, sortClosestFirst(g, anchor, roadDist));
   }
   const showHeaders = groups.size > 1;
 

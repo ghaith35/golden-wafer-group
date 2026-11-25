@@ -395,10 +395,12 @@ export function NewClient({
   if (created) {
     return (
       <div className={embedded ? "space-y-3" : "space-y-3 p-4 pb-8 md:p-5"}>
+        {!embedded && (
         <h1 className="flex items-center gap-2 text-lg font-black">
           <UserPlus size={19} className="text-(--brand-600)" />
           {labels.newClient}
         </h1>
+        )}
         <p className="text-sm font-bold opacity-70">{labels.qrReady}</p>
         <div className="rounded-2xl border border-(--border-default) bg-white p-4 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -433,31 +435,21 @@ export function NewClient({
 
   return (
     <div className={embedded ? "space-y-3" : "space-y-3 p-4 pb-8 md:p-5"}>
+      {!embedded && (
       <div className="flex items-center gap-2">
-        {!embedded && (
-          <button
-            aria-label="back"
-            onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard`)}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
-          >
-            <ArrowLeft size={18} className="rtl:rotate-180" />
-          </button>
-        )}
+        <button
+          aria-label="back"
+          onClick={() => goPage(router, `/${locale}/livreur/${day}/dashboard`)}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
+        >
+          <ArrowLeft size={18} className="rtl:rotate-180" />
+        </button>
         <h1 className="flex flex-1 items-center gap-2 text-lg font-black">
           <UserPlus size={19} className="text-(--brand-600)" />
           {labels.newClient}
         </h1>
-        {embedded && onClose && (
-          <button
-            type="button"
-            aria-label={labels.close ?? "close"}
-            onClick={onClose}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
-          >
-            ✕
-          </button>
-        )}
       </div>
+      )}
 
       {queued && (
         <p className="rounded-xl bg-amber-500/10 p-2.5 text-xs font-bold text-amber-600">⏳ queued offline — will sync</p>
@@ -465,15 +457,9 @@ export function NewClient({
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
 
       <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
-        <div className="mb-2 flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-(--brand-500)/10 text-(--brand-600)">
-            <UserPlus size={16} />
-          </span>
-          <span className="text-sm font-black">{labels.newClient}</span>
-        </div>
         <div className="space-y-2">
           <div>
-            <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.newClient}</label>
+            <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.clientName ?? labels.newClient}</label>
             <Input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-2">
