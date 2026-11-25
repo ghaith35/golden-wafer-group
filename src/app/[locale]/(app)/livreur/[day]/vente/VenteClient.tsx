@@ -42,6 +42,31 @@ type Prod = {
 };
 type Line = { productId: string; unitId: string | null; qty: number; unitPrice: number; tierId: string | null };
 
+/// Whole-number box for the quantity popup: he can type the number (never above
+/// `max`, the stock the van still holds) as well as use the +/− buttons.
+function NumberBox({ value, max, onChange, label }: { value: number; max: number; onChange: (n: number) => void; label: string }) {
+  const [txt, setTxt] = useState<string | null>(null);
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      aria-label={label}
+      value={txt ?? String(value)}
+      onChange={(e) => {
+        const t = e.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+        const n = Math.min(max, Number(t || 0));
+        setTxt(Number(t || 0) > max ? String(max) : t);
+        onChange(n);
+      }}
+      onFocus={(e) => e.currentTarget.select()}
+      onBlur={() => setTxt(null)}
+      onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+      dir="ltr"
+      className="h-11 w-16 rounded-xl bg-(--bg-overlay) text-center text-xl font-black tabular-nums outline-none focus:ring-2 focus:ring-(--brand-500)"
+    />
+  );
+}
+
 function priceFor(p: Prod, tierId: string | null): number {
   return resolveTierPrice(p.tierPrices, p.salePrice, tierId);
 }
@@ -519,10 +544,48 @@ export function VenteClient({
   // "المقبوض" follows "المجموع" until the driver types his own amount.
   useEffect(() => {
     if (paidTouched) return;
-    setPaid(total > 0 ? String(Math.floor(Math.round(total * 100) / 100)) : "");
+    setPaid(total > 0 ? String(Math.round(total * 100) / 100) : "");
   }, [total, paidTouched]);
 
+  /// Quantity typed straight into the invoice line (instead of only +/−).
+  /// The text is kept as a draft while typing (empty / "2." are allowed), the
+  /// line only changes on a valid number > 0, and it can never exceed what the
+  /// van still holds (other lines of the same product count against it).
+  const [qtyDraft, setQtyDraft] = useState<Record<number, string>>({});
+  function ufOfLine(x: Line): number {
+    const p = effProducts.find((q) => q.id === x.productId) ?? products.find((q) => q.id === x.productId);
+    const c = p?.conversions.find((cv) => cv.unitId === x.unitId);
+    return c ? normFactor(Number(c.factor)) : 1;
+  }
+  function maxQtyFor(i: number): number {
+    const l = lines[i];
+    if (!l) return 0;
+    const uf = ufOfLine(l) || 1;
+    const others = lines.reduce((sum, x, j) => (j !== i && x.productId === l.productId ? sum + x.qty * ufOfLine(x) : sum), 0);
+    const room = freeOf(l.productId) - others;
+    return Math.max(0, Math.floor((room + 1e-9) / uf));
+  }
+  function typeQty(i: number, raw: string) {
+    const txt = raw.replace(",", ".");
+    if (!/^\d*\.?\d*$/.test(txt)) return;
+    setQtyDraft((d) => ({ ...d, [i]: txt }));
+    const n = Number(txt);
+    if (!txt || !Number.isFinite(n) || n <= 0) return; // keep typing; committed on blur
+    const cap = maxQtyFor(i);
+    const next = cap > 0 ? Math.min(n, cap) : n;
+    setLines((prev) => prev.map((l, j) => (j === i ? { ...l, qty: next } : l)));
+    if (next !== n) setQtyDraft((d) => ({ ...d, [i]: String(next) }));
+  }
+  function endTypeQty(i: number) {
+    setQtyDraft((d) => {
+      const { [i]: _drop, ...rest } = d;
+      void _drop;
+      return rest;
+    });
+  }
+
   function bump(i: number, d: number) {
+    setQtyDraft({});
     setLines((prev) =>
       prev.map((l, j) => (j === i ? { ...l, qty: Math.max(0, l.qty + d) } : l)).filter((l) => l.qty > 0)
     );
@@ -1048,7 +1111,7 @@ export function VenteClient({
           </div>
           <div className="flex items-center gap-2">
             <span className="shrink-0 text-sm font-bold opacity-70">{labels.paid}</span>
-            <Input value={paid} onChange={(e) => { setPaid(e.target.value); setPaidTouched(e.target.value.trim() !== ""); }} inputMode="decimal" placeholder={String(Math.floor(Math.round(total * 100) / 100))} dir="ltr" />
+            <Input value={paid} onChange={(e) => { setPaid(e.target.value); setPaidTouched(e.target.value.trim() !== ""); }} inputMode="decimal" placeholder={String(Math.round(total * 100) / 100)} dir="ltr" />
           </div>
           {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
           <Button onClick={() => void confirmSale()} disabled={saving || !lines.length} data-testid="confirm-sale" className="h-12 w-full text-base">
@@ -1131,7 +1194,19 @@ export function VenteClient({
                           <button aria-label="-" onClick={() => bump(i, -1)} className="flex h-10 w-10 items-center justify-center rounded-xl active:bg-black/10">
                             <Minus size={16} />
                           </button>
-                          <span className="min-w-8 text-center text-base font-black tabular-nums">{l.qty}</span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            aria-label={labels.qty ?? "qty"}
+                            data-testid="line-qty"
+                            value={qtyDraft[i] ?? String(l.qty)}
+                            onChange={(e) => typeQty(i, e.target.value)}
+                            onFocus={(e) => e.currentTarget.select()}
+                            onBlur={() => endTypeQty(i)}
+                            onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+                            dir="ltr"
+                            className="h-10 w-14 bg-transparent text-center text-base font-black tabular-nums outline-none focus:bg-(--bg-overlay) focus:ring-2 focus:ring-(--brand-500)"
+                          />
                           <button aria-label="+" onClick={() => bump(i, 1)} className="flex h-10 w-10 items-center justify-center rounded-xl active:bg-black/10">
                             <Plus size={16} />
                           </button>
@@ -1284,7 +1359,7 @@ export function VenteClient({
                     <button aria-label="-" onClick={() => setQtyPacks((v) => Math.max(0, v - 1))} className="flex h-11 w-11 items-center justify-center rounded-xl border border-(--border-default)">
                       <Minus size={17} />
                     </button>
-                    <span className="w-10 text-center text-xl font-black tabular-nums">{qtyPacks}</span>
+                    <NumberBox value={qtyPacks} max={maxPacks} onChange={setQtyPacks} label={pack.unit.name} />
                     <button aria-label="+" onClick={() => setQtyPacks((v) => Math.min(maxPacks, v + 1))} disabled={packFull} className="flex h-11 w-11 items-center justify-center rounded-xl border border-(--border-default) disabled:opacity-30">
                       <Plus size={17} />
                     </button>
@@ -1301,7 +1376,7 @@ export function VenteClient({
                   <button aria-label="-" onClick={() => setQtyUnits((v) => Math.max(0, v - 1))} className="flex h-11 w-11 items-center justify-center rounded-xl border border-(--border-default)">
                     <Minus size={17} />
                   </button>
-                  <span className="w-10 text-center text-xl font-black tabular-nums">{qtyUnits}</span>
+                  <NumberBox value={qtyUnits} max={maxUnits} onChange={setQtyUnits} label={qtyFor.baseUnit?.name ?? ""} />
                   <button aria-label="+" onClick={() => setQtyUnits((v) => Math.min(maxUnits, v + 1))} disabled={unitFull} className="flex h-11 w-11 items-center justify-center rounded-xl border border-(--border-default) disabled:opacity-30">
                     <Plus size={17} />
                   </button>

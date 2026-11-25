@@ -362,10 +362,11 @@ async function applyOp(
         await addClientToDayTour({ companyId, userId, role: u?.role ?? "" }, row.id, p.day);
       }
     } else if (op.kind === "client-update") {
-      // Offline client edit: driver-safe fields ONLY (name/phone/address/
-      // area/GPS/legacy QR). Financial fields (tier/credit/balance/code) are NEVER
-      // taken from the payload — the phone cannot grant credit, change tiers
-      // or rename codes. Pending-created clients resolve via the created map.
+      // Offline client edit: the same fields the add-client form has (name/phone/
+      // address/activity/area/price tier/GPS/legacy QR). Credit, balance and the
+      // client code are NEVER taken from the payload — the phone cannot grant
+      // credit or rename codes. The price tier must be one of the company's own
+      // tiers. Pending-created clients resolve via the created map.
       const clientId = await resolveClientId(companyId, p.clientId, created);
       if (!clientId) throw Object.assign(new Error("bad_client"), { status: 400 });
       const target = await prisma.customer.findFirst({ where: { id: clientId, companyId }, select: { id: true } });
@@ -398,6 +399,14 @@ async function applyOp(
           data.secteurId = sid;
         } else {
           data.secteurId = null;
+        }
+      }
+      if (patch.tierId !== undefined) {
+        const tid = str(patch.tierId);
+        if (tid) {
+          const tier = await prisma.priceTier.findFirst({ where: { id: tid, companyId }, select: { id: true } });
+          if (!tier) throw Object.assign(new Error("bad_tier"), { status: 400 });
+          data.tierId = tid;
         }
       }
       if (patch.gpsLat !== undefined || patch.gpsLng !== undefined) {

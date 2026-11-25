@@ -183,6 +183,7 @@ export function DayClients({
   const [fActivity, setFActivity] = useState("");
   const [fWilaya, setFWilaya] = useState("");
   const [fSecteur, setFSecteur] = useState("");
+  const [fTier, setFTier] = useState("");
   /// GPS fix captured in the edit form (null = keep the card's position).
   const [fGps, setFGps] = useState<{ lat: number; lng: number } | null>(null);
   const [capturing, setCapturing] = useState(false);
@@ -208,6 +209,7 @@ export function DayClients({
     setFActivity("");
     setFWilaya("");
     setFSecteur("");
+    setFTier(c.tierId ?? "");
     setFGps(c.gpsLat != null && c.gpsLng != null ? { lat: c.gpsLat, lng: c.gpsLng } : null);
     setEditMsg(null);
     setEditErr(null);
@@ -222,6 +224,8 @@ export function DayClients({
           setFActivity(String(q.activityType ?? ""));
           const w = q.wilayaCode;
           if (typeof w === "number") setFWilaya(String(w));
+          if (typeof q.secteurId === "string") setFSecteur(q.secteurId);
+          if (typeof q.tierId === "string") setFTier(q.tierId);
         }
         const ops = await getOutbox().catch(() => []);
         const last = [...ops].reverse().find((o) => o.kind === "client-update" && (o.payload as Record<string, unknown>)?.clientId === c.id);
@@ -234,6 +238,7 @@ export function DayClients({
           if (typeof patch.activityType === "string") setFActivity(patch.activityType);
           if (typeof patch.wilayaCode === "number") setFWilaya(String(patch.wilayaCode));
           if (typeof patch.secteurId === "string") setFSecteur(patch.secteurId);
+          if (typeof patch.tierId === "string") setFTier(patch.tierId);
           if (typeof patch.gpsLat === "number" && typeof patch.gpsLng === "number") {
             setFGps({ lat: patch.gpsLat, lng: patch.gpsLng });
           }
@@ -259,6 +264,7 @@ export function DayClients({
           if (typeof d.activityType === "string") setFActivity(d.activityType);
           if (d.wilayaCode != null) setFWilaya(String(d.wilayaCode));
           if (typeof d.secteurId === "string") setFSecteur(d.secteurId);
+          if (typeof d.tierId === "string") setFTier(d.tierId);
         }
       }
     } catch {
@@ -304,6 +310,7 @@ export function DayClients({
     if (fActivity.trim()) patch.activityType = fActivity.trim();
     if (fWilaya) patch.wilayaCode = Number(fWilaya);
     if (fSecteur) patch.secteurId = fSecteur;
+    if (fTier && fTier !== (c.tierId ?? "")) patch.tierId = fTier;
     // GPS captured in the form: driver-safe field, queued offline like the
     // rest and whitelisted by the engine either way. Sent only when it
     // differs from the card (no-op saves stay empty).
@@ -889,6 +896,20 @@ export function DayClients({
                       ))}
                     </select>
                   </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.tierOpt}</label>
+                  <select
+                    value={fTier}
+                    onChange={(e) => setFTier(e.target.value)}
+                    data-testid="edit-client-tier"
+                    className="h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)"
+                  >
+                    <option value="">—</option>
+                    {refs.tiers.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-bold uppercase opacity-60">GPS</label>

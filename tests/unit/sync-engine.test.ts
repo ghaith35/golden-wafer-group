@@ -338,8 +338,9 @@ describe("handleSync — phone with new data", () => {
     expect(res.applied[0]).toMatchObject({ opId: "op-pay-0001", ok: false, error: "bad_client", permanent: true });
   });
 
-  it("client-update applies driver-safe fields, drops financial ones", async () => {
+  it("client-update applies the add-client fields (incl. a valid price tier), drops credit/balance/code", async () => {
     (prisma.customer.findFirst as any).mockResolvedValue({ id: "c1" });
+    (prisma.priceTier.findFirst as any).mockResolvedValueOnce({ id: "gold" });
     const res = await handleSync({
       deviceToken: TOKEN,
       ops: [{
@@ -353,11 +354,21 @@ describe("handleSync — phone with new data", () => {
     } as any);
     expect(res.applied[0]).toMatchObject({ opId: "op-cu-0001", ok: true, id: "c1" });
     const data = (prisma.customer.update as any).mock.calls[0][0].data;
-    expect(data).toMatchObject({ name: "New Name", phone: "0550000001", address: "Alger" });
-    expect(data).not.toHaveProperty("tierId");
+    expect(data).toMatchObject({ name: "New Name", phone: "0550000001", address: "Alger", tierId: "gold" });
     expect(data).not.toHaveProperty("creditLimit");
     expect(data).not.toHaveProperty("balance");
     expect(data).not.toHaveProperty("code");
+  });
+
+  it("client-update with a price tier that is not the company's FAILS bad_tier", async () => {
+    (prisma.customer.findFirst as any).mockResolvedValue({ id: "c1" });
+    (prisma.priceTier.findFirst as any).mockResolvedValueOnce(null);
+    const res = await handleSync({
+      deviceToken: TOKEN,
+      ops: [{ opId: "op-cu-0009", kind: "client-update", payload: { clientId: "c1", patch: { tierId: "other-company-tier" } } }],
+    } as any);
+    expect(res.applied[0]).toMatchObject({ opId: "op-cu-0009", ok: false });
+    expect((prisma.customer.update as any).mock.calls.length).toBe(0);
   });
 
   it("client-update resolves a pending: client id synced in an earlier batch", async () => {
