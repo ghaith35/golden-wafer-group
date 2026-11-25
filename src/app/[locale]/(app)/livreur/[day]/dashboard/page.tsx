@@ -135,6 +135,7 @@ export default async function LivreurDashPage({
         title: session.role === "Vendeur" ? t("getCommand") : t("title"), newSale: t("newSale"), factures: t("factures"),
         clients: t("clients"), total: t("total"), stock: t("stock"), stockDepot: t("stockDepot"),
         ready: t("ready"),
+        gps: t("gpsTitle"), gpsLocating: t("gpsLocating"), gpsNoPos: t("gpsNoPos"), gpsRefresh: t("gpsRefresh"),
         newCommand: t("newCommand"), commandes: t("commandes"), syncT: t("syncT"),
         pending: tc("pending"), lastSync: tc("lastSync"), syncNow: tc("syncNow"), synced: tc("synced"),
         syncTitle: tc("syncTitle"), syncUpload: tc("upload"), syncDownload: tc("download"),
