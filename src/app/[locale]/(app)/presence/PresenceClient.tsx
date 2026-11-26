@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/motion/EmptyState";
+import { Inbox } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bus, Check, Clock, Flag, Pencil } from "lucide-react";
@@ -172,6 +174,7 @@ export function PresenceClient({
           value={String(visible.filter((r) => r.startedAt).length)}
           icon={<Clock size={18} />}
           accent="bg-emerald-500/15 text-emerald-600"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -179,6 +182,7 @@ export function PresenceClient({
           value={String(visible.filter((r) => r.finishedAt).length)}
           icon={<Check size={18} />}
           accent="bg-sky-500/15 text-sky-600"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -186,6 +190,7 @@ export function PresenceClient({
           value={String(visible.filter((r) => r.startedAt && !r.finishedAt).length)}
           icon={<Flag size={18} />}
           accent="bg-amber-500/15 text-amber-600"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -193,18 +198,19 @@ export function PresenceClient({
           value={String(visible.filter((r) => r.autoClosed).length)}
           icon={<Flag size={18} />}
           accent="bg-red-500/15 text-red-500"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
       </div>
       <div className="flex flex-col gap-2 lg:flex-row">
-        <div className="flex flex-1 gap-2">
-          <div className="flex-1">
+        <div className="flex flex-1 flex-wrap gap-2">
+          <div className="min-w-0 basis-full sm:basis-0 sm:flex-1">
             <Input placeholder={labels.van} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
           <select
             value={year}
             onChange={(e) => { setDayIso(""); goSeason(Number(e.target.value), month); }}
-            className="h-11 shrink-0 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm font-bold outline-none focus:border-(--brand-500)"
+            className="h-11 min-w-0 flex-1 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm font-bold outline-none focus:border-(--brand-500) sm:flex-none"
             aria-label="year"
           >
             {years.map((y) => (
@@ -214,7 +220,7 @@ export function PresenceClient({
           <select
             value={month}
             onChange={(e) => { setDayIso(""); goSeason(year, Number(e.target.value)); }}
-            className="h-11 shrink-0 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm font-bold outline-none focus:border-(--brand-500)"
+            className="h-11 min-w-0 flex-1 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm font-bold outline-none focus:border-(--brand-500) sm:flex-none"
             aria-label="month"
           >
             {months.map((m) => (
@@ -238,25 +244,25 @@ export function PresenceClient({
                   : "border-(--border-default) opacity-70"
               )}
             >
-              <span className="text-[10px] font-black">{d.toLocaleDateString(locale, { weekday: "short" })}</span>
+              <span className="text-[11px] font-black">{d.toLocaleDateString(locale, { weekday: "short" })}</span>
               <span className="text-sm font-black tabular-nums">{d.getDate()}</span>
             </button>
           );
         })}
       </div>
-      {visible.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
+      {visible.length === 0 && <EmptyState icon={<Inbox size={30} />} title={labels.empty} className="rounded-2xl border border-dashed border-(--border-default)" />}
       <div className="grid items-start gap-2 md:grid-cols-2 xl:grid-cols-3">
         {visible.map((r) => {
           const fl = flagsOf(r, maxDayHours);
           const startUrl = mapsUrl(r.startedLat, r.startedLng);
           const endUrl = mapsUrl(r.finishedLat, r.finishedLng);
           return (
-          <div key={r.id} className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5">
-            <div className="flex items-center gap-2">
+          <div key={r.id} className="min-w-0 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken)">
                 <Bus size={17} />
               </span>
-              <div className="min-w-0 flex-1">
+              <div className="min-w-[8rem] flex-1">
                 <div className="truncate text-sm font-black">{r.location.name}</div>
                 <div className="truncate text-[11px] opacity-60">
                   {new Date(r.date as string).toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "short" })}
@@ -265,17 +271,17 @@ export function PresenceClient({
                 </div>
               </div>
               {fl.unclosed && (
-                <span className="shrink-0 rounded-full bg-red-500/15 px-2 py-1 text-[10px] font-black text-red-500">
+                <span className="shrink-0 rounded-full bg-red-500/15 px-2 py-1 text-[11px] font-black text-red-500">
                   ⚠ {labels.unclosed}
                 </span>
               )}
               {fl.overtime && (
-                <span className="shrink-0 rounded-full bg-amber-500/15 px-2 py-1 text-[10px] font-black text-amber-600">
+                <span className="shrink-0 rounded-full bg-amber-500/15 px-2 py-1 text-[11px] font-black text-amber-600">
                   {labels.overtime}
                 </span>
               )}
               <span className={cn(
-                "shrink-0 rounded-full px-2 py-1 text-[10px] font-black",
+                "shrink-0 rounded-full px-2 py-1 text-[11px] font-black",
                 r.finishedAt
                   ? "bg-(--bg-sunken) opacity-60"
                   : r.startedAt
@@ -289,7 +295,7 @@ export function PresenceClient({
                   type="button"
                   aria-label={labels.edit}
                   onClick={() => openEdit(r)}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-(--border-default) opacity-70 hover:opacity-100"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-(--border-default) opacity-70 hover:opacity-100"
                 >
                   <Pencil size={14} />
                 </button>
@@ -297,21 +303,21 @@ export function PresenceClient({
             </div>
             <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
-                <div className="text-[10px] font-bold uppercase opacity-50">{labels.start}</div>
+                <div className="text-[11px] font-bold uppercase opacity-50">{labels.start}</div>
                 <div className="text-xs font-black tabular-nums sm:text-[13px]" dir="ltr">{fmtTime(r.startedAt, locale)}</div>
                 {startUrl && (
-                  <a href={startUrl} target="_blank" rel="noreferrer" className="mt-0.5 inline-block text-[10px] font-black text-(--brand-600) underline">📍</a>
+                  <a href={startUrl} target="_blank" rel="noreferrer" className="mt-0.5 inline-block text-[11px] font-black text-(--brand-600) underline">📍</a>
                 )}
               </div>
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
-                <div className="text-[10px] font-bold uppercase opacity-50">{labels.end}</div>
+                <div className="text-[11px] font-bold uppercase opacity-50">{labels.end}</div>
                 <div className="text-xs font-black tabular-nums sm:text-[13px]" dir="ltr">{fmtTime(r.finishedAt, locale)}</div>
                 {endUrl && (
-                  <a href={endUrl} target="_blank" rel="noreferrer" className="mt-0.5 inline-block text-[10px] font-black text-(--brand-600) underline">📍</a>
+                  <a href={endUrl} target="_blank" rel="noreferrer" className="mt-0.5 inline-block text-[11px] font-black text-(--brand-600) underline">📍</a>
                 )}
               </div>
               <div className="rounded-lg bg-(--brand-500)/10 px-1 py-1.5">
-                <div className="text-[10px] font-black uppercase opacity-60">{labels.duration}</div>
+                <div className="text-[11px] font-black uppercase opacity-60">{labels.duration}</div>
                 <div className="text-xs font-black tabular-nums sm:text-[13px]" dir="ltr">{fmtDur(r.startedAt, r.finishedAt)}</div>
               </div>
             </div>

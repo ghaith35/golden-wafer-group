@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/motion/EmptyState";
+import { Inbox } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ClientName } from "@/components/clients/ClientName";
 import { useLocale } from "next-intl";
@@ -166,28 +168,26 @@ export function DettesClient({ labels }: { labels: Record<string, string> }) {
           value={num(openTotal)}
           icon={<Wallet size={18} />}
           accent="bg-red-500/15 text-red-500"
-          compact
-        />
+          compact valueClassName="whitespace-normal! text-clip! break-words leading-tight" />
         <KpiCard
           label={party === "clients" ? labels.clients : labels.suppliers}
           value={String(rows.length)}
           icon={<HandCoins size={18} />}
           accent="bg-sky-500/15 text-sky-600"
-          compact
-        />
+          compact valueClassName="whitespace-normal! text-clip! break-words leading-tight" />
       </div>
 
       <div className="flex flex-col gap-2 lg:flex-row">
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           {(["", "unpaid", "partial", "settled"] as const).map((s) => (
             <button
               key={s || "all"}
               onClick={() => setFStatus(s)}
               className={cn(
-                "flex-1 min-h-11 rounded-lg px-3 py-2 text-[12px] font-black lg:flex-none",
+                "min-h-11 flex-auto rounded-lg px-3 py-2 text-[12px] font-black lg:flex-none",
                 fStatus === s ? "bg-(--brand-500)/10 text-(--brand-600)" : "bg-(--bg-sunken) opacity-60"
               )}
             >
@@ -197,46 +197,46 @@ export function DettesClient({ labels }: { labels: Record<string, string> }) {
         </div>
       </div>
 
-      {rows.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
+      {rows.length === 0 && <EmptyState icon={<Inbox size={30} />} title={labels.empty} className="rounded-2xl border border-dashed border-(--border-default)" />}
 
-      <div className="grid items-start gap-2 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-2 md:grid-cols-2 xl:grid-cols-3">
         {rows.map((r) => (
-          <div key={r.id} className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5">
-            <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0 flex-1">
+          <div key={r.id} className="min-w-0 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5">
+            <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
+              <div className="min-w-[7rem] flex-1">
                 <div className="flex min-w-0 text-sm font-black"><ClientName name={r.name} lat={r.gpsLat} lng={r.gpsLng} /></div>
-                <div className="truncate font-mono text-[11px] opacity-50" dir="ltr">
+                <div className="break-words font-mono text-[11px] opacity-50" dir="ltr">
                   {r.code}{r.phone ? ` · ${r.phone}` : ""}
                 </div>
               </div>
-              <span className={cn("shrink-0 rounded-full px-2 py-1 text-[10px] font-black", STATUS_COLOR[r.status])}>
+              <span className={cn("shrink-0 rounded-full px-2 py-1 text-[11px] font-black", STATUS_COLOR[r.status])}>
                 {labels[r.status]}
               </span>
             </div>
-            <div className="mt-2 grid grid-cols-3 gap-2 text-center">
+            <div className="mt-2 grid grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))] gap-2 text-center">
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
-                <div className="text-[10px] font-bold uppercase opacity-50">{labels.total}</div>
-                <div className="text-xs font-black tabular-nums sm:text-[13px]">{num(r.total)}</div>
+                <div className="text-[11px] font-bold uppercase opacity-50">{labels.total}</div>
+                <div className="break-words text-xs font-black tabular-nums sm:text-[13px]">{num(r.total)}</div>
               </div>
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
-                <div className="text-[10px] font-bold uppercase opacity-50">{labels.paid}</div>
-                <div className="text-xs font-black tabular-nums sm:text-[13px] text-emerald-600">{num(r.paid)}</div>
+                <div className="text-[11px] font-bold uppercase opacity-50">{labels.paid}</div>
+                <div className="break-words text-xs font-black tabular-nums sm:text-[13px] text-emerald-600">{num(r.paid)}</div>
               </div>
               <div className="rounded-lg bg-(--bg-sunken) px-1 py-1.5">
-                <div className="text-[10px] font-bold uppercase opacity-50">{labels.balance}</div>
-                <div className="text-xs font-black tabular-nums sm:text-[13px] text-red-500">{num(r.balance)}</div>
+                <div className="text-[11px] font-bold uppercase opacity-50">{labels.balance}</div>
+                <div className="break-words text-xs font-black tabular-nums sm:text-[13px] text-red-500">{num(r.balance)}</div>
               </div>
             </div>
-            <div className="mt-1.5 flex justify-between text-[11px] font-bold opacity-60">
+            <div className="mt-1.5 flex flex-wrap justify-between gap-x-2 text-[11px] font-bold opacity-60">
               <span>{labels.openDocs}: {r.openDocs}</span>
               <span>{r.lastActivity ? <>{labels.lastActivity}: <bdi>{fmtDT(r.lastActivity, locale)}</bdi></> : ""}</span>
             </div>
-            <div className="mt-2 flex gap-2">
-              <Button onClick={() => startPay(r)} disabled={r.balance <= 0} className="flex-1">
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Button onClick={() => startPay(r)} disabled={r.balance <= 0} className="min-w-[6rem] flex-1">
                 <HandCoins size={14} className="me-1" />
                 {labels.pay}
               </Button>
-              <Button variant="secondary" onClick={() => void openHistory(r)} className="flex-1">
+              <Button variant="secondary" onClick={() => void openHistory(r)} className="min-w-[6rem] flex-1">
                 <History size={14} className="me-1" />
                 {labels.history}
               </Button>

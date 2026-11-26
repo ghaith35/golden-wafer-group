@@ -1,10 +1,13 @@
 "use client";
 
+import { EmptyState } from "@/components/motion/EmptyState";
+import { Inbox } from "lucide-react";
 import { useEffect, useState } from "react";
 import { BarChart3, Bus, Clock, Package, Trophy, Wallet } from "lucide-react";
 import { KpiCard } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 import { useDataVersion } from "@/lib/data-sync";
+import { dzMoney } from "@/lib/format";
 
 type Van = { id: string; name: string; matricule: string };
 type ProductStat = { name: string; ref: string; qty: number; revenue: number; profit: number };
@@ -53,7 +56,7 @@ export function ReportsClient({ labels }: { labels: Record<string, string> }) {
       .finally(() => setLoading(false));
   }, [selected, dataV]);
 
-  const money = (n: number) => `${Math.round(n * 100) / 100}`;
+  const money = (n: number) => dzMoney(n);
 
   return (
     <div className="space-y-4 p-5 md:p-6">
@@ -65,7 +68,7 @@ export function ReportsClient({ labels }: { labels: Record<string, string> }) {
             onClick={() => setSelected(v.id)}
             data-testid={`van-${v.id}`}
             className={cn(
-              "flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-black",
+              "flex min-h-11 min-w-0 max-w-full items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-black",
               selected === v.id
                 ? "border-(--brand-500) bg-(--brand-500)/10 text-(--brand-600)"
                 : "border-(--border-default) bg-(--bg-overlay)"
@@ -89,10 +92,10 @@ export function ReportsClient({ labels }: { labels: Record<string, string> }) {
       {detail && (
         <div className="space-y-4" data-testid="van-report">
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-            <KpiCard label={labels.sales} value={`${detail.sales} · ${money(detail.total)}`} icon={<BarChart3 size={18} />} accent="bg-sky-500/15 text-sky-600" compact />
-            <KpiCard label={labels.profit} value={money(detail.profit)} icon={<Wallet size={18} />} accent="bg-emerald-500/15 text-emerald-600" compact />
-            <KpiCard label={labels.expenses} value={money(detail.expenses)} icon={<Wallet size={18} />} accent="bg-orange-500/15 text-orange-600" compact />
-            <KpiCard label={labels.hours} value={`${detail.hours} (${detail.days})`} icon={<Clock size={18} />} accent="bg-violet-500/15 text-violet-600" compact />
+            <KpiCard label={labels.sales} value={`${detail.sales} · ${money(detail.total)}`} icon={<BarChart3 size={18} />} accent="bg-sky-500/15 text-sky-600" compact valueClassName="whitespace-normal! text-clip! break-words leading-tight" />
+            <KpiCard label={labels.profit} value={money(detail.profit)} icon={<Wallet size={18} />} accent="bg-emerald-500/15 text-emerald-600" compact valueClassName="whitespace-normal! text-clip! break-words leading-tight" />
+            <KpiCard label={labels.expenses} value={money(detail.expenses)} icon={<Wallet size={18} />} accent="bg-orange-500/15 text-orange-600" compact valueClassName="whitespace-normal! text-clip! break-words leading-tight" />
+            <KpiCard label={labels.hours} value={`${detail.hours} (${detail.days})`} icon={<Clock size={18} />} accent="bg-violet-500/15 text-violet-600" compact valueClassName="whitespace-normal! text-clip! break-words leading-tight" />
           </div>
 
           {detail.top && (
@@ -102,9 +105,9 @@ export function ReportsClient({ labels }: { labels: Record<string, string> }) {
               </span>
               <div className="min-w-0 flex-1">
                 <div className="text-[11px] font-black uppercase opacity-60">{labels.topProduct}</div>
-                <div className="truncate text-base font-black">{detail.top.name}</div>
+                <div className="break-words text-base font-black leading-tight">{detail.top.name}</div>
               </div>
-              <div className="shrink-0 text-right text-xs font-black tabular-nums" dir="ltr">
+              <div className="max-w-[45%] shrink-0 break-words text-end text-xs font-black tabular-nums" dir="ltr">
                 ×{detail.top.qty} · {money(detail.top.revenue)}
               </div>
             </div>
@@ -138,7 +141,7 @@ export function ReportsClient({ labels }: { labels: Record<string, string> }) {
                 </table>
               </div>
             ) : (
-              <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>
+              <EmptyState icon={<Inbox size={30} />} title={labels.empty} className="rounded-2xl border border-dashed border-(--border-default)" />
             )}
           </div>
         </div>

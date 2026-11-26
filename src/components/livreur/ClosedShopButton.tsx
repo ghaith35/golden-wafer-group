@@ -1,5 +1,6 @@
 "use client";
 
+import { toast as ui } from "@/lib/toast";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Lock } from "lucide-react";
@@ -59,7 +60,6 @@ export function ClosedShopButton({
 }) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ lat: number; lng: number } | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
   // A pending (not yet synced) client has no server id: the sync engine resolves
   // "pending:<opId>" in the same batch, so it can be reported like any other.
   useEffect(() => {
@@ -104,14 +104,9 @@ export function ClosedShopButton({
           onClose={() => setOpen(false)}
           onSaved={(id, offline) => {
             onSaved(id, offline);
-            setToast(offline ? labels.closedSavedOffline : labels.closedSaved);
-            window.setTimeout(() => setToast(null), 3500);
+            ui.success(offline ? labels.closedSavedOffline : labels.closedSaved);
           }}
         />,
-        document.body,
-      )}
-      {toast && createPortal(
-        <div className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-[95] rounded-2xl bg-emerald-600 p-3 text-center text-sm font-black text-white shadow-xl">{toast}</div>,
         document.body,
       )}
     </>

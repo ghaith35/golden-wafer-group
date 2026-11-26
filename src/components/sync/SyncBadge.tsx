@@ -56,6 +56,18 @@ export function SyncBadge({ labels, forceShow = false }: { labels: SyncBadgeLabe
   const boxRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<number | null>(null);
   const liveRef = useRef(true);
+  // Pop the pill once a run finishes cleanly (✓ moment).
+  const wasRunning = useRef(false);
+  const [popped, setPopped] = useState(false);
+  useEffect(() => {
+    if (wasRunning.current && !running && !error) {
+      setPopped(true);
+      const id = window.setTimeout(() => setPopped(false), 700);
+      wasRunning.current = running;
+      return () => window.clearTimeout(id);
+    }
+    wasRunning.current = running;
+  }, [running, error]);
 
   useEffect(() => {
     liveRef.current = true;
@@ -339,6 +351,7 @@ export function SyncBadge({ labels, forceShow = false }: { labels: SyncBadgeLabe
         title={last ? `${labels.synced}: ${new Date(last).toLocaleString()}` : labels.noDevice}
         className={cn(
           "flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold",
+          popped && "gw-bump",
           !online ? "bg-red-500/15 text-red-500" : running ? "bg-(--brand-500)/15 text-(--brand-600)" : pending > 0 ? "bg-amber-500/15 text-amber-600" : "bg-emerald-500/15 text-emerald-600"
         )}
       >

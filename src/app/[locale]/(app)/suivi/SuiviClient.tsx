@@ -1,5 +1,8 @@
 "use client";
 
+import { EmptyState } from "@/components/motion/EmptyState";
+import { Inbox } from "lucide-react";
+import { toast as ui } from "@/lib/toast";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { ChevronLeft, ChevronRight, Crosshair, Globe, MapPin, Navigation, RefreshCw, Route, Truck } from "lucide-react";
@@ -106,11 +109,7 @@ export function SuiviClient({
   /// Vans we asked just now: waiting for the phone's answer (since = when asked).
   const [waiting, setWaiting] = useState<Record<string, number>>({});
   /// Small message at the bottom: the phone answered / did not answer.
-  const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
-  const showToast = (ok: boolean, text: string) => {
-    setToast({ ok, text });
-    window.setTimeout(() => setToast((cur) => (cur && cur.text === text ? null : cur)), 4500);
-  };
+  const showToast = (ok: boolean, text: string) => (ok ? ui.success(text, 4500) : ui.error(text, 5500));
 
   const load = useCallback(async () => {
     setSpinning(true);
@@ -344,7 +343,7 @@ export function SuiviClient({
       aria-selected={tab === t}
       onClick={() => switchTab(t)}
       className={cn(
-        "flex-1 rounded-md px-3 py-2 text-xs font-black transition-colors",
+        "min-h-11 min-w-0 flex-1 truncate rounded-md px-2 py-2 text-xs font-black transition-colors",
         tab === t ? "bg-(--bg-overlay) text-(--text-primary) shadow" : "text-(--text-secondary)"
       )}
     >
@@ -369,7 +368,7 @@ export function SuiviClient({
   return (
     <div className="space-y-3 p-3 md:p-5">
       <div className="grid grid-cols-3 gap-2">
-        <KpiCard label={labels.online} value={String(vans.filter((v) => statusOf(v.seenAt, tick) === "online").length)} icon={<Navigation size={18} />} accent="bg-emerald-500/15 text-emerald-600" compact />
+        <KpiCard label={labels.online} value={String(vans.filter((v) => statusOf(v.seenAt, tick) === "online").length)} icon={<Navigation size={18} />} accent="bg-emerald-500/15 text-emerald-600" valueClassName="whitespace-normal! text-clip! break-words leading-tight" compact />
         <KpiCard label={labels.stale} value={String(vans.filter((v) => statusOf(v.seenAt, tick) === "stale").length)} icon={<Truck size={18} />} accent="bg-amber-500/15 text-amber-600" compact />
         <KpiCard label={labels.offline} value={String(vans.filter((v) => { const s = statusOf(v.seenAt, tick); return s === "offline" || s === "nosignal"; }).length)} icon={<Crosshair size={18} />} accent="bg-red-500/15 text-red-500" compact />
       </div>
@@ -493,7 +492,7 @@ export function SuiviClient({
 
           {tab === "vans" && (
             <>
-              {vans.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
+              {vans.length === 0 && <EmptyState icon={<Inbox size={30} />} title={labels.empty} className="rounded-2xl border border-dashed border-(--border-default)" />}
               {shownVans.map((v) => {
                 const st = statusOf(v.seenAt, tick);
                 const statusKey = st === "nosignal" ? "noSignal" : st;
@@ -513,7 +512,7 @@ export function SuiviClient({
                         {(() => {
                           const h = health(v, labels);
                           return h ? (
-                            <span className={cn("mt-0.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-black", h.ok ? "bg-emerald-500/15 text-emerald-600" : "bg-red-500/15 text-red-500")}>
+                            <span className={cn("mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-black", h.ok ? "bg-emerald-500/15 text-emerald-600" : "bg-red-500/15 text-red-500")}>
                               {h.ok ? "●" : "⚠"} {h.text}{v.trackState?.queued ? ` · ${v.trackState.queued}` : ""}
                             </span>
                           ) : null;
@@ -590,13 +589,6 @@ export function SuiviClient({
             ? <p className="text-sm opacity-60">{labels.emptyClients}</p> : null}
         </div>
       </div>
-      {toast && (
-        <div role="status" aria-live="polite"
-          className={cn("fixed inset-x-4 bottom-[calc(1.25rem+env(safe-area-inset-bottom))] z-[95] mx-auto max-w-sm rounded-2xl px-4 py-3 text-center text-sm font-black text-white shadow-xl",
-            toast.ok ? "bg-emerald-600" : "bg-red-600")}>
-          {toast.ok ? "✓ " : "⚠ "}{toast.text}
-        </div>
-      )}
     </div>
   );
 }

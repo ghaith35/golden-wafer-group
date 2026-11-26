@@ -1,5 +1,6 @@
 "use client";
 
+import { toast as ui } from "@/lib/toast";
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -50,7 +51,6 @@ export function GpsClient({
   /// in this phone's outbox (offline).
   const [closedIds, setClosedIds] = useState<Set<string>>(() => new Set(closedToday));
   const [sheetFor, setSheetFor] = useState<{ id: string; name: string; code: string } | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
   useEffect(() => {
     getOutbox()
       .then((ops) => {
@@ -275,13 +275,9 @@ export function GpsClient({
           onClose={() => setSheetFor(null)}
           onSaved={(id, offline) => {
             setClosedIds((s) => new Set([...s, id]));
-            setToast(offline ? labels.closedSavedOffline : labels.closedSaved);
-            window.setTimeout(() => setToast(null), 3500);
+            ui.success(offline ? labels.closedSavedOffline : labels.closedSaved);
           }}
         />
-      )}
-      {toast && (
-        <div className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-[90] rounded-2xl bg-emerald-600 p-3 text-center text-sm font-black text-white shadow-xl">{toast}</div>
       )}
     </div>
   );

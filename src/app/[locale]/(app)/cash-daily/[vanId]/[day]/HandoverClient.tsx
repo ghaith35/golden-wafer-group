@@ -1,5 +1,9 @@
 "use client";
 
+import { EmptyState } from "@/components/motion/EmptyState";
+import { Inbox } from "lucide-react";
+import { celebrate } from "@/lib/celebrate";
+import { haptic } from "@/lib/motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
@@ -37,9 +41,9 @@ function Metric({ label, value, tone }: { label: string; value: string; tone?: "
       "rounded-xl px-2.5 py-2",
       tone === "brand" ? "bg-(--brand-500)/10" : tone === "red" ? "bg-red-500/10" : tone === "green" ? "bg-emerald-500/10" : "bg-(--bg-sunken)"
     )}>
-      <div className="truncate text-[10px] font-black uppercase opacity-60">{label}</div>
+      <div className="break-words text-[11px] font-black uppercase leading-tight opacity-60">{label}</div>
       <div className={cn(
-        "truncate text-base font-black tabular-nums",
+        "break-words text-base font-black tabular-nums",
         tone === "brand" ? "text-(--brand-600)" : tone === "red" ? "text-red-500" : tone === "green" ? "text-emerald-600" : ""
       )} dir="ltr">
         {value}
@@ -105,6 +109,8 @@ export function HandoverClient({
       }
       setAmount("");
       setNotes("");
+      if (kind === "close") celebrate();
+      else if (kind !== "reopen") haptic("success");
       router.refresh();
     } finally {
       setBusy(false);
@@ -148,10 +154,10 @@ export function HandoverClient({
       </div>
 
       {!row ? (
-        <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>
+        <EmptyState icon={<Inbox size={30} />} title={labels.empty} className="rounded-2xl border border-dashed border-(--border-default)" />
       ) : (
         <>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(6rem,1fr))] gap-2">
             <Metric label={labels.expected} value={num(row.expected)} />
             <Metric label={labels.collected} value={num(row.collected)} tone="green" />
             <Metric label={labels.credit} value={num(row.dueTotal)} tone={row.dueTotal > 0 ? "red" : "plain"} />
@@ -186,7 +192,7 @@ export function HandoverClient({
                       onClick={() => void deleteRemit(v.id)}
                       disabled={busy}
                       aria-label="delete"
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10 disabled:opacity-40"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10 disabled:opacity-40"
                     >
                       <Trash2 size={15} />
                     </button>

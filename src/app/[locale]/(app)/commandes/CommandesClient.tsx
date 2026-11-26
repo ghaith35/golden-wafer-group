@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/motion/EmptyState";
+import { Inbox } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bus, Check, ClipboardList, Plus, Store, Wallet, WifiOff } from "lucide-react";
@@ -191,12 +193,12 @@ export function CommandesClient({
         />
       </div>
       <div className="flex shrink-0 flex-col gap-2 lg:flex-row">
-        <div className="flex flex-1 gap-2">
-          <Button onClick={() => setCreating(true)} className="h-11 shrink-0">
+        <div className="flex flex-1 flex-wrap gap-2">
+          <Button onClick={() => setCreating(true)} className="h-11 w-full shrink-0 sm:w-auto">
             <Plus size={16} className="me-1" />
             {labels.new}
           </Button>
-          <div className="flex-1">
+          <div className="min-w-0 flex-1 basis-full sm:basis-0">
             <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
           <select
@@ -220,12 +222,12 @@ export function CommandesClient({
             ))}
           </select>
         </div>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           {([["", labels.all], ["DRAFT", labels.stDraft], ["CONFIRMED", labels.stConfirmed], ["DELIVERED", labels.stDelivered]] as const).map(([s, name]) => (
             <button
               key={s || "all"}
               onClick={() => setFStatus(s)}
-              className={cn("flex-1 rounded-lg px-3 py-2 text-[12px] font-black lg:flex-none", fStatus === s ? "bg-(--brand-500)/10 text-(--brand-600)" : "bg-(--bg-sunken) opacity-60")}
+              className={cn("min-h-11 flex-auto rounded-lg px-3 py-2 text-[12px] font-black lg:min-h-0 lg:flex-none", fStatus === s ? "bg-(--brand-500)/10 text-(--brand-600)" : "bg-(--bg-sunken) opacity-60")}
             >
               {name}
             </button>
@@ -260,10 +262,10 @@ export function CommandesClient({
         ))}
       </div>
 
-      <div className="grid min-h-0 flex-1 items-start gap-4 lg:grid-cols-[300px_minmax(0,1fr)] lg:overflow-hidden">
+      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-[300px_minmax(0,1fr)] lg:overflow-hidden">
         {/* ── Sidebar: commandes ── */}
-        <div className="space-y-1.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2.5 lg:h-full lg:min-h-0 lg:overflow-y-auto">
-          {visible.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
+        <div className="min-w-0 space-y-1.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2.5 lg:h-full lg:min-h-0 lg:overflow-y-auto">
+          {visible.length === 0 && <EmptyState icon={<Inbox size={30} />} title={labels.empty} className="rounded-2xl border border-dashed border-(--border-default)" />}
           {visible.map((r) => {
             const active = r.id === selectedId;
             return (
@@ -275,17 +277,17 @@ export function CommandesClient({
                   active ? "border-(--brand-500) bg-(--brand-500)/5" : "border-(--border-default) hover:border-(--brand-500)"
                 )}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="flex min-w-0 flex-1 items-center gap-1 text-[13px] font-bold">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+                  <span className="flex min-w-24 flex-1 items-center gap-1 text-[13px] font-bold">
                     <span className="shrink-0">{r.number} ·</span>
                     <ClientName name={r.client?.name} lat={r.client?.gpsLat} lng={r.client?.gpsLng} />
                   </span>
                   <span className="shrink-0 text-[13px] font-black tabular-nums" dir="ltr">{num(Number(r.total))}</span>
                 </div>
-                <div className="mt-0.5 flex items-center justify-between gap-2 text-[11px] opacity-60">
-                  <span className="flex min-w-0 items-center gap-1">
+                <div className="mt-0.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-[11px] opacity-60">
+                  <span className="flex min-w-0 flex-wrap items-center gap-1">
                     <span className={cn(
-                      "shrink-0 rounded-full px-1.5 py-px text-[10px] font-black",
+                      "shrink-0 rounded-full px-1.5 py-px text-[11px] font-black",
                       r.status === "DRAFT" ? "pill-amber"
                       : r.status === "CONFIRMED" ? "pill-sky"
                       : "pill-slate"
@@ -293,12 +295,12 @@ export function CommandesClient({
                       {stName(r.status)}
                     </span>
                     {unsynced.has(r.id) && (
-                      <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-1.5 py-px text-[10px] font-black">
+                      <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-1.5 py-px text-[11px] font-black">
                         <WifiOff size={11} />
                         {labels.unsynced ?? "…"}
                       </span>
                     )}
-                    <span className="truncate">
+                    <span className="min-w-0 break-words">
                       {[r.createdBy?.fullName, r.location?.name].filter(Boolean).length > 0 && (
                         <bdi dir="auto">{[r.createdBy?.fullName, r.location?.name].filter(Boolean).join(" · ")} · </bdi>
                       )}

@@ -121,7 +121,7 @@ export function TrendChart({
           {ticks.map((t) => (
             <g key={t}>
               <line x1={padL} x2={w - padR} y1={y(niceMax * t)} y2={y(niceMax * t)} style={{ stroke: "var(--border-default)" }} strokeDasharray={t === 0 ? undefined : "3 5"} />
-              <text x={rtl ? w - padR + 8 : padL - 8} y={y(niceMax * t) + 4} textAnchor={rtl ? "start" : "end"} fontSize="10.5" fontWeight="700" style={{ fill: "var(--text-tertiary)" }}>
+              <text x={rtl ? w - padR + 8 : padL - 8} y={y(niceMax * t) + 4} textAnchor={rtl ? "start" : "end"} fontSize="11" fontWeight="700" style={{ fill: "var(--text-tertiary)" }}>
                 {compactNum(niceMax * t)}
               </text>
             </g>
@@ -141,7 +141,7 @@ export function TrendChart({
                 style={{ animationDelay: `${i * 18}ms`, transformOrigin: `${x(i)}px ${padT + ih}px` }}
               />
               {(n - 1 - i) % labelEvery === 0 ? (
-                <text x={x(i)} y={height - 8} textAnchor="middle" fontSize="10.5" fontWeight="700" style={{ fill: "var(--text-tertiary)" }}>
+                <text x={x(i)} y={height - 8} textAnchor="middle" fontSize="11" fontWeight="700" style={{ fill: "var(--text-tertiary)" }}>
                   {d.label}
                 </text>
               ) : null}
@@ -216,6 +216,7 @@ export function Donut({ segs, size = 150, thickness = 20, center }: { segs: Donu
                 strokeDasharray={`${Math.max(0, len - 2)} ${c - Math.max(0, len - 2)}`}
                 strokeDashoffset={-acc}
                 className="gw-donut"
+                style={{ ["--len" as string]: `${Math.max(0, len - 2)}`, ["--c" as string]: `${c}`, animationDelay: `${segs.indexOf(s) * 120}ms` }}
               />
             );
             acc += len;
