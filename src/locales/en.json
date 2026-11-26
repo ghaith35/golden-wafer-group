@@ -1490,7 +1490,8 @@
     "invRemaining": "Remaining",
     "invSettled": "Paid in full ✓",
     "invPieces": "pieces",
-    "invNoLines": "No items"
+    "invNoLines": "No items",
+    "closedCamFail": "Couldn't open the camera — allow camera access and try again"
   },
   "presence": {
     "title": "Attendance",

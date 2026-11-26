@@ -84,7 +84,7 @@ export default async function LivreurClientPage({
         pending: tc("pending"), lastSync: tc("lastSync"), synced: tc("synced"),
         closedShop: t("closedShop"), closedAddPhoto: t("closedAddPhoto"), closedSave: t("closedSave"), closedHint: t("closedHint"),
         closedBadge: t("closedBadge"), closedErr: t("closedErr"), closedShoot: t("closedShoot"), closedCancel: t("closedCancel"), closedSaved: t("closedSaved"), closedSavedOffline: t("closedSavedOffline"),
-        closedNeedStart: t("closedNeedStart"), closedToday: t("closedToday"),
+        closedNeedStart: t("closedNeedStart"), closedToday: t("closedToday"), closedCamFail: t("closedCamFail"),
         callClient: t("callClient"),
         debt: tv("debt"), noDebt: tv("noDebt"), credit: tv("credit"),
         monthSold: tv("monthSold"), totalSold: tv("totalSold"), invoices: tv("invoices"), avgTicket: tv("avgTicket"),

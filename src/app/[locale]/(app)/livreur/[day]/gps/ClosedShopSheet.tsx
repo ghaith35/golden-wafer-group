@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Camera, Lock, Plus, X } from "lucide-react";
 import { queueOp, syncNow } from "@/lib/sync/client";
 import { compressToJpegDataUrl } from "@/lib/photo";
@@ -27,7 +27,6 @@ export function ClosedShopSheet({
   onClose: () => void;
   onSaved: (clientId: string, queuedOffline: boolean) => void;
 }) {
-  const fileRef = useRef<HTMLInputElement>(null);
   const [photos, setPhotos] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -51,12 +50,6 @@ export function ClosedShopSheet({
     } finally {
       setBusy(false);
     }
-  }
-
-  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    e.target.value = ""; // same photo can be picked again
-    if (f) await addPhoto(f);
   }
 
   async function save() {
@@ -110,14 +103,13 @@ export function ClosedShopSheet({
               void addPhoto(b);
             }}
             onFail={() => {
-              // No live camera available: use the system camera/picker instead.
+              // Camera only — never the gallery/file picker. Tell the driver why
+              // and let him retry with the button.
               setCamOpen(false);
-              fileRef.current?.click();
+              setErr(labels.closedCamFail ?? labels.closedErr);
             }}
           />
         )}
-        {/* fallback only: the system camera / picker */}
-        <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => void onFile(e)} />
 
         {photos.length === 0 ? (
           <button

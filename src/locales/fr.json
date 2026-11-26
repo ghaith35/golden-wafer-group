@@ -1490,7 +1490,8 @@
     "invRemaining": "Reste à payer",
     "invSettled": "Soldée ✓",
     "invPieces": "pièces",
-    "invNoLines": "Aucun article"
+    "invNoLines": "Aucun article",
+    "closedCamFail": "Impossible d'ouvrir la caméra — autorisez l'accès à la caméra puis réessayez"
   },
   "presence": {
     "title": "Pointage",

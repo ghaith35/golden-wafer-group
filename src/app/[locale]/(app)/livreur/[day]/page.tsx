@@ -113,7 +113,7 @@ export default async function LivreurDayPage({
         noTournee: t("noTournee"), skip: t("skip"), actualiser: t("actualiser"),
         closedShop: t("closedShop"), closedAddPhoto: t("closedAddPhoto"), closedSave: t("closedSave"), closedHint: t("closedHint"),
         closedBadge: t("closedBadge"), closedErr: t("closedErr"), closedShoot: t("closedShoot"), closedCancel: t("closedCancel"), closedSaved: t("closedSaved"), closedSavedOffline: t("closedSavedOffline"),
-        closedNeedStart: t("closedNeedStart"), closedToday: t("closedToday"),
+        closedNeedStart: t("closedNeedStart"), closedToday: t("closedToday"), closedCamFail: t("closedCamFail"),
         locate: tg("locate"), geoDenied: tg("geoDenied"),
         unitM: tg("unitM"), unitKm: tg("unitKm"), unitMin: tg("unitMin"),
         startDay: t("startDay"), all: t("all"), showQr: t("showQr"),

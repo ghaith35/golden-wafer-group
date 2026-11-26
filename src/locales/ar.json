@@ -1490,7 +1490,8 @@
     "invRemaining": "المتبقي على الزبون",
     "invSettled": "خالصة ✓",
     "invPieces": "قطعة",
-    "invNoLines": "لا توجد مواد"
+    "invNoLines": "لا توجد مواد",
+    "closedCamFail": "تعذّر فتح الكاميرا — اسمح للتطبيق باستخدام الكاميرا ثم اضغط من جديد"
   },
   "presence": {
     "title": "الحضور",

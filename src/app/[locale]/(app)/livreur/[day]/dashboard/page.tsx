@@ -145,7 +145,7 @@ export default async function LivreurDashPage({
       labels={{
         closedShop: t("closedShop"), closedAddPhoto: t("closedAddPhoto"), closedSave: t("closedSave"), closedHint: t("closedHint"),
         closedBadge: t("closedBadge"), closedErr: t("closedErr"), closedShoot: t("closedShoot"), closedCancel: t("closedCancel"), closedSaved: t("closedSaved"), closedSavedOffline: t("closedSavedOffline"),
-        closedNeedStart: t("closedNeedStart"), closedToday: t("closedToday"),
+        closedNeedStart: t("closedNeedStart"), closedToday: t("closedToday"), closedCamFail: t("closedCamFail"),
         title: session.role === "Vendeur" ? t("getCommand") : t("title"), newSale: t("newSale"), factures: t("factures"),
         clients: t("clients"), total: t("total"), stock: t("stock"), stockDepot: t("stockDepot"),
         ready: t("ready"),
