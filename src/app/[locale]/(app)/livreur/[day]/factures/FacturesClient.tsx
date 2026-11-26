@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
-import { ArrowLeft, Check, CheckCircle2, Clock, Lock, Printer, Share2, Trash2, WifiOff, X } from "lucide-react";
+import { ArrowLeft, Check, CheckCircle2, Clock, Eye, Lock, Printer, Share2, Trash2, WifiOff, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { TicketView, type TicketLabels, type TicketVM } from "@/components/sales/TicketView";
@@ -458,42 +458,43 @@ export function FacturesClient({
         {pending.map((doc) => {
           const pr: Row = { id: `pending:${doc.opId}`, number: "…", total: doc.total ?? 0, date: new Date(doc.ts).toISOString(), client: doc.clientName ? { name: doc.clientName } : null };
           return (
-            <div key={pr.id} className="rounded-xl border border-amber-500/40 bg-(--bg-overlay) p-2.5">
-              <div className="flex min-w-0 items-center gap-2">
-                <span className="h-6 w-6 shrink-0" aria-hidden />
+            <div key={pr.id} className="rounded-2xl border border-amber-500/40 bg-(--bg-overlay) p-3 shadow-sm">
+              <div className="flex items-start gap-2.5">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="font-mono text-[15px] font-black" dir="ltr">…</span>
+                    <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-2 py-0.5 text-[10px] font-black">
+                      <WifiOff size={11} />
+                      {labels.unsynced ?? "…"}
+                    </span>
+                  </div>
+                  <div className="mt-0.5 min-w-0 truncate text-sm font-bold"><ClientName name={doc.clientName} map={false} /></div>
+                  <div className="text-[11px] font-bold opacity-60">{fmtDT(pr.date as string, locale)}</div>
+                </div>
+                <div className="shrink-0 text-end text-base font-black tabular-nums" dir="ltr">{dzMoney(Number(pr.total))}</div>
+              </div>
+              <div className="mt-2.5 flex items-stretch gap-1.5">
                 <button
                   type="button"
                   onClick={() => void openDetail(pr)}
                   data-testid="view-doc"
-                  className="min-w-0 flex-1 text-start"
+                  className="flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-(--bg-sunken) px-2 text-sm font-black active:scale-[0.98]"
                 >
-                  <span className="flex min-w-0 items-baseline gap-1.5">
-                    <span className="shrink-0 text-[13px] font-black tabular-nums" dir="ltr">… ·</span>
-                    <span className="min-w-0 flex-1 truncate text-[13px] font-bold"><ClientName name={doc.clientName} map={false} /></span>
-                    <b className="shrink-0 whitespace-nowrap text-[13px] font-black tabular-nums" dir="ltr">{dzMoney(Number(pr.total))}</b>
-                  </span>
-                  <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] opacity-70">
-                    <span className="shrink-0 whitespace-nowrap tabular-nums" dir="ltr">{fmtDT(pr.date as string, locale)}</span>
-                    <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-1.5 py-px text-[10px] font-black opacity-100">
-                      <WifiOff size={11} />
-                      {labels.unsynced ?? "…"}
-                    </span>
-                  </span>
+                  <Eye size={16} className="shrink-0" />
+                  <span className="truncate">{labels.viewSale}</span>
                 </button>
-              </div>
-              <div className="no-scrollbar mt-1.5 flex items-center gap-1.5 overflow-x-auto">
                 <button
                   type="button"
                   onClick={() => void printRow(pr)}
                   aria-label={labels.print}
                   title={labels.print}
                   data-testid="print-doc"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-(--brand-600)"
+                  className="flex h-10 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500)/10 text-(--brand-600) active:scale-[0.98]"
                 >
-                  <Printer size={16} />
+                  <Printer size={17} />
                 </button>
-                <button onClick={() => setDeleting(pr)} aria-label={labels.deleteSale} data-testid="delete-doc" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10">
-                  <Trash2 size={16} />
+                <button onClick={() => setDeleting(pr)} aria-label={labels.deleteSale} data-testid="delete-doc" className="flex h-10 w-11 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-red-500 active:scale-[0.98]">
+                  <Trash2 size={17} />
                 </button>
               </div>
             </div>
@@ -504,67 +505,65 @@ export function FacturesClient({
           const locked = !isAdmin && !held;
           const isPending = t.id.startsWith("pending:");
           return (
-          <div key={t.id} className={`rounded-xl border bg-(--bg-overlay) p-2.5 ${held ? "border-amber-500/40" : "border-(--border-default)"}`}>
-            <div className="flex min-w-0 items-center gap-2">
-              {selectable(t) ? (
+          <div key={t.id} className={`rounded-2xl border bg-(--bg-overlay) p-3 shadow-sm ${held ? "border-amber-500/40" : "border-(--border-default)"}`}>
+            <div className="flex items-start gap-2.5">
+              {selectable(t) && (
                 <button
                   type="button"
                   role="checkbox"
                   aria-checked={selected.has(t.id)}
                   onClick={() => toggleSel(t.id)}
                   data-testid="select-doc"
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${selected.has(t.id) ? "border-(--brand-600) bg-(--brand-600) text-white" : "border-(--border-default)"}`}
+                  className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${selected.has(t.id) ? "border-(--brand-600) bg-(--brand-600) text-white" : "border-(--border-default)"}`}
                 >
-                  {selected.has(t.id) && <Check size={13} strokeWidth={3.5} />}
+                  {selected.has(t.id) && <Check size={14} strokeWidth={3} />}
                 </button>
-              ) : (
-                <span className="hidden h-6 w-6 shrink-0 sm:block" aria-hidden />
               )}
-              {/* Tapping the title opens the detail — no separate full-width عرض button. */}
-              <button
-                type="button"
-                onClick={() => void openDetail(t)}
-                data-testid="view-doc"
-                className="min-w-0 flex-1 text-start"
-              >
-                <span className="flex min-w-0 items-baseline gap-1.5">
-                  <span className="shrink-0 text-[13px] font-black tabular-nums" dir="ltr">{t.number} ·</span>
-                  <span className="min-w-0 flex-1 truncate text-[13px] font-bold"><ClientName name={t.client?.name} lat={t.client?.gpsLat} lng={t.client?.gpsLng} /></span>
-                  <b className="shrink-0 whitespace-nowrap text-[13px] font-black tabular-nums" dir="ltr">{dzMoney(Number(t.total))}</b>
-                </span>
-                <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] opacity-70">
-                  <span className="shrink-0 whitespace-nowrap tabular-nums" dir="ltr">{fmtDT(t.date as string, locale)}</span>
-                  {unsynced.has(t.id) && (
-                    <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-1.5 py-px text-[10px] font-black opacity-100">
-                      <WifiOff size={11} />
-                      {labels.unsynced ?? "…"}
-                    </span>
-                  )}
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="font-mono text-[15px] font-black" dir="ltr">{t.number}</span>
                   {held ? (
-                    <span className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-amber-500/15 px-1.5 py-px text-[10px] font-black text-amber-600 opacity-100">
+                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-black text-amber-600">
                       <Clock size={11} />
                       {labels.factureHold}
                     </span>
                   ) : (
-                    <span className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-emerald-500/15 px-1.5 py-px text-[10px] font-black text-emerald-600 opacity-100">
+                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-black text-emerald-600">
                       <CheckCircle2 size={11} />
                       {labels.factureConfirmed}
                     </span>
                   )}
-                </span>
-              </button>
+                  {unsynced.has(t.id) && (
+                    <span className="flex shrink-0 items-center gap-1 rounded-full pill-amber px-2 py-0.5 text-[10px] font-black">
+                      <WifiOff size={11} />
+                      {labels.unsynced ?? "…"}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-0.5 min-w-0 truncate text-sm font-bold"><ClientName name={t.client?.name} lat={t.client?.gpsLat} lng={t.client?.gpsLng} /></div>
+                <div className="text-[11px] font-bold opacity-60">{fmtDT(t.date as string, locale)}</div>
+              </div>
+              <div className="shrink-0 text-end text-base font-black tabular-nums" dir="ltr">{dzMoney(Number(t.total))}</div>
             </div>
-            {/* One non-wrapping action strip (scrolls sideways on tiny screens, never grows tall). */}
-            <div className="no-scrollbar mt-1.5 flex items-center gap-1.5 overflow-x-auto">
+            <div className="mt-2.5 flex items-stretch gap-1.5">
+              <button
+                type="button"
+                onClick={() => void openDetail(t)}
+                data-testid="view-doc"
+                className="flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-(--bg-sunken) px-2 text-sm font-black active:scale-[0.98]"
+              >
+                <Eye size={16} className="shrink-0" />
+                <span className="truncate">{labels.viewSale}</span>
+              </button>
               {held && !isPending && (
                 <button
                   type="button"
                   onClick={() => { setError(null); setConfirming(t); }}
                   data-testid="confirm-doc"
-                  className="flex h-9 shrink-0 items-center gap-1 rounded-lg bg-emerald-600 px-3 text-xs font-black text-white"
+                  className="flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-2 text-sm font-black text-white active:scale-[0.98]"
                 >
-                  <CheckCircle2 size={14} />
-                  <span className="whitespace-nowrap">{labels.confirmFacture}</span>
+                  <CheckCircle2 size={16} className="shrink-0" />
+                  <span className="truncate">{labels.confirmFacture}</span>
                 </button>
               )}
               {!locked && (
@@ -576,7 +575,7 @@ export function FacturesClient({
                   // Pending (offline-created) tickets have no server id to edit —
                   // and edits need the server anyway.
                   disabled={!online || isPending}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-sm font-black text-(--brand-600) disabled:opacity-40"
+                  className="flex h-10 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500)/10 text-base text-(--brand-600) active:scale-[0.98] disabled:opacity-40"
                 >
                   ✎
                 </button>
@@ -587,17 +586,17 @@ export function FacturesClient({
                 aria-label={labels.print}
                 title={labels.print}
                 data-testid="print-doc"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--brand-500)/10 text-(--brand-600)"
+                className="flex h-10 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500)/10 text-(--brand-600) active:scale-[0.98]"
               >
-                <Printer size={16} />
+                <Printer size={17} />
               </button>
               {locked ? (
-                <span title={labels.factureLocked} aria-label={labels.factureLocked} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-(--text-muted) opacity-60">
-                  <Lock size={15} />
+                <span title={labels.factureLocked} aria-label={labels.factureLocked} className="flex h-10 w-11 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken) text-(--text-muted) opacity-70">
+                  <Lock size={16} />
                 </span>
               ) : (
-                <button onClick={() => setDeleting(t)} aria-label={labels.deleteSale} data-testid="delete-doc" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-500/10">
-                  <Trash2 size={16} />
+                <button onClick={() => setDeleting(t)} aria-label={labels.deleteSale} data-testid="delete-doc" className="flex h-10 w-11 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-red-500 active:scale-[0.98]">
+                  <Trash2 size={17} />
                 </button>
               )}
             </div>
