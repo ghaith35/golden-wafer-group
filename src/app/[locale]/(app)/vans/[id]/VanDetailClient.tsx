@@ -137,14 +137,14 @@ export function VanDetailClient({
       <div className="flex flex-wrap items-center gap-3">
         {van.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={van.imageUrl} alt={van.name} className="h-14 w-20 rounded-xl object-cover" />
+          <img src={van.imageUrl} alt={van.name} className="h-14 w-20 shrink-0 rounded-xl object-cover" />
         ) : (
           <div className="flex h-14 w-20 items-center justify-center rounded-xl bg-(--bg-sunken) text-(--text-secondary)">
             {van.kind === "DEPOT" ? <Warehouse size={24} /> : <Bus size={24} />}
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-xl font-bold">
+          <h1 className="break-words text-xl font-bold">
             {van.name}
             {van.kind === "DEPOT" && labels.depot && (
               <span className="ms-2 rounded-md bg-(--brand-500)/10 px-1.5 py-0.5 align-middle text-[11px] font-black text-(--brand-600)">
@@ -229,9 +229,9 @@ export function VanDetailClient({
             return (
               <div
                 key={r.id}
-                className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-(--bg-overlay) p-3"
+                className="flex flex-wrap items-center gap-2 rounded-xl border border-amber-500/30 bg-(--bg-overlay) p-3"
               >
-                <button type="button" onClick={() => setPopupTransferId(r.id)} className="min-w-0 flex-1 text-start">
+                <button type="button" onClick={() => setPopupTransferId(r.id)} className="min-w-[10rem] flex-1 text-start">
                   <div className="truncate text-sm font-bold">
                     {r.number} · {r.fromLocation.name} → {r.toLocation.name}
                   </div>
@@ -301,7 +301,7 @@ export function VanDetailClient({
               <div
                 key={l.productId}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl border border-(--border-default) bg-(--bg-overlay) p-3",
+                  "flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-(--border-default) bg-(--bg-overlay) p-3",
                   low && "border-amber-500/50"
                 )}
               >
@@ -320,7 +320,7 @@ export function VanDetailClient({
                     <Package size={18} />
                   </div>
                 )}
-              <div className="min-w-0 flex-1">
+              <div className="min-w-[8rem] flex-1">
                 <div className="truncate text-sm font-bold">{l.product?.name ?? l.productId}</div>
                 <div className="truncate font-mono text-xs opacity-60" dir="ltr">{l.product?.reference ?? ""}</div>
               </div>
@@ -329,7 +329,7 @@ export function VanDetailClient({
                   {labels.lowStock}
                 </span>
               )}
-              <span className="shrink-0 text-end tabular-nums">
+              <span className="ms-auto shrink-0 text-end tabular-nums">
                 <span className="block text-sm font-black">
                   {packBreakdown(
                     l.qty,

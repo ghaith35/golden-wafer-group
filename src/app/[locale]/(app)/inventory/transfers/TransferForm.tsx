@@ -1,5 +1,6 @@
 "use client";
 
+import { dz } from "@/lib/format";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeftRight, Check, ChevronLeft, ChevronRight, Search, Warehouse, Truck, X } from "lucide-react";
@@ -98,7 +99,7 @@ function PlacePicker({
         <button
           type="button"
           onClick={() => { setQ(""); setOpen((o) => !o); }}
-          className="flex w-full items-center gap-2 text-start outline-none"
+          className="flex min-h-11 w-full items-center gap-2 text-start outline-none"
         >
           {selected ? (
             <>
@@ -108,7 +109,7 @@ function PlacePicker({
                 <span className="block truncate text-[11px] opacity-60" dir="auto">
                   {[selected.matricule, placeDriver(selected)].filter(Boolean).join(" · ") || selected.kind}
                   {stockKnown && stockById?.[selected.id] != null && (
-                    <> · <bdi className="font-black tabular-nums">{stockById[selected.id].skus} · {stockById[selected.id].units.toLocaleString(undefined, { maximumFractionDigits: 0 })}</bdi></>
+                    <> · <bdi className="font-black tabular-nums">{stockById[selected.id].skus} · {dz(stockById[selected.id].units, 0)}</bdi></>
                   )}
                 </span>
               </span>
@@ -123,7 +124,7 @@ function PlacePicker({
               aria-label="clear"
               onClick={(e) => { e.stopPropagation(); onPick(""); }}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); onPick(""); } }}
-              className="shrink-0 rounded-full p-1 opacity-50 hover:bg-(--bg-sunken) hover:opacity-100"
+              className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full opacity-50 hover:bg-(--bg-sunken) hover:opacity-100"
             >
               <X size={14} />
             </span>
@@ -166,20 +167,20 @@ function PlacePicker({
                       disabled={empty}
                       onClick={() => { onPick(p.id); setOpen(false); }}
                       className={cn(
-                        "flex w-full items-center gap-2.5 rounded-lg p-2 text-start transition-colors",
+                        "flex min-h-11 w-full items-center gap-2.5 rounded-lg p-2 text-start transition-colors",
                         empty ? "cursor-not-allowed opacity-45" : "hover:bg-(--bg-sunken)",
                         active && "bg-(--brand-500)/10"
                       )}
                     >
                       <PlaceThumb place={p} />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[13px] font-bold">{p.name}</span>
+                        <span className="block break-words text-[13px] font-bold">{p.name}</span>
                         <span className="block truncate text-[11px] opacity-60" dir="auto">
                           {[p.matricule, p.marque, driver].filter(Boolean).join(" · ") || p.kind}
                         </span>
                         {stockKnown && stock != null && (
                           <span className={cn("block text-[11px] font-black tabular-nums", stock.skus === 0 ? "text-red-500" : "text-(--brand-600)")}>
-                            {stock.skus === 0 ? (emptyLabel ?? "Empty") : `${stock.skus} · ${stock.units.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+                            {stock.skus === 0 ? (emptyLabel ?? "Empty") : `${stock.skus} · ${dz(stock.units, 0)}`}
                           </span>
                         )}
                       </span>
@@ -369,9 +370,9 @@ export function TransferForm({
     q: number
   ) => {
     const base = p?.baseUnit?.name ?? "";
-    if (!p || !hasPackUnits(p)) return `${q.toLocaleString(undefined, { maximumFractionDigits: 0 })}${base ? ` ${base}` : ""}`;
+    if (!p || !hasPackUnits(p)) return `${dz(q, 0)}${base ? ` ${base}` : ""}`;
     const uname = (id: string) => p.conversions.find((c) => c.unitId === id)?.unit.name ?? "";
-    return `${packBreakdown(q, p.conversions, uname, base)} (${q.toLocaleString(undefined, { maximumFractionDigits: 0 })}${base ? ` ${base}` : ""})`;
+    return `${packBreakdown(q, p.conversions, uname, base)} (${dz(q, 0)}${base ? ` ${base}` : ""})`;
   };
   const totalUnits = valid.reduce((s, l) => s + baseQtyOf(l), 0);
   const overLine = valid.find((l) => (avail[l.productId] ?? Infinity) < baseQtyOf(l));
@@ -503,7 +504,7 @@ export function TransferForm({
       {queued && <p className="rounded-lg bg-amber-500/10 p-2 text-sm font-bold text-amber-600">{labels.queued}</p>}
 
       {/* Stepper: each step owns its trailing connector so segments stay even */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
         {STEPS.map((s, i) => (
           <div key={s} className={cn("flex items-center gap-1.5", i < STEPS.length - 1 && "flex-1")}>
             <button
@@ -511,7 +512,7 @@ export function TransferForm({
               onClick={() => i < step && setStep(i)}
               disabled={i >= step}
               className={cn(
-                "flex shrink-0 items-center gap-2 rounded-2xl px-3 py-2 text-sm font-black transition-colors",
+                "flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-2xl px-2.5 py-2 text-sm font-black transition-colors sm:px-3",
                 i === step
                   ? "bg-gradient-brand text-(--brand-contrast) shadow-lg"
                   : i < step
@@ -522,7 +523,7 @@ export function TransferForm({
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-black/15 text-xs">
                 {i < step ? <Check size={13} strokeWidth={3} /> : i + 1}
               </span>
-              {labels[s]}
+              <span className={cn("max-w-[7rem] truncate sm:max-w-none", i !== step && "hidden sm:inline")}>{labels[s]}</span>
             </button>
             {i < STEPS.length - 1 && (
               <span className={cn("h-0.5 min-w-3 flex-1 rounded-full", i < step ? "bg-(--brand-500)" : "bg-(--border-default)")} />
@@ -552,7 +553,7 @@ export function TransferForm({
               onClick={() => { pickFrom(to); setTo(from); }}
               disabled={!from && !to}
               aria-label="swap"
-              className="mt-12 flex w-11 shrink-0 items-center justify-center self-start rounded-2xl border border-(--border-default) bg-(--bg-sunken) p-2.5 hover:bg-(--border-subtle) disabled:opacity-40"
+              className="mt-12 flex min-h-11 w-11 shrink-0 items-center justify-center self-start rounded-2xl border border-(--border-default) bg-(--bg-sunken) p-2.5 hover:bg-(--border-subtle) disabled:opacity-40"
             >
               <ArrowLeftRight size={18} className="rtl:-scale-x-100" />
             </button>
@@ -576,7 +577,7 @@ export function TransferForm({
             )}>
               {fromIsEmpty
                 ? (labels.emptySource ?? "empty_source")
-                : `${labels.sourceStock ?? "stock"} · ${fromLoc?.name ?? ""}: ${(stockByLoc[from]?.skus ?? 0)} · ${(stockByLoc[from]?.units ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+                : `${labels.sourceStock ?? "stock"} · ${fromLoc?.name ?? ""}: ${(stockByLoc[from]?.skus ?? 0)} · ${dz((stockByLoc[from]?.units ?? 0), 0)}`}
             </div>
           )}
           <div className="mt-3 grid grid-cols-2 gap-3">
@@ -643,7 +644,7 @@ export function TransferForm({
                         type="button"
                         onClick={() => setChecked((c) => (on ? c.filter((x) => x !== p.id) : [...c, p.id]))}
                         className={cn(
-                          "flex w-full items-center gap-2.5 rounded-lg p-2 text-start transition-colors",
+                          "flex min-h-11 w-full items-center gap-2.5 rounded-lg p-2 text-start transition-colors",
                           on ? "bg-(--brand-500)/10" : "hover:bg-(--bg-sunken)"
                         )}
                       >
@@ -654,8 +655,8 @@ export function TransferForm({
                           {on && <Check size={14} strokeWidth={3} />}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[13px] font-bold">{p.name}</span>
-                          <span className="block truncate text-[11px] tabular-nums opacity-60" dir="auto">
+                          <span className="block break-words text-[13px] font-bold">{p.name}</span>
+                          <span className="block break-words text-[11px] tabular-nums opacity-60" dir="auto">
                             {fromLoc?.name ?? ""}: {stockText(p, avail[p.id] ?? 0)}
                           </span>
                         </span>
@@ -700,8 +701,8 @@ export function TransferForm({
             const over = p && base > av;
             return (
               <Card key={i}>
-                <div className="flex gap-2">
-                  <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-start gap-2">
+                  <div className="min-w-[min(14rem,100%)] flex-1 basis-full sm:basis-0">
                     <ProductPicker
                       products={sourceProducts}
                       value={l.productId}
@@ -727,7 +728,7 @@ export function TransferForm({
                     <select
                       value={l.unitId}
                       onChange={(e) => setLines((ls) => ls.map((x, j) => (j === i ? { ...x, unitId: e.target.value } : x)))}
-                      className="h-11 w-24 shrink-0 rounded-lg border border-(--border-default) bg-(--bg-surface) px-1 text-xs font-bold outline-none"
+                      className="h-11 min-w-0 flex-1 rounded-lg border border-(--border-default) bg-(--bg-surface) px-1 text-xs font-bold outline-none sm:w-24 sm:flex-none"
                       aria-label={labels.unit}
                     >
                       {unitOpts.map((u) => (
@@ -738,9 +739,9 @@ export function TransferForm({
                   <Input
                     type="number" min={0} step="any" value={l.qty}
                     onChange={(e) => setLines((ls) => ls.map((x, j) => (j === i ? { ...x, qty: Number(e.target.value) } : x)))}
-                    className="w-24 shrink-0 font-black"
+                    className="min-w-0 flex-1 font-black sm:w-24 sm:flex-none"
                   />
-                  <Button type="button" variant="ghost" onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="shrink-0 px-2">✕</Button>
+                  <Button type="button" variant="ghost" onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="min-h-11 min-w-11 shrink-0 px-2">✕</Button>
                 </div>
                 {p && from && (
                   <div className="mt-2">
@@ -749,7 +750,7 @@ export function TransferForm({
                         <bdi>{fromLoc?.name ?? ""}</bdi>: <bdi className="tabular-nums">{stockText(p, av)}</bdi>
                       </span>
                       <span className={cn("tabular-nums", over ? "text-red-500" : "text-(--brand-600)")}>
-                        {base.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        {dz(base)}
                       </span>
                     </div>
                     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-(--bg-sunken)">
@@ -774,7 +775,7 @@ export function TransferForm({
           {/* Sticky summary */}
           <div className="sticky bottom-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay)/95 p-3 shadow-lg backdrop-blur">
             <div className="mb-2 flex items-center justify-between text-sm font-black tabular-nums">
-              <span className="opacity-60">{valid.length} · {totalUnits.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+              <span className="opacity-60">{valid.length} · {dz(totalUnits, 0)}</span>
               <span className="truncate text-[11px] font-bold opacity-60">
                 {fromLoc?.name ?? ""} → {toLoc?.name ?? ""}
               </span>
@@ -821,8 +822,8 @@ export function TransferForm({
                   <span className="min-w-0 flex-1 truncate text-sm font-bold">{p?.name ?? ""}</span>
                   <span className="shrink-0 text-sm font-black tabular-nums" dir="ltr">
                     {sameUnit
-                      ? `${l.qty.toLocaleString()}${baseName ? ` ${baseName}` : ""}`
-                      : `${l.qty.toLocaleString()} ${uname} = ${baseQtyOf(l).toLocaleString(undefined, { maximumFractionDigits: 0 })}${baseName ? ` ${baseName}` : ""}`}
+                      ? `${dz(l.qty)}${baseName ? ` ${baseName}` : ""}`
+                      : `${dz(l.qty)} ${uname} = ${dz(baseQtyOf(l), 0)}${baseName ? ` ${baseName}` : ""}`}
                   </span>
                 </div>
               );
@@ -830,7 +831,7 @@ export function TransferForm({
           </div>
           {(cash > 0 || notes) && (
             <div className="mt-2 space-y-1 text-sm">
-              {cash > 0 && <div><b>💵 {cash.toLocaleString()}</b></div>}
+              {cash > 0 && <div><b>💵 {dz(cash)}</b></div>}
               {notes && <div className="opacity-70">{notes}</div>}
             </div>
           )}

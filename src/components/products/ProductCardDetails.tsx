@@ -84,15 +84,15 @@ export function ProductCardDetails({
       {showStock && depotQty != null && vanQty != null && (
         <div className="text-(--brand-600)">
           {equivalence.map((line) => (
-            <div key={line} className="truncate text-[11px] font-bold opacity-80">
+            <div key={line} className="break-words text-[11px] font-bold opacity-80">
               <bdi>{line}</bdi>
             </div>
           ))}
-          <div className="truncate text-[11px] font-black">
+          <div className="break-words text-[11px] font-black">
             🏭 {depotLabel}: {packBreakdown(depotQty, conversions, unitName, baseName)}
           </div>
           {vanQty > 0 && (
-            <div className="truncate text-[11px] font-black">
+            <div className="break-words text-[11px] font-black">
               🚚 {vanLabel}: {packBreakdown(vanQty, conversions, unitName, baseName)}
             </div>
           )}
@@ -107,13 +107,13 @@ export function ProductCardDetails({
               const per = Math.round(1 / piece.factor);
               return (
                 <>
-                  <div className="truncate text-sm font-black">
+                  <div className="break-words text-sm font-black">
                     {num(stockQty)} {baseName}
                   </div>
-                  <div className="truncate text-[11px] font-bold opacity-80">
+                  <div className="break-words text-[11px] font-bold opacity-80">
                     1 {baseName} = {num(per)} {piece.unitName}
                   </div>
-                  <div className="truncate text-[11px] font-bold opacity-80">
+                  <div className="break-words text-[11px] font-bold opacity-80">
                     {num(Math.round(stockQty * per))} {piece.unitName}
                   </div>
                 </>
@@ -122,11 +122,11 @@ export function ProductCardDetails({
             if (packsAsc.length === 0) {
               return (
                 <>
-                  <div className="truncate text-[11px] font-black">
+                  <div className="break-words text-[11px] font-black">
                     {num(stockQty)}{baseName ? ` ${baseName}` : ""}
                   </div>
                   {showColisage(colisage) && (
-                    <div className="truncate text-[11px] font-bold opacity-80">📦 {colisage}</div>
+                    <div className="break-words text-[11px] font-bold opacity-80">📦 {colisage}</div>
                   )}
                 </>
               );
@@ -136,17 +136,17 @@ export function ProductCardDetails({
             const levels = packsAsc.map((c) => ({ name: unitName(c.unitId), factor: c.factor }));
             return (
               <>
-                <div className="truncate text-sm font-black">
+                <div className="break-words text-sm font-black">
                   {packBreakdown(stockQty, conversions, unitName, baseName)}
                 </div>
                 {levels.map((_, i) => (
-                  <div key={packsAsc[levels.length - 1 - i].unitId} className="truncate text-[11px] font-bold opacity-80">
+                  <div key={packsAsc[levels.length - 1 - i].unitId} className="break-words text-[11px] font-bold opacity-80">
                     {levelLabel(levels, levels.length - 1 - i, baseName)}
                   </div>
                 ))}
                 {/* The breakdown already says "0 قطعة" when empty — don't repeat it. */}
                 {stockQty > 0 && (
-                  <div className="truncate text-[11px] font-bold opacity-80">
+                  <div className="break-words text-[11px] font-bold opacity-80">
                     {num(stockQty)} {baseName}
                   </div>
                 )}
@@ -158,7 +158,7 @@ export function ProductCardDetails({
       {!showStock && equivalence.length > 0 && (
         <div className="text-(--brand-600)">
           {equivalence.map((line) => (
-            <div key={line} className="truncate text-[11px] font-bold opacity-80">
+            <div key={line} className="break-words text-[11px] font-bold opacity-80">
               <bdi>{line}</bdi>
             </div>
           ))}
@@ -167,15 +167,15 @@ export function ProductCardDetails({
       <div className={`grid grid-cols-2 gap-x-2 gap-y-0.5 ${compact ? "text-[11px]" : "text-xs"}`}>
         {showBase !== false && (
           <>
-            <span className="truncate opacity-60">{costLabel}{priceSuffix}</span>
+            <span className="break-words opacity-60">{costLabel}{priceSuffix}</span>
             <span className="text-end font-black tabular-nums" dir="ltr">{money(colisPrice(costPrice))}</span>
-            <span className="truncate opacity-60">{saleLabel}{priceSuffix}</span>
+            <span className="break-words opacity-60">{saleLabel}{priceSuffix}</span>
             <span className="text-end font-black tabular-nums text-(--brand-600)" dir="ltr">{money(colisPrice(salePrice))}</span>
           </>
         )}
         {tiers.map((x) => (
           <span key={x.name} className="contents">
-            <span className="truncate opacity-60">{x.name}{priceSuffix}</span>
+            <span className="break-words opacity-60">{x.name}{priceSuffix}</span>
             <span className="text-end font-bold tabular-nums" dir="ltr">{money(colisPrice(x.price))}</span>
           </span>
         ))}
@@ -183,19 +183,19 @@ export function ProductCardDetails({
       {cump && (
         <div className="space-y-0.5 border-t border-(--border-subtle) pt-1 text-[11px] font-bold">
           <div className="flex justify-between gap-2">
-            <span className="truncate opacity-60">
+            <span className="break-words opacity-60">
               {cumpLabel}{baseName ? ` / ${baseName}` : ""}
             </span>
             <span className="shrink-0 tabular-nums" dir="ltr">{money(cump.cump)}</span>
           </div>
           <div className="flex justify-between gap-2">
-            <span className="truncate opacity-60">
+            <span className="break-words opacity-60">
               {valueLabel} ({num(cump.qty)}{baseName ? ` ${baseName}` : ""})
             </span>
             <span className="shrink-0 tabular-nums" dir="ltr">{money(cump.value)}</span>
           </div>
           <div className="flex justify-between gap-2">
-            <span className="truncate opacity-60">{marginLabel}</span>
+            <span className="break-words opacity-60">{marginLabel}</span>
             <span className={`shrink-0 tabular-nums ${salePrice - cump.cump >= 0 ? "text-(--brand-600)" : "text-red-500"}`} dir="ltr">
               {money(salePrice - cump.cump)}
               {cump.cump > 0 ? ` (${Math.round(((salePrice - cump.cump) / cump.cump) * 100)}%)` : ""}

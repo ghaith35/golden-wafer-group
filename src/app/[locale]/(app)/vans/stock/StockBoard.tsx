@@ -33,7 +33,7 @@ type Valuation = {
   perProduct: Array<{ productId: string; qty: number; value: number }>;
 };
 
-const selectCls = "h-10 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-xs font-bold outline-none";
+const selectCls = "h-11 min-w-0 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-xs font-bold outline-none";
 
 /// Normalize API/SSR product rows for the transfer wizard (Decimals arrive
 /// as strings over JSON; the wizard needs real numbers).
@@ -356,16 +356,16 @@ export function StockBoard({
               {v.name}
             </span>
             {isDepot ? (
-              <span className="shrink-0 rounded-md bg-(--brand-500)/10 px-1.5 py-0.5 text-[10px] font-black text-(--brand-600)">
+              <span className="shrink-0 rounded-md bg-(--brand-500)/10 px-1.5 py-0.5 text-[11px] font-black text-(--brand-600)">
                 {labels.depot}
               </span>
             ) : dev?.lastSyncAt ? (
-              <span className="flex shrink-0 items-center gap-0.5 rounded-full pill-emerald px-1.5 py-px text-[9px] font-black">
+              <span className="flex shrink-0 items-center gap-0.5 rounded-full pill-emerald px-1.5 py-px text-[11px] font-black">
                 <Wifi size={9} />
                 <bdi>{timeAgo(dev.lastSyncAt, locale)}</bdi>
               </span>
             ) : (
-              <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-(--bg-sunken) px-1.5 py-px text-[9px] font-black opacity-70">
+              <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-(--bg-sunken) px-1.5 py-px text-[11px] font-black opacity-70">
                 <WifiOff size={9} />
                 {labels.neverSynced}
               </span>
@@ -380,18 +380,18 @@ export function StockBoard({
             <span><bdi dir="ltr">{dz(s.units)}</bdi> <span className="font-bold opacity-60">{isDepot ? labels.inDepot : labels.onVan}</span></span>
             <span className="text-(--brand-600)" dir="ltr">{fmtMoney(val)}</span>
             {s.low > 0 && (
-              <span className="flex items-center gap-0.5 rounded-full pill-amber px-1.5 py-px text-[10px]">
+              <span className="flex items-center gap-0.5 rounded-full pill-amber px-1.5 py-px text-[11px]">
                 <TriangleAlert size={10} />
                 {s.low} {labels.low}
               </span>
             )}
             {s.transit > 0 && (
-              <span className="rounded-full pill-sky px-1.5 py-px text-[10px]">
+              <span className="rounded-full pill-sky px-1.5 py-px text-[11px]">
                 {s.transit} {labels.inTransit}
               </span>
             )}
             {failed > 0 && (
-              <span className="rounded-full pill-red px-1.5 py-px text-[10px]" title={labels.failedSync}>
+              <span className="rounded-full pill-red px-1.5 py-px text-[11px]" title={labels.failedSync}>
                 {failed} !
               </span>
             )}
@@ -417,6 +417,7 @@ export function StockBoard({
           icon={<Package size={18} />}
           accent="bg-sky-500/15 text-sky-600"
           title={fmtMoney(vanValue)}
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -424,6 +425,7 @@ export function StockBoard({
           value={fmtMoney(fleetValue)}
           icon={<Wallet size={18} />}
           accent="bg-emerald-500/15 text-emerald-600"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -431,6 +433,7 @@ export function StockBoard({
           value={`${dz(depotQty)} · ${fmtMoney(depotValue)}`}
           icon={<Warehouse size={18} />}
           accent="bg-(--brand-500)/10 text-(--brand-600)"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -438,6 +441,7 @@ export function StockBoard({
           value={String(vans.length)}
           icon={<Bus size={18} />}
           accent="bg-violet-500/15 text-violet-500"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -454,15 +458,16 @@ export function StockBoard({
           icon={<ArrowRightLeft size={18} />}
           accent="bg-cyan-500/15 text-cyan-600"
           title={unsyncedCount > 0 ? `${unsyncedCount} × ${labels.neverSynced}${failedOps > 0 ? ` · ${failedOps} × ${labels.failedSync}` : ""}` : undefined}
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
       </div>
 
-      <div className="grid min-h-0 items-start gap-4 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:overflow-hidden">
+      <div className="grid min-h-0 grid-cols-[minmax(0,1fr)] items-start gap-4 lg:flex-1 lg:grid-cols-[320px_minmax(0,1fr)] lg:overflow-hidden">
         {/* ── Sidebar: vans ── */}
-        <div className="flex flex-col gap-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 lg:h-full lg:min-h-0 lg:overflow-hidden">
+        <div className="flex min-w-0 flex-col gap-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 lg:h-full lg:min-h-0 lg:overflow-hidden">
           <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-2">
             <label className="block">
               <span className="mb-1 block text-[11px] font-bold uppercase opacity-60">{labels.sortBy}</span>
               <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className={selectCls}>

@@ -1,5 +1,6 @@
 "use client";
 
+import { dz } from "@/lib/format";
 import { useEffect, useMemo, useState } from "react";
 import { Wand2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -589,9 +590,9 @@ export function ProductForm({
         {/* Live preview: 1 Carton = 24 Bouteille / 1 Fardeau = 10 Carton = 240 */}
         {colisPreview && colis.l1Name.trim() && (
           <div className="mt-2 rounded-lg bg-(--brand-500)/10 px-3 py-2 text-xs font-black text-(--brand-600)">
-            1 {colis.l1Name.trim()} = {colisPreview.n1.toLocaleString()} {baseName}
+            1 {colis.l1Name.trim()} = {dz(colisPreview.n1)} {baseName}
             {colis.mode === "double" && colisPreview.n2 > 0 && colis.l2Name.trim() && (
-              <> · 1 {colis.l2Name.trim()} = {colisPreview.n2.toLocaleString()} {colis.l1Name.trim()} = {colisPreview.total.toLocaleString()} {baseName}</>
+              <> · 1 {colis.l2Name.trim()} = {dz(colisPreview.n2)} {colis.l1Name.trim()} = {dz(colisPreview.total)} {baseName}</>
             )}
           </div>
         )}
@@ -605,7 +606,7 @@ export function ProductForm({
           {previewConversions.filter((c) => c.factor >= 1).map((c) => (
             <div key={c.unitId} className="flex items-center justify-between rounded-lg bg-(--bg-sunken) px-3 py-1.5 text-xs font-bold">
               <span>{c.label}</span>
-              <span className="tabular-nums opacity-70">×{c.factor.toLocaleString()} {baseName}</span>
+              <span className="tabular-nums opacity-70">×{dz(c.factor)} {baseName}</span>
             </div>
           ))}
         </div>
@@ -641,7 +642,7 @@ export function ProductForm({
                   const v = e.target.value === "" ? null : Number(e.target.value);
                   setBase(v == null || Number.isNaN(v) ? 0 : v);
                 }}
-                className="h-9 w-20 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-end font-black tabular-nums outline-none focus:border-(--brand-500)"
+                className="h-11 w-20 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-end font-black tabular-nums outline-none focus:border-(--brand-500)"
               />
               <span className="text-xs opacity-40">/</span>
               <input
@@ -655,7 +656,7 @@ export function ProductForm({
                   const v = e.target.value === "" ? null : Number(e.target.value);
                   setBase(v == null || Number.isNaN(v) ? 0 : v / pf);
                 }}
-                className="h-9 w-24 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-end font-black tabular-nums outline-none focus:border-(--brand-500)"
+                className="h-11 w-24 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-end font-black tabular-nums outline-none focus:border-(--brand-500)"
               />
             </div>
           );

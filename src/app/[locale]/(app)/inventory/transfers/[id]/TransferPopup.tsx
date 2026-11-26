@@ -142,7 +142,7 @@ export function TransferPopup({
           <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl bg-(--bg-sunken) px-3 py-2">
             <LocThumb loc={row.fromLocation} />
             <div className="min-w-0">
-              <div className="text-[10px] font-bold uppercase opacity-60">{labels.from ?? "from"}</div>
+              <div className="text-[11px] font-bold uppercase opacity-60">{labels.from ?? "from"}</div>
               <div className="truncate text-sm font-black">{row.fromLocation.name}</div>
             </div>
           </div>
@@ -150,7 +150,7 @@ export function TransferPopup({
           <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl bg-(--bg-sunken) px-3 py-2">
             <LocThumb loc={row.toLocation} />
             <div className="min-w-0">
-              <div className="text-[10px] font-bold uppercase opacity-60">{labels.to ?? "to"}</div>
+              <div className="text-[11px] font-bold uppercase opacity-60">{labels.to ?? "to"}</div>
               <div className="truncate text-sm font-black">{row.toLocation.name}</div>
             </div>
           </div>

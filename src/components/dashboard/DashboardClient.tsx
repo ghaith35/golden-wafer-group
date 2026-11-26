@@ -41,8 +41,8 @@ function pctDelta(cur: number, prev: number): number | null {
 
 function Delta({ cur, prev, className }: { cur: number; prev: number; className?: string }) {
   const d = pctDelta(cur, prev);
-  if (cur === 0 && prev === 0) return <span className={cn("rounded-full bg-(--bg-sunken) px-2 py-0.5 text-[10px] font-black text-(--text-tertiary)", className)}>—</span>;
-  if (d === null) return <span className={cn("rounded-full bg-(--bg-sunken) px-2 py-0.5 text-[10px] font-black text-(--text-tertiary)", className)}>NEW</span>;
+  if (cur === 0 && prev === 0) return <span className={cn("rounded-full bg-(--bg-sunken) px-2 py-0.5 text-[11px] lg:text-[10px] font-black text-(--text-tertiary)", className)}>—</span>;
+  if (d === null) return <span className={cn("rounded-full bg-(--bg-sunken) px-2 py-0.5 text-[11px] lg:text-[10px] font-black text-(--text-tertiary)", className)}>NEW</span>;
   const up = d >= 0;
   const Icon = up ? ArrowUpRight : ArrowDownRight;
   return (
@@ -67,7 +67,7 @@ const MEDAL = [
 ];
 function Rank({ i, small }: { i: number; small?: boolean }) {
   return (
-    <span className={cn("flex shrink-0 items-center justify-center rounded-full font-black", small ? "h-5 w-5 text-[10px]" : "h-6 w-6 text-[11px]", MEDAL[i] ?? "bg-(--bg-sunken) text-(--text-secondary)")}>
+    <span className={cn("flex shrink-0 items-center justify-center rounded-full font-black", small ? "h-5 w-5 text-[11px] lg:text-[10px]" : "h-6 w-6 text-[11px]", MEDAL[i] ?? "bg-(--bg-sunken) text-(--text-secondary)")}>
       {i === 0 ? <Crown size={12} /> : i + 1}
     </span>
   );
@@ -94,7 +94,7 @@ function Panel({ title, icon: Icon, right, children, className, fit }: { title: 
 
 function Seg<T extends string>({ value, onChange, options, small }: { value: T; onChange: (v: T) => void; options: Array<{ v: T; label: string }>; small?: boolean }) {
   return (
-    <div className="inline-flex shrink-0 rounded-xl border border-(--border-default) bg-(--bg-surface) p-0.5" role="radiogroup">
+    <div className="inline-flex max-w-full rounded-xl border border-(--border-default) bg-(--bg-surface) p-0.5" role="radiogroup">
       {options.map((o) => (
         <button
           key={o.v}
@@ -103,8 +103,8 @@ function Seg<T extends string>({ value, onChange, options, small }: { value: T; 
           aria-checked={value === o.v}
           onClick={() => onChange(o.v)}
           className={cn(
-            "whitespace-nowrap rounded-[10px] font-black transition-all",
-            small ? "min-h-0 px-1.5 py-0.5 text-[10px] leading-tight" : "min-h-0 px-3.5 py-1.5 text-xs",
+            "min-w-0 whitespace-nowrap rounded-[10px] font-black transition-all",
+            small ? "min-h-11 px-2 py-0.5 text-[11px] leading-tight lg:min-h-0 lg:px-1.5 lg:text-[10px]" : "min-h-11 px-2.5 py-1.5 text-xs sm:px-3.5 lg:min-h-0",
             value === o.v ? "bg-gradient-brand text-(--brand-contrast) shadow" : "text-(--text-secondary) hover:text-(--text-primary)"
           )}
         >
@@ -136,14 +136,14 @@ function RankList({ items, max, fit, t, green }: { items: RankItem[]; max: numbe
             <Rank i={i} small={fit} />
             <span className={cn("min-w-0 flex-1 line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight font-black", fit ? "text-[12px]" : "text-[13px]")}>
               {it.client ? <ClientName name={it.name} lat={it.lat} lng={it.lng} /> : it.name}
-              {it.sub && <span className="ms-1.5 text-[10px] font-bold text-(--text-tertiary)" dir="ltr">{it.sub}</span>}
+              {it.sub && <span className="ms-1.5 text-[11px] lg:text-[10px] font-bold text-(--text-tertiary)" dir="ltr">{it.sub}</span>}
             </span>
-            {fit && <span className="shrink-0 text-[10px] font-black tabular-nums text-(--semantic-success)">{compactNum(it.profit)}</span>}
+            {fit && <span className="shrink-0 text-[11px] lg:text-[10px] font-black tabular-nums text-(--semantic-success)">{compactNum(it.profit)}</span>}
             <span className={cn("shrink-0 text-end font-black tabular-nums", fit ? "min-w-[64px] text-[12px]" : "text-[13px]")}>{it.valueLabel}</span>
           </div>
           <div className="mt-1"><Bar pct={(it.value / max) * 100} className={green ? "from-emerald-600 to-emerald-300" : undefined} /></div>
           {!fit && (
-            <div className="mt-1 flex justify-between text-[10.5px] font-bold text-(--text-tertiary)">
+            <div className="mt-1 flex justify-between text-[11px] lg:text-[10.5px] font-bold text-(--text-tertiary)">
               <span>{it.qtyLabel ?? (it.count !== undefined ? `${it.count} ${t("inv")}` : "")}</span>
               <span className="text-(--semantic-success)">{t("profit")}: {money(Math.round(it.profit))}</span>
             </div>
@@ -289,37 +289,37 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
             </span>
             {label(p)}
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="hidden text-[9px] font-bold text-(--text-tertiary) sm:inline">{vsLabel(p)}</span>
+          <span className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
+            <span className="hidden text-[11px] lg:text-[9px] font-bold text-(--text-tertiary) sm:inline md:hidden xl:inline">{vsLabel(p)}</span>
             <Delta cur={a.revenue} prev={b.revenue} />
           </span>
         </div>
         <div className={cn("relative mt-2 grid gap-x-3", fit ? "grid-cols-[1.25fr_1fr]" : "grid-cols-1 gap-y-2 min-[520px]:grid-cols-[1.25fr_1fr] md:grid-cols-1 lg:grid-cols-[1.25fr_1fr]")}>
           <div className="min-w-0">
-            <div className="text-[10.5px] font-bold text-(--text-tertiary)">{t("revenue")}</div>
-            <Money value={a.revenue} className="block whitespace-nowrap text-[clamp(20px,2.2vw,30px)] font-black leading-tight tracking-tight" />
+            <div className="text-[11px] lg:text-[10.5px] font-bold text-(--text-tertiary)">{t("revenue")}</div>
+            <Money value={a.revenue} className="block break-words lg:whitespace-nowrap text-[clamp(20px,2.2vw,30px)] font-black leading-tight tracking-tight" />
           </div>
           <div className="min-w-0 border-s border-(--border-default) ps-3">
-            <div className="flex items-center justify-between gap-1 text-[10.5px] font-bold text-(--text-tertiary)">
+            <div className="flex items-center justify-between gap-1 text-[11px] lg:text-[10.5px] font-bold text-(--text-tertiary)">
               <span>{t("profit")}</span>
-              <Delta cur={a.profit} prev={b.profit} className="px-1.5 py-0 text-[10px]" />
+              <Delta cur={a.profit} prev={b.profit} className="px-1.5 py-0 text-[11px] lg:text-[10px]" />
             </div>
-            <Money value={a.profit} className={cn("block whitespace-nowrap text-[clamp(15px,1.5vw,21px)] font-black leading-tight", a.profit >= 0 ? "text-(--semantic-success)" : "text-(--semantic-danger)")} />
+            <Money value={a.profit} className={cn("block break-words lg:whitespace-nowrap text-[clamp(15px,1.5vw,21px)] font-black leading-tight", a.profit >= 0 ? "text-(--semantic-success)" : "text-(--semantic-danger)")} />
           </div>
         </div>
         <div className="relative mt-2 flex items-center gap-2">
           <div className="flex-1"><Bar pct={mg} className="from-emerald-600 to-emerald-300" /></div>
-          <span className="shrink-0 text-[10px] font-black text-(--text-secondary)" dir="ltr">{mg.toFixed(0)}% · {a.count} {t("inv")}</span>
+          <span className="shrink-0 text-[11px] lg:text-[10px] font-black text-(--text-secondary)" dir="ltr">{mg.toFixed(0)}% · {a.count} {t("inv")}</span>
         </div>
       </button>
     );
   };
 
   const kpis = [
-    { l: t("orders"), v: dz(cur.count, 0), icon: Receipt, c: "bg-sky-500/15 text-sky-600", sub: <Delta cur={cur.count} prev={prev.count} className="px-1.5 py-0 text-[10px]" /> },
+    { l: t("orders"), v: dz(cur.count, 0), icon: Receipt, c: "bg-sky-500/15 text-sky-600", sub: <Delta cur={cur.count} prev={prev.count} className="px-1.5 py-0 text-[11px] lg:text-[10px]" /> },
     { l: t("avgBasket"), v: money(Math.round(avg)), icon: ShoppingCart, c: "bg-emerald-500/15 text-emerald-600", sub: null },
     { l: t("marginPct"), v: `${marginPct.toFixed(1)}%`, icon: Percent, c: "bg-(--brand-500)/15 text-(--gold-text)", sub: null },
-    { l: t("collected"), v: money(Math.round(cur.paid)), icon: Wallet2, c: "bg-teal-500/15 text-teal-600", sub: <span className="text-[10px] font-black text-(--text-tertiary)" dir="ltr">{collectedPct.toFixed(0)}%</span> },
+    { l: t("collected"), v: money(Math.round(cur.paid)), icon: Wallet2, c: "bg-teal-500/15 text-teal-600", sub: <span className="text-[11px] lg:text-[10px] font-black text-(--text-tertiary)" dir="ltr">{collectedPct.toFixed(0)}%</span> },
     { l: t("expenses"), v: money(Math.round(cur.expenses)), icon: Wallet, c: "bg-orange-500/15 text-orange-500", sub: null },
     { l: t("netProfit"), v: money(Math.round(net)), icon: PiggyBank, c: net >= 0 ? "bg-emerald-500/15 text-emerald-600" : "bg-red-500/15 text-red-500", sub: null },
   ];
@@ -331,7 +331,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
           <span key={s.label} className="gw-grow-x h-full" style={{ width: `${(s.value / chTotal) * 100}%`, background: s.color, transformOrigin: "left" }} />
         ))}
       </div>
-      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10.5px] font-bold">
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] lg:text-[10.5px] font-bold">
         {segs.map((s) => (
           <span key={s.label} className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full" style={{ background: s.color }} />{s.label}<b className="tabular-nums text-(--text-secondary)" dir="ltr">{Math.round((s.value / chTotal) * 100)}%</b></span>
         ))}
@@ -343,15 +343,15 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
     <>
       <div className="grid shrink-0 grid-cols-2 gap-1.5">
         <div className="min-w-0 rounded-lg bg-red-500/10 px-2 py-1.5">
-          <div className="flex items-center gap-1 text-[10px] font-bold text-(--text-secondary)"><Users size={11} />{t("clientsOwe")}</div>
-          <div className="whitespace-nowrap text-[12px] font-black tabular-nums text-(--semantic-danger)">{money(extras.clientDebt)}</div>
+          <div className="flex items-center gap-1 text-[11px] lg:text-[10px] font-bold text-(--text-secondary)"><Users size={11} />{t("clientsOwe")}</div>
+          <div className="break-words text-[12px] font-black tabular-nums text-(--semantic-danger)">{money(extras.clientDebt)}</div>
         </div>
         <div className="min-w-0 rounded-lg bg-orange-500/10 px-2 py-1.5">
-          <div className="flex items-center gap-1 text-[10px] font-bold text-(--text-secondary)"><Truck size={11} />{t("weOwe")}</div>
-          <div className="whitespace-nowrap text-[12px] font-black tabular-nums text-orange-500">{money(extras.supplierDebt)}</div>
+          <div className="flex items-center gap-1 text-[11px] lg:text-[10px] font-bold text-(--text-secondary)"><Truck size={11} />{t("weOwe")}</div>
+          <div className="break-words text-[12px] font-black tabular-nums text-orange-500">{money(extras.supplierDebt)}</div>
         </div>
       </div>
-      <div className="mt-1.5 shrink-0 text-[10px] font-black text-(--text-tertiary)">{t("lowStockList")} ({extras.lowCount})</div>
+      <div className="mt-1.5 shrink-0 text-[11px] lg:text-[10px] font-black text-(--text-tertiary)">{t("lowStockList")} ({extras.lowCount})</div>
       {extras.lowList.length === 0 ? (
         <div className="shrink-0 text-[11px] font-bold text-(--semantic-success)">✓ {t("allGood")}</div>
       ) : (
@@ -359,7 +359,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
           {extras.lowList.slice(0, fit ? 2 : 5).map((p) => (
             <li key={p.name} className="flex items-center justify-between gap-2 text-[11px] font-bold">
               <span className="min-w-0 line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight" title={p.name}>{p.name}</span>
-              <span className="shrink-0 rounded-full bg-amber-500/15 px-1.5 text-[10px] font-black tabular-nums text-amber-600" dir="ltr">{qty(p.qty)} / {qty(p.min)}</span>
+              <span className="shrink-0 rounded-full bg-amber-500/15 px-1.5 text-[11px] lg:text-[10px] font-black tabular-nums text-amber-600" dir="ltr">{qty(p.qty)} / {qty(p.min)}</span>
             </li>
           ))}
         </ul>
@@ -375,7 +375,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-(--gold-wash) text-(--gold-text)"><Receipt size={12} /></span>
             <div className="min-w-0 flex-1">
               <div className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[11.5px] font-black">{s.client || t("walkIn")}</div>
-              <div className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[9.5px] font-bold text-(--text-tertiary)" dir="auto">{[s.van, nf.format(new Date(s.dateIso)) + " " + timeFmt.format(new Date(s.dateIso))].filter(Boolean).join(" · ")}</div>
+              <div className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[11px] lg:text-[9.5px] font-bold text-(--text-tertiary)" dir="auto">{[s.van, nf.format(new Date(s.dateIso)) + " " + timeFmt.format(new Date(s.dateIso))].filter(Boolean).join(" · ")}</div>
             </div>
             <div className="shrink-0 text-[11.5px] font-black tabular-nums">{money(Math.round(s.total))}</div>
           </li>
@@ -391,26 +391,26 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
           const net = a.profit - a.expenses;
           return (
             <div key={p} className="min-w-0 rounded-xl border border-(--border-default) bg-(--bg-overlay) p-2.5">
-              <div className="mb-1 flex items-center justify-between gap-1 text-[10.5px] font-black text-(--text-secondary)">
+              <div className="mb-1 flex items-center justify-between gap-1 text-[11px] lg:text-[10.5px] font-black text-(--text-secondary)">
                 <span>{label(p)}</span>
                 <span className="text-(--text-tertiary)">{a.count} {t("inv")}</span>
               </div>
-              <div className="whitespace-nowrap text-[clamp(13px,1.3vw,17px)] font-black tabular-nums">{money(Math.round(a.revenue))}</div>
-              <div className="mt-0.5 flex flex-wrap items-baseline justify-between gap-x-2 text-[10px] font-bold text-(--text-tertiary)">
-                <span className="whitespace-nowrap">{t("profit")} <span className={cn("font-black tabular-nums", a.profit >= 0 ? "text-(--semantic-success)" : "text-(--semantic-danger)")}>{money(Math.round(a.profit))}</span></span>
-                <span className="whitespace-nowrap">{t("expenses")} <span className="font-black tabular-nums text-orange-500">{money(Math.round(a.expenses))}</span></span>
+              <div className="break-words lg:whitespace-nowrap text-[clamp(13px,1.3vw,17px)] font-black tabular-nums">{money(Math.round(a.revenue))}</div>
+              <div className="mt-0.5 flex flex-wrap items-baseline justify-between gap-x-2 text-[11px] lg:text-[10px] font-bold text-(--text-tertiary)">
+                <span className="break-words lg:whitespace-nowrap">{t("profit")} <span className={cn("font-black tabular-nums", a.profit >= 0 ? "text-(--semantic-success)" : "text-(--semantic-danger)")}>{money(Math.round(a.profit))}</span></span>
+                <span className="break-words lg:whitespace-nowrap">{t("expenses")} <span className="font-black tabular-nums text-orange-500">{money(Math.round(a.expenses))}</span></span>
               </div>
-              <div className={cn("mt-1.5 flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 ring-1", net >= 0 ? "bg-emerald-500/12 ring-emerald-500/30" : "bg-red-500/12 ring-red-500/30")}>
-                <span className="flex items-center gap-1 text-[10.5px] font-black text-(--text-secondary)"><PiggyBank size={13} className={net >= 0 ? "text-emerald-600" : "text-red-500"} />{t("netProfit")}</span>
-                <span className={cn("whitespace-nowrap text-[clamp(14px,1.5vw,19px)] font-black leading-none tabular-nums", net >= 0 ? "text-emerald-600" : "text-red-500")}>{money(Math.round(net))}</span>
+              <div className={cn("mt-1.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 rounded-lg px-2 py-1.5 ring-1", net >= 0 ? "bg-emerald-500/12 ring-emerald-500/30" : "bg-red-500/12 ring-red-500/30")}>
+                <span className="flex items-center gap-1 text-[11px] lg:text-[10.5px] font-black text-(--text-secondary)"><PiggyBank size={13} className={net >= 0 ? "text-emerald-600" : "text-red-500"} />{t("netProfit")}</span>
+                <span className={cn("break-words lg:whitespace-nowrap text-[clamp(14px,1.5vw,19px)] font-black leading-none tabular-nums", net >= 0 ? "text-emerald-600" : "text-red-500")}>{money(Math.round(net))}</span>
               </div>
             </div>
           );
         })}
       </div>
-      <div className={cn("grid min-h-0 gap-3 lg:col-span-12", fit ? "grid-cols-3" : "md:grid-cols-3")}>
+      <div className={cn("grid min-h-0 gap-3 lg:col-span-12", fit ? "grid-cols-3" : "grid-cols-[minmax(0,1fr)] md:grid-cols-3")}>
         <div className="min-w-0">
-          <div className="mb-1.5 flex items-center justify-between text-[10.5px] font-black text-(--text-secondary)">
+          <div className="mb-1.5 flex items-center justify-between text-[11px] lg:text-[10.5px] font-black text-(--text-secondary)">
             <span>{t("last14")}</span>
             <span className="text-(--text-tertiary)" dir="ltr">{monthTotal > 0 ? ((v.periods.month.revenue / monthTotal) * 100).toFixed(0) : 0}% · {t("share")}</span>
           </div>
@@ -418,7 +418,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
         </div>
         {([["products", t("bestProducts")], ["clients", t("bestClients")]] as const).map(([k, title]) => (
           <div key={k} className="min-w-0">
-            <div className="mb-1.5 text-[10.5px] font-black text-(--text-secondary)">{title} · {label(period)}</div>
+            <div className="mb-1.5 text-[11px] lg:text-[10.5px] font-black text-(--text-secondary)">{title} · {label(period)}</div>
             {v.periods[period][k].length === 0 ? (
               <div className="text-xs font-bold text-(--text-tertiary)">{t("noSales")}</div>
             ) : (
@@ -440,7 +440,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
 
   const vanRows = (
     <div className={cn("flex min-h-0 flex-1 flex-col", fit ? "gap-1" : "gap-2")}>
-      <div className="hidden shrink-0 grid-cols-[minmax(0,1.25fr)_repeat(3,minmax(0,1fr))_20px] gap-3 px-3 text-[10px] font-black text-(--text-tertiary) md:grid">
+      <div className="hidden shrink-0 grid-cols-[minmax(0,1.25fr)_repeat(3,minmax(0,1fr))_20px] gap-3 px-3 text-[11px] lg:text-[10px] font-black text-(--text-tertiary) md:grid">
         <span>{t("van")}</span>
         {PERIODS.map((p) => <span key={p} className="text-end">{label(p)} · {t("revenue")} / {t("profit")}</span>)}
         <span />
@@ -459,17 +459,17 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
                 <div className="flex min-w-0 items-center gap-2">
                   <span className={cn("flex shrink-0 items-center justify-center rounded-lg bg-(--gold-wash) text-(--gold-text)", fit ? "h-6 w-6" : "h-9 w-9")}><Truck size={fit ? 13 : 17} /></span>
                   <div className="min-w-0">
-                    <div className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[12.5px] font-black">{v.name}{fit && <span className="ms-1.5 text-[10px] font-bold text-(--text-tertiary)">{v.driver}</span>}</div>
-                    {!fit && <div className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[10px] font-bold text-(--text-tertiary)">{[v.driver, v.matricule].filter(Boolean).join(" · ") || "—"}</div>}
+                    <div className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[12.5px] font-black">{v.name}{fit && <span className="ms-1.5 text-[11px] lg:text-[10px] font-bold text-(--text-tertiary)">{v.driver}</span>}</div>
+                    {!fit && <div className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[11px] lg:text-[10px] font-bold text-(--text-tertiary)">{[v.driver, v.matricule].filter(Boolean).join(" · ") || "—"}</div>}
                   </div>
                   <ChevronDown size={15} className={cn("ms-auto shrink-0 text-(--text-tertiary) transition-transform duration-300 md:hidden", open && "rotate-180")} />
                 </div>
-                <div className="grid grid-cols-3 gap-2 md:contents">
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))] gap-2 md:contents">
                   {PERIODS.map((p) => (
                     <div key={p} className="min-w-0 rounded-lg bg-(--bg-sunken) px-2 py-1 md:bg-transparent md:p-0 md:text-end">
-                      <div className="text-[9.5px] font-black text-(--text-tertiary) md:hidden">{label(p)}</div>
-                      <div className="whitespace-nowrap text-[12px] font-black tabular-nums">{money(Math.round(v.periods[p].revenue))}</div>
-                      <div className={cn("whitespace-nowrap text-[10.5px] font-black tabular-nums", v.periods[p].profit >= 0 ? "text-(--semantic-success)" : "text-(--semantic-danger)")}>{money(Math.round(v.periods[p].profit))}</div>
+                      <div className="text-[11px] lg:text-[9.5px] font-black text-(--text-tertiary) md:hidden">{label(p)}</div>
+                      <div className="break-words lg:whitespace-nowrap text-[12px] font-black tabular-nums">{money(Math.round(v.periods[p].revenue))}</div>
+                      <div className={cn("break-words lg:whitespace-nowrap text-[11px] lg:text-[10.5px] font-black tabular-nums", v.periods[p].profit >= 0 ? "text-(--semantic-success)" : "text-(--semantic-danger)")}>{money(Math.round(v.periods[p].profit))}</div>
                     </div>
                   ))}
                 </div>
@@ -481,11 +481,11 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
         })}
         <div className={cn("grid grid-cols-1 items-center gap-2 rounded-xl border border-dashed border-(--border-default) px-3 md:grid-cols-[minmax(0,1.25fr)_repeat(3,minmax(0,1fr))_20px] md:gap-3", fit ? "py-1" : "py-2.5")}>
           <div className="flex items-center gap-2 text-[12.5px] font-black text-(--text-secondary)"><span className={cn("flex items-center justify-center rounded-lg bg-(--bg-sunken)", fit ? "h-6 w-6" : "h-9 w-9")}><Store size={14} /></span>{t("otherSales")}</div>
-          <div className="grid grid-cols-3 gap-2 md:contents">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))] gap-2 md:contents">
             {PERIODS.map((p) => (
               <div key={p} className="min-w-0 md:text-end">
-                <div className="whitespace-nowrap text-[12px] font-black tabular-nums text-(--text-secondary)">{money(Math.round(data.other[p].revenue))}</div>
-                <div className="whitespace-nowrap text-[10.5px] font-black tabular-nums text-(--text-tertiary)">{money(Math.round(data.other[p].profit))}</div>
+                <div className="break-words lg:whitespace-nowrap text-[12px] font-black tabular-nums text-(--text-secondary)">{money(Math.round(data.other[p].revenue))}</div>
+                <div className="break-words lg:whitespace-nowrap text-[11px] lg:text-[10.5px] font-black tabular-nums text-(--text-tertiary)">{money(Math.round(data.other[p].profit))}</div>
               </div>
             ))}
           </div>
@@ -502,7 +502,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
       className={fit ? "col-span-6" : "xl:col-span-8"}
       title={t("vansPerf")}
       icon={Truck}
-      right={<span className="hidden text-[10.5px] font-bold text-(--text-tertiary) sm:block">{t("vansPerfHint")}</span>}
+      right={<span className="hidden text-[11px] lg:text-[10.5px] font-bold text-(--text-tertiary) sm:block">{t("vansPerfHint")}</span>}
     >
       {data.vans.length === 0 ? <div className="py-8 text-center text-xs font-bold text-(--text-tertiary)">{t("noVans")}</div> : vanRows}
       {fit && openVanObj && (
@@ -511,9 +511,9 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
             <h3 className="flex min-w-0 items-center gap-2 text-[12.5px] font-black">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-brand text-(--brand-contrast)"><Truck size={13} /></span>
               <span className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight">{openVanObj.name}</span>
-              <span className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[10.5px] font-bold text-(--text-tertiary)">{[openVanObj.driver, openVanObj.matricule].filter(Boolean).join(" · ")}</span>
+              <span className="line-clamp-2 break-words [overflow-wrap:anywhere] leading-tight text-[11px] lg:text-[10.5px] font-bold text-(--text-tertiary)">{[openVanObj.driver, openVanObj.matricule].filter(Boolean).join(" · ")}</span>
             </h3>
-            <button type="button" onClick={() => setOpenVan(null)} aria-label="close" className="flex h-6 min-h-0 w-6 min-w-0 items-center justify-center rounded-lg border border-(--border-default) text-(--text-secondary) hover:border-(--brand-500)">×</button>
+            <button type="button" onClick={() => setOpenVan(null)} aria-label="close" className="flex h-11 min-h-0 w-11 min-w-0 items-center lg:h-6 lg:w-6 justify-center rounded-lg border border-(--border-default) text-(--text-secondary) hover:border-(--brand-500)">×</button>
           </div>
           {vanDetail(openVanObj)}
         </div>
@@ -532,7 +532,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
           {!fit && <span className="hidden text-(--text-tertiary) sm:inline">· {t("overview")}</span>}
         </p>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Seg small={fit} value={period} onChange={setPeriod} options={PERIODS.map((p) => ({ v: p, label: label(p) }))} />
         <RangePicker
           small={fit}
@@ -549,7 +549,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
           onClick={() => startRefresh(() => router.refresh())}
           aria-label={t("refresh")}
           title={`${t("updated")} ${timeFmt.format(new Date(data.nowIso))}`}
-          className={cn("flex min-h-0 min-w-0 items-center justify-center rounded-xl border border-(--border-default) bg-(--bg-overlay) text-(--text-secondary) hover:border-(--brand-500) hover:text-(--gold-text)", fit ? "h-7 w-7" : "h-9 w-9")}
+          className={cn("flex min-h-0 min-w-0 items-center justify-center rounded-xl border border-(--border-default) bg-(--bg-overlay) text-(--text-secondary) hover:border-(--brand-500) hover:text-(--gold-text)", fit ? "h-7 w-7" : "h-11 w-11 lg:h-9 lg:w-9")}
         >
           <RefreshCw size={15} className={cn(refreshing && "animate-spin")} />
         </button>
@@ -558,16 +558,16 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
   );
 
   const kpiStrip = (
-    <div className={cn("grid shrink-0 gap-2.5", fit ? "grid-cols-6" : "grid-cols-2 md:grid-cols-3 2xl:grid-cols-6")}>
+    <div className={cn("grid shrink-0 gap-2.5", fit ? "grid-cols-6" : "grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] md:grid-cols-3 2xl:grid-cols-6")}>
       {kpis.map((k) => (
         <div key={k.l} className={cn("group relative flex min-w-0 items-center gap-2.5 overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay) transition-all duration-300 hover:-translate-y-0.5 hover:border-(--border-strong)", fit ? "p-2" : "p-3")}>
           <span className={cn("flex shrink-0 items-center justify-center rounded-xl", fit ? "h-8 w-8" : "h-10 w-10", k.c)}><k.icon size={fit ? 15 : 18} /></span>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-1">
-              <span className="truncate text-[10.5px] font-bold text-(--text-tertiary)">{k.l}</span>
+            <div className="flex flex-wrap items-center justify-between gap-x-1 gap-y-0.5">
+              <span className="min-w-0 flex-1 basis-12 break-words text-[11px] font-bold leading-tight text-(--text-tertiary) lg:truncate lg:text-[10.5px]">{k.l}</span>
               {k.sub}
             </div>
-            <div className="whitespace-nowrap text-[clamp(13px,1.2vw,17px)] font-black leading-tight tabular-nums">{k.v}</div>
+            <div className="break-words text-[clamp(13px,1.2vw,17px)] font-black leading-tight tabular-nums lg:whitespace-nowrap">{k.v}</div>
           </div>
         </div>
       ))}
@@ -581,7 +581,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
       title={data.customRange ? `${t("trendTitle").replace(/\d+/, String(data.trend.length))}` : t("trendTitle")}
       icon={BarChart3}
       right={
-        <div className="flex items-center gap-3 text-[10.5px] font-black text-(--text-secondary)">
+        <div className="flex items-center gap-3 text-[11px] lg:text-[10.5px] font-black text-(--text-secondary)">
           <span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-sm bg-(--brand-500)" />{t("revenue")}</span>
           <span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-(--semantic-success)" />{t("profit")}</span>
         </div>
@@ -616,7 +616,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
       <div className="mt-2 flex min-h-0 flex-1 flex-col">
         {alertsBlock}
         <div className="mt-2 flex min-h-0 flex-1 flex-col">
-          <div className="mb-0.5 shrink-0 text-[10px] font-black text-(--text-tertiary)">{t("recentSales")}</div>
+          <div className="mb-0.5 shrink-0 text-[11px] lg:text-[10px] font-black text-(--text-tertiary)">{t("recentSales")}</div>
           {recentList(fit ? 2 : 6)}
         </div>
       </div>
@@ -624,13 +624,13 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
   );
 
   const shortcuts = actions.length > 0 && !fit && (
-    <div className="grid grid-cols-4 gap-2 lg:grid-cols-8">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(4.5rem,1fr))] gap-2 lg:grid-cols-8">
       {actions.map((a) => {
         const Icon = ICONS[a.icon] ?? Store;
         return (
           <Link key={a.href} href={`/${locale}/${a.href}`} className="dash-lift flex min-w-0 flex-col items-center gap-1.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2.5 text-center hover:border-(--brand-500)">
             <span className={cn("flex h-10 w-10 items-center justify-center rounded-xl", a.cls)}><Icon size={18} /></span>
-            <span className="w-full truncate text-[11px] font-black leading-tight">{a.label}</span>
+            <span className="line-clamp-2 w-full break-words text-[11px] font-black leading-tight">{a.label}</span>
           </Link>
         );
       })}
@@ -658,7 +658,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
       ) : (
         <div className="mx-auto w-full max-w-[1800px] space-y-4 p-4 sm:p-5 md:p-6">
           {header}
-          <div className={cn("grid grid-cols-1 gap-3", data.customRange ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-3")}>{cardPeriods.map(periodCard)}</div>
+          <div className={cn("grid grid-cols-[minmax(0,1fr)] gap-3", data.customRange ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-3")}>{cardPeriods.map(periodCard)}</div>
           {kpiStrip}
           <div className="grid gap-4 xl:grid-cols-12">
             {trendPanel}
@@ -667,7 +667,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
               <div className="mt-3">{alertsBlock}</div>
             </Panel>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2 xl:grid-cols-3">
             {productsPanel}
             {topVansPanel}
             {clientsPanel}

@@ -179,19 +179,19 @@ function UserCard({
 
   return (
     <div
-      className="flex flex-col gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-sm"
+      className="flex min-w-0 flex-col gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-sm"
       style={u.isActive ? undefined : { opacity: 0.6 }}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-(--bg-sunken) text-(--text-secondary)">
           <UserRound size={22} />
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-[8rem] flex-1">
           <div className="truncate text-base font-black">{u.fullName}</div>
           <div className="truncate font-mono text-xs opacity-60" dir="ltr">@{u.username}</div>
         </div>
         <span className={cn(
-          "shrink-0 rounded-full px-2 py-1 text-[10px] font-black",
+          "shrink-0 rounded-full px-2 py-1 text-[11px] font-black",
           u.role === "Admin" ? "bg-violet-500/15 text-violet-500"
           : u.role === "Livreur" ? "bg-sky-500/15 text-sky-600"
           : "bg-emerald-500/15 text-emerald-600"
@@ -224,7 +224,7 @@ function UserCard({
                 onClick={() => setShowPw((x) => !x)}
                 aria-label={showPw ? labels.hidePw : labels.showPw}
                 title={showPw ? labels.hidePw : labels.showPw}
-                className="shrink-0 rounded-lg p-1 opacity-60 hover:bg-(--bg-sunken) hover:opacity-100"
+                className="-my-2.5 inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg opacity-60 hover:bg-(--bg-sunken) hover:opacity-100"
               >
                 {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
@@ -242,7 +242,7 @@ function UserCard({
         </div>
       </div>
 
-      <div className="flex items-center gap-3 rounded-xl bg-white p-2.5 text-black">
+      <div className="flex flex-wrap items-center gap-3 rounded-xl bg-white p-2.5 text-black">
         {qrUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={qrUrl} alt={u.username} className="h-24 w-24 shrink-0 rounded-lg" />
@@ -251,12 +251,12 @@ function UserCard({
             <QrCode size={28} className="opacity-30" />
           </div>
         )}
-        <div className="min-w-0 flex-1">
-          <div className="text-xs font-black uppercase tracking-wide text-black/50">{labels.qrCode}</div>
+        <div className="min-w-[8rem] flex-1">
+          <div className="break-words text-xs font-black uppercase tracking-wide text-black/50">{labels.qrCode}</div>
           <button
             type="button"
             onClick={onRegenerate}
-            className="mt-1.5 flex items-center gap-1 rounded-lg bg-black/5 px-2 py-1 text-[11px] font-black text-black/70 hover:bg-black/10"
+            className="mt-1.5 flex min-h-11 items-center gap-1 rounded-lg bg-black/5 px-3 py-1 text-[11px] font-black text-black/70 hover:bg-black/10"
           >
             <RefreshCw size={12} />
             {labels.qrRegenerate}
@@ -467,6 +467,7 @@ export function UsersClient({
             value={String(counts[r] ?? 0)}
             icon={<UserRound size={18} />}
             accent={r === "Admin" ? "bg-violet-500/15 text-violet-500" : r === "Livreur" ? "bg-sky-500/15 text-sky-600" : "bg-emerald-500/15 text-emerald-600"}
+            valueClassName="whitespace-normal! text-clip! break-words leading-tight"
             compact
           />
         ))}
@@ -479,7 +480,7 @@ export function UsersClient({
           <Plus size={16} className="me-1" />
           {labels.add}
         </Button>
-        <div className="flex-1">
+        <div className="min-w-0 lg:flex-1">
           <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="flex gap-1.5 overflow-x-auto pb-0.5">

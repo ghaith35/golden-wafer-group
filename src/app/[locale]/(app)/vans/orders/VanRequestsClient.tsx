@@ -192,7 +192,7 @@ export function VanRequestsClient({
       </div>
 
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-        <KpiCard label={labels.kpiPending} value={String(kpi.pending)} icon={<Clock size={18} />} accent="bg-amber-500/15 text-amber-600" compact />
+        <KpiCard label={labels.kpiPending} value={String(kpi.pending)} icon={<Clock size={18} />} accent="bg-amber-500/15 text-amber-600" valueClassName="whitespace-normal! text-clip! break-words leading-tight" compact />
         <KpiCard label={labels.kpiColisPending} value={String(kpi.pendingColis)} icon={<Package size={18} />} accent="bg-violet-500/15 text-violet-500" compact />
         <KpiCard label={labels.kpiToday} value={String(kpi.today)} icon={<CalendarCheck size={18} />} accent="bg-emerald-500/15 text-emerald-600" compact />
         <KpiCard label={labels.kpiRejected} value={String(kpi.rejected)} icon={<XCircle size={18} />} accent="bg-red-500/15 text-red-500" compact />
@@ -201,7 +201,7 @@ export function VanRequestsClient({
       {/* filters */}
       <div className="space-y-2.5">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-[14rem] flex-1">
+          <div className="relative min-w-0 basis-full sm:min-w-[14rem] sm:basis-0 sm:flex-1">
             <Search size={15} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 opacity-40" />
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={labels.search} className="ps-9" />
           </div>
@@ -259,7 +259,7 @@ export function VanRequestsClient({
                 <ArrowRight size={14} className="shrink-0 text-(--brand-600) rtl:rotate-180" aria-hidden />
                 <Truck size={14} className="shrink-0 text-(--brand-600)" aria-hidden />
                 <span className="min-w-0 truncate text-sm font-black">{r.toLocation?.name ?? ""}</span>
-                {r.toLocation?.matricule && <span className="hidden shrink-0 font-mono text-[10px] opacity-50 sm:inline" dir="ltr">{r.toLocation.matricule}</span>}
+                {r.toLocation?.matricule && <span className="hidden shrink-0 font-mono text-[11px] opacity-50 sm:inline" dir="ltr">{r.toLocation.matricule}</span>}
               </div>
               {r.toLocation?.user && <p className="mt-1 truncate text-[11px] font-bold opacity-60">{labels.driver}: {r.toLocation.user.fullName}</p>}
 

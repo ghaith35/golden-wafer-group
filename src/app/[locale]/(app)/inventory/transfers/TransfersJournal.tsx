@@ -1,5 +1,6 @@
 "use client";
 
+import { dz } from "@/lib/format";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Truck, Warehouse } from "lucide-react";
@@ -162,7 +163,7 @@ export function TransfersJournal({
               type="button"
               onClick={() => setPreset(v)}
               className={cn(
-                "h-8 rounded-full px-3 text-xs font-black transition-colors",
+                "min-h-11 rounded-full px-3 text-xs font-black transition-colors lg:min-h-0 lg:h-8",
                 preset === v ? "bg-gradient-brand text-(--brand-contrast) shadow" : "bg-(--bg-sunken) opacity-70 hover:opacity-100"
               )}
             >
@@ -197,7 +198,7 @@ export function TransfersJournal({
             </div>
           ) : (
             <div className="flex items-center px-1 text-xs font-bold tabular-nums opacity-60">
-              {filtered.length} · {groups.reduce((s, [, g]) => s + g.units, 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              {filtered.length} · {dz(groups.reduce((s, [, g]) => s + g.units, 0), 0)}
             </div>
           )}
         </div>
@@ -210,16 +211,16 @@ export function TransfersJournal({
           <div className="sticky top-0 z-10 -mx-1 flex items-center justify-between bg-(--bg-surface)/95 px-1 py-1 backdrop-blur">
             <span className="text-sm font-black">{g.label}</span>
             <span className="text-[11px] font-bold tabular-nums opacity-60">
-              {g.rows.length} · {g.units.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              {g.rows.length} · {dz(g.units, 0)}
             </span>
           </div>
           {g.rows.map((r) => (
             <Link
               key={r.id}
               href={`/${locale}/inventory/transfers/${r.id}`}
-              className="flex items-center gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 transition-colors hover:border-(--brand-500)"
+              className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 transition-colors hover:border-(--brand-500)"
             >
-              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+              <div className="flex min-w-[min(12rem,100%)] flex-1 items-center gap-2.5">
                 <div className="flex shrink-0 -space-x-2 rtl:space-x-reverse">
                   {r.lines.slice(0, 3).map((l, i) =>
                     l.product.images[0] ? (
@@ -243,13 +244,13 @@ export function TransfersJournal({
                       <bdi className="truncate">{r.toLocation.name}</bdi>
                     </span>
                   </div>
-                  <div className="mt-0.5 truncate text-[11px] opacity-60">
-                    {r.lines.length} · {r.lines.reduce((s, l) => s + Number(l.confirmedQty ?? l.declaredQty ?? 0), 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                    {Number(r.cashAmount) > 0 ? ` · 💵 ${Number(r.cashAmount).toLocaleString()}` : ""}
+                  <div className="mt-0.5 break-words text-[11px] opacity-60">
+                    {r.lines.length} · {dz(r.lines.reduce((s, l) => s + Number(l.confirmedQty ?? l.declaredQty ?? 0), 0), 0)}
+                    {Number(r.cashAmount) > 0 ? ` · 💵 ${dz(Number(r.cashAmount))}` : ""}
                   </div>
                 </div>
               </div>
-              <span className={cn("shrink-0 rounded-full px-2 py-1 text-[10px] font-black", STATUS_COLOR[r.status] ?? "")}>
+              <span className={cn("shrink-0 rounded-full px-2 py-1 text-[11px] font-black", STATUS_COLOR[r.status] ?? "")}>
                 {statusLabel[r.status] ?? r.status}
               </span>
               {unsynced.has(r.id) && <UnsyncedBadge className="shrink-0" />}

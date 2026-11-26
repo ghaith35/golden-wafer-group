@@ -135,7 +135,7 @@ export default async function DashboardPage({ params, searchParams }: { params: 
 
   return (
     <div className="space-y-5 p-5 md:p-6">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] gap-3 lg:grid-cols-3">
         <KpiCard
           label={`${t("today")} · ${tr("sales")}`}
           value={fmt(Number(todaySales._sum.total ?? 0))}
@@ -177,7 +177,7 @@ export default async function DashboardPage({ params, searchParams }: { params: 
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-8">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))] gap-2 sm:grid-cols-4 lg:grid-cols-8">
         {actions.map(({ href, label, Icon, cls }) => (
           <Link
             key={href}

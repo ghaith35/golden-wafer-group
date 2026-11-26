@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { dzMoney } from "@/lib/format";
+import { dzMoney, dz } from "@/lib/format";
 import { useSyncedState } from "@/lib/data-sync";
 
 import { ErrText } from "@/components/ui/ErrText";
@@ -99,25 +99,25 @@ export function PurchasePayments({
           <span className="ms-2 rounded-full bg-(--bg-sunken) px-2 py-0.5 text-xs">{rows.length}</span>
         </h2>
         {remaining > 0 && (
-          <Button onClick={() => { setError(null); setAmount(""); setCreating(true); }} className="h-9 px-3 text-xs">
+          <Button onClick={() => { setError(null); setAmount(""); setCreating(true); }} className="h-11 px-3 text-xs">
             <Plus size={14} className="me-1" />
             {labels.addPayment}
           </Button>
         )}
       </div>
       {error && !creating && <p className="mb-2 rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
-      <div className="mb-2 grid grid-cols-3 gap-2 text-center">
+      <div className="mb-2 grid grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))] gap-2 text-center">
         <div className="rounded-xl bg-(--bg-sunken) px-2 py-2">
-          <div className="text-[11px] font-bold opacity-60">{labels.total}</div>
-          <div className="text-xs font-black tabular-nums sm:text-sm">{dzMoney(total)}</div>
+          <div className="break-words text-[11px] font-bold leading-tight opacity-60">{labels.total}</div>
+          <div className="break-words text-xs font-black tabular-nums sm:text-sm">{dzMoney(total)}</div>
         </div>
         <div className="rounded-xl bg-(--bg-sunken) px-2 py-2">
-          <div className="text-[11px] font-bold opacity-60">{labels.paid}</div>
-          <div className="text-xs font-black tabular-nums text-emerald-600 sm:text-sm">{dzMoney(paid)}</div>
+          <div className="break-words text-[11px] font-bold leading-tight opacity-60">{labels.paid}</div>
+          <div className="break-words text-xs font-black tabular-nums text-emerald-600 sm:text-sm">{dzMoney(paid)}</div>
         </div>
         <div className="rounded-xl bg-(--bg-sunken) px-2 py-2">
-          <div className="text-[11px] font-bold opacity-60">{labels.remaining}</div>
-          <div className="text-xs font-black tabular-nums text-red-500 sm:text-sm">{dzMoney(remaining)}</div>
+          <div className="break-words text-[11px] font-bold leading-tight opacity-60">{labels.remaining}</div>
+          <div className="break-words text-xs font-black tabular-nums text-red-500 sm:text-sm">{dzMoney(remaining)}</div>
         </div>
       </div>
       {rows.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
@@ -130,7 +130,7 @@ export function PurchasePayments({
           <button
             onClick={() => setDeleting(r)}
             aria-label={labels.delete}
-            className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/15 text-red-500 hover:bg-red-500/25"
+            className="flex h-11 w-11 items-center justify-center rounded-lg bg-red-500/15 text-red-500 hover:bg-red-500/25"
           >
             <Trash2 size={15} />
           </button>
@@ -147,7 +147,7 @@ export function PurchasePayments({
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => void submit(true)} disabled={saving} className="flex-1">
-              {labels.payAll} ({remaining.toLocaleString(undefined, { maximumFractionDigits: 2 })})
+              {labels.payAll} ({dz(remaining)})
             </Button>
             <Button onClick={() => void submit(false)} disabled={saving} className="flex-[2]">
               {saving ? "…" : labels.save}

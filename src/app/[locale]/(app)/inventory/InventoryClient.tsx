@@ -117,7 +117,7 @@ export function InventoryClient({
         />
       </div>
       <div className="flex items-center justify-end">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link href={`/${locale}/purchases`}><Button>{labels.addStock}</Button></Link>
           <Link href={`/${locale}/inventory/transfers`}><Button variant="secondary">{labels.transfers}</Button></Link>
           <Link href={`/${locale}/inventory/counts`}><Button variant="secondary">{labels.counts}</Button></Link>
@@ -125,13 +125,13 @@ export function InventoryClient({
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {(["stock", "places", "alerts"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={cn(
-              "rounded-lg px-4 py-2 text-sm font-bold",
+              "min-h-11 min-w-0 flex-auto rounded-lg px-4 py-2 text-sm font-bold sm:flex-none",
               tab === t ? "bg-gradient-brand text-(--brand-contrast) shadow" : "bg-(--bg-sunken)"
             )}
           >
@@ -147,9 +147,9 @@ export function InventoryClient({
 
       {tab === "stock" && (
         <>
-          <div className="flex gap-2">
-            <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
-            <select value={locFilter} onChange={(e) => setLocFilter(e.target.value)} className={inputCls}>
+          <div className="flex flex-wrap gap-2">
+            <div className="min-w-0 flex-1 basis-40"><Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} /></div>
+            <select value={locFilter} onChange={(e) => setLocFilter(e.target.value)} className={`${inputCls} min-w-0 flex-1 basis-40`}>
               <option value="">—</option>
               {locations.map((l) => (
                 <option key={l.id} value={l.id}>{l.name}</option>
@@ -161,7 +161,7 @@ export function InventoryClient({
             {rows.map((l, i) => {
               const p = products.find((x) => x.id === l.productId);
               return (
-                <div key={i} className="flex items-center justify-between gap-2 border-b border-(--border-subtle) py-2 text-sm last:border-0">
+                <div key={i} className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 border-b border-(--border-subtle) py-2 text-sm last:border-0">
                   <span className="font-semibold">{pname(l.productId)} <span className="text-xs opacity-50">· {lname(l.locationId)}</span></span>
                   <span className="shrink-0 text-end font-black">
                     {packBreakdown(
@@ -181,7 +181,7 @@ export function InventoryClient({
       {tab === "places" && (
         <>
           {canManage && (
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button variant="secondary" onClick={() => setShowNew("DEPOT")}>{labels.newDepot}</Button>
               <Button variant="secondary" onClick={() => setShowNew("VAN")}>{labels.newVan}</Button>
             </div>

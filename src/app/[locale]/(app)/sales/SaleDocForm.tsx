@@ -464,8 +464,8 @@ export function SaleDocForm({
     });
   }
   const filledLines = lines.filter((l) => l.productId).length;
-  const inputC = "h-10 w-full rounded-xl border border-(--border-default) bg-(--bg-surface) px-2.5 text-sm font-bold outline-none";
-  const secLabel = "mb-1.5 flex items-center gap-1.5 text-[10.5px] font-black uppercase tracking-wider text-(--text-tertiary)";
+  const inputC = "h-11 w-full rounded-xl border border-(--border-default) bg-(--bg-surface) px-2.5 text-sm font-bold outline-none";
+  const secLabel = "mb-1.5 flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-(--text-tertiary)";
   const balanceN = Number(client?.balance ?? 0);
 
   return (
@@ -479,7 +479,7 @@ export function SaleDocForm({
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <div className={secLabel}><UserRound size={12} />{labels.client}</div>
-            <Input placeholder={labels.searchClient} value={clientQ} onChange={(e) => setClientQ(e.target.value)} className="mb-1.5 h-10 rounded-xl" />
+            <Input placeholder={labels.searchClient} value={clientQ} onChange={(e) => setClientQ(e.target.value)} className="mb-1.5 h-11 rounded-xl" />
             <select value={clientId} onChange={(e) => { setClientId(e.target.value); setLines((ls) => ls.map((l) => ({ ...l, unitPrice: "" }))); }} className={inputC}>
               <option value="">— {mode === "order" ? labels.required : labels.walkin}</option>
               {clientId && !shownClients.some((c) => c.id === clientId) && client && <option value={client.id}>{client.name} · {client.code}</option>}
@@ -490,7 +490,7 @@ export function SaleDocForm({
                 <Avatar name={client.name} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[13px] font-black">{client.name}</div>
-                  <div className="font-mono text-[10.5px] text-(--text-tertiary)" dir="ltr">{client.code}</div>
+                  <div className="font-mono text-[11px] text-(--text-tertiary)" dir="ltr">{client.code}</div>
                 </div>
                 <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black tabular-nums", balanceN > 0 ? "bg-red-500/15 text-(--semantic-danger)" : "bg-emerald-500/15 text-(--semantic-success)")} title={labels.balance}>
                   {labels.balance}: {dzMoney(balanceN)}
@@ -510,7 +510,7 @@ export function SaleDocForm({
                       key={x.id}
                       type="button"
                       onClick={() => { setTierId(x.id); setLines((ls) => ls.map((l) => ({ ...l, unitPrice: "" }))); }}
-                      className={cn("min-h-0 rounded-xl border px-3 py-2 text-xs font-black transition-all", effTier === x.id ? "border-transparent bg-gradient-brand text-(--brand-contrast) shadow" : "border-(--border-default) bg-(--bg-overlay) text-(--text-secondary) hover:border-(--brand-500)")}
+                      className={cn("min-h-11 rounded-xl border px-3 py-2 text-xs font-black transition-all", effTier === x.id ? "border-transparent bg-gradient-brand text-(--brand-contrast) shadow" : "border-(--border-default) bg-(--bg-overlay) text-(--text-secondary) hover:border-(--brand-500)")}
                     >
                       {x.name}
                     </button>
@@ -542,10 +542,10 @@ export function SaleDocForm({
         <div className="flex items-center justify-between gap-2">
           <div className={cn(secLabel, "mb-0")}><ShoppingBasket size={13} />{tx.lines} <span className="rounded-full bg-(--brand-500)/15 px-2 text-(--gold-text)">{filledLines}</span></div>
           <div className="flex gap-1.5">
-            <button type="button" onClick={() => setPickerOpen(true)} className="bg-gradient-brand flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 text-xs font-black text-(--brand-contrast) transition-transform hover:-translate-y-0.5">
+            <button type="button" onClick={() => setPickerOpen(true)} className="bg-gradient-brand flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 text-xs font-black text-(--brand-contrast) transition-transform hover:-translate-y-0.5">
               <Package size={14} />{tx.pick}
             </button>
-            <button type="button" onClick={() => setLines((ls) => [...ls, { productId: "", unitId: "", qty: 1, unitPrice: "", remise: 0 }])} className="flex min-h-9 items-center gap-1 whitespace-nowrap rounded-xl border border-(--border-default) px-3 text-xs font-black text-(--text-secondary) hover:border-(--brand-500)">
+            <button type="button" onClick={() => setLines((ls) => [...ls, { productId: "", unitId: "", qty: 1, unitPrice: "", remise: 0 }])} className="flex min-h-11 items-center gap-1 whitespace-nowrap rounded-xl border border-(--border-default) px-3 text-xs font-black text-(--text-secondary) hover:border-(--brand-500)">
               <Plus size={14} />{labels.addLine}
             </button>
           </div>
@@ -560,10 +560,10 @@ export function SaleDocForm({
           const stock = mode === "order" && l.productId ? depotText(p, l.productId) : null;
           return (
             <div key={i} className="relative rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 transition-shadow hover:shadow-[0_10px_28px_-18px_var(--brand-500)]">
-              <button type="button" onClick={() => setLines((ls) => (ls.length > 1 ? ls.filter((_, j) => j !== i) : [{ productId: "", unitId: "", qty: 1, unitPrice: "", remise: 0 }]))} aria-label="remove" className="absolute end-2 top-2 flex h-7 min-h-0 w-7 min-w-0 items-center justify-center rounded-lg text-(--text-tertiary) hover:bg-red-500/10 hover:text-red-500">
+              <button type="button" onClick={() => setLines((ls) => (ls.length > 1 ? ls.filter((_, j) => j !== i) : [{ productId: "", unitId: "", qty: 1, unitPrice: "", remise: 0 }]))} aria-label="remove" className="absolute end-0 top-0 flex h-11 min-h-0 w-11 min-w-0 items-center justify-center rounded-lg text-(--text-tertiary) hover:bg-red-500/10 hover:text-red-500">
                 <Trash2 size={14} />
               </button>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-(--bg-sunken)">
                   {img ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -572,7 +572,7 @@ export function SaleDocForm({
                     <div className="flex h-full w-full items-center justify-center text-(--text-tertiary)"><Package size={22} /></div>
                   )}
                 </div>
-                <div className="min-w-0 flex-1 pe-7">
+                <div className="min-w-[9rem] flex-1 pe-11">
                   {p ? (
                     <>
                       <div className="truncate text-sm font-black">{p.name}</div>
@@ -592,13 +592,13 @@ export function SaleDocForm({
                 </div>
               </div>
               {p && (
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-[1.1fr_1.2fr_1fr_1fr]">
+                <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(7rem,1fr))] gap-2 sm:grid-cols-[1.1fr_1.2fr_1fr_1fr]">
                   <div>
-                    <div className="mb-1 text-[10px] font-bold text-(--text-tertiary)">{labels.unit}</div>
+                    <div className="mb-1 text-[11px] font-bold text-(--text-tertiary)">{labels.unit}</div>
                     {uopts.length <= 3 ? (
                       <div className="flex gap-1">
                         {uopts.map((u) => (
-                          <button key={u.id} type="button" onClick={() => setLine(i, { unitId: u.id })} className={cn("min-h-0 flex-1 rounded-lg border px-1.5 py-2 text-[11px] font-black transition-all", l.unitId === u.id ? "border-(--brand-500) bg-(--brand-500)/15 text-(--gold-text)" : "border-(--border-default) text-(--text-secondary)")}>{u.name}</button>
+                          <button key={u.id} type="button" onClick={() => setLine(i, { unitId: u.id })} className={cn("min-h-11 flex-1 rounded-lg border px-1.5 py-2 text-[11px] font-black transition-all", l.unitId === u.id ? "border-(--brand-500) bg-(--brand-500)/15 text-(--gold-text)" : "border-(--border-default) text-(--text-secondary)")}>{u.name}</button>
                         ))}
                       </div>
                     ) : (
@@ -606,26 +606,26 @@ export function SaleDocForm({
                     )}
                   </div>
                   <div>
-                    <div className="mb-1 text-[10px] font-bold text-(--text-tertiary)">{labels.qty}</div>
-                    <div className="flex h-10 items-center overflow-hidden rounded-xl border border-(--border-default) bg-(--bg-surface)">
-                      <button type="button" onClick={() => setLine(i, { qty: Math.max(0, Math.round((l.qty - 1) * 1000) / 1000) })} className="flex h-full min-h-0 w-9 min-w-0 items-center justify-center text-(--text-secondary) hover:bg-(--bg-sunken)" aria-label="-"><Minus size={14} /></button>
+                    <div className="mb-1 text-[11px] font-bold text-(--text-tertiary)">{labels.qty}</div>
+                    <div className="flex h-11 items-center overflow-hidden rounded-xl border border-(--border-default) bg-(--bg-surface)">
+                      <button type="button" onClick={() => setLine(i, { qty: Math.max(0, Math.round((l.qty - 1) * 1000) / 1000) })} className="flex h-full min-h-0 w-10 min-w-0 items-center justify-center text-(--text-secondary) hover:bg-(--bg-sunken)" aria-label="-"><Minus size={14} /></button>
                       <input type="number" min={0} step="any" value={l.qty} onChange={(e) => setLine(i, { qty: Number(e.target.value) })} className="h-full min-w-0 flex-1 border-0 bg-transparent text-center text-sm font-black tabular-nums outline-none" />
-                      <button type="button" onClick={() => setLine(i, { qty: Math.round((l.qty + 1) * 1000) / 1000 })} className="flex h-full min-h-0 w-9 min-w-0 items-center justify-center text-(--text-secondary) hover:bg-(--bg-sunken)" aria-label="+"><Plus size={14} /></button>
+                      <button type="button" onClick={() => setLine(i, { qty: Math.round((l.qty + 1) * 1000) / 1000 })} className="flex h-full min-h-0 w-10 min-w-0 items-center justify-center text-(--text-secondary) hover:bg-(--bg-sunken)" aria-label="+"><Plus size={14} /></button>
                     </div>
                     <UnitQty qty={l.qty} factor={factorOf(p, l.unitId)} baseName={baseNameOf(p)} product={p} />
                   </div>
                   <div>
-                    <div className="mb-1 text-[10px] font-bold text-(--text-tertiary)">{labels.price}</div>
-                    <Input type="number" min={0} step="any" value={l.unitPrice} placeholder={String(price)} onChange={(e) => setLine(i, { unitPrice: e.target.value })} className="h-10 rounded-xl text-center font-black" />
+                    <div className="mb-1 text-[11px] font-bold text-(--text-tertiary)">{labels.price}</div>
+                    <Input type="number" min={0} step="any" value={l.unitPrice} placeholder={String(price)} onChange={(e) => setLine(i, { unitPrice: e.target.value })} className="h-11 rounded-xl text-center font-black" />
                   </div>
                   <div>
-                    <div className="mb-1 text-[10px] font-bold text-(--text-tertiary)">{labels.lineTotal}</div>
-                    <div className="flex h-10 items-center justify-center rounded-xl bg-(--gold-wash) text-sm font-black tabular-nums text-(--gold-text)" dir="ltr">{dzMoney(lineTotal)}</div>
+                    <div className="mb-1 text-[11px] font-bold text-(--text-tertiary)">{labels.lineTotal}</div>
+                    <div className="flex h-11 items-center justify-center rounded-xl bg-(--gold-wash) text-sm font-black tabular-nums text-(--gold-text)" dir="ltr">{dzMoney(lineTotal)}</div>
                   </div>
                   {remiseEnabled && (
-                    <div className="col-span-2 sm:col-span-1">
-                      <div className="mb-1 text-[10px] font-bold text-(--text-tertiary)">{labels.remise}</div>
-                      <Input type="number" min={0} step="any" value={l.remise} onChange={(e) => setLine(i, { remise: Number(e.target.value) })} className="h-10 rounded-xl text-center" />
+                    <div>
+                      <div className="mb-1 text-[11px] font-bold text-(--text-tertiary)">{labels.remise}</div>
+                      <Input type="number" min={0} step="any" value={l.remise} onChange={(e) => setLine(i, { remise: Number(e.target.value) })} className="h-11 rounded-xl text-center" />
                     </div>
                   )}
                 </div>
@@ -647,22 +647,22 @@ export function SaleDocForm({
       </section>
 
       {/* ── summary (sticky) ── */}
-      <section className="sticky bottom-0 -mx-1 space-y-2 rounded-2xl border border-(--border-strong) bg-(--bg-overlay)/95 p-2.5 shadow-[0_-12px_30px_-18px_rgba(0,0,0,0.5)] backdrop-blur">
+      <section className="sticky bottom-0 -mx-1 space-y-2 [@media(max-height:700px)]:static rounded-2xl border border-(--border-strong) bg-(--bg-overlay)/95 p-2.5 shadow-[0_-12px_30px_-18px_rgba(0,0,0,0.5)] backdrop-blur">
         <div className={cn("grid items-stretch gap-2", remiseEnabled ? "grid-cols-2 sm:grid-cols-[1fr_1fr_1.1fr_1.2fr]" : "grid-cols-2 sm:grid-cols-[1fr_1.1fr_1.3fr]")}>
           {remiseEnabled && (
             <label className="block">
-              <span className="mb-0.5 block text-[10px] font-black uppercase text-(--text-tertiary)">{labels.remise}</span>
-              <Input type="number" min={0} step="any" value={docRemise} onChange={(e) => setDocRemise(Number(e.target.value))} className="h-10 rounded-xl" />
+              <span className="mb-0.5 block text-[11px] font-black uppercase text-(--text-tertiary)">{labels.remise}</span>
+              <Input type="number" min={0} step="any" value={docRemise} onChange={(e) => setDocRemise(Number(e.target.value))} className="h-11 rounded-xl" />
             </label>
           )}
           <label className="block">
-            <span className="mb-0.5 block text-[10px] font-black uppercase text-(--text-tertiary)">{labels.paid} {creditEnabled ? "" : `(${labels.cashOnly})`}</span>
-            <Input type="number" min={0} step="any" value={paid} placeholder={String(totals.total.toFixed(2))} onChange={(e) => setPaid(e.target.value)} className="h-10 rounded-xl" />
+            <span className="mb-0.5 block text-[11px] font-black uppercase text-(--text-tertiary)">{labels.paid} {creditEnabled ? "" : `(${labels.cashOnly})`}</span>
+            <Input type="number" min={0} step="any" value={paid} placeholder={String(totals.total.toFixed(2))} onChange={(e) => setPaid(e.target.value)} className="h-11 rounded-xl" />
           </label>
           <div className="bg-gradient-brand flex flex-col justify-center rounded-xl px-3 text-(--brand-contrast)">
-            <span className="text-[10px] font-black uppercase opacity-70">{labels.total}</span>
+            <span className="break-words text-[11px] font-black uppercase opacity-70">{labels.total}</span>
             <span className="text-lg font-black leading-tight tabular-nums" dir="ltr">{dzMoney(totals.total)}</span>
-            {totals.dealSaving > 0 && <span className="text-[10px] font-black tabular-nums opacity-90" dir="ltr">🏷 −{dzMoney(totals.dealSaving)}</span>}
+            {totals.dealSaving > 0 && <span className="text-[11px] font-black tabular-nums opacity-90" dir="ltr">🏷 −{dzMoney(totals.dealSaving)}</span>}
           </div>
           <button type="button" onClick={submit} disabled={busy} className="col-span-2 min-h-11 rounded-xl bg-(--text-primary) text-sm font-black text-(--bg-overlay) transition-transform hover:-translate-y-0.5 disabled:opacity-60 sm:col-span-1">
             {busy ? "…" : labels.save}
@@ -670,7 +670,7 @@ export function SaleDocForm({
         </div>
         <label className="flex items-center gap-2 rounded-xl border border-(--border-default) bg-(--bg-surface) px-3">
           <StickyNote size={13} className="shrink-0 text-(--text-tertiary)" />
-          <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={labels.notes} className="h-9 w-full border-0 bg-transparent text-xs font-bold outline-none" />
+          <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={labels.notes} className="h-11 w-full border-0 bg-transparent text-xs font-bold outline-none" />
         </label>
       </section>
 

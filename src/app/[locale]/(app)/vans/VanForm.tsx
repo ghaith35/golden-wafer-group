@@ -169,7 +169,7 @@ export function VanForm({
             ) : (
               <label className="flex h-20 w-28 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-(--border-default) text-(--text-secondary) hover:border-(--brand-500)">
                 <ImagePlus size={20} />
-                <span className="px-1 text-center text-[10px] font-bold leading-tight">{uploading ? "…" : labels.addImage}</span>
+                <span className="px-1 text-center text-[11px] font-bold leading-tight">{uploading ? "…" : labels.addImage}</span>
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"

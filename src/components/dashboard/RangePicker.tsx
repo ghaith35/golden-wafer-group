@@ -106,13 +106,13 @@ export function RangePicker({
           aria-expanded={open}
           aria-haspopup="dialog"
           className={cn(
-            "flex min-h-0 min-w-0 items-center gap-1.5 whitespace-nowrap font-black text-(--text-primary)",
-            small ? "px-2 py-1 text-[10px]" : "px-3 py-1.5 text-xs"
+            "flex min-w-0 items-center gap-1.5 whitespace-nowrap font-black text-(--text-primary)",
+            small ? "min-h-0 px-2 py-1 text-[11px] lg:text-[10px]" : "min-h-11 px-3 py-1.5 text-xs lg:min-h-0"
           )}
         >
           <CalendarRange size={small ? 12 : 15} className="text-(--gold-text)" />
           <span dir="auto">{pill}</span>
-          {active && <span className="rounded-full bg-(--brand-500)/15 px-1.5 text-[10px] font-black tabular-nums text-(--gold-text)">{labels.days(value.from === value.to ? 1 : spanDays(value.from, value.to))}</span>}
+          {active && <span className="rounded-full bg-(--brand-500)/15 px-1.5 text-[11px] lg:text-[10px] font-black tabular-nums text-(--gold-text)">{labels.days(value.from === value.to ? 1 : spanDays(value.from, value.to))}</span>}
           {!active && <ChevronDown size={small ? 11 : 13} className={cn("text-(--text-tertiary) transition-transform", open && "rotate-180")} />}
         </button>
         {active && (
@@ -121,7 +121,7 @@ export function RangePicker({
             onClick={onClear}
             aria-label={labels.clear}
             title={labels.clear}
-            className={cn("me-1 flex min-h-0 min-w-0 items-center justify-center rounded-lg text-(--text-tertiary) hover:bg-(--bg-sunken) hover:text-(--semantic-danger)", small ? "h-5 w-5" : "h-7 w-7")}
+            className={cn("me-1 flex min-h-0 min-w-0 items-center justify-center rounded-lg text-(--text-tertiary) hover:bg-(--bg-sunken) hover:text-(--semantic-danger)", small ? "h-5 w-5" : "h-11 w-11 lg:h-7 lg:w-7")}
           >
             <X size={small ? 11 : 14} />
           </button>
@@ -132,7 +132,7 @@ export function RangePicker({
         <div
           role="dialog"
           aria-label={labels.title}
-          className="absolute end-0 top-full z-50 mt-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5 shadow-[0_28px_60px_-20px_rgba(0,0,0,0.45)]"
+          className="absolute end-0 top-full z-50 mt-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden max-sm:fixed max-sm:inset-x-3 max-sm:bottom-24 max-sm:top-auto max-sm:mt-0 max-sm:max-h-[calc(var(--vh)*0.7)] max-sm:w-auto max-sm:overflow-y-auto rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5 shadow-[0_28px_60px_-20px_rgba(0,0,0,0.45)]"
           style={{ animation: "gw-pop 0.2s var(--ease-out)" }}
         >
           <div className="mb-2.5 flex items-center gap-2 text-[13px] font-black">
@@ -150,7 +150,7 @@ export function RangePicker({
                   onClick={() => { setFrom(p.a); setTo(p.b); }}
                   onDoubleClick={() => apply(p.a, p.b)}
                   className={cn(
-                    "min-h-0 rounded-full border px-2.5 py-1 text-[11px] font-black transition-colors",
+                    "min-h-11 rounded-full border px-3 py-1 text-[11px] font-black transition-colors lg:min-h-0 lg:px-2.5",
                     on ? "border-(--brand-500) bg-(--brand-500)/15 text-(--gold-text)" : "border-(--border-default) bg-(--bg-sunken) text-(--text-secondary) hover:border-(--brand-500)"
                   )}
                 >
@@ -160,27 +160,27 @@ export function RangePicker({
             })}
           </div>
 
-          <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
+          <div className="grid grid-cols-1 items-end gap-2 sm:grid-cols-[1fr_auto_1fr]">
             <label className="min-w-0">
-              <span className="mb-1 block text-[10.5px] font-black text-(--text-tertiary)">{labels.from}</span>
+              <span className="mb-1 block text-[11px] lg:text-[10.5px] font-black text-(--text-tertiary)">{labels.from}</span>
               <input
                 type="date"
                 value={from}
                 max={to || undefined}
                 onChange={(e) => setFrom(e.target.value)}
-                className="h-10 w-full min-w-0 rounded-xl border border-(--border-default) bg-(--bg-surface) px-2 text-xs font-black tabular-nums outline-none focus:border-(--brand-500)"
+                className="h-11 w-full min-w-0 rounded-xl border border-(--border-default) bg-(--bg-surface) px-2 text-xs font-black tabular-nums outline-none focus:border-(--brand-500)"
               />
             </label>
-            <ArrowRight size={15} className="mb-3 text-(--text-tertiary) rtl:rotate-180" />
+            <ArrowRight size={15} className="mb-3 hidden text-(--text-tertiary) sm:block rtl:rotate-180" />
             <label className="min-w-0">
-              <span className="mb-1 block text-[10.5px] font-black text-(--text-tertiary)">{labels.to}</span>
+              <span className="mb-1 block text-[11px] lg:text-[10.5px] font-black text-(--text-tertiary)">{labels.to}</span>
               <input
                 type="date"
                 value={to}
                 min={from || undefined}
                 max={todayKey}
                 onChange={(e) => setTo(e.target.value)}
-                className="h-10 w-full min-w-0 rounded-xl border border-(--border-default) bg-(--bg-surface) px-2 text-xs font-black tabular-nums outline-none focus:border-(--brand-500)"
+                className="h-11 w-full min-w-0 rounded-xl border border-(--border-default) bg-(--bg-surface) px-2 text-xs font-black tabular-nums outline-none focus:border-(--brand-500)"
               />
             </label>
           </div>
@@ -193,7 +193,7 @@ export function RangePicker({
               type="button"
               disabled={!!error || busy}
               onClick={() => apply()}
-              className="flex min-h-0 shrink-0 items-center gap-1.5 rounded-xl bg-gradient-brand px-4 py-2 text-xs font-black text-(--brand-contrast) shadow transition-opacity disabled:opacity-40"
+              className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl bg-gradient-brand px-4 py-2 text-xs font-black text-(--brand-contrast) shadow transition-opacity disabled:opacity-40"
             >
               <Check size={14} />
               {labels.apply}

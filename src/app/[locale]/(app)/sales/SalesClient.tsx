@@ -60,7 +60,7 @@ function pct(cur: number, prev: number): number | null {
 function Delta({ cur, prev, label }: { cur: number; prev: number; label?: string }) {
   const d = pct(cur, prev);
   if (cur === 0 && prev === 0) return null;
-  if (d === null) return <span className="rounded-full bg-(--bg-sunken) px-1.5 text-[10px] font-black text-(--text-tertiary)">NEW</span>;
+  if (d === null) return <span className="rounded-full bg-(--bg-sunken) px-1.5 text-[11px] font-black text-(--text-tertiary)">NEW</span>;
   const up = d >= 0;
   const Icon = up ? ArrowUpRight : ArrowDownRight;
   return (
@@ -68,7 +68,7 @@ function Delta({ cur, prev, label }: { cur: number; prev: number; label?: string
       <span dir="ltr" className={cn("inline-flex items-center gap-0.5 rounded-full px-1.5 text-[11px] font-black tabular-nums", up ? "bg-emerald-500/15 text-(--semantic-success)" : "bg-red-500/15 text-(--semantic-danger)")}>
         <Icon size={11} strokeWidth={3} />{Math.abs(d) >= 1000 ? ">999" : Math.abs(d).toFixed(Math.abs(d) < 10 ? 1 : 0)}%
       </span>
-      {label && <span className="hidden text-[10px] font-bold text-(--text-tertiary) sm:inline">{label}</span>}
+      {label && <span className="hidden text-[11px] font-bold text-(--text-tertiary) sm:inline">{label}</span>}
     </span>
   );
 }
@@ -336,12 +336,12 @@ export function SalesClient({
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 lg:overflow-hidden">
       {/* ── Hero KPIs ── */}
-      <div className="-mx-1 flex shrink-0 snap-x gap-2.5 overflow-x-auto px-1 pb-1 lg:mx-0 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-0 lg:pb-0">
+      <div className="no-scrollbar -mx-4 flex shrink-0 snap-x gap-2.5 overflow-x-auto px-4 pb-1 sm:-mx-5 sm:px-5 md:-mx-6 md:px-6 lg:mx-0 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-0 lg:pb-0">
         <StatCard
           icon={ReceiptText}
           tone="text-emerald-500"
           label={labels.kpiToday}
-          footer={<><Delta cur={stats.today.total} prev={stats.today.prev} label={labels.vsYesterday} /><span className="ms-auto text-[10px] font-black text-(--text-tertiary)">{stats.today.count} {labels.invoicesWord}</span></>}
+          footer={<><Delta cur={stats.today.total} prev={stats.today.prev} label={labels.vsYesterday} /><span className="ms-auto text-[11px] font-black text-(--text-tertiary)">{stats.today.count} {labels.invoicesWord}</span></>}
         >
           <Money value={stats.today.total} />
         </StatCard>
@@ -357,7 +357,7 @@ export function SalesClient({
           icon={FileText}
           tone="text-sky-500"
           label={labels.kpiCount}
-          footer={<span className="text-[10px] font-black text-(--text-tertiary)">{labels.avgShort}: <b className="tabular-nums text-(--text-secondary)">{dzMoney(Math.round(avg))}</b></span>}
+          footer={<span className="text-[11px] font-black text-(--text-tertiary)">{labels.avgShort}: <b className="tabular-nums text-(--text-secondary)">{dzMoney(Math.round(avg))}</b></span>}
         >
           <span className="tabular-nums">{stats.range.count}</span>
         </StatCard>
@@ -368,7 +368,7 @@ export function SalesClient({
           footer={
             <>
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-(--bg-sunken)"><div className="gw-grow-x h-full rounded-full bg-gradient-to-r from-emerald-600 to-emerald-300" style={{ width: `${Math.max(2, collectedPct)}%` }} /></div>
-              <span className="text-[10px] font-black tabular-nums text-(--text-secondary)" dir="ltr">{collectedPct.toFixed(0)}%</span>
+              <span className="text-[11px] font-black tabular-nums text-(--text-secondary)" dir="ltr">{collectedPct.toFixed(0)}%</span>
             </>
           }
         >
@@ -378,7 +378,7 @@ export function SalesClient({
           icon={CircleDollarSign}
           tone="text-rose-500"
           label={labels.kpiOutstanding}
-                    footer={<span className="text-[10px] font-black text-(--text-tertiary)" dir="ltr">{(100 - collectedPct).toFixed(0)}% {labels.ofTotal}</span>}
+                    footer={<span className="text-[11px] font-black text-(--text-tertiary)" dir="ltr">{(100 - collectedPct).toFixed(0)}% {labels.ofTotal}</span>}
         >
           <Money value={rangeDue} className={rangeDue > 0 ? "text-(--semantic-danger)" : "text-(--semantic-success)"} />
         </StatCard>
@@ -389,12 +389,12 @@ export function SalesClient({
         <button
           type="button"
           onClick={() => setModal("ticket")}
-          className="bg-gradient-brand flex h-11 shrink-0 items-center gap-1.5 rounded-xl px-4 text-sm font-black text-(--brand-contrast) transition-transform hover:-translate-y-0.5"
+          className="bg-gradient-brand flex h-11 w-full shrink-0 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-black text-(--brand-contrast) transition-transform hover:-translate-y-0.5 sm:w-auto"
         >
           <Plus size={17} strokeWidth={3} />
           {labels.newTicket}
         </button>
-        <label className="relative order-last min-w-[220px] flex-1 basis-full sm:order-none sm:basis-auto">
+        <label className="relative order-last min-w-0 flex-1 basis-full sm:order-none sm:min-w-[220px] sm:basis-auto">
           <Search size={16} className="pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 text-(--text-tertiary)" />
           <input
             value={q}
@@ -408,13 +408,16 @@ export function SalesClient({
             </button>
           )}
         </label>
-        <select value={year} onChange={(e) => go(Number(e.target.value), month, 0)} className={selectCls} aria-label={labels.year}>
-          {years.map((y) => <option key={y} value={y}>{y}</option>)}
-        </select>
-        <select value={month} onChange={(e) => go(year, Number(e.target.value), 0)} className={selectCls} aria-label={labels.month}>
-          {months.map((m) => <option key={m} value={m}>{monthName(m)}</option>)}
-        </select>
-        <div className="flex max-w-full shrink-0 gap-0.5 overflow-x-auto rounded-xl border border-(--border-default) bg-(--bg-surface) p-0.5" role="radiogroup">
+        {/* Phones: year + month share one row (2 equal columns); from sm: they flow inline. */}
+        <div className="grid basis-full grid-cols-2 gap-2 sm:contents">
+          <select value={year} onChange={(e) => go(Number(e.target.value), month, 0)} className={cn(selectCls, "min-w-0 w-full sm:w-auto")} aria-label={labels.year}>
+            {years.map((y) => <option key={y} value={y}>{y}</option>)}
+          </select>
+          <select value={month} onChange={(e) => go(year, Number(e.target.value), 0)} className={cn(selectCls, "min-w-0 w-full sm:w-auto")} aria-label={labels.month}>
+            {months.map((m) => <option key={m} value={m}>{monthName(m)}</option>)}
+          </select>
+        </div>
+        <div className="no-scrollbar flex w-full max-w-full gap-0.5 overflow-x-auto rounded-xl border border-(--border-default) bg-(--bg-surface) p-0.5 sm:w-auto sm:shrink-0" role="radiogroup">
           {kinds.map((k) => (
             <button
               key={k.v}
@@ -422,7 +425,7 @@ export function SalesClient({
               role="radio"
               aria-checked={kind === k.v}
               onClick={() => go(year, month, day, k.v)}
-              className={cn("min-h-0 shrink-0 whitespace-nowrap rounded-[10px] px-3 py-2 text-xs font-black transition-all", kind === k.v ? "bg-gradient-brand text-(--brand-contrast) shadow" : "text-(--text-secondary) hover:text-(--text-primary)")}
+              className={cn("min-h-11 min-w-11 flex-auto shrink-0 whitespace-nowrap rounded-[10px] px-3 py-2 text-xs font-black transition-all sm:flex-none lg:min-h-0", kind === k.v ? "bg-gradient-brand text-(--brand-contrast) shadow" : "text-(--text-secondary) hover:text-(--text-primary)")}
             >
               {k.label}
             </button>
@@ -431,7 +434,7 @@ export function SalesClient({
       </div>
 
       {/* ── Day strip ── */}
-      <div ref={stripRef} className="-mx-1 flex shrink-0 gap-1.5 overflow-x-auto px-1 pb-1">
+      <div ref={stripRef} className="no-scrollbar -mx-4 flex shrink-0 gap-1.5 overflow-x-auto px-4 pb-1 sm:-mx-5 sm:px-5 md:-mx-6 md:px-6 lg:mx-0 lg:px-1">
         <button
           type="button"
           data-active={day === 0}
@@ -439,7 +442,7 @@ export function SalesClient({
           className={cn("flex h-14 min-h-0 min-w-14 shrink-0 flex-col items-center justify-center rounded-xl border px-3 lg:[@media(max-height:820px)]:h-11 text-[12px] font-black transition-all", day === 0 ? "border-transparent bg-gradient-brand text-(--brand-contrast) shadow-[0_8px_20px_-8px_var(--brand-500)]" : "border-(--border-default) bg-(--bg-overlay) hover:border-(--brand-500)")}
         >
           {labels.all}
-          <span className="text-[10px] font-bold opacity-70 tabular-nums">{stats.dayCount.reduce((a, b) => a + b, 0)}</span>
+          <span className="text-[11px] font-bold opacity-70 tabular-nums">{stats.dayCount.reduce((a, b) => a + b, 0)}</span>
         </button>
         {Array.from({ length: days }, (_, i) => i + 1).map((d) => {
           const active = day === d;
@@ -462,7 +465,7 @@ export function SalesClient({
                 !active && v === 0 && !future && "opacity-60"
               )}
             >
-              <span className="text-[9.5px] font-bold opacity-70 lg:[@media(max-height:820px)]:hidden">{new Intl.DateTimeFormat(loc, { weekday: "short", timeZone: BUSINESS_TZ }).format(dt)}</span>
+              <span className="max-w-full truncate px-0.5 text-[11px] font-bold opacity-70 lg:[@media(max-height:820px)]:hidden">{new Intl.DateTimeFormat(loc, { weekday: "short", timeZone: BUSINESS_TZ }).format(dt)}</span>
               <span className="text-[14px] font-black leading-none tabular-nums">{d}</span>
               <span aria-hidden className={cn("absolute inset-x-0 bottom-0 h-[3px]", active ? "bg-(--brand-contrast)/40" : "bg-(--brand-500)/60")} style={{ transform: `scaleX(${v / maxDay})`, transformOrigin: "left" }} />
             </button>
@@ -471,12 +474,12 @@ export function SalesClient({
       </div>
 
       {/* ── Van rail + payment filter ── */}
-      <div className="flex shrink-0 items-center gap-2">
-        <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto pb-0.5">
+      <div className="flex shrink-0 flex-col gap-2 md:flex-row md:items-center">
+        <div className="no-scrollbar -mx-4 flex min-w-0 gap-1.5 overflow-x-auto px-4 pb-0.5 sm:-mx-5 sm:px-5 md:mx-0 md:flex-1 md:px-0">
           <button
             type="button"
             onClick={() => setFVan("")}
-            className={cn("flex min-h-0 shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-[12px] font-black transition-all", fVan === "" ? "border-(--brand-500) bg-(--brand-500)/12 text-(--gold-text)" : "border-(--border-default) bg-(--bg-overlay) text-(--text-secondary) hover:border-(--brand-500)")}
+            className={cn("flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-[12px] font-black transition-all lg:min-h-0", fVan === "" ? "border-(--brand-500) bg-(--brand-500)/12 text-(--gold-text)" : "border-(--border-default) bg-(--bg-overlay) text-(--text-secondary) hover:border-(--brand-500)")}
           >
             <Store size={13} />{labels.allVans}
             <span className="rounded-full bg-(--bg-sunken) px-1.5 tabular-nums">{stats.range.count}</span>
@@ -488,7 +491,7 @@ export function SalesClient({
                 key={v.id}
                 type="button"
                 onClick={() => setFVan(active ? "" : v.id)}
-                className={cn("flex min-h-0 shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-[12px] font-black transition-all", active ? "border-(--brand-500) bg-(--brand-500)/12 text-(--gold-text)" : "border-(--border-default) bg-(--bg-overlay) text-(--text-secondary) hover:border-(--brand-500)", v.count === 0 && !active && "opacity-50")}
+                className={cn("flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-[12px] font-black transition-all lg:min-h-0", active ? "border-(--brand-500) bg-(--brand-500)/12 text-(--gold-text)" : "border-(--border-default) bg-(--bg-overlay) text-(--text-secondary) hover:border-(--brand-500)", v.count === 0 && !active && "opacity-50")}
               >
                 {v.kind === "VAN" ? <Bus size={13} /> : <Store size={13} />}
                 <span className="max-w-32 truncate" title={v.name}>{v.name}</span>
@@ -497,9 +500,9 @@ export function SalesClient({
             );
           })}
         </div>
-        <div className="hidden shrink-0 gap-0.5 rounded-xl border border-(--border-default) bg-(--bg-surface) p-0.5 md:flex" role="radiogroup">
+        <div className="no-scrollbar flex w-full max-w-full gap-0.5 overflow-x-auto rounded-xl border border-(--border-default) bg-(--bg-surface) p-0.5 md:w-auto md:shrink-0" role="radiogroup">
           {pays.map((p) => (
-            <button key={p.v} type="button" role="radio" aria-checked={fPay === p.v} onClick={() => setFPay(p.v)} className={cn("flex min-h-0 items-center gap-1 whitespace-nowrap rounded-[10px] px-2.5 py-1.5 text-[11px] font-black transition-all", fPay === p.v ? "bg-(--bg-overlay) text-(--text-primary) shadow-sm" : "text-(--text-secondary) hover:text-(--text-primary)")}>
+            <button key={p.v} type="button" role="radio" aria-checked={fPay === p.v} onClick={() => setFPay(p.v)} className={cn("flex min-h-11 min-w-11 flex-auto shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-[10px] px-2.5 py-1.5 text-[11px] font-black transition-all md:flex-none lg:min-h-0", fPay === p.v ? "bg-(--bg-overlay) text-(--text-primary) shadow-sm" : "text-(--text-secondary) hover:text-(--text-primary)")}>
               {p.Icon && <p.Icon size={12} />}{p.label}
             </button>
           ))}
@@ -512,8 +515,8 @@ export function SalesClient({
         <div className="flex max-h-[72vh] min-w-0 flex-col overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay) lg:h-full lg:max-h-none lg:min-h-0">
           <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-0.5 border-b border-(--border-default) bg-[linear-gradient(180deg,var(--gold-wash),transparent)] px-3 py-2 text-[11px] font-black">
             <span className="text-(--text-secondary)"><b className="tabular-nums text-(--text-primary)">{visible.length}</b> {labels.invoicesWord}</span>
-            <span className="tabular-nums" dir="ltr">{dzMoney(Math.round(sum.total))}</span>
-            <span className={cn("tabular-nums", sum.due > 0.005 ? "text-(--semantic-danger)" : "text-(--semantic-success)")} dir="ltr">{labels.due}: {dzMoney(Math.round(Math.max(0, sum.due)))}</span>
+            <span className="whitespace-nowrap tabular-nums" dir="ltr">{dzMoney(Math.round(sum.total))}</span>
+            <span className={cn("whitespace-nowrap tabular-nums", sum.due > 0.005 ? "text-(--semantic-danger)" : "text-(--semantic-success)")} dir="ltr">{labels.due}: {dzMoney(Math.round(Math.max(0, sum.due)))}</span>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto p-2 pt-0">
             {visible.length === 0 && (
@@ -528,8 +531,8 @@ export function SalesClient({
             {groups.map((g) => (
               <section key={g.date.getTime()}>
                 <div className="sticky top-0 z-[1] -mx-2 mb-1.5 flex items-center justify-between gap-2 bg-(--bg-overlay)/92 px-4 py-1.5 text-[11px] font-black backdrop-blur">
-                  <span className="text-(--text-secondary)">{dayLabel(g.date)}</span>
-                  <span className="flex items-center gap-2 text-(--text-tertiary)"><span className="tabular-nums">{g.rows.length}</span><span className="tabular-nums text-(--text-primary)" dir="ltr">{dzMoney(Math.round(g.total))}</span></span>
+                  <span className="min-w-0 truncate text-(--text-secondary)">{dayLabel(g.date)}</span>
+                  <span className="flex shrink-0 items-center gap-2 whitespace-nowrap text-(--text-tertiary)"><span className="tabular-nums">{g.rows.length}</span><span className="tabular-nums text-(--text-primary)" dir="ltr">{dzMoney(Math.round(g.total))}</span></span>
                 </div>
                 <div className="space-y-1.5 pb-2">
                   {g.rows.map((r, idx) => {
@@ -546,7 +549,7 @@ export function SalesClient({
                         onClick={() => void select(r.id)}
                         style={{ animationDelay: `${Math.min(idx, 10) * 25}ms` }}
                         className={cn(
-                          "relative w-full min-h-0 overflow-hidden rounded-xl border p-2.5 text-start transition-all duration-200",
+                          "relative w-full min-h-11 overflow-hidden rounded-xl border p-2.5 text-start transition-all duration-200",
                           active
                             ? "border-(--brand-500) bg-[linear-gradient(135deg,var(--gold-wash),var(--bg-overlay)_80%)] shadow-[0_10px_26px_-14px_var(--brand-500)]"
                             : "border-(--border-default) bg-(--bg-overlay) hover:-translate-y-px hover:border-(--border-strong) hover:bg-(--bg-surface)"
@@ -556,31 +559,30 @@ export function SalesClient({
                         <div className="flex items-center gap-2.5">
                           <Avatar name={name} size="sm" walkin={!r.client} />
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="min-w-0 flex-1 text-[13px] font-black"><ClientName name={r.client?.name} fallback={labels.walkin} lat={r.client?.gpsLat} lng={r.client?.gpsLng} /></span>
-                              <span className="shrink-0 text-[13px] font-black tabular-nums" dir="ltr">{dzMoney(total)}</span>
+                            {/* name + amount share a line only when both fit; otherwise the amount wraps under the name */}
+                            <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+                              <span className="min-w-24 flex-1 text-[13px] font-black"><ClientName name={r.client?.name} fallback={labels.walkin} lat={r.client?.gpsLat} lng={r.client?.gpsLng} /></span>
+                              <span className="shrink-0 whitespace-nowrap text-[13px] font-black tabular-nums" dir="ltr">{dzMoney(total)}</span>
                             </div>
-                            <div className="mt-0.5 flex items-center justify-between gap-2 text-[10.5px] font-bold text-(--text-tertiary)">
-                              <span className="flex min-w-0 items-center gap-1.5">
-                                <span className="shrink-0 font-mono" dir="ltr">{r.number}</span>
-                                <span className="flex min-w-0 items-center gap-0.5 truncate">{r.location?.kind === "VAN" ? <Bus size={10} className="shrink-0" /> : <Store size={10} className="shrink-0" />}<span className="truncate">{r.location?.name ?? ""}</span></span>
-                                <span className="shrink-0" dir="ltr">{timeFmt.format(new Date(r.date as string))}</span>
-                              </span>
-                              {due > 0.005 ? (
-                                <span className="shrink-0 font-black tabular-nums text-(--semantic-danger)" dir="ltr">−{dzMoney(due)}</span>
-                              ) : (
-                                <span className="flex shrink-0 items-center gap-0.5 font-black text-(--semantic-success)"><Check size={12} strokeWidth={3} /></span>
-                              )}
+                            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-bold text-(--text-tertiary)">
+                              <span className="shrink-0 font-mono" dir="ltr">{r.number}</span>
+                              <span className="flex min-w-0 max-w-full items-center gap-0.5">{r.location?.kind === "VAN" ? <Bus size={11} className="shrink-0" /> : <Store size={11} className="shrink-0" />}<span className="truncate">{r.location?.name ?? ""}</span></span>
+                              <span className="shrink-0" dir="ltr">{timeFmt.format(new Date(r.date as string))}</span>
                             </div>
                           </div>
                         </div>
-                        <div className="mt-2 flex items-center gap-1.5">
-                          <span className={cn("shrink-0 rounded-full px-2 py-px text-[9.5px] font-black", STATUS_STYLE[r.status] ?? STATUS_STYLE.DRAFT)}>{statusLabel(r.status)}</span>
-                          {r.kind && <span className="shrink-0 rounded-full bg-(--bg-sunken) px-2 py-px text-[9.5px] font-black text-(--text-secondary)">{kindLabel(r.kind)}</span>}
+                        <div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                          <span className={cn("shrink-0 rounded-full px-2 py-px text-[11px] font-black", STATUS_STYLE[r.status] ?? STATUS_STYLE.DRAFT)}>{statusLabel(r.status)}</span>
+                          {r.kind && <span className="shrink-0 rounded-full bg-(--bg-sunken) px-2 py-px text-[11px] font-black text-(--text-secondary)">{kindLabel(r.kind)}</span>}
                           {unsynced.has(r.id) && (
-                            <span className="pill-amber flex shrink-0 items-center gap-1 rounded-full px-2 py-px text-[9.5px] font-black"><WifiOff size={10} />{labels.unsynced ?? "…"}</span>
+                            <span className="pill-amber flex shrink-0 items-center gap-1 rounded-full px-2 py-px text-[11px] font-black"><WifiOff size={11} />{labels.unsynced ?? "…"}</span>
                           )}
-                          <div className="ms-1 h-1 min-w-6 flex-1 overflow-hidden rounded-full bg-(--bg-sunken)">
+                          {due > 0.005 ? (
+                            <span className="ms-auto shrink-0 whitespace-nowrap text-[11px] font-black tabular-nums text-(--semantic-danger)" dir="ltr">−{dzMoney(due)}</span>
+                          ) : (
+                            <span className="ms-auto flex shrink-0 items-center gap-0.5 font-black text-(--semantic-success)"><Check size={13} strokeWidth={3} /></span>
+                          )}
+                          <div className="order-last h-1 basis-full overflow-hidden rounded-full bg-(--bg-sunken)">
                             <div className={cn("h-full rounded-full", ratio >= 1 ? "bg-emerald-500" : ratio > 0 ? "bg-amber-500" : "bg-red-500/60")} style={{ width: `${Math.max(ratio * 100, 6)}%` }} />
                           </div>
                         </div>

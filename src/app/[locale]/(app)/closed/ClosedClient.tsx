@@ -76,7 +76,7 @@ export function ClosedClient({ locale, visits, labels }: { locale: string; visit
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        <KpiCard label={labels.kpiClients} value={String(totals.clients)} icon={<Lock size={18} />} accent="bg-red-500/15 text-red-500" compact />
+        <KpiCard label={labels.kpiClients} value={String(totals.clients)} icon={<Lock size={18} />} accent="bg-red-500/15 text-red-500" valueClassName="whitespace-normal! text-clip! break-words leading-tight" compact />
         <KpiCard label={labels.kpiDays} value={String(totals.days)} icon={<CalendarDays size={18} />} accent="bg-amber-500/15 text-amber-600" compact />
         <KpiCard label={labels.kpiPhotos} value={String(totals.photos)} icon={<Camera size={18} />} accent="bg-emerald-500/15 text-emerald-600" compact />
       </div>
@@ -117,7 +117,7 @@ export function ClosedClient({ locale, visits, labels }: { locale: string; visit
                 <div className="flex items-center gap-2">
                   <span className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-(--brand-500)/10 text-(--brand-600)">
                     <span className="text-base font-black leading-none tabular-nums">{g.date.getDate()}</span>
-                    <span className="text-[9px] font-black uppercase">{g.date.toLocaleDateString(loc, { month: "short" })}</span>
+                    <span className="text-[11px] font-black uppercase">{g.date.toLocaleDateString(loc, { month: "short" })}</span>
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-black">{g.date.toLocaleDateString(loc, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</div>

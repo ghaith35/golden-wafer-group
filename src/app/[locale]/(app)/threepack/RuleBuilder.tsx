@@ -656,7 +656,7 @@ function ReceiptRow({ product, right, sub, gift, freeLabel, deal }: { product: P
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-black leading-tight">{product?.name ?? "—"}</span>
         {gift && freeLabel && (
-          <span className="mt-0.5 inline-block rounded-full bg-(--semantic-success) px-1.5 text-[10px] font-black uppercase leading-4 text-white">{freeLabel}</span>
+          <span className="mt-0.5 inline-block rounded-full bg-(--semantic-success) px-1.5 text-[11px] font-black uppercase leading-4 text-white">{freeLabel}</span>
         )}
       </span>
       <span className="shrink-0 text-end">

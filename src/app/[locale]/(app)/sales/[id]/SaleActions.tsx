@@ -77,8 +77,8 @@ function MoneyTile({ icon: Icon, label, value, tone }: { icon: React.ComponentTy
   const t = tone === "gold" ? "bg-(--brand-500)/12 text-(--gold-text)" : tone === "green" ? "bg-emerald-500/12 text-(--semantic-success)" : "bg-red-500/12 text-(--semantic-danger)";
   return (
     <div className={cn("min-w-0 rounded-2xl p-2.5 sm:p-3", t)}>
-      <div className="flex items-center gap-1.5 text-[10.5px] font-black opacity-80"><Icon size={13} /><span className="truncate">{label}</span></div>
-      <div className="mt-1 truncate text-[clamp(13px,1.5vw,19px)] font-black tabular-nums" dir="ltr">{value}</div>
+      <div className="flex items-center gap-1.5 text-[11px] font-black opacity-80"><Icon size={13} /><span className="truncate">{label}</span></div>
+      <div className="mt-1 break-words text-[clamp(13px,1.5vw,19px)] font-black leading-tight tabular-nums" dir="ltr">{value}</div>
     </div>
   );
 }
@@ -89,7 +89,7 @@ function MiniMetric({ label, value, tone }: { label: string; value: string; tone
       "min-w-16 rounded-xl px-2 py-1.5",
       tone === "teal" ? "bg-emerald-500/10" : tone === "gold" ? "bg-amber-500/10" : "bg-red-500/10"
     )}>
-      <div className="text-[9px] font-black uppercase tracking-wide opacity-60">{label}</div>
+      <div className="text-[11px] font-black uppercase tracking-wide opacity-60">{label}</div>
       <div className={cn(
         "truncate text-sm font-black tabular-nums",
         tone === "teal" ? "text-emerald-600" : tone === "gold" ? "text-amber-600" : "text-red-500"
@@ -129,7 +129,7 @@ function SiteCheckCard({ sale, labels }: { sale: SaleDetail; labels: Record<stri
             {labels.siteCheck ?? "Sale site"}
             {dist != null && (
               <span className={cn(
-                "ms-2 rounded-full px-2 py-0.5 text-[10px] tabular-nums",
+                "ms-2 rounded-full px-2 py-0.5 text-[11px] tabular-nums",
                 away ? "bg-red-500/15 text-red-500" : "bg-emerald-500/15 text-emerald-600"
               )} dir="ltr">
                 {fmtDist}
@@ -137,18 +137,18 @@ function SiteCheckCard({ sale, labels }: { sale: SaleDetail; labels: Record<stri
             )}
           </div>
           <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] font-bold opacity-70">
-            <a href={saleUrl} target="_blank" rel="noreferrer" className="underline" dir="ltr">
+            <a href={saleUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 min-w-11 items-center underline" dir="ltr">
               {labels.siteSale ?? "sale"} 📍
             </a>
             {clientUrl && (
-              <a href={clientUrl} target="_blank" rel="noreferrer" className="underline" dir="ltr">
+              <a href={clientUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 min-w-11 items-center underline" dir="ltr">
                 {labels.siteClient ?? "client"} 📍
               </a>
             )}
           </div>
         </div>
         {away && (
-          <span className="shrink-0 rounded-full bg-red-500/15 px-2 py-1 text-[10px] font-black text-red-500">
+          <span className="shrink-0 rounded-full bg-red-500/15 px-2 py-1 text-[11px] font-black text-red-500">
             ⚠ {labels.awayFromClient ?? ""}
           </span>
         )}
@@ -308,9 +308,9 @@ export function SaleActions({
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="rounded-lg bg-(--brand-500)/12 px-2 py-0.5 text-[11px] font-black text-(--gold-text)">{kindName}</span>
                 <span className="rounded-lg bg-(--bg-sunken) px-2 py-0.5 font-mono text-[11px] font-black text-(--text-secondary)" dir="ltr">{sale.number}</span>
-                <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-black", STATUS_PILL[sale.status] ?? STATUS_PILL.DRAFT)}>{statusName}</span>
+                <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-black", STATUS_PILL[sale.status] ?? STATUS_PILL.DRAFT)}>{statusName}</span>
               </div>
-              <div className="mt-2 flex flex-wrap gap-1.5 [&_button]:min-h-9 [&_button]:rounded-lg [&_button]:px-3 [&_button]:py-1 [&_button]:text-xs [&_button]:font-black">
+              <div className="mt-2 flex flex-wrap gap-1.5 [&_button]:min-h-11 [&_button]:rounded-lg [&_button]:px-3 [&_button]:py-1 [&_button]:text-xs [&_button]:font-black">
                 {sale.kind === "ORDER" && sale.status === "DRAFT" && (
                   <Button onClick={openLoad} disabled={busy} className="flex-1">📦 {labels.confirmLoad ?? labels.confirm}</Button>
                 )}
@@ -403,7 +403,7 @@ export function SaleActions({
             <MoneyTile icon={CircleDollarSign} label={labels.due} value={num(Math.max(0, due))} tone={due > 0.005 ? "red" : "green"} />
           </div>
           <div>
-            <div className="mb-1 flex items-center justify-between text-[10.5px] font-black text-(--text-tertiary)">
+            <div className="mb-1 flex items-center justify-between text-[11px] font-black text-(--text-tertiary)">
               <span>{labels.progressPaid ?? ""}</span>
               <span className="tabular-nums" dir="ltr">{pct}%</span>
             </div>
@@ -445,10 +445,10 @@ export function SaleActions({
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
-                      <span className="min-w-0 text-[13px] font-black leading-snug">{v.name}{l.isBonus && <span className="ms-1.5 rounded-full bg-emerald-600 px-1.5 py-px text-[9px] font-black uppercase text-white">★ {FREE_LABEL[locale === "fr" || locale === "en" ? locale : "ar"]}</span>}</span>
+                      <span className="min-w-0 break-words text-[13px] font-black leading-snug">{v.name}{l.isBonus && <span className="ms-1.5 rounded-full bg-emerald-600 px-1.5 py-px text-[11px] font-black uppercase text-white">★ {FREE_LABEL[locale === "fr" || locale === "en" ? locale : "ar"]}</span>}</span>
                       <span className="shrink-0 text-[13px] font-black tabular-nums" dir="ltr">{dzMoney(v.lineTotal)}</span>
                     </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] font-bold">
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] font-bold">
                       <span className="rounded-md bg-(--brand-500)/12 px-1.5 py-0.5 font-black tabular-nums text-(--gold-text)" dir="ltr">×{v.qty} {v.uname}</span>
                       {v.ref && <span className="font-mono text-(--text-tertiary)" dir="ltr">{v.ref}</span>}
                       {v.remise > 0 && <span className="text-(--semantic-danger)" dir="ltr">− {dzMoney(v.remise)}</span>}
@@ -456,12 +456,12 @@ export function SaleActions({
                   </div>
                 </div>
                 <div className="mt-2.5 grid grid-cols-2 gap-1.5 text-[11px] font-bold">
-                  <div className="rounded-lg bg-(--bg-sunken) px-2.5 py-1.5"><div className="text-[9.5px] text-(--text-tertiary)">{labels.unitPriceL} · {v.baseName}</div><div className="tabular-nums" dir="ltr">{dzMoney(v.piecePrice)}</div></div>
-                  <div className="rounded-lg bg-(--bg-sunken) px-2.5 py-1.5"><div className="text-[9.5px] text-(--text-tertiary)">{labels.packPriceL}{v.packName ? ` · ${v.packName}` : ""}</div><div className="tabular-nums text-(--gold-text)" dir="ltr">{v.packName ? dzMoney(v.packPrice) : "—"}</div></div>
-                  <div className="rounded-lg bg-(--bg-sunken) px-2.5 py-1.5"><div className="text-[9.5px] text-(--text-tertiary)">{labels.qtyPack}</div><div className="tabular-nums" dir="ltr">{v.packF > 0 ? dz(v.packQty) : "—"}</div></div>
-                  <div className="rounded-lg bg-(--bg-sunken) px-2.5 py-1.5"><div className="text-[9.5px] text-(--text-tertiary)">{labels.qtyPiece} · {v.baseName}</div><div className="tabular-nums" dir="ltr">{dz(v.base)}</div></div>
+                  <div className="rounded-lg bg-(--bg-sunken) px-2.5 py-1.5"><div className="text-[11px] text-(--text-tertiary)">{labels.unitPriceL} · {v.baseName}</div><div className="tabular-nums" dir="ltr">{dzMoney(v.piecePrice)}</div></div>
+                  <div className="rounded-lg bg-(--bg-sunken) px-2.5 py-1.5"><div className="text-[11px] text-(--text-tertiary)">{labels.packPriceL}{v.packName ? ` · ${v.packName}` : ""}</div><div className="tabular-nums text-(--gold-text)" dir="ltr">{v.packName ? dzMoney(v.packPrice) : "—"}</div></div>
+                  <div className="rounded-lg bg-(--bg-sunken) px-2.5 py-1.5"><div className="text-[11px] text-(--text-tertiary)">{labels.qtyPack}</div><div className="tabular-nums" dir="ltr">{v.packF > 0 ? dz(v.packQty) : "—"}</div></div>
+                  <div className="rounded-lg bg-(--bg-sunken) px-2.5 py-1.5"><div className="text-[11px] text-(--text-tertiary)">{labels.qtyPiece} · {v.baseName}</div><div className="tabular-nums" dir="ltr">{dz(v.base)}</div></div>
                 </div>
-                {v.packF > 0 && <div className="mt-1.5 text-[10px] font-bold text-(--gold-text)"><bdi>1 {v.packName} = {dz(v.packF)} {v.baseName}</bdi></div>}
+                {v.packF > 0 && <div className="mt-1.5 text-[11px] font-bold text-(--gold-text)"><bdi>1 {v.packName} = {dz(v.packF)} {v.baseName}</bdi></div>}
               </li>
             );
           })}
@@ -505,22 +505,22 @@ export function SaleActions({
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-base opacity-60">📦</div>
                         )}
                         <div className="min-w-0">
-                          <div className="truncate text-[13px] font-black">{v.name}{l.isBonus && <span className="ms-1.5 rounded-full bg-emerald-600 px-1.5 py-px text-[9px] font-black uppercase text-white">★ {FREE_LABEL[locale === "fr" || locale === "en" ? locale : "ar"]}</span>}</div>
-                          <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[10px] font-bold text-(--text-tertiary)">
+                          <div className="truncate text-[13px] font-black">{v.name}{l.isBonus && <span className="ms-1.5 rounded-full bg-emerald-600 px-1.5 py-px text-[11px] font-black uppercase text-white">★ {FREE_LABEL[locale === "fr" || locale === "en" ? locale : "ar"]}</span>}</div>
+                          <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11px] font-bold text-(--text-tertiary)">
                             <span className="rounded-md bg-(--brand-500)/12 px-1.5 py-0.5 font-black tabular-nums text-(--gold-text)" dir="ltr">×{v.qty} {v.uname}</span>
                             {v.ref && <span className="truncate font-mono" dir="ltr">{v.ref}</span>}
                             {v.remise > 0 && <span className="text-(--semantic-danger)" dir="ltr">− {dzMoney(v.remise)}</span>}
                           </div>
-                          {v.packF > 0 && <div className="mt-0.5 truncate text-[10px] font-bold text-(--gold-text)"><bdi>1 {v.packName} = {dz(v.packF)} {v.baseName}</bdi></div>}
+                          {v.packF > 0 && <div className="mt-0.5 truncate text-[11px] font-bold text-(--gold-text)"><bdi>1 {v.packName} = {dz(v.packF)} {v.baseName}</bdi></div>}
                         </div>
                       </div>
                     </td>
-                    <td className="num" dir="ltr"><div className="text-[13px] font-bold">{dzMoney(v.piecePrice)}</div><div className="truncate text-[10px] text-(--text-tertiary)">{v.baseName}</div></td>
+                    <td className="num" dir="ltr"><div className="text-[13px] font-bold">{dzMoney(v.piecePrice)}</div><div className="truncate text-[11px] text-(--text-tertiary)">{v.baseName}</div></td>
                     <td className="num" dir="ltr">
-                      {v.packName ? (<><div className="text-[13px] font-bold text-(--gold-text)">{dzMoney(v.packPrice)}</div><div className="truncate text-[10px] text-(--text-tertiary)">{v.packName}</div></>) : <span className="opacity-30">—</span>}
+                      {v.packName ? (<><div className="text-[13px] font-bold text-(--gold-text)">{dzMoney(v.packPrice)}</div><div className="truncate text-[11px] text-(--text-tertiary)">{v.packName}</div></>) : <span className="opacity-30">—</span>}
                     </td>
                     <td className="num font-bold" dir="ltr">{v.packF > 0 ? dz(v.packQty) : <span className="opacity-30">—</span>}</td>
-                    <td className="num" dir="ltr"><div className="text-[13px] font-bold">{dz(v.base)}</div><div className="truncate text-[10px] text-(--text-tertiary)">{v.baseName}</div></td>
+                    <td className="num" dir="ltr"><div className="text-[13px] font-bold">{dz(v.base)}</div><div className="truncate text-[11px] text-(--text-tertiary)">{v.baseName}</div></td>
                     <td className="num text-[13px] font-black" dir="ltr">{dzMoney(v.lineTotal)}</td>
                   </tr>
                 );
@@ -584,7 +584,7 @@ export function SaleActions({
                 <div key={l.id} className={cn("flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs tabular-nums", short ? "bg-red-500/10 text-red-500" : "bg-(--bg-sunken)")}>
                   <span className="min-w-0 flex-1 truncate font-bold">
                     {short && "⚠ "}{p.name} · <bdi>{packF > 0 ? `${dz(Math.round((need / packF) * 100) / 100)} ${firstPack!.unit.name}` : `${dz(need)}`}</bdi>
-                    {short && depotQty != null && <span className="ms-1 rounded-full bg-red-500/20 px-1.5 text-[10px] font-black">− <bdi>{packF > 0 ? dz(Math.round(((need - depotQty) / packF) * 100) / 100) : dz(need - depotQty)}</bdi></span>}
+                    {short && depotQty != null && <span className="ms-1 rounded-full bg-red-500/20 px-1.5 text-[11px] font-black">− <bdi>{packF > 0 ? dz(Math.round(((need - depotQty) / packF) * 100) / 100) : dz(need - depotQty)}</bdi></span>}
                   </span>
                   <span className="shrink-0 font-black">
                     🏭 {depotQty == null ? "…" : (<><bdi>{packF > 0 ? dz(Math.round((depotQty / packF) * 100) / 100) : dz(depotQty)}</bdi> {packF > 0 ? firstPack!.unit.name : (p.baseUnit?.name ?? "")}</>)}

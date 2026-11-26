@@ -73,7 +73,7 @@ export default async function TransferDetailPage({ params }: { params: Promise<{
           <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl bg-(--bg-sunken) px-3 py-2">
             {row.fromLocation.kind === "VAN" ? <Truck size={16} className="shrink-0 text-(--brand-600)" /> : <Warehouse size={16} className="shrink-0 text-(--brand-600)" />}
             <div className="min-w-0">
-              <div className="text-[10px] font-bold uppercase opacity-60">{t("from")}</div>
+              <div className="text-[11px] font-bold uppercase opacity-60">{t("from")}</div>
               <div className="truncate text-sm font-black">{row.fromLocation.name}</div>
             </div>
           </div>
@@ -81,7 +81,7 @@ export default async function TransferDetailPage({ params }: { params: Promise<{
           <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl bg-(--bg-sunken) px-3 py-2">
             {row.toLocation.kind === "VAN" ? <Truck size={16} className="shrink-0 text-(--brand-600)" /> : <Warehouse size={16} className="shrink-0 text-(--brand-600)" />}
             <div className="min-w-0">
-              <div className="text-[10px] font-bold uppercase opacity-60">{t("to")}</div>
+              <div className="text-[11px] font-bold uppercase opacity-60">{t("to")}</div>
               <div className="truncate text-sm font-black">{row.toLocation.name}</div>
             </div>
           </div>

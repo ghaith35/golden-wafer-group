@@ -65,12 +65,12 @@ export function RefList({
     <div className="rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4">
       <h2 className="mb-3 text-sm font-bold">{title}</h2>
       {error && <p className="mb-2 rounded-lg bg-red-500/10 p-2 text-sm font-bold text-red-500"><ErrText code={error} /></p>}
-      <div className="mb-3 flex gap-2">
+      <div className="mb-3 flex flex-wrap gap-2">
         {extra && (
           <select
             value={extraVal}
             onChange={(e) => setExtraVal(e.target.value)}
-            className="h-10 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm"
+            className="h-11 min-w-0 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm sm:w-auto"
           >
             <option value="">{extra.label}</option>
             {extra.options.map((o) => (
@@ -80,7 +80,7 @@ export function RefList({
             ))}
           </select>
         )}
-        <Input placeholder={nameLabel} value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} />
+        <Input className="min-w-0 flex-1 basis-40" placeholder={nameLabel} value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} />
         <Button onClick={submit} disabled={busy || !name.trim() || (extra != null && !extraVal)}>
           {addLabel}
         </Button>

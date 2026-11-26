@@ -48,7 +48,7 @@ export function QtyStepper({
           onChange={(e) => onChange(e.target.value.replace(/[^\d.,]/g, ""))}
           aria-label={label}
           placeholder="0"
-          className="w-16 bg-transparent text-center text-xl font-black tabular-nums leading-none outline-none placeholder:text-(--text-tertiary)"
+          className="h-11 w-16 bg-transparent text-center text-xl font-black tabular-nums leading-none outline-none placeholder:text-(--text-tertiary)"
         />
         <span className="mt-1 text-[11px] font-bold leading-none text-(--text-secondary)">{unit}</span>
       </span>

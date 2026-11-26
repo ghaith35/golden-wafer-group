@@ -228,6 +228,7 @@ export function TourneesClient({
           value={String(weekRows.filter((r) => rowKey(r) === todayKey).length)}
           icon={<CalendarCheck size={18} />}
           accent="bg-emerald-500/15 text-emerald-600"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -235,6 +236,7 @@ export function TourneesClient({
           value={String(weekRows.filter((r) => r.status === "OPEN").length)}
           icon={<Route size={18} />}
           accent="bg-sky-500/15 text-sky-600"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -242,10 +244,11 @@ export function TourneesClient({
           value={String(totalStops)}
           icon={<CalendarDays size={18} />}
           accent="bg-violet-500/15 text-violet-500"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {isAdmin && (
           <Button onClick={() => void openCreate(false)} className="shrink-0">
             <Plus size={16} className="me-1" />
@@ -264,7 +267,7 @@ export function TourneesClient({
             {locating ? "…" : labels.locate}
           </button>
         )}
-        <div className="flex-1">
+        <div className="order-last min-w-0 basis-full sm:order-none sm:min-w-40 sm:basis-0 sm:flex-1">
           <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
       </div>
@@ -343,8 +346,8 @@ export function TourneesClient({
                     </span>
                     <span className="min-w-0">
                       <span className="block truncate text-xs font-black leading-tight">{v.name}</span>
-                      <span className="block truncate font-mono text-[10px] opacity-60" dir="ltr">{v.matricule ?? ""}</span>
-                      <span className="block truncate text-[10px] opacity-60">
+                      <span className="block truncate font-mono text-[11px] opacity-60" dir="ltr">{v.matricule ?? ""}</span>
+                      <span className="block truncate text-[11px] opacity-60">
                         {v.marque ?? ""}{v.user ? ` · 👨‍✈️ ${v.user.fullName}` : ""}
                       </span>
                     </span>
@@ -398,7 +401,7 @@ export function TourneesClient({
                                 <span className="flex items-center gap-1.5">
                                   <span className="block min-w-0 flex-1 truncate text-xs font-black">{t.secteur?.name ?? "—"}</span>
                                   {tg && (
-                                    <span title={tg.text} className="shrink-0 rounded-md bg-(--brand-500)/15 px-1 text-[10px] font-black text-(--brand-600)" dir="ltr">{tg.icon}</span>
+                                    <span title={tg.text} className="shrink-0 rounded-md bg-(--brand-500)/15 px-1 text-[11px] font-black text-(--brand-600)" dir="ltr">{tg.icon}</span>
                                   )}
                                 </span>
                                 <span className="mt-0.5 block text-[11px] font-bold opacity-70">
@@ -438,7 +441,7 @@ export function TourneesClient({
                               <div className="min-w-0 flex-1 rounded-xl border border-dashed border-(--border-default) p-2 opacity-70">
                                 <span className="flex items-center gap-1.5">
                                   <span className="block min-w-0 flex-1 truncate text-xs font-black">{p.secteurName ?? "—"}</span>
-                                  <span className="shrink-0 rounded-md bg-(--bg-sunken) px-1 text-[10px] font-black" dir="ltr">{p.intervalWeeks === 2 ? "↻²" : "↻"}</span>
+                                  <span className="shrink-0 rounded-md bg-(--bg-sunken) px-1 text-[11px] font-black" dir="ltr">{p.intervalWeeks === 2 ? "↻²" : "↻"}</span>
                                 </span>
                                 <span className="mt-0.5 block text-[11px] font-bold opacity-70" dir="auto">
                                   {labels.nextOn}: {next ? new Date(`${next}T12:00:00Z`).toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: "UTC" }) : "—"}

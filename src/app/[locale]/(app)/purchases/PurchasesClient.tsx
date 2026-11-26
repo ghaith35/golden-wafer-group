@@ -263,45 +263,45 @@ export function PurchasesClient({
 
       <div className="flex shrink-0 flex-col gap-2 lg:flex-row">
         <div className="flex min-w-0 flex-1 flex-wrap gap-2 sm:flex-nowrap">
-          <Button onClick={() => setCreating(true)} className="h-11 shrink-0">
+          <Button onClick={() => setCreating(true)} className="h-11 w-full shrink-0 sm:w-auto">
             <Plus size={16} className="me-1" />
             {labels.neW}
           </Button>
-          <div className="min-w-32 flex-1 basis-full sm:basis-auto">
+          <div className="min-w-0 flex-1 basis-full sm:min-w-32 sm:basis-auto">
             <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
-          <select value={fYear} onChange={(e) => setFYear(e.target.value)} className={cn(inputCls, "w-24 shrink-0")} aria-label="year">
+          <select value={fYear} onChange={(e) => setFYear(e.target.value)} className={cn(inputCls, "min-w-0 flex-1 shrink-0 sm:w-24 sm:flex-none")} aria-label="year">
             <option value="">—</option>
             {years.map((y) => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-          <select value={fMonth} onChange={(e) => setFMonth(e.target.value)} className={cn(inputCls, "w-32 shrink-0")} aria-label="month">
+          <select value={fMonth} onChange={(e) => setFMonth(e.target.value)} className={cn(inputCls, "min-w-0 flex-1 shrink-0 sm:w-32 sm:flex-none")} aria-label="month">
             <option value="">—</option>
             {months.map((m) => (
               <option key={m} value={m}>{monthName(m)}</option>
             ))}
           </select>
         </div>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           {(["unpaid", "partial", "settled"] as const).map((s) => (
             <button
               key={s}
               onClick={() => setFStatus(fStatus === s ? "" : s)}
-              className={cn("flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-[12px] font-black lg:flex-none", fStatus === s ? STATUS_COLOR[s] : "bg-(--bg-sunken) opacity-60")}
+              className={cn("min-h-11 flex-auto whitespace-nowrap rounded-lg px-3 py-2 text-[12px] font-black lg:min-h-0 lg:flex-none", fStatus === s ? STATUS_COLOR[s] : "bg-(--bg-sunken) opacity-60")}
             >
               {labels[s]}
             </button>
           ))}
           <Link href={`/${locale}/purchases/returns`} className="shrink-0">
-            <Button variant="secondary" className="h-[38px] whitespace-nowrap px-3 py-2 text-[12px]">{labels.returns}</Button>
+            <Button variant="secondary" className="h-11 whitespace-nowrap px-3 py-2 text-[12px] lg:h-[38px]">{labels.returns}</Button>
           </Link>
         </div>
       </div>
 
-      <div className="grid min-h-0 items-start gap-4 lg:flex-1 lg:grid-cols-[300px_minmax(0,1fr)] lg:overflow-hidden">
+      <div className="grid min-h-0 grid-cols-[minmax(0,1fr)] items-start gap-4 lg:flex-1 lg:grid-cols-[300px_minmax(0,1fr)] lg:overflow-hidden">
         {/* ── Sidebar: list (sticky full height on desktop) ── */}
-        <div className="space-y-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
+        <div className="min-w-0 space-y-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
           <div className="max-h-[calc(var(--vh)*0.5)] flex-1 space-y-1.5 overflow-y-auto lg:max-h-none lg:min-h-0">
             {filtered.length === 0 && <p className="text-sm opacity-60">{labels.empty}</p>}
             {filtered.map((r) => {
@@ -324,13 +324,13 @@ export function PurchasesClient({
                   <div className="flex items-center justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-[13px] font-bold">{labels.number} {r.number}</div>
-                      <div className="truncate text-[11px] opacity-60">
+                      <div className="break-words text-[11px] opacity-60">
                         {r.supplier.name} · {fmtDT(r.date as string, locale)}
                       </div>
                     </div>
                     <div className="shrink-0 text-end">
                       <div className="text-[13px] font-black tabular-nums">{String(r.total)}</div>
-                      <span className={cn("rounded-full px-1.5 py-px text-[10px] font-black", STATUS_COLOR[st])}>
+                      <span className={cn("rounded-full px-1.5 py-px text-[11px] font-black", STATUS_COLOR[st])}>
                         {labels[st]}
                       </span>
                     </div>
@@ -362,7 +362,7 @@ export function PurchasesClient({
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-base font-black">{labels.number} {detail.number}</div>
-                    <div className="truncate text-xs opacity-60">
+                    <div className="break-words text-xs opacity-60">
                       {detail.supplier.name} · {fmtDT(detail.date, locale)}
                       {detail.notes ? ` · ${detail.notes}` : ""}
                     </div>

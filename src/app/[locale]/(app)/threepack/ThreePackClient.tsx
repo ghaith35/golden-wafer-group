@@ -141,7 +141,7 @@ export function ThreePackClient({
               </button>
             </div>
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2 min-[1700px]:grid-cols-3 min-[2300px]:grid-cols-4">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2 min-[1700px]:grid-cols-3 min-[2300px]:grid-cols-4">
               {shown.length === 0 && <p className="col-span-full rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{t("kindEmpty")}</p>}
               {shown.map((r) => (
                 <RuleCard key={r.id} rule={r} flash={flashId === r.id} onToggle={(v) => void toggle(r, v)} onEdit={() => setBuilder({ rule: r })} />

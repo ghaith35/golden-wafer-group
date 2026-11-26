@@ -123,7 +123,7 @@ export function ProductPicker<T extends PickerProduct>({
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-sunken) text-lg">📦</span>
                   )}
                   <span className="min-w-0 flex-1" dir="auto">
-                    <span className="block truncate text-[13px] font-bold">{x.name}</span>
+                    <span className="block break-words text-[13px] font-bold">{x.name}</span>
                     {renderMeta && (
                       <span className="mt-0.5 block min-w-0 text-[11px] leading-5 break-words">
                         {renderMeta(x)}

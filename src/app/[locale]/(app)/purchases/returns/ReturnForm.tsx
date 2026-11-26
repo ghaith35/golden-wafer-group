@@ -162,15 +162,15 @@ export function SupplierReturnForm({
                         key={u.id}
                         type="button"
                         onClick={() => switchUnit(i, u.id)}
-                        className={`h-8 rounded-lg border px-2.5 text-xs font-black transition-colors ${
+                        className={`h-11 rounded-lg border px-2.5 text-xs font-black transition-colors lg:h-8 ${
                           l.unitId === u.id || (!l.unitId && u.id === p.baseUnitId)
                             ? "border-(--brand-500) bg-(--brand-500)/10 text-(--brand-600)"
                             : "border-(--border-default) opacity-70"
                         }`}
-                        title={`1 ${u.name} = ${per.toLocaleString()} ${child}`}
+                        title={`1 ${u.name} = ${dz(per)} ${child}`}
                       >
                         {u.name}
-                        <span className="ms-1 opacity-60">×{u.factor.toLocaleString()}</span>
+                        <span className="ms-1 opacity-60">×{dz(u.factor)}</span>
                       </button>
                     );
                   })}

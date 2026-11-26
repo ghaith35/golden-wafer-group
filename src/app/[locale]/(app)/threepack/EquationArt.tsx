@@ -19,7 +19,7 @@ export function MiniTile({ qty, gift, size = "md" }: { qty: string; gift?: boole
         dir="ltr"
         className={cn(
           "absolute -bottom-2 -end-2 rounded-full px-2 font-black leading-5 shadow-sm",
-          lg ? "text-xs" : "text-[10px]",
+          lg ? "text-xs" : "text-[11px]",
           gift ? "bg-(--semantic-success) text-white" : "bg-gradient-brand text-(--brand-contrast)",
         )}
       >

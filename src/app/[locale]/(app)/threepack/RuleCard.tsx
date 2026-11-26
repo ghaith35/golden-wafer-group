@@ -64,7 +64,7 @@ export function RuleCard({ rule, onToggle, onEdit, flash }: { rule: Rule; onTogg
     <article
       style={flash ? { animation: "gw-glow 1.1s ease-out 3" } : undefined}
       className={cn(
-        "flex flex-col gap-5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-(--card-shadow) transition-shadow duration-200 hover:shadow-(--card-shadow-hover) sm:p-5",
+        "flex min-w-0 flex-col gap-5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-(--card-shadow) transition-shadow duration-200 hover:shadow-(--card-shadow-hover) sm:p-5",
         off && "bg-(--bg-surface)",
         flash && "border-(--brand-500)",
       )}
@@ -126,7 +126,7 @@ export function RuleCard({ rule, onToggle, onEdit, flash }: { rule: Rule; onTogg
             <span className="truncate">{rule.givenColis > 0 ? t("givenCount", { n: String(rule.givenColis) }) : t("givenNone")}</span>
           </p>
         )}
-        <button type="button" onClick={onEdit} className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl px-3 text-sm font-bold text-(--text-secondary) transition-colors hover:bg-(--bg-sunken) hover:text-(--text-primary)">
+        <button type="button" onClick={onEdit} className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl px-3 text-sm font-bold text-(--text-secondary) transition-colors hover:bg-(--bg-sunken) hover:text-(--text-primary)">
           <Pencil size={14} aria-hidden />
           {t("editRule")}
         </button>

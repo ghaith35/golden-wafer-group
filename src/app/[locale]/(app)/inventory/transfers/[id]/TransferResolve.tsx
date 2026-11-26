@@ -1,5 +1,6 @@
 "use client";
 
+import { dz } from "@/lib/format";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Package, X } from "lucide-react";
@@ -133,7 +134,7 @@ export function TransferResolve({
               )}
             </span>
             <span className="shrink-0 text-xs tabular-nums opacity-60" dir="ltr">
-              {l.declaredQty.toLocaleString()}
+              {dz(l.declaredQty)}
             </span>
             <span className={cn("shrink-0 font-black", (qty[l.id] ?? 0) < l.declaredQty ? "text-amber-600" : "text-(--brand-600)")}>→</span>
             <Input

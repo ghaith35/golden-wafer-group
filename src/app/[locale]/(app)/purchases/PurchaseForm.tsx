@@ -502,7 +502,7 @@ export function PurchaseForm({
           type="number" min={0} step="any" value={piece}
           title={`${title} ${baseName}`} placeholder={`${title} ${baseName}`}
           onChange={(e) => setVal(e.target.value === "" ? "" : Math.round(Number(e.target.value) * ff * 1000) / 1000)}
-          className="h-8 text-xs opacity-80"
+          className="h-11 text-xs opacity-80 lg:h-8"
         />
       </div>
     );
@@ -647,7 +647,7 @@ export function PurchaseForm({
                 );
               })}
               <span className="flex h-11 w-24 shrink-0 items-center justify-end text-base font-black tabular-nums">{dzMoney(Math.max(0, l.qty * Number(l.unitPrice || 0) - l.remise))}</span>
-              <Button type="button" variant="ghost" onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="h-11 w-8 shrink-0 px-0">✕</Button>
+              <Button type="button" variant="ghost" onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="h-11 w-11 shrink-0 px-0">✕</Button>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               {remiseEnabled && (
@@ -693,13 +693,13 @@ export function PurchaseForm({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={invoiceImage} alt="" className="h-20 w-16 rounded-lg border border-(--border-default) bg-white object-cover" />
               <div className="flex flex-1 flex-wrap gap-2">
-                <label className="inline-flex h-9 cursor-pointer items-center rounded-lg bg-(--bg-surface) px-3 text-xs font-bold">
+                <label className="inline-flex h-11 cursor-pointer items-center rounded-lg bg-(--bg-surface) px-3 text-xs font-bold">
                   <input type="file" accept="image/*" className="hidden" disabled={imgBusy}
                     onChange={(e) => { void pickInvoiceImage(e.target.files?.[0]); e.target.value = ""; }} />
                   {imgBusy ? "…" : labels.changeImage}
                 </label>
                 <button type="button" onClick={() => setInvoiceImage(null)}
-                  className="inline-flex h-9 items-center rounded-lg px-3 text-xs font-bold text-red-500">
+                  className="inline-flex h-11 items-center rounded-lg px-3 text-xs font-bold text-red-500">
                   {labels.removeImage}
                 </button>
               </div>

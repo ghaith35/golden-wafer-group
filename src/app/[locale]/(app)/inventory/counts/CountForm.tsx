@@ -96,8 +96,8 @@ export function CountForm({
           : [];
         return (
           <Card key={i}>
-            <div className="flex gap-2">
-              <div className="flex-1">
+            <div className="flex flex-wrap items-start gap-2">
+              <div className="min-w-[min(12rem,100%)] flex-1 basis-full sm:basis-0">
                 <select
                   value={l.productId}
                   onChange={(e) => {
@@ -118,7 +118,7 @@ export function CountForm({
                 <select
                   value={l.unitId}
                   onChange={(e) => setLines((ls) => ls.map((x, j) => (j === i ? { ...x, unitId: e.target.value } : x)))}
-                  className={`${inputCls} w-28 shrink-0`}
+                  className={`${inputCls} min-w-0 flex-1 sm:w-28 sm:flex-none`}
                   aria-label={labels.unit}
                 >
                   {unitOpts.map((u) => (
@@ -126,7 +126,7 @@ export function CountForm({
                   ))}
                 </select>
               )}
-              <Input type="number" min={0} step="any" value={l.countedQty} onChange={(e) => setLines((ls) => ls.map((x, j) => (j === i ? { ...x, countedQty: Number(e.target.value) } : x)))} className="w-24" />
+              <Input type="number" min={0} step="any" value={l.countedQty} onChange={(e) => setLines((ls) => ls.map((x, j) => (j === i ? { ...x, countedQty: Number(e.target.value) } : x)))} className="min-w-0 flex-1 sm:w-24 sm:flex-none" />
               <Button type="button" variant="ghost" onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))}>✕</Button>
             </div>
           </Card>
