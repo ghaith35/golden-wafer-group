@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ApkOnly } from "@/components/layout/ApkOnly";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Banknote, Clock, Crosshair, MapPin, Navigation, Phone, QrCode, UserPlus } from "lucide-react";
+import { ArrowLeft, ArrowRight, Banknote, Clock, Crosshair, Eye, MapPin, Navigation, Phone, QrCode, UserPlus } from "lucide-react";
 import QRCode from "qrcode";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -952,30 +952,50 @@ export function DayClients({
               </div>
             )}
             {editMsg && <p className="rounded-xl bg-emerald-500/10 p-2 text-xs font-bold text-emerald-600">{editMsg}</p>}
-            {/* Shop closed: red button → camera → photo(s) REQUIRED → saved on the
-                phone, synced to the admin. Badge shows here and in the list. */}
-            {closedState.ids.has(detailFor.id) && (
-              <p className="rounded-xl bg-red-600/10 p-2.5 text-xs font-black text-red-600">🔒 {labels.closedBadge}</p>
-            )}
-            <ClosedShopButton
-              client={{ id: detailFor.id, name: detailFor.name, code: detailFor.code }}
-              closed={closedState.ids.has(detailFor.id)}
-              canReport={hasStarted || role === "Admin"}
-              labels={labels}
-              onSaved={(id) => closedState.add(id)}
-            />
-            {canSell(role) && (
-            <Button
-              onClick={() => {
-                const id = detailFor.id;
-                setDetailFor(null);
-                setQrImg("");
-                goPage(router, `/${locale}/livreur/${day}/dashboard?client=${id}`);
-              }}
-              className="h-12 w-full text-base"
-            >
-              {labels.newSale}
-            </Button>
+            {/* Online: one "view client" button → full client page (stats,
+                invoices, sale / order / closed / sync). Offline the page can't
+                load from the server, so the on-device shortcuts stay. */}
+            {online ? (
+              <Button
+                onClick={() => {
+                  const id = detailFor.id;
+                  setDetailFor(null);
+                  setQrImg("");
+                  goPage(router, `/${locale}/livreur/${day}/client/${encodeURIComponent(id)}`);
+                }}
+                data-testid="view-client"
+                className="h-12 w-full text-base"
+              >
+                <Eye size={18} /> {labels.viewClient}
+              </Button>
+            ) : (
+              <>
+                {/* Shop closed: red button → camera → photo(s) REQUIRED → saved on the
+                    phone, synced to the admin. Badge shows here and in the list. */}
+                {closedState.ids.has(detailFor.id) && (
+                  <p className="rounded-xl bg-red-600/10 p-2.5 text-xs font-black text-red-600">🔒 {labels.closedBadge}</p>
+                )}
+                <ClosedShopButton
+                  client={{ id: detailFor.id, name: detailFor.name, code: detailFor.code }}
+                  closed={closedState.ids.has(detailFor.id)}
+                  canReport={hasStarted || role === "Admin"}
+                  labels={labels}
+                  onSaved={(id) => closedState.add(id)}
+                />
+                {canSell(role) && (
+                <Button
+                  onClick={() => {
+                    const id = detailFor.id;
+                    setDetailFor(null);
+                    setQrImg("");
+                    goPage(router, `/${locale}/livreur/${day}/dashboard?client=${id}`);
+                  }}
+                  className="h-12 w-full text-base"
+                >
+                  {labels.newSale}
+                </Button>
+                )}
+              </>
             )}
           </div>
         )}

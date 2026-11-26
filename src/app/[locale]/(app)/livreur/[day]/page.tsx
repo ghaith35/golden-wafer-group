@@ -30,6 +30,7 @@ export default async function LivreurDayPage({
   if (!date) redirect(`/${locale}/livreur`);
   const t = await getTranslations("livreur");
   const tg = await getTranslations("tournees");
+  const tv = await getTranslations("clientView");
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
 
@@ -116,7 +117,7 @@ export default async function LivreurDayPage({
         locate: tg("locate"), geoDenied: tg("geoDenied"),
         unitM: tg("unitM"), unitKm: tg("unitKm"), unitMin: tg("unitMin"),
         startDay: t("startDay"), all: t("all"), showQr: t("showQr"),
-        newSale: t("newSale"), callClient: t("callClient"), tourOf: t.raw("tourOf") as string,
+        newSale: t("newSale"), viewClient: tv("view"), callClient: t("callClient"), tourOf: t.raw("tourOf") as string,
         newClient: t("newClient"), phoneOpt: t("phoneOpt"), addressOpt: t("addressOpt"),
         activityOpt: t("activityOpt"), wilayaOpt: t("wilayaOpt"), secteurOpt: t("secteurOpt"),
         tierOpt: t("tierOpt"), useGps: t("useGps"), confirm: t("confirm"),
