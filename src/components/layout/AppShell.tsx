@@ -90,7 +90,7 @@ const GROUPS: Array<{ label: string; items: Item[]; adminOnly?: boolean }> = [
 const TAB_KEYS = ["dashboard", "clients", "suppliers", "sales"];
 const TABS: Item[] = TAB_KEYS.flatMap((k) => GROUPS.flatMap((g) => g.items).filter((i) => i.key === k));
 
-export function AppShell({ children, initialRole = null, initialUsername = null }: { children: React.ReactNode; initialRole?: string | null; initialUsername?: string | null }) {
+export function AppShell({ children, initialRole = null, initialUsername = null, initialThreePack = false, initialGps = true }: { children: React.ReactNode; initialRole?: string | null; initialUsername?: string | null; initialThreePack?: boolean; initialGps?: boolean }) {
   const t = useTranslations("nav");
   const ts = useTranslations("sync");
   const locale = useLocale();
@@ -228,9 +228,9 @@ export function AppShell({ children, initialRole = null, initialUsername = null 
 
   // Global GPS feature flag (settings toggle). Defaults on; hidden once the
   // server says otherwise.
-  const [gpsOn, setGpsOn] = useState(true);
+  const [gpsOn, setGpsOn] = useState(initialGps);
   // 3pack (free colis) sidebar section: off until the server says it is on.
-  const [threePackOn, setThreePackOn] = useState(false);
+  const [threePackOn, setThreePackOn] = useState(initialThreePack);
   useEffect(() => {
     fetch("/api/settings/public")
       .then((r) => (r.ok ? r.json() : null))

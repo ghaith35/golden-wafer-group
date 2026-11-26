@@ -5,6 +5,7 @@ import { BtPrintHost } from "@/components/print/BtPrintHost";
 import { getSession } from "@/lib/auth/session";
 import { ensureMainDepot } from "@/lib/inventory/depot";
 import { prisma } from "@/lib/db";
+import { getOrCreateSettings } from "@/lib/settings/helpers";
 import { localEntitlement, isLocalMode, isDesktopUserAgent } from "@/lib/license/gate";
 
 /// Authenticated staff surface — everything here gets the sidebar shell.
@@ -34,6 +35,8 @@ export default async function StaffLayout({
   // no flash of the van menu while the client fetch is in flight.
   let initialRole: string | null = null;
   let initialUsername: string | null = null;
+  let initialThreePack = false;
+  let initialGps = true;
   try {
     const session = await getSession();
     if (session) {
@@ -41,13 +44,16 @@ export default async function StaffLayout({
       const user = await prisma.user.findUnique({ where: { id: session.userId }, select: { username: true, role: true } });
       initialRole = user?.role ?? null;
       initialUsername = user?.username ?? null;
+      const settings = await getOrCreateSettings(session.companyId);
+      initialThreePack = settings.threePackEnabled ?? false;
+      initialGps = settings.gpsEnabled ?? true;
     }
   } catch {
     /* never block the page on this */
   }
   return (
     <>
-      <AppShell initialRole={initialRole} initialUsername={initialUsername}>{children}</AppShell>
+      <AppShell initialRole={initialRole} initialUsername={initialUsername} initialThreePack={initialThreePack} initialGps={initialGps}>{children}</AppShell>
       {/* APK: full-screen Bluetooth printer flow, opened by any Print button. */}
       <BtPrintHost />
     </>
