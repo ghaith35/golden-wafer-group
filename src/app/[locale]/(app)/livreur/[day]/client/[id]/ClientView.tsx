@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ArrowRight, Banknote, CalendarClock, ClipboardList, Gift, Lock, MapPin, Navigation, Phone,
   Plus, ReceiptText, RefreshCw, Store, TrendingDown, TrendingUp, Trophy, Wallet,
@@ -58,6 +58,8 @@ export function ClientView({
   labels: Labels;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [filtering, startFilter] = useTransition();
   const loc = `${locale}-u-nu-latn`;
   const closedState = useClosedIds(closed ? [clientId, ...closedToday] : closedToday);
   const isClosed = closedState.ids.has(clientId);
@@ -104,6 +106,13 @@ export function ClientView({
     router.refresh();
     setSyncing(false);
   }
+
+  /// Month filter lives in the URL (?m=YYYY-MM | all) so it survives refresh.
+  function pickMonth(key: string) {
+    if (!stats || key === stats.selected) return;
+    startFilter(() => router.replace(`${pathname}?m=${key}`, { scroll: false }));
+  }
+  const isAll = stats?.selected === "all";
 
   const qs = `?client=${encodeURIComponent(clientId)}`;
   const mayAct = hasStarted || role === "Admin";
@@ -260,13 +269,33 @@ export function ClientView({
           {/* Statistics */}
           {stats ? (
             <div className="grid gap-3 lg:grid-cols-2">
-              <div className="space-y-3">
+              <div className={cn("space-y-3 transition-opacity", filtering && "opacity-50")}>
+                {/* Month filter */}
+                <section className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1" role="tablist" aria-label={labels.period}>
+                  {[{ key: "all", label: labels.all, current: isAll }, ...[...stats.months].reverse()].map((m) => (
+                    <button
+                      key={m.key}
+                      type="button"
+                      role="tab"
+                      aria-selected={m.current}
+                      onClick={() => pickMonth(m.key)}
+                      className={cn(
+                        "h-9 shrink-0 rounded-full px-3.5 text-xs font-black transition-colors",
+                        m.current ? "bg-(--brand-500) text-(--brand-contrast)" : "bg-(--bg-sunken) text-(--text-secondary)",
+                      )}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                </section>
                 {/* KPIs */}
                 <section className="grid grid-cols-2 gap-2">
                   <div className="col-span-2 rounded-3xl border border-(--border-default) bg-(--bg-overlay) p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <div className="text-xs font-bold opacity-60">{labels.monthSold}</div>
+                        <div className="text-xs font-bold opacity-60">
+                          {isAll ? labels.totalSold : stats.selectedIsCurrent ? labels.monthSold : stats.selectedLabel}
+                        </div>
                         <div className="mt-1 text-3xl font-black tabular-nums text-(--brand-600)" dir="ltr">{dzMoney(stats.monthSold)}</div>
                         <div className="mt-0.5 text-[11px] font-bold opacity-55">{stats.monthCount} {labels.invoices}</div>
                       </div>
@@ -292,16 +321,21 @@ export function ClientView({
                 {/* 6-month bars */}
                 <section className="rounded-3xl border border-(--border-default) bg-(--bg-overlay) p-4">
                   <div className="mb-3 text-sm font-black">{labels.last6}</div>
-                  <div className="flex h-32 items-end gap-2" dir="ltr">
+                  <div className="flex h-32 items-end gap-1" dir="ltr">
                     {stats.months.map((m) => (
-                      <div key={m.key} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
-                        <span className="text-[9px] font-black tabular-nums opacity-60">{m.total > 0 ? Math.round(m.total / 1000) + "k" : ""}</span>
+                      <button
+                        type="button"
+                        key={m.key}
+                        onClick={() => pickMonth(m.key)}
+                        aria-label={`${m.label} ${dzMoney(m.total)}`}
+                        className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1"
+                      >
                         <div
-                          className={cn("w-full rounded-t-lg", m.current ? "bg-gradient-brand" : "bg-(--brand-500)/30")}
+                          className={cn("w-full rounded-t-md", m.current ? "bg-gradient-brand" : "bg-(--brand-500)/30")}
                           style={{ height: `${Math.max(m.total > 0 ? 6 : 2, (m.total / maxMonth) * 100)}%` }}
                         />
-                        <span className={cn("text-[10px] font-black", m.current ? "text-(--brand-600)" : "opacity-60")}>{m.label}</span>
-                      </div>
+                        <span className={cn("w-full truncate text-center text-[9px] font-black", m.current ? "text-(--brand-600)" : "opacity-60")}>{m.label}</span>
+                      </button>
                     ))}
                   </div>
                 </section>
@@ -337,7 +371,7 @@ export function ClientView({
                   <div className="mb-2 flex items-center justify-between gap-2">
                     <span className="flex items-center gap-2 text-sm font-black">
                       <Gift size={16} className="text-rose-500" />
-                      {labels.offersMonth}
+                      {labels.offers}{isAll ? "" : ` · ${stats.selectedIsCurrent ? labels.thisMonth : stats.selectedLabel}`}
                     </span>
                     {stats.offersQty > 0 && (
                       <span className="rounded-full bg-rose-500/15 px-2.5 py-0.5 text-xs font-black text-rose-600" dir="ltr">
@@ -360,11 +394,11 @@ export function ClientView({
               </div>
 
               {/* Invoices */}
-              <section className="rounded-3xl border border-(--border-default) bg-(--bg-overlay) p-4 lg:self-start">
+              <section className={cn("rounded-3xl border border-(--border-default) bg-(--bg-overlay) p-4 transition-opacity lg:self-start", filtering && "opacity-50")}>
                 <div className="mb-3 flex items-center gap-2 text-sm font-black">
                   <ReceiptText size={16} className="text-(--brand-600)" />
                   {labels.invoicesTitle}
-                  <span className="rounded-full bg-(--bg-sunken) px-2 py-0.5 text-[11px] tabular-nums">{stats.invoiceCount}</span>
+                  <span className="rounded-full bg-(--bg-sunken) px-2 py-0.5 text-[11px] tabular-nums">{isAll ? stats.invoiceCount : stats.monthCount}</span>
                 </div>
                 {stats.recent.length === 0 ? (
                   <p className="py-6 text-center text-xs opacity-60">{labels.noInvoices}</p>

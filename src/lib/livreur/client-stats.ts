@@ -8,12 +8,16 @@ export type ClientStats = {
   invoiceCount: number;
   avgTicket: number;
   lastSaleAt: string | null;
-  /// Current calendar month (Africa/Algiers).
+  /// Month filter: "all" or "YYYY-MM" (Africa/Algiers). Everything below up to
+  /// `recent` is scoped to it; `totalSold` / `invoiceCount` stay lifetime.
+  selected: string;
+  selectedLabel: string;
+  selectedIsCurrent: boolean;
   monthSold: number;
   monthCount: number;
-  /// Previous month total, for the trend chip (null = nothing to compare to).
+  /// Month before the selected one, for the trend chip (null = nothing to compare to / "all").
   prevMonthSold: number | null;
-  /// Last 6 months, oldest first.
+  /// Last 12 months, oldest first.
   months: Array<{ key: string; label: string; total: number; current: boolean }>;
   topProducts: Array<{ productId: string; name: string; qty: number; revenue: number }>;
   /// Free items (3pack) given to this client this month.
@@ -47,6 +51,7 @@ export async function loadClientStats(
   locationId: string,
   clientId: string,
   locale: string,
+  month?: string,
 ): Promise<ClientStats> {
   const saleWhere = {
     companyId,
@@ -58,34 +63,48 @@ export async function loadClientStats(
 
   const now = new Date();
   const [cy, cm] = ymKey(now).split("-").map(Number);
-  const first = shiftMonth(cy, cm, -5);
+  const first = shiftMonth(cy, cm, -11);
   // Algeria has no DST (UTC+1): the 1st at 00:00 local is 23:00 UTC the day before.
-  const windowStart = new Date(Date.UTC(first.y, first.m - 1, 1) - 3600_000);
-  const monthStart = new Date(Date.UTC(cy, cm - 1, 1) - 3600_000);
+  const startOf = (y: number, m: number) => new Date(Date.UTC(y, m - 1, 1) - 3600_000);
+  const windowStart = startOf(first.y, first.m);
+  const curKey = `${cy}-${String(cm).padStart(2, "0")}`;
 
-  const [agg, win, recent, byProduct, gifts] = await Promise.all([
+  // Month filter (default = current month; "all" = no date limit).
+  const wanted = month && /^\d{4}-(0[1-9]|1[0-2])$/.test(month) ? month : month === "all" ? "all" : curKey;
+  let range: { gte: Date; lt: Date } | null = null;
+  let selY = cy;
+  let selM = cm;
+  if (wanted !== "all") {
+    [selY, selM] = wanted.split("-").map(Number);
+    const nx = shiftMonth(selY, selM, 1);
+    range = { gte: startOf(selY, selM), lt: startOf(nx.y, nx.m) };
+  }
+  const scopedWhere = range ? { ...saleWhere, date: range } : saleWhere;
+
+  const [agg, scopedAgg, win, recent, byProduct, gifts] = await Promise.all([
     prisma.sale.aggregate({ where: saleWhere, _sum: { total: true }, _count: true, _max: { date: true } }),
+    prisma.sale.aggregate({ where: scopedWhere, _sum: { total: true }, _count: true }),
     prisma.sale.findMany({
       where: { ...saleWhere, date: { gte: windowStart } },
       select: { date: true, total: true },
-      take: 5000,
+      take: 10000,
     }),
     prisma.sale.findMany({
-      where: saleWhere,
+      where: scopedWhere,
       orderBy: { date: "desc" },
-      take: 40,
+      take: range ? 200 : 40,
       select: { id: true, number: true, kind: true, date: true, total: true, paid: true, confirmedAt: true },
     }),
     prisma.saleLine.groupBy({
       by: ["productId"],
-      where: { isBonus: false, sale: saleWhere },
+      where: { isBonus: false, sale: scopedWhere },
       _sum: { baseQty: true, lineTotal: true },
       orderBy: { _sum: { lineTotal: "desc" } },
       take: 5,
     }),
     prisma.saleLine.groupBy({
       by: ["productId"],
-      where: { isBonus: true, sale: { ...saleWhere, date: { gte: monthStart } } },
+      where: { isBonus: true, sale: scopedWhere },
       _sum: { baseQty: true },
     }),
   ]);
@@ -101,12 +120,12 @@ export async function loadClientStats(
 
   // Monthly buckets (oldest → newest).
   const buckets = new Map<string, { total: number; count: number }>();
-  const months = Array.from({ length: 6 }, (_, i) => {
+  const months = Array.from({ length: 12 }, (_, i) => {
     const { y, m } = shiftMonth(first.y, first.m, i);
     const key = `${y}-${String(m).padStart(2, "0")}`;
     buckets.set(key, { total: 0, count: 0 });
     const label = new Date(Date.UTC(y, m - 1, 15)).toLocaleDateString(`${locale}-u-nu-latn`, { month: "short", timeZone: "UTC" });
-    return { key, label, total: 0, current: i === 5 };
+    return { key, label, total: 0, current: key === wanted };
   });
   for (const s of win) {
     const b = buckets.get(ymKey(s.date));
@@ -116,8 +135,14 @@ export async function loadClientStats(
     }
   }
   for (const m of months) m.total = buckets.get(m.key)?.total ?? 0;
-  const prev = months[4];
-  const prevHasSales = (buckets.get(prev.key)?.count ?? 0) > 0;
+  const pk = wanted === "all" ? null : shiftMonth(selY, selM, -1);
+  const prevKey = pk ? `${pk.y}-${String(pk.m).padStart(2, "0")}` : null;
+  const prevB = prevKey ? buckets.get(prevKey) : null;
+  const prevMonthSold = prevB && prevB.count > 0 ? prevB.total : null;
+  const selectedLabel =
+    wanted === "all"
+      ? ""
+      : new Date(Date.UTC(selY, selM - 1, 15)).toLocaleDateString(`${locale}-u-nu-latn`, { month: "long", year: "numeric", timeZone: "UTC" });
 
   const totalSold = Number(agg._sum.total ?? 0);
   const invoiceCount = agg._count;
@@ -131,9 +156,12 @@ export async function loadClientStats(
     invoiceCount,
     avgTicket: invoiceCount ? totalSold / invoiceCount : 0,
     lastSaleAt: agg._max.date ? agg._max.date.toISOString() : null,
-    monthSold: months[5].total,
-    monthCount: buckets.get(months[5].key)?.count ?? 0,
-    prevMonthSold: prevHasSales ? prev.total : null,
+    selected: wanted,
+    selectedLabel,
+    selectedIsCurrent: wanted === curKey,
+    monthSold: Number(scopedAgg._sum.total ?? 0),
+    monthCount: scopedAgg._count,
+    prevMonthSold,
     months,
     topProducts: byProduct.map((r) => ({
       productId: r.productId,

@@ -4,7 +4,7 @@ import { ClientName } from "@/components/clients/ClientName";
 import { useEffect, useMemo, useState } from "react";
 import { ApkOnly } from "@/components/layout/ApkOnly";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Banknote, ClipboardList, Lock, Package, PackageCheck, Plus, ReceiptText, RefreshCw, Satellite, Truck, UserRound, Wallet } from "lucide-react";
+import { ArrowLeft, Banknote, ClipboardList, Lock, Package, PackageCheck, Plus, ReceiptText, RefreshCw, ShoppingBag, Truck, UserPlus, UserRound, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { todaySlug } from "../../_days";
 import { ClosedShopButton, useClosedIds } from "@/components/livreur/ClosedShopButton";
 
-/// Step 3 — Dashboard hub: sale, factures, commande, commandes, stock, gps, sync.
+/// Step 3 — Dashboard hub: sale, factures, commande, commandes, stock, sync.
 export function DashClient({
   locale,
   day,
@@ -275,17 +275,18 @@ export function DashClient({
   const lockedKeys: string[] = role === "Admin" ? [] : jstate === "active" ? [] : ["sale", "order"];
 
   const tiles: Array<{ key: string; label: string; badge?: number; Icon: typeof Plus; cls: string; go: () => void }> = [
+    // Row 1: the three "new" actions. Then factures → orders → restock, then the rest.
     { key: "sale", label: labels.newSale, Icon: Plus, cls: "bg-(--brand-500) text-(--brand-contrast)", go: () => goPage(router, `/${locale}/livreur/${day}/vente${qs}`) },
+    { key: "order", label: labels.newCommand, Icon: ShoppingBag, cls: "bg-violet-500/15 text-violet-500", go: () => goPage(router, `/${locale}/livreur/${day}/commande${qs}`) },
+    { key: "newClient", label: labels.newClient, Icon: UserPlus, cls: "bg-emerald-500/15 text-emerald-600", go: () => goPage(router, `/${locale}/livreur/${day}/clients/new`) },
     { key: "factures", label: labels.factures, Icon: ReceiptText, cls: "bg-sky-500/15 text-sky-600", go: () => goPage(router, `/${locale}/livreur/${day}/factures`) },
-    { key: "order", label: labels.newCommand, Icon: ClipboardList, cls: "bg-violet-500/15 text-violet-500", go: () => goPage(router, `/${locale}/livreur/${day}/commande${qs}`) },
     { key: "orders", label: labels.commandes, Icon: ClipboardList, cls: "bg-indigo-500/15 text-indigo-500", go: () => goPage(router, `/${locale}/livreur/${day}/commandes`) },
-    { key: "ready", label: labels.ready, badge: readyCount, Icon: Truck, cls: "bg-emerald-500/15 text-emerald-600", go: () => goPage(router, `/${locale}/livreur/${day}/commandes?ready=1`) },
     { key: "demande", label: labels.restock ?? "Restock", Icon: PackageCheck, cls: "bg-teal-500/15 text-teal-600", go: () => goPage(router, `/${locale}/livreur/${day}/demande`) },
+    { key: "ready", label: labels.ready, badge: readyCount, Icon: Truck, cls: "bg-emerald-500/15 text-emerald-600", go: () => goPage(router, `/${locale}/livreur/${day}/commandes?ready=1`) },
     { key: "stock", label: role === "Vendeur" ? (labels.stockDepot ?? labels.stock) : labels.stock, Icon: Package, cls: "bg-amber-500/15 text-amber-600", go: () => goPage(router, `/${locale}/livreur/${day}/stock`) },
     { key: "till", label: labels.declare, Icon: Banknote, cls: "bg-lime-500/15 text-lime-600", go: () => { openTill(); } },
     { key: "expense", label: labels.expense, Icon: Wallet, cls: "bg-orange-500/15 text-orange-600", go: () => goPage(router, `/${locale}/livreur/${day}/expenses`) },
     { key: "dayClients", label: labels.clients, Icon: UserRound, cls: "bg-cyan-500/15 text-cyan-600", go: () => goPage(router, `/${locale}/livreur/${day}`) },
-    { key: "gps", label: labels.gps, Icon: Satellite, cls: "bg-sky-500/15 text-sky-600", go: () => goPage(router, `/${locale}/livreur/${day}/gps`) },
   ];
   // Vendeur (مندوب): orders/stock/expenses only — no sale creation, no
   // factures, no restock requests, no "ready to deliver" lane, no till

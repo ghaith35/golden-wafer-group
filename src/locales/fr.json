@@ -2231,7 +2231,7 @@
     "lastSale": "Dernière vente",
     "never": "Aucune vente",
     "vsLast": "vs mois dernier",
-    "last6": "6 derniers mois",
+    "last6": "12 derniers mois",
     "topProducts": "Produits les plus achetés",
     "noProducts": "Aucun produit",
     "offersMonth": "Offres du mois",
@@ -2251,6 +2251,9 @@
     "navigate": "Itinéraire",
     "unsynced": "Client pas encore synchronisé",
     "units": "u.",
-    "thisMonth": "Ce mois"
+    "thisMonth": "Ce mois",
+    "all": "Tout",
+    "offers": "Offres",
+    "period": "Période"
   }
 }

@@ -14,11 +14,14 @@ import { ClientView } from "./ClientView";
 /// top products, this month's offers and the client's invoices.
 export default async function LivreurClientPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; day: string; id: string }>;
+  searchParams: Promise<{ m?: string }>;
 }) {
   const { locale, day, id: rawId } = await params;
   const id = decodeURIComponent(rawId);
+  const { m } = await searchParams;
   setRequestLocale(locale);
   const session = await getSession();
   if (!session) redirect(`/${locale}/login`);
@@ -48,7 +51,7 @@ export default async function LivreurClientPage({
   if (!pending && !row) redirect(`/${locale}/livreur/${day}`);
 
   const [stats, closedToday, jTour] = await Promise.all([
-    row ? loadClientStats(session.companyId, van.id, row.id, locale) : Promise.resolve(null),
+    row ? loadClientStats(session.companyId, van.id, row.id, locale, m) : Promise.resolve(null),
     closedClientIdsToday(session.companyId, van.id).catch(() => [] as string[]),
     todayJourneeTour(session.companyId, van.id).catch(() => null),
   ]);
@@ -91,7 +94,7 @@ export default async function LivreurClientPage({
         invoicesTitle: tv("invoicesTitle"), noInvoices: tv("noInvoices"), paid: tv("paid"), due: tv("due"), onHold: tv("onHold"),
         phone: tv("phone"), address: tv("address"), sector: tv("sector"), activity: tv("activity"), tier: tv("tier"),
         since: tv("since"), navigate: tv("navigate"), unsynced: tv("unsynced"), units: tv("units"),
-        thisMonth: tv("thisMonth"),
+        thisMonth: tv("thisMonth"), all: tv("all"), offers: tv("offers"), period: tv("period"),
       }}
     />
   );
