@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { AlertTriangle, Layers, Plus, Sparkles, Trash2, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { dzMoney } from "@/lib/format";
@@ -95,6 +95,40 @@ export function QtyLadder({
   );
 }
 
+/// Number box that lets you type freely (select-all + retype replaces the whole
+/// value). The neighbour clamp is applied live only when the typed number is in
+/// range, and always on blur/Enter — never mid-keystroke.
+function MinInput({ value, lo, hi, disabled, onCommit }: { value: number; lo: number; hi: number; disabled?: boolean; onCommit: (q: number) => void }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const finish = () => {
+    if (draft !== null) {
+      const n = Math.round(Number(draft));
+      if (draft.trim() !== "" && Number.isFinite(n)) onCommit(Math.max(lo, Math.min(hi, n)));
+      setDraft(null);
+    }
+  };
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      dir="ltr"
+      disabled={disabled}
+      value={draft ?? String(value)}
+      onFocus={(e) => e.currentTarget.select()}
+      onChange={(e) => {
+        const v = e.target.value.replace(/[^0-9]/g, "").slice(0, 7);
+        setDraft(v);
+        const n = Number(v);
+        if (v !== "" && n >= lo && n <= hi) onCommit(n);
+      }}
+      onBlur={finish}
+      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); finish(); e.currentTarget.blur(); } }}
+      className="h-10 w-20 rounded-lg border border-(--border-default) bg-(--bg-sunken) px-2 text-center text-sm font-black tabular-nums outline-none focus:border-(--brand-500) disabled:opacity-60"
+    />
+  );
+}
+
 function UnitLadder({
   unit, rungs, options, tierName, priceOfTier, hasTierPrice, canEnable, onChange, onEnable, onDisable,
 }: {
@@ -110,6 +144,7 @@ function UnitLadder({
   onDisable: () => void;
 }) {
   const t = useTranslations("products");
+  const rtl = useLocale() === "ar";
   const on = rungs.length >= 2;
   const trackRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<number | null>(null);
@@ -144,7 +179,8 @@ function UnitLadder({
     const el = trackRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    const x = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    const raw = rtl ? (rect.right - clientX) / rect.width : (clientX - rect.left) / rect.width;
+    const x = Math.min(1, Math.max(0, raw));
     setMin(i, snap(fromX(x, max)));
   };
 
@@ -174,7 +210,7 @@ function UnitLadder({
       {on && (
         <div className="space-y-3 border-t border-(--border-default) px-3.5 pb-4 pt-3">
           {/* ── Range track: drag the dividers ── */}
-          <div ref={trackRef} dir="ltr" className="relative flex h-[88px] touch-none select-none overflow-hidden rounded-2xl border border-(--border-default)">
+          <div ref={trackRef} dir={rtl ? "rtl" : "ltr"} className="relative flex h-[88px] touch-none select-none overflow-hidden rounded-2xl border border-(--border-default)">
             {rungs.map((r, i) => {
               const w = (toX(rungs[i + 1]?.minQty ?? max, max) - toX(r.minQty, max)) * 100;
               const color = LADDER_TONES[i % LADDER_TONES.length];
@@ -191,7 +227,6 @@ function UnitLadder({
                     boxShadow: active ? `inset 0 0 0 2px ${color}` : undefined,
                     transition: drag === null ? "width 0.45s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s" : "box-shadow 0.2s",
                   }}
-                  dir="auto"
                 >
                   <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ background: color }} />
                   <div className="truncate text-[11px] font-black opacity-70"><bdi>{rangeText(rungs, i, t("ladderPlus"))}</bdi></div>
@@ -216,15 +251,17 @@ function UnitLadder({
                   aria-valuemax={rungs[i + 1] ? rungs[i + 1].minQty - 1 : 10_000_000}
                   aria-valuenow={r.minQty}
                   data-no-ripple
-                  className="absolute top-0 z-[2] flex h-full w-8 -translate-x-1/2 cursor-ew-resize items-center justify-center outline-none"
-                  style={{ left: `${left}%`, transition: drag === i ? "none" : "left 0.45s cubic-bezier(0.34,1.56,0.64,1)" }}
+                  className={cn("absolute top-0 z-[2] flex h-full w-8 cursor-ew-resize items-center justify-center outline-none", rtl ? "translate-x-1/2" : "-translate-x-1/2")}
+                  style={{ [rtl ? "right" : "left"]: `${left}%`, transition: drag === i ? "none" : `${rtl ? "right" : "left"} 0.45s cubic-bezier(0.34,1.56,0.64,1)` }}
                   onPointerDown={(e) => { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); setDrag(i); haptic("select"); }}
                   onPointerMove={(e) => { if (drag === i) onHandleMove(i, e.clientX); }}
                   onPointerUp={() => setDrag(null)}
                   onPointerCancel={() => setDrag(null)}
                   onKeyDown={(e) => {
-                    if (e.key === "ArrowRight" || e.key === "ArrowUp") { e.preventDefault(); setMin(i, r.minQty + 1); }
-                    if (e.key === "ArrowLeft" || e.key === "ArrowDown") { e.preventDefault(); setMin(i, r.minQty - 1); }
+                    const up = rtl ? "ArrowLeft" : "ArrowRight";
+                    const down = rtl ? "ArrowRight" : "ArrowLeft";
+                    if (e.key === up || e.key === "ArrowUp") { e.preventDefault(); setMin(i, r.minQty + 1); }
+                    if (e.key === down || e.key === "ArrowDown") { e.preventDefault(); setMin(i, r.minQty - 1); }
                   }}
                 >
                   <span className={cn("flex h-10 w-3.5 flex-col items-center justify-center gap-[3px] rounded-full bg-white shadow-lg ring-1 ring-black/10 transition-transform", drag === i && "scale-110")}>
@@ -250,14 +287,12 @@ function UnitLadder({
                   <div className="flex flex-wrap items-center gap-2">
                     <div className="flex items-center gap-1.5">
                       <span className="text-[11px] font-black text-(--text-tertiary)">{t("ladderFrom")}</span>
-                      <input
-                        type="number"
-                        inputMode="numeric"
-                        min={1}
+                      <MinInput
                         disabled={i === 0}
                         value={i === 0 ? 1 : r.minQty}
-                        onChange={(e) => setMin(i, Number(e.target.value))}
-                        className="h-10 w-20 rounded-lg border border-(--border-default) bg-(--bg-sunken) px-2 text-center text-sm font-black tabular-nums outline-none focus:border-(--brand-500) disabled:opacity-60"
+                        lo={(rungs[i - 1]?.minQty ?? 0) + 1}
+                        hi={rungs[i + 1] ? rungs[i + 1].minQty - 1 : 10_000_000}
+                        onCommit={(q) => setMin(i, q)}
                       />
                     </div>
                     <div className="flex min-w-0 flex-1 flex-wrap gap-1" role="radiogroup">
@@ -313,7 +348,7 @@ function UnitLadder({
             <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-black text-(--text-tertiary)">
               <TrendingDown size={13} />{t("ladderTry")}
             </div>
-            <div className="flex items-center gap-3" dir="ltr">
+            <div className="flex items-center gap-3" dir={rtl ? "rtl" : "ltr"}>
               <input
                 type="range"
                 min={0}
@@ -324,14 +359,7 @@ function UnitLadder({
                 aria-label={t("ladderTry")}
                 className="h-2 min-w-0 flex-1 cursor-pointer accent-(--brand-500)"
               />
-              <input
-                type="number"
-                inputMode="numeric"
-                min={1}
-                value={tryQ}
-                onChange={(e) => setTryQ(Math.max(1, Math.round(Number(e.target.value)) || 1))}
-                className="h-10 w-20 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-center text-sm font-black tabular-nums outline-none focus:border-(--brand-500)"
-              />
+              <MinInput value={tryQ} lo={1} hi={10_000_000} onCommit={setTryQ} />
             </div>
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
               <span className="rounded-full px-2.5 py-1 text-xs font-black text-white transition-colors" style={{ background: LADDER_TONES[(pick?.index ?? 0) % LADDER_TONES.length] }}>
