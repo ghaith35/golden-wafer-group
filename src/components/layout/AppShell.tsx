@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
@@ -19,6 +19,7 @@ import { ApkOnly } from "@/components/layout/ApkOnly";
 import { LocationPrompt } from "@/components/track/LocationPrompt";
 import { AutoUpdate } from "@/components/sync/AutoUpdate";
 import { useSavedDistances } from "@/lib/geo";
+import { PullToRefresh } from "@/components/motion/PullToRefresh";
 
 const COLLAPSED_KEY = "distribuili-sidebar-collapsed";
 
@@ -100,6 +101,30 @@ export function AppShell({ children, initialRole = null, initialUsername = null,
   // Livreur flow: app chrome (sidebar, drawer, tabs) stays hidden on the
   // Journée picker and appears once a day is selected.
   const hideChrome = /^\/[a-z]{2}\/livreur\/?$/.test(pathname ?? "");
+  // Direction-aware page slide: deeper path → slides in from the reading edge,
+  // shallower (back) → from the opposite side, sibling section → plain fade.
+  // Only top-level blocks WITHOUT fixed descendants get the transform (a
+  // transformed ancestor would re-anchor position:fixed bars).
+  const mainRef = useRef<HTMLElement>(null);
+  const prevPath = useRef(pathname);
+  useLayoutEffect(() => {
+    const main = mainRef.current;
+    const from = prevPath.current ?? "";
+    prevPath.current = pathname;
+    if (!main || from === pathname || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const depth = (p: string) => p.split("/").filter(Boolean).length;
+    const dir = depth(pathname ?? "") > depth(from) ? "in" : depth(pathname ?? "") < depth(from) ? "back" : null;
+    if (!dir) return;
+    main.setAttribute("data-nav", dir);
+    Array.from(main.children).forEach((c) => {
+      if (!c.querySelector('.fixed, [class*="fixed"], .gw-bottom-bar, .gw-continue, .leaflet-container')) c.setAttribute("data-gw-slide", dir);
+    });
+    const id = window.setTimeout(() => {
+      main.removeAttribute("data-nav");
+      main.querySelectorAll(":scope > [data-gw-slide]").forEach((c) => c.removeAttribute("data-gw-slide"));
+    }, 700);
+    return () => window.clearTimeout(id);
+  }, [pathname]);
   // The logo layer follows the user's top-bar switch (remembered on this device).
   useEffect(() => {
     applyLogoClass(getLogoOn());
@@ -416,7 +441,8 @@ export function AppShell({ children, initialRole = null, initialUsername = null,
 
       <div data-shell-content className={cn("pt-[calc(60px+env(safe-area-inset-top))] transition-all duration-300 ease-in-out md:pt-[calc(3.5rem+env(safe-area-inset-top))] print:pt-0", !hideChrome && (collapsed ? "md:ps-[68px]" : "md:ps-60"))}>
         <TopBar onMenuClick={() => setNavOpen(true)} onLogout={logout} syncLabels={syncLabels} forceSyncShow={role !== "Admin"} hideMenu={hideChrome} username={username} sidebarOffset={hideChrome ? "none" : collapsed ? "slim" : "wide"} />
-        <main className={!hideChrome && visibleTabs.length > 0 ? "pb-20 md:pb-0" : ""}>{children}</main>
+        <main ref={mainRef} className={!hideChrome && visibleTabs.length > 0 ? "pb-20 md:pb-0" : ""}>{children}</main>
+        {!hideChrome && <PullToRefresh />}
         {/* Global connection-loss dialog: one controlled reload into offline
             mode instead of a silently half-broken page. Mounted for every
             role — drivers need it most, admins hit dead tunnels too. */}
@@ -424,7 +450,12 @@ export function AppShell({ children, initialRole = null, initialUsername = null,
         {!hideChrome && visibleTabs.length > 0 && (
         <nav className="fixed inset-x-0 bottom-0 flex border-t border-(--border-default) bg-(--bg-overlay) pb-[env(safe-area-inset-bottom)] print:hidden md:hidden">
           {visibleTabs.map((item) => (
-            <Link key={item.key} href={`/${locale}/${item.href}`} className="flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold leading-tight opacity-70">
+            <Link
+              key={item.key}
+              href={`/${locale}/${item.href}`}
+              aria-current={(pathname ?? "").includes(`/${item.href.split("?")[0]}`) ? "page" : undefined}
+              className="gw-tab flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-2 text-[10px] font-semibold leading-tight opacity-70"
+            >
               <item.Icon size={19} />
               <span className="max-w-full truncate">{t(item.key)}</span>
             </Link>
@@ -468,6 +499,17 @@ function SidebarBody({
   }, [pathname]);
   // Global position refresh (per-user snapshot). Meta unused here.
   const { locating, geoError, locate } = useSavedDistances({ unitM: "", unitKm: "", unitMin: "" });
+  // Sliding active-item indicator (springs between entries).
+  const navRef = useRef<HTMLElement>(null);
+  const [ind, setInd] = useState<{ y: number; h: number } | null>(null);
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    const a = nav?.querySelector<HTMLElement>('a[aria-current="page"]');
+    if (!nav || !a) { setInd(null); return; }
+    let y = 0;
+    for (let n: HTMLElement | null = a; n && n !== nav; n = n.offsetParent as HTMLElement | null) y += n.offsetTop;
+    setInd({ y: y + a.offsetHeight * 0.2, h: a.offsetHeight * 0.6 });
+  }, [pathname, navQuery, collapsed, groups]);
 
   return (
     <>
@@ -499,7 +541,8 @@ function SidebarBody({
         </button>
       )}
 
-      <nav className="side-nav min-h-0 flex-1 overflow-y-auto px-0 py-0.5">
+      <nav ref={navRef} className="side-nav min-h-0 flex-1 overflow-y-auto px-0 py-0.5">
+        {ind && <span aria-hidden className="gw-side-ind" style={{ height: ind.h, transform: `translateY(${ind.y}px)` }} />}
         {groups.map((group, gi) => (
           <div key={group.label} className={cn("mt-0.5 first:mt-0", gi > 0 && "mt-1.5 border-t border-(--border-subtle) pt-1.5")}>
             {!collapsed && (

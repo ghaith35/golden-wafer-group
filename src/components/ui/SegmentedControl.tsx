@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/motion";
 
 /// Khiata-style segmented control: bordered tray, active option is a raised
 /// surface tile (not a brand fill) — quieter than the old brand-fill pills.
@@ -16,7 +17,13 @@ export function SegmentedControl<T extends string>({
   ariaLabel?: string;
 }) {
   return (
-    <div className="flex w-full gap-1 rounded-[11px] border border-(--border-default) bg-(--bg-surface) p-1" role="radiogroup" aria-label={ariaLabel}>
+    <div
+      className="gw-seg flex w-full gap-1 rounded-[11px] border border-(--border-default) bg-(--bg-surface) p-1"
+      role="radiogroup"
+      aria-label={ariaLabel}
+      style={{ "--n": options.length, "--i": Math.max(0, options.findIndex((o) => o.value === value)) } as React.CSSProperties}
+    >
+      <span aria-hidden className="gw-seg-pill" />
       {options.map((o) => {
         const active = o.value === value;
         return (
@@ -25,11 +32,11 @@ export function SegmentedControl<T extends string>({
             type="button"
             role="radio"
             aria-checked={active}
-            onClick={() => onChange(o.value)}
+            onClick={() => { if (!active) haptic("select"); onChange(o.value); }}
             className={cn(
-              "min-h-9 flex-1 rounded-[8px] px-2 text-[12px] transition-colors",
+              "relative z-[1] min-h-9 flex-1 rounded-[8px] px-2 text-[12px] transition-colors",
               active
-                ? "bg-(--bg-overlay) font-black text-(--text-primary) shadow-sm"
+                ? "font-black text-(--text-primary)"
                 : "font-bold text-(--text-secondary) hover:text-(--text-primary)"
             )}
           >

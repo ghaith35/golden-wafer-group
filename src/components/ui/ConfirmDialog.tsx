@@ -43,8 +43,6 @@ export function ConfirmDialog({
     };
   }, [open ]);
 
-  if (!open) return null;
-
   return (
     <Modal open={open} onClose={onClose} title={title} width="sm" icon="⚠️">
       <p className="text-sm text-(--text-secondary)">{message}</p>

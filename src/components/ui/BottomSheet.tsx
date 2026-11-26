@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { useKeyboardInset } from "@/lib/useKeyboardInset";
+import { usePresence } from "@/lib/motion";
 
 /// Thumb-friendly bottom sheet: slides up, drag the handle down (or tap the
 /// backdrop / ✕ / Escape) to close. Works on every phone:
@@ -29,6 +30,7 @@ export function BottomSheet({
   testId?: string;
 }) {
   const kb = useKeyboardInset();
+  const { mounted, state } = usePresence(open);
   const [dy, setDy] = useState(0);
   const [dragging, setDragging] = useState(false);
   const startY = useRef<number | null>(null);
@@ -51,7 +53,7 @@ export function BottomSheet({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!mounted) return null;
 
   const onTouchStart = (e: React.TouchEvent) => {
     startY.current = e.touches[0].clientY;
@@ -69,19 +71,20 @@ export function BottomSheet({
   };
 
   return (
-    <div className="fixed inset-x-0 top-0 z-50 print:hidden" style={{ bottom: kb }} data-testid={testId}>
+    <div className="fixed inset-x-0 top-0 z-50 print:hidden" style={{ bottom: kb }} data-testid={testId} data-state={state}>
       <button
         type="button"
         aria-label="close"
         tabIndex={-1}
         onClick={onClose}
-        className="gw-fade-in absolute inset-0 cursor-default bg-black/55 backdrop-blur-[2px]"
+        className="gw-backdrop absolute inset-0 cursor-default bg-black/55 backdrop-blur-[2px]"
         style={{ opacity: dragging ? Math.max(0.3, 1 - dy / 400) : 1 }}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
+        data-state={state}
         className="gw-sheet absolute inset-x-0 bottom-0 mx-auto flex max-h-[92%] w-full max-w-xl flex-col overflow-hidden rounded-t-3xl border border-b-0 border-(--border-default) bg-(--bg-page) shadow-[0_-18px_48px_-12px_rgba(0,0,0,0.45)]"
         style={{
           transform: dy ? `translateY(${dy}px)` : undefined,

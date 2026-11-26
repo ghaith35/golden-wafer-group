@@ -635,11 +635,14 @@ main .grid > *:nth-child(5), .table-shell tbody tr:nth-child(5) { animation-dela
 main .grid > *:nth-child(6), .table-shell tbody tr:nth-child(6) { animation-delay: 0.18s; }
 main .grid > *:nth-child(n+7), .table-shell tbody tr:nth-child(n+7) { animation-delay: 0.21s; }
 /* Dialogs / sheets / dropdown menus. */
-[role="dialog"], .animate-pop { animation: gw-pop 0.25s var(--ease-out); }
+[role="dialog"]:not([data-state]), .animate-pop { animation: gw-pop 0.25s var(--ease-out); }
 [role="menu"], header .absolute.z-50 { animation: gw-pop 0.18s var(--ease-out); transform-origin: top; }
 
 @media (prefers-reduced-motion: reduce) {
   main > *, main .grid > *, main ul > li, .table-shell tbody tr, [role="dialog"], [role="menu"] { animation: none !important; }
+  .gw-overlay, .gw-panel, .gw-backdrop, .gw-sheet, .gw-toast, .gw-skel::after, .gw-check, .gw-shake, .gw-float { animation: none !important; }
+  .gw-ripple-host { display: none !important; }
+  .gw-logo-reveal, .gw-stagger-1, .gw-stagger-2, .gw-stagger-3, .gw-breathe { animation: none !important; }
   button.bg-gradient-brand::after, a.bg-gradient-brand::after { display: none; }
   html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after { transition: none !important; }
 }
@@ -652,7 +655,7 @@ main .grid > *:nth-child(n+7), .table-shell tbody tr:nth-child(n+7) { animation-
 @keyframes gw-bar-rise { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); } }
 @keyframes gw-grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes gw-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-@keyframes gw-donut { from { stroke-opacity: 0; } to { stroke-opacity: 1; } }
+@keyframes gw-donut { from { stroke-dasharray: 0 var(--c); } to { stroke-dasharray: var(--len) calc(var(--c) - var(--len)); } }
 @keyframes gw-pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.8); } }
 .gw-bar-rise { animation: gw-bar-rise 0.7s var(--ease-out) backwards; }
 .gw-grow-x { animation: gw-grow-x 0.9s var(--ease-out) backwards; transform-origin: left; }
@@ -730,3 +733,127 @@ html[data-modal-open], html[data-modal-open] body { overflow: hidden !important;
 /* Horizontal rows (price buttons) scroll without a visible bar. */
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+
+/* ═══ Motion layer v2 ════════════════════════════════════════════════════ */
+:root { --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); --nav-x: 1; }
+[dir="rtl"] { --nav-x: -1; }
+@keyframes gw-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes gw-panel-in { from { opacity: 0; transform: translateY(18px) scale(0.94); } to { opacity: 1; transform: none; } }
+@keyframes gw-panel-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(10px) scale(0.97); } }
+@keyframes gw-sheet-in { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes gw-sheet-down { from { transform: translateY(0); } to { transform: translateY(100%); } }
+
+/* Popups: backdrop fades + blurs in, panel springs in; both animate OUT. */
+.gw-overlay { animation: gw-fade 0.22s ease both; }
+.gw-overlay[data-state="closed"] { animation: gw-fade-out 0.2s ease both; pointer-events: none; }
+.gw-panel { animation: gw-panel-in 0.38s var(--ease-spring) backwards; will-change: transform, opacity; }
+.gw-overlay[data-state="closed"] .gw-panel { animation: gw-panel-out 0.2s ease-in both; }
+@media (max-width: 767px) {
+  .gw-panel { animation-name: gw-sheet-in; animation-duration: 0.4s; animation-timing-function: var(--ease-out); }
+  .gw-overlay[data-state="closed"] .gw-panel { animation-name: gw-sheet-down; animation-duration: 0.22s; animation-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+}
+.gw-backdrop { animation: gw-fade 0.25s ease both; }
+[data-state="closed"] > .gw-backdrop { animation: gw-fade-out 0.2s ease both; }
+[data-state="closed"] .gw-sheet { animation: gw-sheet-down 0.22s cubic-bezier(0.4, 0, 1, 1) both !important; pointer-events: none; }
+[data-state="closed"] { pointer-events: none; }
+
+/* Directional page slide (JS tags eligible blocks — see AppShell). */
+@keyframes gw-nav-in { from { opacity: 0; transform: translateX(calc(var(--nav-x) * 22px)); } to { opacity: 1; transform: none; } }
+@keyframes gw-nav-back { from { opacity: 0; transform: translateX(calc(var(--nav-x) * -22px)); } to { opacity: 1; transform: none; } }
+main[data-nav] { overflow-x: clip; }
+main > [data-gw-slide="in"] { animation-name: gw-nav-in; animation-duration: 0.42s; }
+main > [data-gw-slide="back"] { animation-name: gw-nav-back; animation-duration: 0.42s; }
+
+/* Top route-progress bar. */
+.gw-progress { position: fixed; inset-inline: 0; top: 0; z-index: 2147483000; height: 3px; pointer-events: none; opacity: 0; transition: opacity 0.25s ease; }
+.gw-progress > i { display: block; height: 100%; width: 100%; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--brand-300), var(--brand-500), var(--brand-600)); box-shadow: 0 0 10px var(--brand-500), 0 0 4px var(--brand-400); border-radius: 0 3px 3px 0; }
+[dir="rtl"] .gw-progress > i { transform-origin: right; }
+
+/* Skeletons. */
+@keyframes gw-shimmer { to { transform: translateX(100%); } }
+.gw-skel { position: relative; overflow: hidden; background: var(--bg-sunken); border-radius: 0.75rem; }
+.gw-skel::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent); animation: gw-shimmer 1.4s ease-in-out infinite; }
+[dir="rtl"] .gw-skel::after { transform: translateX(100%); animation-direction: reverse; }
+.dark .gw-skel::after { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent); }
+
+/* Ripple (overlay appended to <body> by MotionBoot — never touches React DOM). */
+.gw-ripple-host { position: fixed; z-index: 2147482000; overflow: hidden; pointer-events: none; }
+.gw-ripple { position: absolute; border-radius: 50%; background: currentColor; opacity: 0.22; transform: scale(0); animation: gw-ripple 0.6s var(--ease-out) forwards; }
+@keyframes gw-ripple { to { transform: scale(1); opacity: 0; } }
+
+/* Toasts. */
+.gw-toaster { position: fixed; z-index: 2147482500; inset-inline: 0; bottom: calc(5.25rem + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding-inline: 0.75rem; pointer-events: none; }
+@media (min-width: 768px) { .gw-toaster { bottom: 1.5rem; align-items: flex-end; inset-inline: auto; inset-inline-end: 0; padding-inline: 1.5rem; width: 26rem; max-width: 100vw; } }
+.gw-toast { position: relative; overflow: hidden; pointer-events: auto; display: flex; width: 100%; max-width: 26rem; align-items: center; gap: 0.625rem; padding: 0.75rem 0.875rem; border-radius: 1rem; border: 1px solid var(--border-default); background: var(--bg-overlay); color: var(--text-primary); font-size: 0.8125rem; font-weight: 800; box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.5), var(--card-edge); animation: gw-toast-in 0.45s var(--ease-spring) both; touch-action: pan-y; }
+.gw-toast[data-leaving="true"] { animation: gw-toast-out 0.25s ease-in both; }
+@keyframes gw-toast-in { from { opacity: 0; transform: translateY(24px) scale(0.92); } to { opacity: 1; transform: none; } }
+@keyframes gw-toast-out { to { opacity: 0; transform: translateX(calc(var(--nav-x) * 40px)) scale(0.95); } }
+.gw-toast-bar { position: absolute; inset-inline: 0; bottom: 0; height: 3px; transform-origin: left; animation: gw-toast-bar linear forwards; opacity: 0.85; }
+[dir="rtl"] .gw-toast-bar { transform-origin: right; }
+@keyframes gw-toast-bar { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+/* Success check / error shake / float / pulse ring. */
+.gw-check circle { stroke-dasharray: 1; stroke-dashoffset: 1; animation: gw-draw-in 0.5s var(--ease-out) forwards; }
+.gw-check path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: gw-draw-in 0.4s var(--ease-out) 0.35s forwards; }
+@keyframes gw-draw-in { to { stroke-dashoffset: 0; } }
+@keyframes gw-shake { 0%, 100% { transform: none; } 18% { transform: translateX(-7px); } 36% { transform: translateX(6px); } 54% { transform: translateX(-4px); } 72% { transform: translateX(3px); } }
+.gw-shake { animation: gw-shake 0.45s ease-in-out; }
+@keyframes gw-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+.gw-float { animation: gw-float 3.2s ease-in-out infinite; }
+@keyframes gw-ring { 0% { transform: scale(0.6); opacity: 0.7; } 100% { transform: scale(2.2); opacity: 0; } }
+@keyframes gw-pin-drop { 0% { transform: translateY(-26px) scale(0.5); opacity: 0; } 60% { transform: translateY(2px) scale(1.08); opacity: 1; } 100% { transform: none; } }
+.gw-pin-drop { animation: gw-pin-drop 0.5s var(--ease-spring) both; }
+.gw-van-ring { position: absolute; inset: 0; border-radius: 50%; animation: gw-ring 2s ease-out infinite; }
+/* Vans glide between GPS fixes (Leaflet moves markers with translate3d). */
+.gw-van-marker { transition: transform 1.4s linear; }
+.leaflet-zoom-anim .gw-van-marker, .leaflet-dragging .gw-van-marker { transition: none; }
+
+/* Segmented control: sliding pill (index-driven, RTL-aware). */
+.gw-seg { position: relative; }
+.gw-seg-pill { position: absolute; top: 4px; bottom: 4px; inset-inline-start: 4px; width: calc((100% - 8px - (var(--n) - 1) * 4px) / var(--n)); border-radius: 8px; background: var(--bg-overlay); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18), var(--card-edge); transform: translateX(calc(var(--i) * (100% + 4px) * var(--d, 1))); transition: transform 0.38s var(--ease-spring); pointer-events: none; }
+[dir="rtl"] .gw-seg-pill { --d: -1; }
+
+/* Sidebar: sliding active indicator, icon wiggle, staggered label fade. */
+.side-nav { position: relative; }
+.gw-side-ind { position: absolute; inset-inline-start: 0; width: 3px; border-radius: 3px; background: var(--brand-500); box-shadow: 0 0 10px var(--brand-500); transition: transform 0.4s var(--ease-spring), height 0.3s var(--ease-out), opacity 0.2s; pointer-events: none; z-index: 1; }
+.side-item svg { transition: transform 0.3s var(--ease-spring); }
+.side-item:hover svg { transform: scale(1.14) rotate(-6deg); }
+.side-item[aria-current="page"] svg { animation: gw-bump 0.5s var(--ease-out); }
+@keyframes gw-label-in { from { opacity: 0; transform: translateX(calc(var(--nav-x) * -6px)); } to { opacity: 1; transform: none; } }
+.side-item > span:nth-child(2) { animation: gw-label-in 0.3s var(--ease-out) backwards; }
+
+/* Mobile tab bar: active pill + icon pop. */
+.gw-tab { position: relative; }
+.gw-tab[aria-current="page"] { opacity: 1 !important; color: var(--brand-600); }
+.gw-tab::before { content: ""; position: absolute; top: 4px; width: 46px; height: 28px; border-radius: 999px; background: color-mix(in srgb, var(--brand-500) 18%, transparent); transform: scale(0.4); opacity: 0; transition: transform 0.35s var(--ease-spring), opacity 0.2s; }
+.gw-tab[aria-current="page"]::before { transform: scale(1); opacity: 1; }
+.gw-tab svg { position: relative; transition: transform 0.35s var(--ease-spring); }
+.gw-tab[aria-current="page"] svg { transform: translateY(-1px) scale(1.12); }
+
+/* Empty state / collapse / pull-to-refresh. */
+.gw-collapse { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 0.35s var(--ease-out), opacity 0.25s ease; }
+.gw-collapse[data-open="true"] { grid-template-rows: 1fr; opacity: 1; }
+.gw-collapse > div { overflow: hidden; min-height: 0; }
+.gw-ptr { position: fixed; inset-inline: 0; top: calc(env(safe-area-inset-top) + 56px); z-index: 45; display: flex; justify-content: center; pointer-events: none; }
+.gw-ptr > div { display: flex; height: 40px; width: 40px; align-items: center; justify-content: center; border-radius: 999px; background: var(--bg-overlay); color: var(--brand-600); border: 1px solid var(--border-default); box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.45); }
+
+/* Press feedback on cards/rows people tap. */
+a[class*="bg-(--bg-overlay)"][class*="border-(--border-default)"]:active, button[class*="bg-(--bg-overlay)"][class*="border-(--border-default)"]:active { transform: scale(0.985); }
+
+/* Count-up digits don't jitter. */
+.gw-num { font-variant-numeric: tabular-nums; }
+
+/* Lite mode (weak phones): drop the expensive bits. */
+html.gw-lite * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+html.gw-lite main .grid > *, html.gw-lite main ul > li, html.gw-lite .table-shell tbody tr { animation: none !important; }
+html.gw-lite .gw-van-ring, html.gw-lite .gw-float { animation: none !important; }
+
+/* Login reveal. */
+@keyframes gw-logo-in { 0% { opacity: 0; transform: scale(0.5) rotate(-12deg); filter: blur(8px); } 60% { opacity: 1; transform: scale(1.08) rotate(2deg); filter: none; } 100% { opacity: 1; transform: none; filter: none; } }
+.gw-logo-reveal { animation: gw-logo-in 0.95s var(--ease-spring) both; }
+.gw-stagger-1 { animation: gw-rise 0.6s var(--ease-out) 0.3s both; }
+.gw-stagger-2 { animation: gw-rise 0.6s var(--ease-out) 0.42s both; }
+.gw-stagger-3 { animation: gw-rise 0.7s var(--ease-out) 0.55s both; }
+@keyframes gw-breathe { 0%, 100% { opacity: 0.55; transform: translate(-50%, -50%) scale(0.96); } 50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.05); } }
+.gw-breathe { animation: gw-breathe 6s ease-in-out infinite; }

@@ -5,6 +5,8 @@ import { routing } from "@/i18n/routing";
 import { UiZoomBoot } from "@/components/layout/UiZoomBoot";
 import { ModalGuard } from "@/components/layout/ModalGuard";
 import { DataSyncBoot } from "@/components/layout/DataSyncBoot";
+import { MotionBoot } from "@/components/layout/MotionBoot";
+import { Toaster } from "@/components/motion/Toaster";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -26,6 +28,8 @@ export default async function LocaleLayout({
       <UiZoomBoot />
       <ModalGuard />
       <DataSyncBoot />
+      <MotionBoot />
+      <Toaster />
       {children}
     </NextIntlClientProvider>
   );

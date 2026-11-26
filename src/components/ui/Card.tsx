@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { AnimatedText } from "@/components/motion/AnimatedText";
 
 export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 transition-[border-color,box-shadow] duration-200", className)} {...props} />;
@@ -34,8 +35,8 @@ export function KpiCard({
           </div>
         )}
         <div className="min-w-0">
-          <div className="truncate text-[10px] font-bold text-(--text-tertiary)">{label}</div>
-          <div className={cn("truncate text-base font-black tabular-nums", valueClassName)}>{value}</div>
+          <div className="line-clamp-2 text-[11px] font-bold leading-tight text-(--text-tertiary)">{label}</div>
+          <div className={cn("break-words text-base font-black leading-tight tabular-nums", valueClassName)}><AnimatedText text={value} /></div>
         </div>
       </div>
     );
@@ -50,7 +51,7 @@ export function KpiCard({
       )}
       <div className="w-full min-w-0">
         <div className="line-clamp-2 text-[11px] font-bold leading-tight text-(--text-tertiary)">{label}</div>
-        <div className={cn("whitespace-nowrap text-[clamp(16px,5vw,22px)] font-black leading-tight tabular-nums sm:text-[22px]", valueClassName)}>{value}</div>
+        <div className={cn("break-words text-[clamp(16px,5vw,22px)] font-black leading-tight tabular-nums sm:whitespace-nowrap sm:text-[22px]", valueClassName)}><AnimatedText text={value} /></div>
       </div>
     </div>
   );
