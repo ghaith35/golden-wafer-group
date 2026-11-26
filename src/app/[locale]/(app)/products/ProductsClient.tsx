@@ -1,8 +1,11 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { ladderOf, resolveTierPrice } from "@/lib/pricing";
+import { LADDER_TONES } from "@/components/products/QtyLadder";
 import { SwipeRow, SwipeEditDelete } from "@/components/motion/SwipeRow";
 import { useEffect, useState } from "react";
-import { Boxes, PackageX, Plus, Pencil, Trash2, Upload, Wallet } from "lucide-react";
+import { Boxes, PackageX, Plus, Pencil, Trash2, TrendingDown, Upload, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -47,7 +50,7 @@ type Full = ProductData & {
   stock: { qty: number; cump: number; value: number } | null;
 };
 
-const EMPTY: ProductData = { name: "", minStock: 0, salePrice: 0, costPrice: 0, images: [], conversions: [], tierPrices: [], saleUnitId: null, purchaseUnitId: null };
+const EMPTY: ProductData = { name: "", minStock: 0, salePrice: 0, costPrice: 0, images: [], conversions: [], tierPrices: [], qtyTiers: [], saleUnitId: null, purchaseUnitId: null };
 
 type ViewMode = "list" | "grid-2" | "grid-3" | "grid-4" | "grid-5";
 const VIEW_KEY = "distribuili-products-view";
@@ -153,6 +156,7 @@ export function ProductsClient({
       images: (p.images ?? []).map((i: { url: string }) => i.url),
       conversions: (p.conversions ?? []).map((c: { unitId: string; factor: unknown; barcode?: string | null }) => ({ unitId: c.unitId, factor: Number(c.factor), barcode: c.barcode ?? null })),
       tierPrices: (p.tierPrices ?? []).map((x: { tierId: string; price: unknown }) => ({ tierId: x.tierId, price: Number(x.price) })),
+      qtyTiers: (p.qtyTiers ?? []).map((r: { unitKey: string; minQty: unknown; tierId: string | null }) => ({ unitKey: r.unitKey, minQty: Number(r.minQty), tierId: r.tierId })),
     };
   }
 
@@ -200,6 +204,7 @@ export function ProductsClient({
     newSupplier: labels.newSupplier, newSupplierPh: labels.newSupplierPh,
   };
   const actionLabels = { details: labels.details, edit: labels.edit, delete: labels.delete };
+  const tProd = useTranslations("products");
   const tierName = (id: string) => tiers.find((x) => x.id === id)?.name ?? id;
   const unitName = (id: string) => units.find((u) => u.id === id)?.name ?? "—";
   const ladder = (p: Row) => (
@@ -423,6 +428,38 @@ export function ProductsClient({
                 </div>
               </div>
             )}
+            {(() => {
+              // Quantity ladder per colisage (read-only summary).
+              const keys = [...new Set((details.qtyTiers ?? []).map((r) => r.unitKey))];
+              const blocks = keys
+                .map((k) => ({ k, ladder: ladderOf((details.qtyTiers ?? []).map((r) => ({ ...r })), k) }))
+                .filter((b) => b.ladder.length >= 2);
+              if (blocks.length === 0) return null;
+              return (
+                <div>
+                  <div className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase opacity-60"><TrendingDown size={13} />{tProd("ladderTitle")}</div>
+                  <div className="space-y-2">
+                    {blocks.map(({ k, ladder }) => {
+                      const f = k === "" ? 1 : (details.conversions.find((c) => c.unitId === k)?.factor ?? 1);
+                      return (
+                        <div key={k || "base"} className="rounded-xl bg-(--bg-sunken) p-2.5">
+                          <div className="mb-1.5 text-xs font-black">{k === "" ? (details.baseUnitName ?? "—") : unitName(k)}</div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {ladder.map((r, i) => (
+                              <span key={r.minQty} className="rounded-lg border border-(--border-default) bg-(--bg-overlay) px-2 py-1 text-[11px] font-black tabular-nums" style={{ borderInlineStartWidth: 3, borderInlineStartColor: LADDER_TONES[i % LADDER_TONES.length] }}>
+                                <bdi>{i === 0 ? 1 : r.minQty}{ladder[i + 1] ? `–${ladder[i + 1].minQty - 1}` : "+"}</bdi>
+                                {" · "}{r.tierId ? tierName(r.tierId) : labels.salePrice}
+                                {" · "}<b className="text-(--brand-600)">{dz(resolveTierPrice(details.tierPrices, details.salePrice, r.tierId) * f)}</b>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
             {details.stock && (
               <div>
                 <div className="mb-1 text-xs font-bold uppercase opacity-60">{labels.stock}</div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { QtyLadderHint } from "@/components/sales/QtyLadderHint";
+import { ladderLine } from "@/lib/pricing";
 import { matchClient } from "@/lib/clients/display";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,7 +11,7 @@ import { Minus, Package, Plus, ShoppingBasket, Trash2, UserRound, Wallet, Store,
 import { SaleProductPicker } from "@/components/sales/SaleProductPicker";
 import { Avatar } from "@/components/ui/Avatar";
 import { dzMoney } from "@/lib/format";
-import { UnitQty, PackInfo, factorOf, baseNameOf, priceForUnit, saleUnits } from "@/components/products/UnitQty";
+import { UnitQty, PackInfo, factorOf, baseNameOf, saleUnits } from "@/components/products/UnitQty";
 import { cn } from "@/lib/utils";
 import { getVanSnapshot, getOutbox, type VanSnapshot } from "@/lib/sync/client";
 import { queueOp } from "@/lib/sync/client";
@@ -32,6 +34,8 @@ export type DocProduct = {
   saleUnitId: string | null;
   conversions: Array<{ unitId: string; factor: number; barcode?: string | null; unit: { id: string; name: string } }>;
   tierPrices: Array<{ tierId: string; price: number }>;
+  /// Quantity ladder per colisage (see lib/pricing).
+  qtyTiers?: Array<{ unitKey: string; minQty: number; tierId: string | null }>;
   images?: Array<{ url: string }>;
   category?: { id: string; name: string } | null;
 };
@@ -236,19 +240,15 @@ export function SaleDocForm({
   // 3pack: free colis appear automatically as read-only rows (price 0). Derived
   // from the purchased lines on every change; the server recomputes on save.
   const t3 = useTranslations("threepack");
+  const tProd = useTranslations("products");
   const tpRules = useThreePackRules(snap, online);
   const gifts = useGifts(tpRules, effProducts, lines);
   const giftLines = useMemo(() => giftBodyLines(gifts), [gifts]);
 
-  function priceFor(p: DocProduct, unitId = ""): number {
-    const base = (() => {
-      if (effTier) {
-        const tp = p.tierPrices.find((x) => x.tierId === effTier);
-        if (tp) return tp.price;
-      }
-      return p.salePrice;
-    })();
-    return priceForUnit(base, factorOf(p, unitId));
+  /// Unit price at this quantity: the product's ladder (per colisage) picks the
+  /// tier when it has one, otherwise the client / chosen tier — same rule as the server.
+  function priceFor(p: DocProduct, unitId = "", qty = 1): number {
+    return ladderLine(p, unitId, qty, effTier || null).unitPrice;
   }
 
   const unitOptions = (p: DocProduct | undefined) => saleUnits(p, allowPieces);
@@ -256,7 +256,7 @@ export function SaleDocForm({
   const totals = useMemo(() => {
     const priced = lines.map((l) => {
       const p = effProducts.find((x) => x.id === l.productId);
-      const price = l.unitPrice === "" ? (p ? priceFor(p, l.unitId) : 0) : Number(l.unitPrice);
+      const price = l.unitPrice === "" ? (p ? priceFor(p, l.unitId, l.qty) : 0) : Number(l.unitPrice);
       return {
         productId: l.productId, qty: l.qty, baseQty: lineBaseQty(effProducts, l), unitPrice: price, remise: l.remise,
         lineTotal: Math.max(0, l.qty * price - l.remise), manualPrice: l.unitPrice !== "",
@@ -308,7 +308,7 @@ export function SaleDocForm({
           productId: l.productId,
           unitId: l.unitId || null,
           qty: l.qty,
-          unitPrice: l.unitPrice === "" ? (effProducts.find((x) => x.id === l.productId) ? priceFor(effProducts.find((x) => x.id === l.productId)!, l.unitId) : 0) : Number(l.unitPrice),
+          unitPrice: l.unitPrice === "" ? (effProducts.find((x) => x.id === l.productId) ? priceFor(effProducts.find((x) => x.id === l.productId)!, l.unitId, l.qty) : 0) : Number(l.unitPrice),
           remise: l.remise,
         })).concat(giftLines.map((g) => ({ ...g, unitId: g.unitId ?? null }))),
         remise: docRemise,
@@ -553,7 +553,7 @@ export function SaleDocForm({
 
         {lines.map((l, i) => {
           const p = effProducts.find((x) => x.id === l.productId);
-          const price = l.unitPrice === "" ? (p ? priceFor(p, l.unitId) : 0) : Number(l.unitPrice);
+          const price = l.unitPrice === "" ? (p ? priceFor(p, l.unitId, l.qty) : 0) : Number(l.unitPrice);
           const lineTotal = Math.max(0, l.qty * price - l.remise);
           const img = p?.images?.[0]?.url;
           const uopts = unitOptions(p);
@@ -629,6 +629,16 @@ export function SaleDocForm({
                     </div>
                   )}
                 </div>
+              )}
+              {p && l.unitPrice === "" && (
+                <QtyLadderHint
+                  product={p}
+                  unitId={l.unitId}
+                  qty={l.qty}
+                  fallbackTierId={effTier || null}
+                  tierName={(id) => (id ? (tiers.find((x) => x.id === id)?.name ?? "—") : tProd("salePrice"))}
+                  onJump={(q) => setLine(i, { qty: q })}
+                />
               )}
             </div>
           );

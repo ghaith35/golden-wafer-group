@@ -401,6 +401,18 @@ CREATE TABLE "product_tier_prices" (
 );
 
 -- CreateTable
+CREATE TABLE "product_qty_tiers" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "productId" TEXT NOT NULL,
+    "unitKey" TEXT NOT NULL DEFAULT '',
+    "minQty" DECIMAL NOT NULL,
+    "tierId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "product_qty_tiers_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "product_qty_tiers_tierId_fkey" FOREIGN KEY ("tierId") REFERENCES "price_tiers" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "sales" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "companyId" TEXT NOT NULL,
@@ -1062,6 +1074,12 @@ CREATE UNIQUE INDEX "product_unit_conversions_productId_unitId_key" ON "product_
 
 -- CreateIndex
 CREATE UNIQUE INDEX "product_tier_prices_productId_tierId_key" ON "product_tier_prices"("productId", "tierId");
+
+-- CreateIndex
+CREATE INDEX "product_qty_tiers_productId_idx" ON "product_qty_tiers"("productId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "product_qty_tiers_productId_unitKey_minQty_key" ON "product_qty_tiers"("productId", "unitKey", "minQty");
 
 -- CreateIndex
 CREATE INDEX "sales_companyId_clientId_idx" ON "sales"("companyId", "clientId");

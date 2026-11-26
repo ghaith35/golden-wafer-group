@@ -43,6 +43,7 @@ export default async function LivreurVentePage({
       include: {
         images: { orderBy: { sortOrder: "asc" } },
         tierPrices: true,
+        qtyTiers: true,
         conversions: { include: { unit: true } },
         baseUnit: true,
         category: { select: { id: true, name: true } },
@@ -136,7 +137,10 @@ export default async function LivreurVentePage({
             }
           : null
       }
-      products={JSON.parse(JSON.stringify(products))}
+      products={JSON.parse(JSON.stringify(products)).map((p: { qtyTiers?: Array<{ unitKey: string; minQty: unknown; tierId: string | null }> } & Record<string, unknown>) => ({
+        ...p,
+        qtyTiers: (p.qtyTiers ?? []).map((r) => ({ unitKey: r.unitKey, minQty: Number(r.minQty), tierId: r.tierId })),
+      }))}
       categories={JSON.parse(JSON.stringify(categories))}
       vanStock={stockMap}
       tiers={JSON.parse(JSON.stringify(tiers))}

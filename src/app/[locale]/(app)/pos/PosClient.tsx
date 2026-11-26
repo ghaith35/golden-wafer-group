@@ -1,5 +1,7 @@
 "use client";
 
+import { QtyLadderHint } from "@/components/sales/QtyLadderHint";
+import { ladderLine } from "@/lib/pricing";
 import { useFlip } from "@/lib/useFlip";
 import { dz } from "@/lib/format";
 import { matchClient } from "@/lib/clients/display";
@@ -10,7 +12,7 @@ import { Check, Minus, Package, Plus, ReceiptText, Search, ShoppingCart, Trash2,
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
-import { UnitQty, factorOf, baseNameOf, packBreakdown, priceForUnit, saleUnits, normFactor } from "@/components/products/UnitQty";
+import { UnitQty, factorOf, baseNameOf, packBreakdown, saleUnits, normFactor } from "@/components/products/UnitQty";
 import { ProductCardDetails } from "@/components/products/ProductCardDetails";
 import { cn } from "@/lib/utils";
 import { GiftLineRow, colisMap, giftBodyLines, lineBaseQty, useGifts, useThreePackRules } from "@/components/threepack/useThreePack";
@@ -30,6 +32,7 @@ type Product = {
   saleUnitId: string | null;
   conversions: Array<{ unitId: string; factor: number; barcode?: string | null; unit: { id: string; name: string } }>;
   tierPrices: Array<{ tierId: string; price: number }>;
+  qtyTiers?: Array<{ unitKey: string; minQty: number; tierId: string | null }>;
   images: Array<{ url: string }>;
   category: { id: string; name: string } | null;
 };
@@ -142,6 +145,7 @@ export function PosClient({
   // 3pack: free colis appear automatically in the cart (price 0, deducted from
   // stock). The server recomputes them on save.
   const t3 = useTranslations("threepack");
+  const tProd = useTranslations("products");
   const tpRules = useThreePackRules(null, true);
   const gifts = useGifts(tpRules, products, lines);
   const tierName = (id: string) => tiers.find((x) => x.id === id)?.name ?? id;
@@ -153,15 +157,9 @@ export function PosClient({
   const client = clients.find((c) => c.id === clientId);
   const effTier = tierId || client?.tierId || "";
 
-  function priceFor(p: Product, unitId = ""): number {
-    const base = (() => {
-      if (effTier) {
-        const tp = p.tierPrices.find((x) => x.tierId === effTier);
-        if (tp) return tp.price;
-      }
-      return p.salePrice;
-    })();
-    return priceForUnit(base, factorOf(p, unitId));
+  /// Unit price at this quantity (the product's ladder picks the tier when it has one).
+  function priceFor(p: Product, unitId = "", qty = 1): number {
+    return ladderLine(p, unitId, qty, effTier || null).unitPrice;
   }
 
   function addProduct(id: string, unitId?: string) {
@@ -232,7 +230,7 @@ export function PosClient({
   const totals = useMemo(() => {
     const priced = lines.map((l) => {
       const p = byId.get(l.productId);
-      const price = l.unitPrice === "" ? (p ? priceFor(p, l.unitId) : 0) : Number(l.unitPrice);
+      const price = l.unitPrice === "" ? (p ? priceFor(p, l.unitId, l.qty) : 0) : Number(l.unitPrice);
       return {
         productId: l.productId, qty: l.qty, baseQty: lineBaseQty(products, l), unitPrice: price, remise: l.remise,
         lineTotal: Math.max(0, l.qty * price - l.remise), manualPrice: l.unitPrice !== "",
@@ -536,7 +534,7 @@ export function PosClient({
             {lines.map((l, i) => {
               const p = byId.get(l.productId);
               if (!p) return null;
-              const price = l.unitPrice === "" ? priceFor(p, l.unitId) : Number(l.unitPrice);
+              const price = l.unitPrice === "" ? priceFor(p, l.unitId, l.qty) : Number(l.unitPrice);
               const units = saleUnits(p, allowPieces);
               return (
                 <div key={i} data-flip={`${l.productId}:${l.unitId}`} className="rounded-xl border border-(--border-subtle) bg-(--bg-surface) px-2 py-1.5">
@@ -590,6 +588,16 @@ export function PosClient({
                       <Trash2 size={14} />
                     </button>
                   </div>
+                  {l.unitPrice === "" && (
+                    <QtyLadderHint
+                      product={p}
+                      unitId={l.unitId}
+                      qty={l.qty}
+                      fallbackTierId={effTier || null}
+                      tierName={(id) => (id ? (tiers.find((x) => x.id === id)?.name ?? "—") : tProd("salePrice"))}
+                      onJump={(q) => setLine(i, { qty: q })}
+                    />
+                  )}
                 </div>
               );
             })}

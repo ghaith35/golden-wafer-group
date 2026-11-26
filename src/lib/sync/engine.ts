@@ -812,7 +812,7 @@ export async function handleSync(input: SyncInput) {
   const [products, units, tiers, categories, secteurs, wilayas, clients, batches, depotBatches, transfers, tournees, vans, assignedOrders, holds, company, webBuildId, apkMeta] = await Promise.all([
     prisma.product.findMany({
       where: { companyId, isActive: true },
-      include: { images: { orderBy: { sortOrder: "asc" } }, tierPrices: true, conversions: { include: { unit: true } }, baseUnit: true },
+      include: { images: { orderBy: { sortOrder: "asc" } }, tierPrices: true, qtyTiers: true, conversions: { include: { unit: true } }, baseUnit: true },
       orderBy: { name: "asc" },
     }),
     prisma.unit.findMany({ where: { companyId, isActive: true } }),
@@ -938,6 +938,7 @@ export async function handleSync(input: SyncInput) {
         baseUnit: p.baseUnit ? { id: p.baseUnit.id, name: p.baseUnit.name } : null,
         conversions: p.conversions.map((c) => ({ unitId: c.unitId, name: c.unit.name, factor: Number(c.factor), barcode: c.barcode })),
         tierPrices: p.tierPrices.map((x) => ({ tierId: x.tierId, price: Number(x.price) })),
+        qtyTiers: p.qtyTiers.map((r) => ({ unitKey: r.unitKey, minQty: Number(r.minQty), tierId: r.tierId })),
       })),
       units,
       tiers,

@@ -18,6 +18,8 @@ import {
 } from "@/lib/products/colisage";
 import { compareNatural } from "@/lib/sort";
 import { priceForUnit } from "@/components/products/UnitQty";
+import { QtyLadder, type LadderUnit, type LadderValue } from "@/components/products/QtyLadder";
+import { resolveTierPrice } from "@/lib/pricing";
 import { useSyncedState } from "@/lib/data-sync";
 
 
@@ -40,6 +42,8 @@ export type ProductData = {
   images: string[];
   conversions: Array<{ unitId: string; factor: number; barcode?: string | null }>;
   tierPrices: Array<{ tierId: string; price: number }>;
+  /// Quantity ladder per colisage (unitKey "" = base unit, else Unit.id; tierId null = base sale price).
+  qtyTiers?: Array<{ unitKey: string; minQty: number; tierId: string | null }>;
 };
 
 const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-3 text-sm outline-none focus:border-(--brand-500)";
@@ -191,6 +195,21 @@ export function ProductForm({
   const setColisK = <K extends keyof ColisDraft>(k: K, v: ColisDraft[K]) =>
     setColis((c) => ({ ...c, [k]: v }));
   const colisPreview = previewFactors(colis);
+
+  /// Quantity ladder per colisage. Keys are builder LEVELS ("base" | "l1" |
+  /// "l2" | "u:<unitId>" for legacy pieces) because new colis units get their
+  /// real ids only at save; they are mapped to unit ids in submit().
+  const [ladder, setLadder] = useState<LadderValue>(() => {
+    const packs = initial.conversions.filter((c) => c.unitId && c.factor > 1).sort((a, b) => a.factor - b.factor);
+    const l1Id = packs.length === 1 ? packs[0].unitId : packs.length >= 2 ? packs[packs.length - 2].unitId : "";
+    const l2Id = packs.length >= 2 ? packs[packs.length - 1].unitId : "";
+    const out: LadderValue = {};
+    for (const r of [...(initial.qtyTiers ?? [])].sort((a, b) => a.minQty - b.minQty)) {
+      const key = r.unitKey === "" ? "base" : r.unitKey === l1Id ? "l1" : r.unitKey === l2Id ? "l2" : `u:${r.unitKey}`;
+      (out[key] ??= []).push({ minQty: r.minQty, tierId: r.tierId });
+    }
+    return out;
+  });
   const autoColisage = useMemo(
     () => buildColisageText(baseName, colis),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -244,6 +263,19 @@ export function ProductForm({
   const t = (k: string, fallback: string) => labels[k] ?? fallback;
 
   /// Match a typed name to an existing unit (case-insensitive) or create it.
+  /// Colisages that can carry a ladder (largest first): base + builder levels
+  /// + legacy sub-base pieces.
+  const ladderUnits: LadderUnit[] = [
+    ...(colis.mode === "double" && colisPreview && colisPreview.n2 > 0 && colis.l2Name.trim()
+      ? [{ key: "l2", label: colis.l2Name.trim(), factor: colisPreview.total }]
+      : []),
+    ...(colis.mode !== "unite" && colisPreview && colis.l1Name.trim()
+      ? [{ key: "l1", label: colis.l1Name.trim(), factor: colisPreview.n1 }]
+      : []),
+    { key: "base", label: baseName, factor: 1 },
+    ...legacyPieces.map((c) => ({ key: `u:${c.unitId}`, label: unitName(c.unitId), factor: c.factor })),
+  ];
+
   async function resolveUnitId(name: string): Promise<string> {
     const needle = name.trim().toLowerCase();
     const hit = units.find((u) => u.name.toLowerCase() === needle);
@@ -352,6 +384,12 @@ export function ProductForm({
           saleUnitId,
           purchaseUnitId,
           conversions: finalConversions,
+          qtyTiers: ladderUnits.flatMap((u) => {
+            const rungs = ladder[u.key] ?? [];
+            const unitKey = u.key === "base" ? "" : u.key === "l1" ? l1Id : u.key === "l2" ? l2Id : u.key.slice(2);
+            if (rungs.length < 2 || (u.key !== "base" && !unitKey)) return [];
+            return rungs.map((r, i) => ({ unitKey, minQty: i === 0 ? 0 : r.minQty, tierId: r.tierId }));
+          }),
         }),
       });
       if (!res.ok) {
@@ -690,6 +728,20 @@ export function ProductForm({
             </>
           );
         })()}
+      </Card>
+
+      {/* Quantity pricing: per colisage, which tier price applies from which quantity. */}
+      <Card>
+        <h2 className="mb-2 text-sm font-bold">{tp("ladderTitle")}</h2>
+        <QtyLadder
+          units={ladderUnits}
+          tiers={tiers}
+          baseLabel={labels.salePrice}
+          priceOfTier={(id) => resolveTierPrice(form.tierPrices, form.salePrice, id)}
+          hasTierPrice={(id) => form.tierPrices.some((x) => x.tierId === id && x.price > 0)}
+          value={ladder}
+          onChange={setLadder}
+        />
       </Card>
 
       <div className="flex gap-2">

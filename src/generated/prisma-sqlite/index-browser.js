@@ -376,7 +376,8 @@ exports.Prisma.CustomerScalarFieldEnum = {
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  opId: 'opId'
+  opId: 'opId',
+  createdById: 'createdById'
 };
 
 exports.Prisma.SupplierScalarFieldEnum = {
@@ -446,6 +447,15 @@ exports.Prisma.ProductTierPriceScalarFieldEnum = {
   tierId: 'tierId',
   price: 'price',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProductQtyTierScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  unitKey: 'unitKey',
+  minQty: 'minQty',
+  tierId: 'tierId',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SaleScalarFieldEnum = {
@@ -947,6 +957,7 @@ exports.Prisma.ModelName = {
   ProductImage: 'ProductImage',
   ProductUnitConversion: 'ProductUnitConversion',
   ProductTierPrice: 'ProductTierPrice',
+  ProductQtyTier: 'ProductQtyTier',
   Sale: 'Sale',
   SaleLine: 'SaleLine',
   ClientReturn: 'ClientReturn',

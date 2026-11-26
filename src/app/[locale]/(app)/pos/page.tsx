@@ -23,6 +23,7 @@ export default async function PosPage({ params }: { params: Promise<{ locale: st
         baseUnit: true,
         conversions: { include: { unit: true } },
         tierPrices: true,
+        qtyTiers: true,
         images: { orderBy: { sortOrder: "asc" }, take: 1 },
         category: { select: { id: true, name: true } },
       },
@@ -45,6 +46,7 @@ export default async function PosPage({ params }: { params: Promise<{ locale: st
           salePrice: Number(p.salePrice),
           stockQty: Number(p.stockQty),
           tierPrices: p.tierPrices.map((x) => ({ ...x, price: Number(x.price) })),
+          qtyTiers: ((p as { qtyTiers?: Array<{ unitKey: string; minQty: unknown; tierId: string | null }> }).qtyTiers ?? []).map((r) => ({ unitKey: r.unitKey, minQty: Number(r.minQty), tierId: r.tierId })),
         })
       )}
       categories={categories}

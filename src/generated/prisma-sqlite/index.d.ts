@@ -148,6 +148,15 @@ export type ProductUnitConversion = $Result.DefaultSelection<Prisma.$ProductUnit
  */
 export type ProductTierPrice = $Result.DefaultSelection<Prisma.$ProductTierPricePayload>
 /**
+ * Model ProductQtyTier
+ * Quantity ladder, per colisage: when a sale line of `unitKey` holds
+ * qty >= minQty, it is priced with the product's `tier` price (tierId null =
+ * the base "سعر البيع"). The active rung is the one with the greatest
+ * minQty <= qty. Rungs reuse the existing tier prices — no new price numbers.
+ * unitKey "" = the base unit; otherwise the Unit.id of the colisage.
+ */
+export type ProductQtyTier = $Result.DefaultSelection<Prisma.$ProductQtyTierPayload>
+/**
  * Model Sale
  * ORDER = bon de commande (no stock move) → DELIVERY (stock out) → INVOICE.
  * TICKET = immediate van/POS cash sale (delivered + paid at once).
@@ -717,6 +726,16 @@ export class PrismaClient<
     * ```
     */
   get productTierPrice(): Prisma.ProductTierPriceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.productQtyTier`: Exposes CRUD operations for the **ProductQtyTier** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductQtyTiers
+    * const productQtyTiers = await prisma.productQtyTier.findMany()
+    * ```
+    */
+  get productQtyTier(): Prisma.ProductQtyTierDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.sale`: Exposes CRUD operations for the **Sale** model.
@@ -1510,6 +1529,7 @@ export namespace Prisma {
     ProductImage: 'ProductImage',
     ProductUnitConversion: 'ProductUnitConversion',
     ProductTierPrice: 'ProductTierPrice',
+    ProductQtyTier: 'ProductQtyTier',
     Sale: 'Sale',
     SaleLine: 'SaleLine',
     ClientReturn: 'ClientReturn',
@@ -1557,7 +1577,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "userArea" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem" | "closedVisit" | "closedVisitPhoto" | "tourneePlan" | "vanPosition"
+      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "userArea" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "productQtyTier" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem" | "closedVisit" | "closedVisitPhoto" | "tourneePlan" | "vanPosition"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3482,6 +3502,80 @@ export namespace Prisma {
           count: {
             args: Prisma.ProductTierPriceCountArgs<ExtArgs>
             result: $Utils.Optional<ProductTierPriceCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProductQtyTier: {
+        payload: Prisma.$ProductQtyTierPayload<ExtArgs>
+        fields: Prisma.ProductQtyTierFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductQtyTierFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductQtyTierPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductQtyTierFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductQtyTierPayload>
+          }
+          findFirst: {
+            args: Prisma.ProductQtyTierFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductQtyTierPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductQtyTierFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductQtyTierPayload>
+          }
+          findMany: {
+            args: Prisma.ProductQtyTierFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductQtyTierPayload>[]
+          }
+          create: {
+            args: Prisma.ProductQtyTierCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductQtyTierPayload>
+          }
+          createMany: {
+            args: Prisma.ProductQtyTierCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductQtyTierCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductQtyTierPayload>[]
+          }
+          delete: {
+            args: Prisma.ProductQtyTierDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductQtyTierPayload>
+          }
+          update: {
+            args: Prisma.ProductQtyTierUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductQtyTierPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductQtyTierDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductQtyTierUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductQtyTierUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductQtyTierPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductQtyTierUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductQtyTierPayload>
+          }
+          aggregate: {
+            args: Prisma.ProductQtyTierAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductQtyTier>
+          }
+          groupBy: {
+            args: Prisma.ProductQtyTierGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductQtyTierGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductQtyTierCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductQtyTierCountAggregateOutputType> | number
           }
         }
       }
@@ -6002,6 +6096,7 @@ export namespace Prisma {
     productImage?: ProductImageOmit
     productUnitConversion?: ProductUnitConversionOmit
     productTierPrice?: ProductTierPriceOmit
+    productQtyTier?: ProductQtyTierOmit
     sale?: SaleOmit
     saleLine?: SaleLineOmit
     clientReturn?: ClientReturnOmit
@@ -6456,12 +6551,14 @@ export namespace Prisma {
 
   export type PriceTierCountOutputType = {
     prices: number
+    qtyRungs: number
     customers: number
     sales: number
   }
 
   export type PriceTierCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     prices?: boolean | PriceTierCountOutputTypeCountPricesArgs
+    qtyRungs?: boolean | PriceTierCountOutputTypeCountQtyRungsArgs
     customers?: boolean | PriceTierCountOutputTypeCountCustomersArgs
     sales?: boolean | PriceTierCountOutputTypeCountSalesArgs
   }
@@ -6482,6 +6579,13 @@ export namespace Prisma {
    */
   export type PriceTierCountOutputTypeCountPricesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProductTierPriceWhereInput
+  }
+
+  /**
+   * PriceTierCountOutputType without action
+   */
+  export type PriceTierCountOutputTypeCountQtyRungsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductQtyTierWhereInput
   }
 
   /**
@@ -7172,6 +7276,7 @@ export namespace Prisma {
     images: number
     conversions: number
     tierPrices: number
+    qtyTiers: number
     batches: number
     purchaseLines: number
     returnLines: number
@@ -7187,6 +7292,7 @@ export namespace Prisma {
     images?: boolean | ProductCountOutputTypeCountImagesArgs
     conversions?: boolean | ProductCountOutputTypeCountConversionsArgs
     tierPrices?: boolean | ProductCountOutputTypeCountTierPricesArgs
+    qtyTiers?: boolean | ProductCountOutputTypeCountQtyTiersArgs
     batches?: boolean | ProductCountOutputTypeCountBatchesArgs
     purchaseLines?: boolean | ProductCountOutputTypeCountPurchaseLinesArgs
     returnLines?: boolean | ProductCountOutputTypeCountReturnLinesArgs
@@ -7228,6 +7334,13 @@ export namespace Prisma {
    */
   export type ProductCountOutputTypeCountTierPricesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProductTierPriceWhereInput
+  }
+
+  /**
+   * ProductCountOutputType without action
+   */
+  export type ProductCountOutputTypeCountQtyTiersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductQtyTierWhereInput
   }
 
   /**
@@ -12536,6 +12649,7 @@ export namespace Prisma {
     createdAt?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     prices?: boolean | PriceTier$pricesArgs<ExtArgs>
+    qtyRungs?: boolean | PriceTier$qtyRungsArgs<ExtArgs>
     customers?: boolean | PriceTier$customersArgs<ExtArgs>
     sales?: boolean | PriceTier$salesArgs<ExtArgs>
     _count?: boolean | PriceTierCountOutputTypeDefaultArgs<ExtArgs>
@@ -12574,6 +12688,7 @@ export namespace Prisma {
   export type PriceTierInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     prices?: boolean | PriceTier$pricesArgs<ExtArgs>
+    qtyRungs?: boolean | PriceTier$qtyRungsArgs<ExtArgs>
     customers?: boolean | PriceTier$customersArgs<ExtArgs>
     sales?: boolean | PriceTier$salesArgs<ExtArgs>
     _count?: boolean | PriceTierCountOutputTypeDefaultArgs<ExtArgs>
@@ -12590,6 +12705,7 @@ export namespace Prisma {
     objects: {
       company: Prisma.$CompanyPayload<ExtArgs>
       prices: Prisma.$ProductTierPricePayload<ExtArgs>[]
+      qtyRungs: Prisma.$ProductQtyTierPayload<ExtArgs>[]
       customers: Prisma.$CustomerPayload<ExtArgs>[]
       sales: Prisma.$SalePayload<ExtArgs>[]
     }
@@ -12996,6 +13112,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     prices<T extends PriceTier$pricesArgs<ExtArgs> = {}>(args?: Subset<T, PriceTier$pricesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTierPricePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    qtyRungs<T extends PriceTier$qtyRungsArgs<ExtArgs> = {}>(args?: Subset<T, PriceTier$qtyRungsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customers<T extends PriceTier$customersArgs<ExtArgs> = {}>(args?: Subset<T, PriceTier$customersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sales<T extends PriceTier$salesArgs<ExtArgs> = {}>(args?: Subset<T, PriceTier$salesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -13453,6 +13570,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProductTierPriceScalarFieldEnum | ProductTierPriceScalarFieldEnum[]
+  }
+
+  /**
+   * PriceTier.qtyRungs
+   */
+  export type PriceTier$qtyRungsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierInclude<ExtArgs> | null
+    where?: ProductQtyTierWhereInput
+    orderBy?: ProductQtyTierOrderByWithRelationInput | ProductQtyTierOrderByWithRelationInput[]
+    cursor?: ProductQtyTierWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProductQtyTierScalarFieldEnum | ProductQtyTierScalarFieldEnum[]
   }
 
   /**
@@ -31462,6 +31603,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     opId: string | null
+    createdById: string | null
   }
 
   export type CustomerMaxAggregateOutputType = {
@@ -31491,6 +31633,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     opId: string | null
+    createdById: string | null
   }
 
   export type CustomerCountAggregateOutputType = {
@@ -31520,6 +31663,7 @@ export namespace Prisma {
     createdAt: number
     updatedAt: number
     opId: number
+    createdById: number
     _all: number
   }
 
@@ -31569,6 +31713,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     opId?: true
+    createdById?: true
   }
 
   export type CustomerMaxAggregateInputType = {
@@ -31598,6 +31743,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     opId?: true
+    createdById?: true
   }
 
   export type CustomerCountAggregateInputType = {
@@ -31627,6 +31773,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     opId?: true
+    createdById?: true
     _all?: true
   }
 
@@ -31743,6 +31890,7 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     opId: string | null
+    createdById: string | null
     _count: CustomerCountAggregateOutputType | null
     _avg: CustomerAvgAggregateOutputType | null
     _sum: CustomerSumAggregateOutputType | null
@@ -31791,6 +31939,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     opId?: boolean
+    createdById?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     wilaya?: boolean | Customer$wilayaArgs<ExtArgs>
     secteur?: boolean | Customer$secteurArgs<ExtArgs>
@@ -31832,6 +31981,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     opId?: boolean
+    createdById?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     wilaya?: boolean | Customer$wilayaArgs<ExtArgs>
     secteur?: boolean | Customer$secteurArgs<ExtArgs>
@@ -31865,6 +32015,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     opId?: boolean
+    createdById?: boolean
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     wilaya?: boolean | Customer$wilayaArgs<ExtArgs>
     secteur?: boolean | Customer$secteurArgs<ExtArgs>
@@ -31898,9 +32049,10 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     opId?: boolean
+    createdById?: boolean
   }
 
-  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "code" | "legacyQr" | "name" | "phone" | "address" | "wilayaCode" | "secteurId" | "activityType" | "rc" | "ai" | "nif" | "nis" | "rib" | "tierId" | "creditLimit" | "creditDays" | "gpsLat" | "gpsLng" | "portalSecretHash" | "balance" | "isActive" | "createdAt" | "updatedAt" | "opId", ExtArgs["result"]["customer"]>
+  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "code" | "legacyQr" | "name" | "phone" | "address" | "wilayaCode" | "secteurId" | "activityType" | "rc" | "ai" | "nif" | "nis" | "rib" | "tierId" | "creditLimit" | "creditDays" | "gpsLat" | "gpsLng" | "portalSecretHash" | "balance" | "isActive" | "createdAt" | "updatedAt" | "opId" | "createdById", ExtArgs["result"]["customer"]>
   export type CustomerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     wilaya?: boolean | Customer$wilayaArgs<ExtArgs>
@@ -31988,6 +32140,11 @@ export namespace Prisma {
        * Offline idempotency key: the sync opId that created this client.
        */
       opId: string | null
+      /**
+       * Staff member who registered this client (null = created before this was
+       * tracked, or imported). Drives the driver's "clients I created today" list.
+       */
+      createdById: string | null
     }, ExtArgs["result"]["customer"]>
     composites: {}
   }
@@ -32448,6 +32605,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Customer", 'DateTime'>
     readonly updatedAt: FieldRef<"Customer", 'DateTime'>
     readonly opId: FieldRef<"Customer", 'String'>
+    readonly createdById: FieldRef<"Customer", 'String'>
   }
     
 
@@ -35844,6 +36002,7 @@ export namespace Prisma {
     images?: boolean | Product$imagesArgs<ExtArgs>
     conversions?: boolean | Product$conversionsArgs<ExtArgs>
     tierPrices?: boolean | Product$tierPricesArgs<ExtArgs>
+    qtyTiers?: boolean | Product$qtyTiersArgs<ExtArgs>
     batches?: boolean | Product$batchesArgs<ExtArgs>
     purchaseLines?: boolean | Product$purchaseLinesArgs<ExtArgs>
     returnLines?: boolean | Product$returnLinesArgs<ExtArgs>
@@ -35942,6 +36101,7 @@ export namespace Prisma {
     images?: boolean | Product$imagesArgs<ExtArgs>
     conversions?: boolean | Product$conversionsArgs<ExtArgs>
     tierPrices?: boolean | Product$tierPricesArgs<ExtArgs>
+    qtyTiers?: boolean | Product$qtyTiersArgs<ExtArgs>
     batches?: boolean | Product$batchesArgs<ExtArgs>
     purchaseLines?: boolean | Product$purchaseLinesArgs<ExtArgs>
     returnLines?: boolean | Product$returnLinesArgs<ExtArgs>
@@ -35982,6 +36142,7 @@ export namespace Prisma {
       images: Prisma.$ProductImagePayload<ExtArgs>[]
       conversions: Prisma.$ProductUnitConversionPayload<ExtArgs>[]
       tierPrices: Prisma.$ProductTierPricePayload<ExtArgs>[]
+      qtyTiers: Prisma.$ProductQtyTierPayload<ExtArgs>[]
       batches: Prisma.$StockBatchPayload<ExtArgs>[]
       purchaseLines: Prisma.$PurchaseLinePayload<ExtArgs>[]
       returnLines: Prisma.$SupplierReturnLinePayload<ExtArgs>[]
@@ -36421,6 +36582,7 @@ export namespace Prisma {
     images<T extends Product$imagesArgs<ExtArgs> = {}>(args?: Subset<T, Product$imagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     conversions<T extends Product$conversionsArgs<ExtArgs> = {}>(args?: Subset<T, Product$conversionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductUnitConversionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tierPrices<T extends Product$tierPricesArgs<ExtArgs> = {}>(args?: Subset<T, Product$tierPricesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTierPricePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    qtyTiers<T extends Product$qtyTiersArgs<ExtArgs> = {}>(args?: Subset<T, Product$qtyTiersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     batches<T extends Product$batchesArgs<ExtArgs> = {}>(args?: Subset<T, Product$batchesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StockBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     purchaseLines<T extends Product$purchaseLinesArgs<ExtArgs> = {}>(args?: Subset<T, Product$purchaseLinesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PurchaseLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     returnLines<T extends Product$returnLinesArgs<ExtArgs> = {}>(args?: Subset<T, Product$returnLinesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupplierReturnLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -37040,6 +37202,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProductTierPriceScalarFieldEnum | ProductTierPriceScalarFieldEnum[]
+  }
+
+  /**
+   * Product.qtyTiers
+   */
+  export type Product$qtyTiersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierInclude<ExtArgs> | null
+    where?: ProductQtyTierWhereInput
+    orderBy?: ProductQtyTierOrderByWithRelationInput | ProductQtyTierOrderByWithRelationInput[]
+    cursor?: ProductQtyTierWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProductQtyTierScalarFieldEnum | ProductQtyTierScalarFieldEnum[]
   }
 
   /**
@@ -40591,6 +40777,1141 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ProductTierPriceInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProductQtyTier
+   */
+
+  export type AggregateProductQtyTier = {
+    _count: ProductQtyTierCountAggregateOutputType | null
+    _avg: ProductQtyTierAvgAggregateOutputType | null
+    _sum: ProductQtyTierSumAggregateOutputType | null
+    _min: ProductQtyTierMinAggregateOutputType | null
+    _max: ProductQtyTierMaxAggregateOutputType | null
+  }
+
+  export type ProductQtyTierAvgAggregateOutputType = {
+    minQty: Decimal | null
+  }
+
+  export type ProductQtyTierSumAggregateOutputType = {
+    minQty: Decimal | null
+  }
+
+  export type ProductQtyTierMinAggregateOutputType = {
+    id: string | null
+    productId: string | null
+    unitKey: string | null
+    minQty: Decimal | null
+    tierId: string | null
+    createdAt: Date | null
+  }
+
+  export type ProductQtyTierMaxAggregateOutputType = {
+    id: string | null
+    productId: string | null
+    unitKey: string | null
+    minQty: Decimal | null
+    tierId: string | null
+    createdAt: Date | null
+  }
+
+  export type ProductQtyTierCountAggregateOutputType = {
+    id: number
+    productId: number
+    unitKey: number
+    minQty: number
+    tierId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ProductQtyTierAvgAggregateInputType = {
+    minQty?: true
+  }
+
+  export type ProductQtyTierSumAggregateInputType = {
+    minQty?: true
+  }
+
+  export type ProductQtyTierMinAggregateInputType = {
+    id?: true
+    productId?: true
+    unitKey?: true
+    minQty?: true
+    tierId?: true
+    createdAt?: true
+  }
+
+  export type ProductQtyTierMaxAggregateInputType = {
+    id?: true
+    productId?: true
+    unitKey?: true
+    minQty?: true
+    tierId?: true
+    createdAt?: true
+  }
+
+  export type ProductQtyTierCountAggregateInputType = {
+    id?: true
+    productId?: true
+    unitKey?: true
+    minQty?: true
+    tierId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ProductQtyTierAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductQtyTier to aggregate.
+     */
+    where?: ProductQtyTierWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductQtyTiers to fetch.
+     */
+    orderBy?: ProductQtyTierOrderByWithRelationInput | ProductQtyTierOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductQtyTierWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductQtyTiers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductQtyTiers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductQtyTiers
+    **/
+    _count?: true | ProductQtyTierCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProductQtyTierAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProductQtyTierSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductQtyTierMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductQtyTierMaxAggregateInputType
+  }
+
+  export type GetProductQtyTierAggregateType<T extends ProductQtyTierAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductQtyTier]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductQtyTier[P]>
+      : GetScalarType<T[P], AggregateProductQtyTier[P]>
+  }
+
+
+
+
+  export type ProductQtyTierGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductQtyTierWhereInput
+    orderBy?: ProductQtyTierOrderByWithAggregationInput | ProductQtyTierOrderByWithAggregationInput[]
+    by: ProductQtyTierScalarFieldEnum[] | ProductQtyTierScalarFieldEnum
+    having?: ProductQtyTierScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductQtyTierCountAggregateInputType | true
+    _avg?: ProductQtyTierAvgAggregateInputType
+    _sum?: ProductQtyTierSumAggregateInputType
+    _min?: ProductQtyTierMinAggregateInputType
+    _max?: ProductQtyTierMaxAggregateInputType
+  }
+
+  export type ProductQtyTierGroupByOutputType = {
+    id: string
+    productId: string
+    unitKey: string
+    minQty: Decimal
+    tierId: string | null
+    createdAt: Date
+    _count: ProductQtyTierCountAggregateOutputType | null
+    _avg: ProductQtyTierAvgAggregateOutputType | null
+    _sum: ProductQtyTierSumAggregateOutputType | null
+    _min: ProductQtyTierMinAggregateOutputType | null
+    _max: ProductQtyTierMaxAggregateOutputType | null
+  }
+
+  type GetProductQtyTierGroupByPayload<T extends ProductQtyTierGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductQtyTierGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductQtyTierGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductQtyTierGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductQtyTierGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductQtyTierSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    unitKey?: boolean
+    minQty?: boolean
+    tierId?: boolean
+    createdAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+    tier?: boolean | ProductQtyTier$tierArgs<ExtArgs>
+  }, ExtArgs["result"]["productQtyTier"]>
+
+  export type ProductQtyTierSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    unitKey?: boolean
+    minQty?: boolean
+    tierId?: boolean
+    createdAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+    tier?: boolean | ProductQtyTier$tierArgs<ExtArgs>
+  }, ExtArgs["result"]["productQtyTier"]>
+
+  export type ProductQtyTierSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    unitKey?: boolean
+    minQty?: boolean
+    tierId?: boolean
+    createdAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+    tier?: boolean | ProductQtyTier$tierArgs<ExtArgs>
+  }, ExtArgs["result"]["productQtyTier"]>
+
+  export type ProductQtyTierSelectScalar = {
+    id?: boolean
+    productId?: boolean
+    unitKey?: boolean
+    minQty?: boolean
+    tierId?: boolean
+    createdAt?: boolean
+  }
+
+  export type ProductQtyTierOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "unitKey" | "minQty" | "tierId" | "createdAt", ExtArgs["result"]["productQtyTier"]>
+  export type ProductQtyTierInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+    tier?: boolean | ProductQtyTier$tierArgs<ExtArgs>
+  }
+  export type ProductQtyTierIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+    tier?: boolean | ProductQtyTier$tierArgs<ExtArgs>
+  }
+  export type ProductQtyTierIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+    tier?: boolean | ProductQtyTier$tierArgs<ExtArgs>
+  }
+
+  export type $ProductQtyTierPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductQtyTier"
+    objects: {
+      product: Prisma.$ProductPayload<ExtArgs>
+      tier: Prisma.$PriceTierPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      productId: string
+      unitKey: string
+      minQty: Prisma.Decimal
+      tierId: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["productQtyTier"]>
+    composites: {}
+  }
+
+  type ProductQtyTierGetPayload<S extends boolean | null | undefined | ProductQtyTierDefaultArgs> = $Result.GetResult<Prisma.$ProductQtyTierPayload, S>
+
+  type ProductQtyTierCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductQtyTierFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductQtyTierCountAggregateInputType | true
+    }
+
+  export interface ProductQtyTierDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductQtyTier'], meta: { name: 'ProductQtyTier' } }
+    /**
+     * Find zero or one ProductQtyTier that matches the filter.
+     * @param {ProductQtyTierFindUniqueArgs} args - Arguments to find a ProductQtyTier
+     * @example
+     * // Get one ProductQtyTier
+     * const productQtyTier = await prisma.productQtyTier.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductQtyTierFindUniqueArgs>(args: SelectSubset<T, ProductQtyTierFindUniqueArgs<ExtArgs>>): Prisma__ProductQtyTierClient<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductQtyTier that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductQtyTierFindUniqueOrThrowArgs} args - Arguments to find a ProductQtyTier
+     * @example
+     * // Get one ProductQtyTier
+     * const productQtyTier = await prisma.productQtyTier.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductQtyTierFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductQtyTierFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductQtyTierClient<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductQtyTier that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductQtyTierFindFirstArgs} args - Arguments to find a ProductQtyTier
+     * @example
+     * // Get one ProductQtyTier
+     * const productQtyTier = await prisma.productQtyTier.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductQtyTierFindFirstArgs>(args?: SelectSubset<T, ProductQtyTierFindFirstArgs<ExtArgs>>): Prisma__ProductQtyTierClient<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductQtyTier that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductQtyTierFindFirstOrThrowArgs} args - Arguments to find a ProductQtyTier
+     * @example
+     * // Get one ProductQtyTier
+     * const productQtyTier = await prisma.productQtyTier.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductQtyTierFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductQtyTierFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductQtyTierClient<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductQtyTiers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductQtyTierFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductQtyTiers
+     * const productQtyTiers = await prisma.productQtyTier.findMany()
+     * 
+     * // Get first 10 ProductQtyTiers
+     * const productQtyTiers = await prisma.productQtyTier.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productQtyTierWithIdOnly = await prisma.productQtyTier.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductQtyTierFindManyArgs>(args?: SelectSubset<T, ProductQtyTierFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductQtyTier.
+     * @param {ProductQtyTierCreateArgs} args - Arguments to create a ProductQtyTier.
+     * @example
+     * // Create one ProductQtyTier
+     * const ProductQtyTier = await prisma.productQtyTier.create({
+     *   data: {
+     *     // ... data to create a ProductQtyTier
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductQtyTierCreateArgs>(args: SelectSubset<T, ProductQtyTierCreateArgs<ExtArgs>>): Prisma__ProductQtyTierClient<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductQtyTiers.
+     * @param {ProductQtyTierCreateManyArgs} args - Arguments to create many ProductQtyTiers.
+     * @example
+     * // Create many ProductQtyTiers
+     * const productQtyTier = await prisma.productQtyTier.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductQtyTierCreateManyArgs>(args?: SelectSubset<T, ProductQtyTierCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductQtyTiers and returns the data saved in the database.
+     * @param {ProductQtyTierCreateManyAndReturnArgs} args - Arguments to create many ProductQtyTiers.
+     * @example
+     * // Create many ProductQtyTiers
+     * const productQtyTier = await prisma.productQtyTier.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductQtyTiers and only return the `id`
+     * const productQtyTierWithIdOnly = await prisma.productQtyTier.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductQtyTierCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductQtyTierCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductQtyTier.
+     * @param {ProductQtyTierDeleteArgs} args - Arguments to delete one ProductQtyTier.
+     * @example
+     * // Delete one ProductQtyTier
+     * const ProductQtyTier = await prisma.productQtyTier.delete({
+     *   where: {
+     *     // ... filter to delete one ProductQtyTier
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductQtyTierDeleteArgs>(args: SelectSubset<T, ProductQtyTierDeleteArgs<ExtArgs>>): Prisma__ProductQtyTierClient<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductQtyTier.
+     * @param {ProductQtyTierUpdateArgs} args - Arguments to update one ProductQtyTier.
+     * @example
+     * // Update one ProductQtyTier
+     * const productQtyTier = await prisma.productQtyTier.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductQtyTierUpdateArgs>(args: SelectSubset<T, ProductQtyTierUpdateArgs<ExtArgs>>): Prisma__ProductQtyTierClient<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductQtyTiers.
+     * @param {ProductQtyTierDeleteManyArgs} args - Arguments to filter ProductQtyTiers to delete.
+     * @example
+     * // Delete a few ProductQtyTiers
+     * const { count } = await prisma.productQtyTier.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductQtyTierDeleteManyArgs>(args?: SelectSubset<T, ProductQtyTierDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductQtyTiers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductQtyTierUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductQtyTiers
+     * const productQtyTier = await prisma.productQtyTier.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductQtyTierUpdateManyArgs>(args: SelectSubset<T, ProductQtyTierUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductQtyTiers and returns the data updated in the database.
+     * @param {ProductQtyTierUpdateManyAndReturnArgs} args - Arguments to update many ProductQtyTiers.
+     * @example
+     * // Update many ProductQtyTiers
+     * const productQtyTier = await prisma.productQtyTier.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductQtyTiers and only return the `id`
+     * const productQtyTierWithIdOnly = await prisma.productQtyTier.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductQtyTierUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductQtyTierUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductQtyTier.
+     * @param {ProductQtyTierUpsertArgs} args - Arguments to update or create a ProductQtyTier.
+     * @example
+     * // Update or create a ProductQtyTier
+     * const productQtyTier = await prisma.productQtyTier.upsert({
+     *   create: {
+     *     // ... data to create a ProductQtyTier
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductQtyTier we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductQtyTierUpsertArgs>(args: SelectSubset<T, ProductQtyTierUpsertArgs<ExtArgs>>): Prisma__ProductQtyTierClient<$Result.GetResult<Prisma.$ProductQtyTierPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductQtyTiers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductQtyTierCountArgs} args - Arguments to filter ProductQtyTiers to count.
+     * @example
+     * // Count the number of ProductQtyTiers
+     * const count = await prisma.productQtyTier.count({
+     *   where: {
+     *     // ... the filter for the ProductQtyTiers we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductQtyTierCountArgs>(
+      args?: Subset<T, ProductQtyTierCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductQtyTierCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductQtyTier.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductQtyTierAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductQtyTierAggregateArgs>(args: Subset<T, ProductQtyTierAggregateArgs>): Prisma.PrismaPromise<GetProductQtyTierAggregateType<T>>
+
+    /**
+     * Group by ProductQtyTier.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductQtyTierGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductQtyTierGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductQtyTierGroupByArgs['orderBy'] }
+        : { orderBy?: ProductQtyTierGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductQtyTierGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductQtyTierGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductQtyTier model
+   */
+  readonly fields: ProductQtyTierFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductQtyTier.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductQtyTierClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    product<T extends ProductDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductDefaultArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    tier<T extends ProductQtyTier$tierArgs<ExtArgs> = {}>(args?: Subset<T, ProductQtyTier$tierArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductQtyTier model
+   */
+  interface ProductQtyTierFieldRefs {
+    readonly id: FieldRef<"ProductQtyTier", 'String'>
+    readonly productId: FieldRef<"ProductQtyTier", 'String'>
+    readonly unitKey: FieldRef<"ProductQtyTier", 'String'>
+    readonly minQty: FieldRef<"ProductQtyTier", 'Decimal'>
+    readonly tierId: FieldRef<"ProductQtyTier", 'String'>
+    readonly createdAt: FieldRef<"ProductQtyTier", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductQtyTier findUnique
+   */
+  export type ProductQtyTierFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductQtyTier to fetch.
+     */
+    where: ProductQtyTierWhereUniqueInput
+  }
+
+  /**
+   * ProductQtyTier findUniqueOrThrow
+   */
+  export type ProductQtyTierFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductQtyTier to fetch.
+     */
+    where: ProductQtyTierWhereUniqueInput
+  }
+
+  /**
+   * ProductQtyTier findFirst
+   */
+  export type ProductQtyTierFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductQtyTier to fetch.
+     */
+    where?: ProductQtyTierWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductQtyTiers to fetch.
+     */
+    orderBy?: ProductQtyTierOrderByWithRelationInput | ProductQtyTierOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductQtyTiers.
+     */
+    cursor?: ProductQtyTierWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductQtyTiers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductQtyTiers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductQtyTiers.
+     */
+    distinct?: ProductQtyTierScalarFieldEnum | ProductQtyTierScalarFieldEnum[]
+  }
+
+  /**
+   * ProductQtyTier findFirstOrThrow
+   */
+  export type ProductQtyTierFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductQtyTier to fetch.
+     */
+    where?: ProductQtyTierWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductQtyTiers to fetch.
+     */
+    orderBy?: ProductQtyTierOrderByWithRelationInput | ProductQtyTierOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductQtyTiers.
+     */
+    cursor?: ProductQtyTierWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductQtyTiers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductQtyTiers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductQtyTiers.
+     */
+    distinct?: ProductQtyTierScalarFieldEnum | ProductQtyTierScalarFieldEnum[]
+  }
+
+  /**
+   * ProductQtyTier findMany
+   */
+  export type ProductQtyTierFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductQtyTiers to fetch.
+     */
+    where?: ProductQtyTierWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductQtyTiers to fetch.
+     */
+    orderBy?: ProductQtyTierOrderByWithRelationInput | ProductQtyTierOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductQtyTiers.
+     */
+    cursor?: ProductQtyTierWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductQtyTiers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductQtyTiers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductQtyTiers.
+     */
+    distinct?: ProductQtyTierScalarFieldEnum | ProductQtyTierScalarFieldEnum[]
+  }
+
+  /**
+   * ProductQtyTier create
+   */
+  export type ProductQtyTierCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProductQtyTier.
+     */
+    data: XOR<ProductQtyTierCreateInput, ProductQtyTierUncheckedCreateInput>
+  }
+
+  /**
+   * ProductQtyTier createMany
+   */
+  export type ProductQtyTierCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductQtyTiers.
+     */
+    data: ProductQtyTierCreateManyInput | ProductQtyTierCreateManyInput[]
+  }
+
+  /**
+   * ProductQtyTier createManyAndReturn
+   */
+  export type ProductQtyTierCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductQtyTiers.
+     */
+    data: ProductQtyTierCreateManyInput | ProductQtyTierCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductQtyTier update
+   */
+  export type ProductQtyTierUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProductQtyTier.
+     */
+    data: XOR<ProductQtyTierUpdateInput, ProductQtyTierUncheckedUpdateInput>
+    /**
+     * Choose, which ProductQtyTier to update.
+     */
+    where: ProductQtyTierWhereUniqueInput
+  }
+
+  /**
+   * ProductQtyTier updateMany
+   */
+  export type ProductQtyTierUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductQtyTiers.
+     */
+    data: XOR<ProductQtyTierUpdateManyMutationInput, ProductQtyTierUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductQtyTiers to update
+     */
+    where?: ProductQtyTierWhereInput
+    /**
+     * Limit how many ProductQtyTiers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductQtyTier updateManyAndReturn
+   */
+  export type ProductQtyTierUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductQtyTiers.
+     */
+    data: XOR<ProductQtyTierUpdateManyMutationInput, ProductQtyTierUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductQtyTiers to update
+     */
+    where?: ProductQtyTierWhereInput
+    /**
+     * Limit how many ProductQtyTiers to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductQtyTier upsert
+   */
+  export type ProductQtyTierUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProductQtyTier to update in case it exists.
+     */
+    where: ProductQtyTierWhereUniqueInput
+    /**
+     * In case the ProductQtyTier found by the `where` argument doesn't exist, create a new ProductQtyTier with this data.
+     */
+    create: XOR<ProductQtyTierCreateInput, ProductQtyTierUncheckedCreateInput>
+    /**
+     * In case the ProductQtyTier was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductQtyTierUpdateInput, ProductQtyTierUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductQtyTier delete
+   */
+  export type ProductQtyTierDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierInclude<ExtArgs> | null
+    /**
+     * Filter which ProductQtyTier to delete.
+     */
+    where: ProductQtyTierWhereUniqueInput
+  }
+
+  /**
+   * ProductQtyTier deleteMany
+   */
+  export type ProductQtyTierDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductQtyTiers to delete
+     */
+    where?: ProductQtyTierWhereInput
+    /**
+     * Limit how many ProductQtyTiers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductQtyTier.tier
+   */
+  export type ProductQtyTier$tierArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PriceTier
+     */
+    omit?: PriceTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierInclude<ExtArgs> | null
+    where?: PriceTierWhereInput
+  }
+
+  /**
+   * ProductQtyTier without action
+   */
+  export type ProductQtyTierDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductQtyTier
+     */
+    select?: ProductQtyTierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductQtyTier
+     */
+    omit?: ProductQtyTierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductQtyTierInclude<ExtArgs> | null
   }
 
 
@@ -79500,7 +80821,8 @@ export namespace Prisma {
     isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
-    opId: 'opId'
+    opId: 'opId',
+    createdById: 'createdById'
   };
 
   export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
@@ -79591,6 +80913,18 @@ export namespace Prisma {
   };
 
   export type ProductTierPriceScalarFieldEnum = (typeof ProductTierPriceScalarFieldEnum)[keyof typeof ProductTierPriceScalarFieldEnum]
+
+
+  export const ProductQtyTierScalarFieldEnum: {
+    id: 'id',
+    productId: 'productId',
+    unitKey: 'unitKey',
+    minQty: 'minQty',
+    tierId: 'tierId',
+    createdAt: 'createdAt'
+  };
+
+  export type ProductQtyTierScalarFieldEnum = (typeof ProductQtyTierScalarFieldEnum)[keyof typeof ProductQtyTierScalarFieldEnum]
 
 
   export const SaleScalarFieldEnum: {
@@ -80695,6 +82029,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"PriceTier"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     prices?: ProductTierPriceListRelationFilter
+    qtyRungs?: ProductQtyTierListRelationFilter
     customers?: CustomerListRelationFilter
     sales?: SaleListRelationFilter
   }
@@ -80708,6 +82043,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     company?: CompanyOrderByWithRelationInput
     prices?: ProductTierPriceOrderByRelationAggregateInput
+    qtyRungs?: ProductQtyTierOrderByRelationAggregateInput
     customers?: CustomerOrderByRelationAggregateInput
     sales?: SaleOrderByRelationAggregateInput
   }
@@ -80725,6 +82061,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"PriceTier"> | Date | string
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     prices?: ProductTierPriceListRelationFilter
+    qtyRungs?: ProductQtyTierListRelationFilter
     customers?: CustomerListRelationFilter
     sales?: SaleListRelationFilter
   }, "id" | "companyId_name">
@@ -81990,6 +83327,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Customer"> | Date | string
     updatedAt?: DateTimeFilter<"Customer"> | Date | string
     opId?: StringNullableFilter<"Customer"> | string | null
+    createdById?: StringNullableFilter<"Customer"> | string | null
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     wilaya?: XOR<WilayaNullableScalarRelationFilter, WilayaWhereInput> | null
     secteur?: XOR<SecteurNullableScalarRelationFilter, SecteurWhereInput> | null
@@ -82030,6 +83368,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     opId?: SortOrderInput | SortOrder
+    createdById?: SortOrderInput | SortOrder
     company?: CompanyOrderByWithRelationInput
     wilaya?: WilayaOrderByWithRelationInput
     secteur?: SecteurOrderByWithRelationInput
@@ -82077,6 +83416,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Customer"> | Date | string
     updatedAt?: DateTimeFilter<"Customer"> | Date | string
     opId?: StringNullableFilter<"Customer"> | string | null
+    createdById?: StringNullableFilter<"Customer"> | string | null
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     wilaya?: XOR<WilayaNullableScalarRelationFilter, WilayaWhereInput> | null
     secteur?: XOR<SecteurNullableScalarRelationFilter, SecteurWhereInput> | null
@@ -82117,6 +83457,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     opId?: SortOrderInput | SortOrder
+    createdById?: SortOrderInput | SortOrder
     _count?: CustomerCountOrderByAggregateInput
     _avg?: CustomerAvgOrderByAggregateInput
     _max?: CustomerMaxOrderByAggregateInput
@@ -82154,6 +83495,7 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Customer"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Customer"> | Date | string
     opId?: StringNullableWithAggregatesFilter<"Customer"> | string | null
+    createdById?: StringNullableWithAggregatesFilter<"Customer"> | string | null
   }
 
   export type SupplierWhereInput = {
@@ -82354,6 +83696,7 @@ export namespace Prisma {
     images?: ProductImageListRelationFilter
     conversions?: ProductUnitConversionListRelationFilter
     tierPrices?: ProductTierPriceListRelationFilter
+    qtyTiers?: ProductQtyTierListRelationFilter
     batches?: StockBatchListRelationFilter
     purchaseLines?: PurchaseLineListRelationFilter
     returnLines?: SupplierReturnLineListRelationFilter
@@ -82393,6 +83736,7 @@ export namespace Prisma {
     images?: ProductImageOrderByRelationAggregateInput
     conversions?: ProductUnitConversionOrderByRelationAggregateInput
     tierPrices?: ProductTierPriceOrderByRelationAggregateInput
+    qtyTiers?: ProductQtyTierOrderByRelationAggregateInput
     batches?: StockBatchOrderByRelationAggregateInput
     purchaseLines?: PurchaseLineOrderByRelationAggregateInput
     returnLines?: SupplierReturnLineOrderByRelationAggregateInput
@@ -82435,6 +83779,7 @@ export namespace Prisma {
     images?: ProductImageListRelationFilter
     conversions?: ProductUnitConversionListRelationFilter
     tierPrices?: ProductTierPriceListRelationFilter
+    qtyTiers?: ProductQtyTierListRelationFilter
     batches?: StockBatchListRelationFilter
     purchaseLines?: PurchaseLineListRelationFilter
     returnLines?: SupplierReturnLineListRelationFilter
@@ -82678,6 +84023,72 @@ export namespace Prisma {
     tierId?: StringWithAggregatesFilter<"ProductTierPrice"> | string
     price?: DecimalWithAggregatesFilter<"ProductTierPrice"> | Decimal | DecimalJsLike | number | string
     updatedAt?: DateTimeWithAggregatesFilter<"ProductTierPrice"> | Date | string
+  }
+
+  export type ProductQtyTierWhereInput = {
+    AND?: ProductQtyTierWhereInput | ProductQtyTierWhereInput[]
+    OR?: ProductQtyTierWhereInput[]
+    NOT?: ProductQtyTierWhereInput | ProductQtyTierWhereInput[]
+    id?: StringFilter<"ProductQtyTier"> | string
+    productId?: StringFilter<"ProductQtyTier"> | string
+    unitKey?: StringFilter<"ProductQtyTier"> | string
+    minQty?: DecimalFilter<"ProductQtyTier"> | Decimal | DecimalJsLike | number | string
+    tierId?: StringNullableFilter<"ProductQtyTier"> | string | null
+    createdAt?: DateTimeFilter<"ProductQtyTier"> | Date | string
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+    tier?: XOR<PriceTierNullableScalarRelationFilter, PriceTierWhereInput> | null
+  }
+
+  export type ProductQtyTierOrderByWithRelationInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    unitKey?: SortOrder
+    minQty?: SortOrder
+    tierId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    product?: ProductOrderByWithRelationInput
+    tier?: PriceTierOrderByWithRelationInput
+  }
+
+  export type ProductQtyTierWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    productId_unitKey_minQty?: ProductQtyTierProductIdUnitKeyMinQtyCompoundUniqueInput
+    AND?: ProductQtyTierWhereInput | ProductQtyTierWhereInput[]
+    OR?: ProductQtyTierWhereInput[]
+    NOT?: ProductQtyTierWhereInput | ProductQtyTierWhereInput[]
+    productId?: StringFilter<"ProductQtyTier"> | string
+    unitKey?: StringFilter<"ProductQtyTier"> | string
+    minQty?: DecimalFilter<"ProductQtyTier"> | Decimal | DecimalJsLike | number | string
+    tierId?: StringNullableFilter<"ProductQtyTier"> | string | null
+    createdAt?: DateTimeFilter<"ProductQtyTier"> | Date | string
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+    tier?: XOR<PriceTierNullableScalarRelationFilter, PriceTierWhereInput> | null
+  }, "id" | "productId_unitKey_minQty">
+
+  export type ProductQtyTierOrderByWithAggregationInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    unitKey?: SortOrder
+    minQty?: SortOrder
+    tierId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ProductQtyTierCountOrderByAggregateInput
+    _avg?: ProductQtyTierAvgOrderByAggregateInput
+    _max?: ProductQtyTierMaxOrderByAggregateInput
+    _min?: ProductQtyTierMinOrderByAggregateInput
+    _sum?: ProductQtyTierSumOrderByAggregateInput
+  }
+
+  export type ProductQtyTierScalarWhereWithAggregatesInput = {
+    AND?: ProductQtyTierScalarWhereWithAggregatesInput | ProductQtyTierScalarWhereWithAggregatesInput[]
+    OR?: ProductQtyTierScalarWhereWithAggregatesInput[]
+    NOT?: ProductQtyTierScalarWhereWithAggregatesInput | ProductQtyTierScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProductQtyTier"> | string
+    productId?: StringWithAggregatesFilter<"ProductQtyTier"> | string
+    unitKey?: StringWithAggregatesFilter<"ProductQtyTier"> | string
+    minQty?: DecimalWithAggregatesFilter<"ProductQtyTier"> | Decimal | DecimalJsLike | number | string
+    tierId?: StringNullableWithAggregatesFilter<"ProductQtyTier"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ProductQtyTier"> | Date | string
   }
 
   export type SaleWhereInput = {
@@ -86163,6 +87574,7 @@ export namespace Prisma {
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutPriceTiersInput
     prices?: ProductTierPriceCreateNestedManyWithoutTierInput
+    qtyRungs?: ProductQtyTierCreateNestedManyWithoutTierInput
     customers?: CustomerCreateNestedManyWithoutTierInput
     sales?: SaleCreateNestedManyWithoutTierInput
   }
@@ -86175,6 +87587,7 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     prices?: ProductTierPriceUncheckedCreateNestedManyWithoutTierInput
+    qtyRungs?: ProductQtyTierUncheckedCreateNestedManyWithoutTierInput
     customers?: CustomerUncheckedCreateNestedManyWithoutTierInput
     sales?: SaleUncheckedCreateNestedManyWithoutTierInput
   }
@@ -86187,6 +87600,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutPriceTiersNestedInput
     prices?: ProductTierPriceUpdateManyWithoutTierNestedInput
+    qtyRungs?: ProductQtyTierUpdateManyWithoutTierNestedInput
     customers?: CustomerUpdateManyWithoutTierNestedInput
     sales?: SaleUpdateManyWithoutTierNestedInput
   }
@@ -86199,6 +87613,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     prices?: ProductTierPriceUncheckedUpdateManyWithoutTierNestedInput
+    qtyRungs?: ProductQtyTierUncheckedUpdateManyWithoutTierNestedInput
     customers?: CustomerUncheckedUpdateManyWithoutTierNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTierNestedInput
   }
@@ -87524,6 +88939,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     company: CompanyCreateNestedOneWithoutCustomersInput
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
@@ -87564,6 +88980,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
@@ -87596,6 +89013,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutCustomersNestedInput
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
@@ -87636,6 +89054,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
@@ -87672,6 +89091,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
   }
 
   export type CustomerUpdateManyMutationInput = {
@@ -87697,6 +89117,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CustomerUncheckedUpdateManyInput = {
@@ -87726,6 +89147,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SupplierCreateInput = {
@@ -87928,6 +89350,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -87961,6 +89384,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -87994,6 +89418,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -88027,6 +89452,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -88263,6 +89689,67 @@ export namespace Prisma {
     tierId?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductQtyTierCreateInput = {
+    id?: string
+    unitKey?: string
+    minQty: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    product: ProductCreateNestedOneWithoutQtyTiersInput
+    tier?: PriceTierCreateNestedOneWithoutQtyRungsInput
+  }
+
+  export type ProductQtyTierUncheckedCreateInput = {
+    id?: string
+    productId: string
+    unitKey?: string
+    minQty: Decimal | DecimalJsLike | number | string
+    tierId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ProductQtyTierUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitKey?: StringFieldUpdateOperationsInput | string
+    minQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutQtyTiersNestedInput
+    tier?: PriceTierUpdateOneWithoutQtyRungsNestedInput
+  }
+
+  export type ProductQtyTierUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    unitKey?: StringFieldUpdateOperationsInput | string
+    minQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tierId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductQtyTierCreateManyInput = {
+    id?: string
+    productId: string
+    unitKey?: string
+    minQty: Decimal | DecimalJsLike | number | string
+    tierId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ProductQtyTierUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitKey?: StringFieldUpdateOperationsInput | string
+    minQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductQtyTierUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    unitKey?: StringFieldUpdateOperationsInput | string
+    minQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tierId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SaleCreateInput = {
@@ -92077,7 +93564,17 @@ export namespace Prisma {
     none?: ProductTierPriceWhereInput
   }
 
+  export type ProductQtyTierListRelationFilter = {
+    every?: ProductQtyTierWhereInput
+    some?: ProductQtyTierWhereInput
+    none?: ProductQtyTierWhereInput
+  }
+
   export type ProductTierPriceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProductQtyTierOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -93002,6 +94499,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     opId?: SortOrder
+    createdById?: SortOrder
   }
 
   export type CustomerAvgOrderByAggregateInput = {
@@ -93040,6 +94538,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     opId?: SortOrder
+    createdById?: SortOrder
   }
 
   export type CustomerMinOrderByAggregateInput = {
@@ -93069,6 +94568,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     opId?: SortOrder
+    createdById?: SortOrder
   }
 
   export type CustomerSumOrderByAggregateInput = {
@@ -93454,6 +94954,47 @@ export namespace Prisma {
 
   export type ProductTierPriceSumOrderByAggregateInput = {
     price?: SortOrder
+  }
+
+  export type ProductQtyTierProductIdUnitKeyMinQtyCompoundUniqueInput = {
+    productId: string
+    unitKey: string
+    minQty: Decimal | DecimalJsLike | number | string
+  }
+
+  export type ProductQtyTierCountOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    unitKey?: SortOrder
+    minQty?: SortOrder
+    tierId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProductQtyTierAvgOrderByAggregateInput = {
+    minQty?: SortOrder
+  }
+
+  export type ProductQtyTierMaxOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    unitKey?: SortOrder
+    minQty?: SortOrder
+    tierId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProductQtyTierMinOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    unitKey?: SortOrder
+    minQty?: SortOrder
+    tierId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProductQtyTierSumOrderByAggregateInput = {
+    minQty?: SortOrder
   }
 
   export type CustomerNullableScalarRelationFilter = {
@@ -96802,6 +98343,13 @@ export namespace Prisma {
     connect?: ProductTierPriceWhereUniqueInput | ProductTierPriceWhereUniqueInput[]
   }
 
+  export type ProductQtyTierCreateNestedManyWithoutTierInput = {
+    create?: XOR<ProductQtyTierCreateWithoutTierInput, ProductQtyTierUncheckedCreateWithoutTierInput> | ProductQtyTierCreateWithoutTierInput[] | ProductQtyTierUncheckedCreateWithoutTierInput[]
+    connectOrCreate?: ProductQtyTierCreateOrConnectWithoutTierInput | ProductQtyTierCreateOrConnectWithoutTierInput[]
+    createMany?: ProductQtyTierCreateManyTierInputEnvelope
+    connect?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+  }
+
   export type CustomerCreateNestedManyWithoutTierInput = {
     create?: XOR<CustomerCreateWithoutTierInput, CustomerUncheckedCreateWithoutTierInput> | CustomerCreateWithoutTierInput[] | CustomerUncheckedCreateWithoutTierInput[]
     connectOrCreate?: CustomerCreateOrConnectWithoutTierInput | CustomerCreateOrConnectWithoutTierInput[]
@@ -96821,6 +98369,13 @@ export namespace Prisma {
     connectOrCreate?: ProductTierPriceCreateOrConnectWithoutTierInput | ProductTierPriceCreateOrConnectWithoutTierInput[]
     createMany?: ProductTierPriceCreateManyTierInputEnvelope
     connect?: ProductTierPriceWhereUniqueInput | ProductTierPriceWhereUniqueInput[]
+  }
+
+  export type ProductQtyTierUncheckedCreateNestedManyWithoutTierInput = {
+    create?: XOR<ProductQtyTierCreateWithoutTierInput, ProductQtyTierUncheckedCreateWithoutTierInput> | ProductQtyTierCreateWithoutTierInput[] | ProductQtyTierUncheckedCreateWithoutTierInput[]
+    connectOrCreate?: ProductQtyTierCreateOrConnectWithoutTierInput | ProductQtyTierCreateOrConnectWithoutTierInput[]
+    createMany?: ProductQtyTierCreateManyTierInputEnvelope
+    connect?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
   }
 
   export type CustomerUncheckedCreateNestedManyWithoutTierInput = {
@@ -96857,6 +98412,20 @@ export namespace Prisma {
     update?: ProductTierPriceUpdateWithWhereUniqueWithoutTierInput | ProductTierPriceUpdateWithWhereUniqueWithoutTierInput[]
     updateMany?: ProductTierPriceUpdateManyWithWhereWithoutTierInput | ProductTierPriceUpdateManyWithWhereWithoutTierInput[]
     deleteMany?: ProductTierPriceScalarWhereInput | ProductTierPriceScalarWhereInput[]
+  }
+
+  export type ProductQtyTierUpdateManyWithoutTierNestedInput = {
+    create?: XOR<ProductQtyTierCreateWithoutTierInput, ProductQtyTierUncheckedCreateWithoutTierInput> | ProductQtyTierCreateWithoutTierInput[] | ProductQtyTierUncheckedCreateWithoutTierInput[]
+    connectOrCreate?: ProductQtyTierCreateOrConnectWithoutTierInput | ProductQtyTierCreateOrConnectWithoutTierInput[]
+    upsert?: ProductQtyTierUpsertWithWhereUniqueWithoutTierInput | ProductQtyTierUpsertWithWhereUniqueWithoutTierInput[]
+    createMany?: ProductQtyTierCreateManyTierInputEnvelope
+    set?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    disconnect?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    delete?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    connect?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    update?: ProductQtyTierUpdateWithWhereUniqueWithoutTierInput | ProductQtyTierUpdateWithWhereUniqueWithoutTierInput[]
+    updateMany?: ProductQtyTierUpdateManyWithWhereWithoutTierInput | ProductQtyTierUpdateManyWithWhereWithoutTierInput[]
+    deleteMany?: ProductQtyTierScalarWhereInput | ProductQtyTierScalarWhereInput[]
   }
 
   export type CustomerUpdateManyWithoutTierNestedInput = {
@@ -96899,6 +98468,20 @@ export namespace Prisma {
     update?: ProductTierPriceUpdateWithWhereUniqueWithoutTierInput | ProductTierPriceUpdateWithWhereUniqueWithoutTierInput[]
     updateMany?: ProductTierPriceUpdateManyWithWhereWithoutTierInput | ProductTierPriceUpdateManyWithWhereWithoutTierInput[]
     deleteMany?: ProductTierPriceScalarWhereInput | ProductTierPriceScalarWhereInput[]
+  }
+
+  export type ProductQtyTierUncheckedUpdateManyWithoutTierNestedInput = {
+    create?: XOR<ProductQtyTierCreateWithoutTierInput, ProductQtyTierUncheckedCreateWithoutTierInput> | ProductQtyTierCreateWithoutTierInput[] | ProductQtyTierUncheckedCreateWithoutTierInput[]
+    connectOrCreate?: ProductQtyTierCreateOrConnectWithoutTierInput | ProductQtyTierCreateOrConnectWithoutTierInput[]
+    upsert?: ProductQtyTierUpsertWithWhereUniqueWithoutTierInput | ProductQtyTierUpsertWithWhereUniqueWithoutTierInput[]
+    createMany?: ProductQtyTierCreateManyTierInputEnvelope
+    set?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    disconnect?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    delete?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    connect?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    update?: ProductQtyTierUpdateWithWhereUniqueWithoutTierInput | ProductQtyTierUpdateWithWhereUniqueWithoutTierInput[]
+    updateMany?: ProductQtyTierUpdateManyWithWhereWithoutTierInput | ProductQtyTierUpdateManyWithWhereWithoutTierInput[]
+    deleteMany?: ProductQtyTierScalarWhereInput | ProductQtyTierScalarWhereInput[]
   }
 
   export type CustomerUncheckedUpdateManyWithoutTierNestedInput = {
@@ -99418,6 +101001,13 @@ export namespace Prisma {
     connect?: ProductTierPriceWhereUniqueInput | ProductTierPriceWhereUniqueInput[]
   }
 
+  export type ProductQtyTierCreateNestedManyWithoutProductInput = {
+    create?: XOR<ProductQtyTierCreateWithoutProductInput, ProductQtyTierUncheckedCreateWithoutProductInput> | ProductQtyTierCreateWithoutProductInput[] | ProductQtyTierUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ProductQtyTierCreateOrConnectWithoutProductInput | ProductQtyTierCreateOrConnectWithoutProductInput[]
+    createMany?: ProductQtyTierCreateManyProductInputEnvelope
+    connect?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+  }
+
   export type StockBatchCreateNestedManyWithoutProductInput = {
     create?: XOR<StockBatchCreateWithoutProductInput, StockBatchUncheckedCreateWithoutProductInput> | StockBatchCreateWithoutProductInput[] | StockBatchUncheckedCreateWithoutProductInput[]
     connectOrCreate?: StockBatchCreateOrConnectWithoutProductInput | StockBatchCreateOrConnectWithoutProductInput[]
@@ -99500,6 +101090,13 @@ export namespace Prisma {
     connectOrCreate?: ProductTierPriceCreateOrConnectWithoutProductInput | ProductTierPriceCreateOrConnectWithoutProductInput[]
     createMany?: ProductTierPriceCreateManyProductInputEnvelope
     connect?: ProductTierPriceWhereUniqueInput | ProductTierPriceWhereUniqueInput[]
+  }
+
+  export type ProductQtyTierUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<ProductQtyTierCreateWithoutProductInput, ProductQtyTierUncheckedCreateWithoutProductInput> | ProductQtyTierCreateWithoutProductInput[] | ProductQtyTierUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ProductQtyTierCreateOrConnectWithoutProductInput | ProductQtyTierCreateOrConnectWithoutProductInput[]
+    createMany?: ProductQtyTierCreateManyProductInputEnvelope
+    connect?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
   }
 
   export type StockBatchUncheckedCreateNestedManyWithoutProductInput = {
@@ -99663,6 +101260,20 @@ export namespace Prisma {
     update?: ProductTierPriceUpdateWithWhereUniqueWithoutProductInput | ProductTierPriceUpdateWithWhereUniqueWithoutProductInput[]
     updateMany?: ProductTierPriceUpdateManyWithWhereWithoutProductInput | ProductTierPriceUpdateManyWithWhereWithoutProductInput[]
     deleteMany?: ProductTierPriceScalarWhereInput | ProductTierPriceScalarWhereInput[]
+  }
+
+  export type ProductQtyTierUpdateManyWithoutProductNestedInput = {
+    create?: XOR<ProductQtyTierCreateWithoutProductInput, ProductQtyTierUncheckedCreateWithoutProductInput> | ProductQtyTierCreateWithoutProductInput[] | ProductQtyTierUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ProductQtyTierCreateOrConnectWithoutProductInput | ProductQtyTierCreateOrConnectWithoutProductInput[]
+    upsert?: ProductQtyTierUpsertWithWhereUniqueWithoutProductInput | ProductQtyTierUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: ProductQtyTierCreateManyProductInputEnvelope
+    set?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    disconnect?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    delete?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    connect?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    update?: ProductQtyTierUpdateWithWhereUniqueWithoutProductInput | ProductQtyTierUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: ProductQtyTierUpdateManyWithWhereWithoutProductInput | ProductQtyTierUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: ProductQtyTierScalarWhereInput | ProductQtyTierScalarWhereInput[]
   }
 
   export type StockBatchUpdateManyWithoutProductNestedInput = {
@@ -99831,6 +101442,20 @@ export namespace Prisma {
     update?: ProductTierPriceUpdateWithWhereUniqueWithoutProductInput | ProductTierPriceUpdateWithWhereUniqueWithoutProductInput[]
     updateMany?: ProductTierPriceUpdateManyWithWhereWithoutProductInput | ProductTierPriceUpdateManyWithWhereWithoutProductInput[]
     deleteMany?: ProductTierPriceScalarWhereInput | ProductTierPriceScalarWhereInput[]
+  }
+
+  export type ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<ProductQtyTierCreateWithoutProductInput, ProductQtyTierUncheckedCreateWithoutProductInput> | ProductQtyTierCreateWithoutProductInput[] | ProductQtyTierUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ProductQtyTierCreateOrConnectWithoutProductInput | ProductQtyTierCreateOrConnectWithoutProductInput[]
+    upsert?: ProductQtyTierUpsertWithWhereUniqueWithoutProductInput | ProductQtyTierUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: ProductQtyTierCreateManyProductInputEnvelope
+    set?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    disconnect?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    delete?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    connect?: ProductQtyTierWhereUniqueInput | ProductQtyTierWhereUniqueInput[]
+    update?: ProductQtyTierUpdateWithWhereUniqueWithoutProductInput | ProductQtyTierUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: ProductQtyTierUpdateManyWithWhereWithoutProductInput | ProductQtyTierUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: ProductQtyTierScalarWhereInput | ProductQtyTierScalarWhereInput[]
   }
 
   export type StockBatchUncheckedUpdateManyWithoutProductNestedInput = {
@@ -100027,6 +101652,36 @@ export namespace Prisma {
     upsert?: PriceTierUpsertWithoutPricesInput
     connect?: PriceTierWhereUniqueInput
     update?: XOR<XOR<PriceTierUpdateToOneWithWhereWithoutPricesInput, PriceTierUpdateWithoutPricesInput>, PriceTierUncheckedUpdateWithoutPricesInput>
+  }
+
+  export type ProductCreateNestedOneWithoutQtyTiersInput = {
+    create?: XOR<ProductCreateWithoutQtyTiersInput, ProductUncheckedCreateWithoutQtyTiersInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutQtyTiersInput
+    connect?: ProductWhereUniqueInput
+  }
+
+  export type PriceTierCreateNestedOneWithoutQtyRungsInput = {
+    create?: XOR<PriceTierCreateWithoutQtyRungsInput, PriceTierUncheckedCreateWithoutQtyRungsInput>
+    connectOrCreate?: PriceTierCreateOrConnectWithoutQtyRungsInput
+    connect?: PriceTierWhereUniqueInput
+  }
+
+  export type ProductUpdateOneRequiredWithoutQtyTiersNestedInput = {
+    create?: XOR<ProductCreateWithoutQtyTiersInput, ProductUncheckedCreateWithoutQtyTiersInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutQtyTiersInput
+    upsert?: ProductUpsertWithoutQtyTiersInput
+    connect?: ProductWhereUniqueInput
+    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutQtyTiersInput, ProductUpdateWithoutQtyTiersInput>, ProductUncheckedUpdateWithoutQtyTiersInput>
+  }
+
+  export type PriceTierUpdateOneWithoutQtyRungsNestedInput = {
+    create?: XOR<PriceTierCreateWithoutQtyRungsInput, PriceTierUncheckedCreateWithoutQtyRungsInput>
+    connectOrCreate?: PriceTierCreateOrConnectWithoutQtyRungsInput
+    upsert?: PriceTierUpsertWithoutQtyRungsInput
+    disconnect?: PriceTierWhereInput | boolean
+    delete?: PriceTierWhereInput | boolean
+    connect?: PriceTierWhereUniqueInput
+    update?: XOR<XOR<PriceTierUpdateToOneWithWhereWithoutQtyRungsInput, PriceTierUpdateWithoutQtyRungsInput>, PriceTierUncheckedUpdateWithoutQtyRungsInput>
   }
 
   export type CompanyCreateNestedOneWithoutSalesInput = {
@@ -102207,6 +103862,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
@@ -102245,6 +103901,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
@@ -102331,6 +103988,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -102363,6 +104021,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -102513,6 +104172,7 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     prices?: ProductTierPriceCreateNestedManyWithoutTierInput
+    qtyRungs?: ProductQtyTierCreateNestedManyWithoutTierInput
     customers?: CustomerCreateNestedManyWithoutTierInput
     sales?: SaleCreateNestedManyWithoutTierInput
   }
@@ -102524,6 +104184,7 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     prices?: ProductTierPriceUncheckedCreateNestedManyWithoutTierInput
+    qtyRungs?: ProductQtyTierUncheckedCreateNestedManyWithoutTierInput
     customers?: CustomerUncheckedCreateNestedManyWithoutTierInput
     sales?: SaleUncheckedCreateNestedManyWithoutTierInput
   }
@@ -103490,6 +105151,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Customer"> | Date | string
     updatedAt?: DateTimeFilter<"Customer"> | Date | string
     opId?: StringNullableFilter<"Customer"> | string | null
+    createdById?: StringNullableFilter<"Customer"> | string | null
   }
 
   export type SupplierUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -104767,6 +106429,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -104799,6 +106462,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -104840,6 +106504,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -104872,6 +106537,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -104913,6 +106579,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -104945,6 +106612,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -105297,6 +106965,31 @@ export namespace Prisma {
     data: ProductTierPriceCreateManyTierInput | ProductTierPriceCreateManyTierInput[]
   }
 
+  export type ProductQtyTierCreateWithoutTierInput = {
+    id?: string
+    unitKey?: string
+    minQty: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    product: ProductCreateNestedOneWithoutQtyTiersInput
+  }
+
+  export type ProductQtyTierUncheckedCreateWithoutTierInput = {
+    id?: string
+    productId: string
+    unitKey?: string
+    minQty: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+  }
+
+  export type ProductQtyTierCreateOrConnectWithoutTierInput = {
+    where: ProductQtyTierWhereUniqueInput
+    create: XOR<ProductQtyTierCreateWithoutTierInput, ProductQtyTierUncheckedCreateWithoutTierInput>
+  }
+
+  export type ProductQtyTierCreateManyTierInputEnvelope = {
+    data: ProductQtyTierCreateManyTierInput | ProductQtyTierCreateManyTierInput[]
+  }
+
   export type CustomerCreateWithoutTierInput = {
     id?: string
     code: string
@@ -105320,6 +107013,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     company: CompanyCreateNestedOneWithoutCustomersInput
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
@@ -105358,6 +107052,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
@@ -105583,6 +107278,34 @@ export namespace Prisma {
     tierId?: StringFilter<"ProductTierPrice"> | string
     price?: DecimalFilter<"ProductTierPrice"> | Decimal | DecimalJsLike | number | string
     updatedAt?: DateTimeFilter<"ProductTierPrice"> | Date | string
+  }
+
+  export type ProductQtyTierUpsertWithWhereUniqueWithoutTierInput = {
+    where: ProductQtyTierWhereUniqueInput
+    update: XOR<ProductQtyTierUpdateWithoutTierInput, ProductQtyTierUncheckedUpdateWithoutTierInput>
+    create: XOR<ProductQtyTierCreateWithoutTierInput, ProductQtyTierUncheckedCreateWithoutTierInput>
+  }
+
+  export type ProductQtyTierUpdateWithWhereUniqueWithoutTierInput = {
+    where: ProductQtyTierWhereUniqueInput
+    data: XOR<ProductQtyTierUpdateWithoutTierInput, ProductQtyTierUncheckedUpdateWithoutTierInput>
+  }
+
+  export type ProductQtyTierUpdateManyWithWhereWithoutTierInput = {
+    where: ProductQtyTierScalarWhereInput
+    data: XOR<ProductQtyTierUpdateManyMutationInput, ProductQtyTierUncheckedUpdateManyWithoutTierInput>
+  }
+
+  export type ProductQtyTierScalarWhereInput = {
+    AND?: ProductQtyTierScalarWhereInput | ProductQtyTierScalarWhereInput[]
+    OR?: ProductQtyTierScalarWhereInput[]
+    NOT?: ProductQtyTierScalarWhereInput | ProductQtyTierScalarWhereInput[]
+    id?: StringFilter<"ProductQtyTier"> | string
+    productId?: StringFilter<"ProductQtyTier"> | string
+    unitKey?: StringFilter<"ProductQtyTier"> | string
+    minQty?: DecimalFilter<"ProductQtyTier"> | Decimal | DecimalJsLike | number | string
+    tierId?: StringNullableFilter<"ProductQtyTier"> | string | null
+    createdAt?: DateTimeFilter<"ProductQtyTier"> | Date | string
   }
 
   export type CustomerUpsertWithWhereUniqueWithoutTierInput = {
@@ -105936,6 +107659,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     company: CompanyCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
@@ -105974,6 +107698,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
@@ -106284,6 +108009,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     company: CompanyCreateNestedOneWithoutCustomersInput
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     tier?: PriceTierCreateNestedOneWithoutCustomersInput
@@ -106322,6 +108048,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
@@ -109525,6 +111252,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -109557,6 +111285,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -109656,6 +111385,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -109688,6 +111418,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -110163,6 +111894,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -110195,6 +111927,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -110278,6 +112011,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -110310,6 +112044,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -110518,6 +112253,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -110550,6 +112286,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -110786,6 +112523,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -110818,6 +112556,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -111199,6 +112938,7 @@ export namespace Prisma {
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutPriceTiersInput
     prices?: ProductTierPriceCreateNestedManyWithoutTierInput
+    qtyRungs?: ProductQtyTierCreateNestedManyWithoutTierInput
     sales?: SaleCreateNestedManyWithoutTierInput
   }
 
@@ -111210,6 +112950,7 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     prices?: ProductTierPriceUncheckedCreateNestedManyWithoutTierInput
+    qtyRungs?: ProductQtyTierUncheckedCreateNestedManyWithoutTierInput
     sales?: SaleUncheckedCreateNestedManyWithoutTierInput
   }
 
@@ -111697,6 +113438,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutPriceTiersNestedInput
     prices?: ProductTierPriceUpdateManyWithoutTierNestedInput
+    qtyRungs?: ProductQtyTierUpdateManyWithoutTierNestedInput
     sales?: SaleUpdateManyWithoutTierNestedInput
   }
 
@@ -111708,6 +113450,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     prices?: ProductTierPriceUncheckedUpdateManyWithoutTierNestedInput
+    qtyRungs?: ProductQtyTierUncheckedUpdateManyWithoutTierNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTierNestedInput
   }
 
@@ -112013,6 +113756,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -112045,6 +113789,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -112446,6 +114191,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -112478,6 +114224,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -112839,6 +114586,31 @@ export namespace Prisma {
 
   export type ProductTierPriceCreateManyProductInputEnvelope = {
     data: ProductTierPriceCreateManyProductInput | ProductTierPriceCreateManyProductInput[]
+  }
+
+  export type ProductQtyTierCreateWithoutProductInput = {
+    id?: string
+    unitKey?: string
+    minQty: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    tier?: PriceTierCreateNestedOneWithoutQtyRungsInput
+  }
+
+  export type ProductQtyTierUncheckedCreateWithoutProductInput = {
+    id?: string
+    unitKey?: string
+    minQty: Decimal | DecimalJsLike | number | string
+    tierId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ProductQtyTierCreateOrConnectWithoutProductInput = {
+    where: ProductQtyTierWhereUniqueInput
+    create: XOR<ProductQtyTierCreateWithoutProductInput, ProductQtyTierUncheckedCreateWithoutProductInput>
+  }
+
+  export type ProductQtyTierCreateManyProductInputEnvelope = {
+    data: ProductQtyTierCreateManyProductInput | ProductQtyTierCreateManyProductInput[]
   }
 
   export type StockBatchCreateWithoutProductInput = {
@@ -113455,6 +115227,22 @@ export namespace Prisma {
     data: XOR<ProductTierPriceUpdateManyMutationInput, ProductTierPriceUncheckedUpdateManyWithoutProductInput>
   }
 
+  export type ProductQtyTierUpsertWithWhereUniqueWithoutProductInput = {
+    where: ProductQtyTierWhereUniqueInput
+    update: XOR<ProductQtyTierUpdateWithoutProductInput, ProductQtyTierUncheckedUpdateWithoutProductInput>
+    create: XOR<ProductQtyTierCreateWithoutProductInput, ProductQtyTierUncheckedCreateWithoutProductInput>
+  }
+
+  export type ProductQtyTierUpdateWithWhereUniqueWithoutProductInput = {
+    where: ProductQtyTierWhereUniqueInput
+    data: XOR<ProductQtyTierUpdateWithoutProductInput, ProductQtyTierUncheckedUpdateWithoutProductInput>
+  }
+
+  export type ProductQtyTierUpdateManyWithWhereWithoutProductInput = {
+    where: ProductQtyTierScalarWhereInput
+    data: XOR<ProductQtyTierUpdateManyMutationInput, ProductQtyTierUncheckedUpdateManyWithoutProductInput>
+  }
+
   export type StockBatchUpsertWithWhereUniqueWithoutProductInput = {
     where: StockBatchWhereUniqueInput
     update: XOR<StockBatchUpdateWithoutProductInput, StockBatchUncheckedUpdateWithoutProductInput>
@@ -113692,6 +115480,7 @@ export namespace Prisma {
     purchaseUnit?: UnitCreateNestedOneWithoutPurchaseForInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -113724,6 +115513,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -113772,6 +115562,7 @@ export namespace Prisma {
     purchaseUnit?: UnitUpdateOneWithoutPurchaseForNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -113804,6 +115595,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -113836,6 +115628,7 @@ export namespace Prisma {
     purchaseUnit?: UnitCreateNestedOneWithoutPurchaseForInput
     images?: ProductImageCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -113868,6 +115661,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -113947,6 +115741,7 @@ export namespace Prisma {
     purchaseUnit?: UnitUpdateOneWithoutPurchaseForNestedInput
     images?: ProductImageUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -113979,6 +115774,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -114048,6 +115844,7 @@ export namespace Prisma {
     purchaseUnit?: UnitCreateNestedOneWithoutPurchaseForInput
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -114080,6 +115877,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -114103,6 +115901,7 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutPriceTiersInput
+    qtyRungs?: ProductQtyTierCreateNestedManyWithoutTierInput
     customers?: CustomerCreateNestedManyWithoutTierInput
     sales?: SaleCreateNestedManyWithoutTierInput
   }
@@ -114114,6 +115913,7 @@ export namespace Prisma {
     sortOrder?: number
     isActive?: boolean
     createdAt?: Date | string
+    qtyRungs?: ProductQtyTierUncheckedCreateNestedManyWithoutTierInput
     customers?: CustomerUncheckedCreateNestedManyWithoutTierInput
     sales?: SaleUncheckedCreateNestedManyWithoutTierInput
   }
@@ -114155,6 +115955,7 @@ export namespace Prisma {
     purchaseUnit?: UnitUpdateOneWithoutPurchaseForNestedInput
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -114187,6 +115988,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -114216,6 +116018,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutPriceTiersNestedInput
+    qtyRungs?: ProductQtyTierUpdateManyWithoutTierNestedInput
     customers?: CustomerUpdateManyWithoutTierNestedInput
     sales?: SaleUpdateManyWithoutTierNestedInput
   }
@@ -114227,6 +116030,219 @@ export namespace Prisma {
     sortOrder?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    qtyRungs?: ProductQtyTierUncheckedUpdateManyWithoutTierNestedInput
+    customers?: CustomerUncheckedUpdateManyWithoutTierNestedInput
+    sales?: SaleUncheckedUpdateManyWithoutTierNestedInput
+  }
+
+  export type ProductCreateWithoutQtyTiersInput = {
+    id?: string
+    name: string
+    reference?: string | null
+    barcode?: string | null
+    colisage?: string | null
+    salePrice?: Decimal | DecimalJsLike | number | string
+    costPrice?: Decimal | DecimalJsLike | number | string
+    stockQty?: Decimal | DecimalJsLike | number | string
+    minStock?: Decimal | DecimalJsLike | number | string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutProductsInput
+    category?: ProductCategoryCreateNestedOneWithoutProductsInput
+    supplier?: SupplierCreateNestedOneWithoutDefaultProductsInput
+    baseUnit?: UnitCreateNestedOneWithoutBaseForInput
+    saleUnit?: UnitCreateNestedOneWithoutSaleForInput
+    purchaseUnit?: UnitCreateNestedOneWithoutPurchaseForInput
+    images?: ProductImageCreateNestedManyWithoutProductInput
+    conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
+    tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    batches?: StockBatchCreateNestedManyWithoutProductInput
+    purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
+    returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
+    transferLines?: TransferLineCreateNestedManyWithoutProductInput
+    countLines?: StockCountLineCreateNestedManyWithoutProductInput
+    lossLines?: StockLossCreateNestedManyWithoutProductInput
+    saleLines?: SaleLineCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemCreateNestedManyWithoutProductInput
+    clientReturnLines?: ClientReturnLineCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductUncheckedCreateWithoutQtyTiersInput = {
+    id?: string
+    companyId: string
+    categoryId?: string | null
+    supplierId?: string | null
+    name: string
+    reference?: string | null
+    barcode?: string | null
+    colisage?: string | null
+    baseUnitId?: string | null
+    saleUnitId?: string | null
+    purchaseUnitId?: string | null
+    salePrice?: Decimal | DecimalJsLike | number | string
+    costPrice?: Decimal | DecimalJsLike | number | string
+    stockQty?: Decimal | DecimalJsLike | number | string
+    minStock?: Decimal | DecimalJsLike | number | string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
+    conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
+    tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
+    purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
+    returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
+    transferLines?: TransferLineUncheckedCreateNestedManyWithoutProductInput
+    countLines?: StockCountLineUncheckedCreateNestedManyWithoutProductInput
+    lossLines?: StockLossUncheckedCreateNestedManyWithoutProductInput
+    saleLines?: SaleLineUncheckedCreateNestedManyWithoutProductInput
+    threePackItems?: ThreePackItemUncheckedCreateNestedManyWithoutProductInput
+    clientReturnLines?: ClientReturnLineUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductCreateOrConnectWithoutQtyTiersInput = {
+    where: ProductWhereUniqueInput
+    create: XOR<ProductCreateWithoutQtyTiersInput, ProductUncheckedCreateWithoutQtyTiersInput>
+  }
+
+  export type PriceTierCreateWithoutQtyRungsInput = {
+    id?: string
+    name: string
+    sortOrder?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    company: CompanyCreateNestedOneWithoutPriceTiersInput
+    prices?: ProductTierPriceCreateNestedManyWithoutTierInput
+    customers?: CustomerCreateNestedManyWithoutTierInput
+    sales?: SaleCreateNestedManyWithoutTierInput
+  }
+
+  export type PriceTierUncheckedCreateWithoutQtyRungsInput = {
+    id?: string
+    companyId: string
+    name: string
+    sortOrder?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    prices?: ProductTierPriceUncheckedCreateNestedManyWithoutTierInput
+    customers?: CustomerUncheckedCreateNestedManyWithoutTierInput
+    sales?: SaleUncheckedCreateNestedManyWithoutTierInput
+  }
+
+  export type PriceTierCreateOrConnectWithoutQtyRungsInput = {
+    where: PriceTierWhereUniqueInput
+    create: XOR<PriceTierCreateWithoutQtyRungsInput, PriceTierUncheckedCreateWithoutQtyRungsInput>
+  }
+
+  export type ProductUpsertWithoutQtyTiersInput = {
+    update: XOR<ProductUpdateWithoutQtyTiersInput, ProductUncheckedUpdateWithoutQtyTiersInput>
+    create: XOR<ProductCreateWithoutQtyTiersInput, ProductUncheckedCreateWithoutQtyTiersInput>
+    where?: ProductWhereInput
+  }
+
+  export type ProductUpdateToOneWithWhereWithoutQtyTiersInput = {
+    where?: ProductWhereInput
+    data: XOR<ProductUpdateWithoutQtyTiersInput, ProductUncheckedUpdateWithoutQtyTiersInput>
+  }
+
+  export type ProductUpdateWithoutQtyTiersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    barcode?: NullableStringFieldUpdateOperationsInput | string | null
+    colisage?: NullableStringFieldUpdateOperationsInput | string | null
+    salePrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    stockQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minStock?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutProductsNestedInput
+    category?: ProductCategoryUpdateOneWithoutProductsNestedInput
+    supplier?: SupplierUpdateOneWithoutDefaultProductsNestedInput
+    baseUnit?: UnitUpdateOneWithoutBaseForNestedInput
+    saleUnit?: UnitUpdateOneWithoutSaleForNestedInput
+    purchaseUnit?: UnitUpdateOneWithoutPurchaseForNestedInput
+    images?: ProductImageUpdateManyWithoutProductNestedInput
+    conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
+    tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    batches?: StockBatchUpdateManyWithoutProductNestedInput
+    purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
+    returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
+    transferLines?: TransferLineUpdateManyWithoutProductNestedInput
+    countLines?: StockCountLineUpdateManyWithoutProductNestedInput
+    lossLines?: StockLossUpdateManyWithoutProductNestedInput
+    saleLines?: SaleLineUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUpdateManyWithoutProductNestedInput
+    clientReturnLines?: ClientReturnLineUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductUncheckedUpdateWithoutQtyTiersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    categoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    supplierId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    barcode?: NullableStringFieldUpdateOperationsInput | string | null
+    colisage?: NullableStringFieldUpdateOperationsInput | string | null
+    baseUnitId?: NullableStringFieldUpdateOperationsInput | string | null
+    saleUnitId?: NullableStringFieldUpdateOperationsInput | string | null
+    purchaseUnitId?: NullableStringFieldUpdateOperationsInput | string | null
+    salePrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    costPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    stockQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minStock?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
+    conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
+    tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
+    purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
+    returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
+    transferLines?: TransferLineUncheckedUpdateManyWithoutProductNestedInput
+    countLines?: StockCountLineUncheckedUpdateManyWithoutProductNestedInput
+    lossLines?: StockLossUncheckedUpdateManyWithoutProductNestedInput
+    saleLines?: SaleLineUncheckedUpdateManyWithoutProductNestedInput
+    threePackItems?: ThreePackItemUncheckedUpdateManyWithoutProductNestedInput
+    clientReturnLines?: ClientReturnLineUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type PriceTierUpsertWithoutQtyRungsInput = {
+    update: XOR<PriceTierUpdateWithoutQtyRungsInput, PriceTierUncheckedUpdateWithoutQtyRungsInput>
+    create: XOR<PriceTierCreateWithoutQtyRungsInput, PriceTierUncheckedCreateWithoutQtyRungsInput>
+    where?: PriceTierWhereInput
+  }
+
+  export type PriceTierUpdateToOneWithWhereWithoutQtyRungsInput = {
+    where?: PriceTierWhereInput
+    data: XOR<PriceTierUpdateWithoutQtyRungsInput, PriceTierUncheckedUpdateWithoutQtyRungsInput>
+  }
+
+  export type PriceTierUpdateWithoutQtyRungsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutPriceTiersNestedInput
+    prices?: ProductTierPriceUpdateManyWithoutTierNestedInput
+    customers?: CustomerUpdateManyWithoutTierNestedInput
+    sales?: SaleUpdateManyWithoutTierNestedInput
+  }
+
+  export type PriceTierUncheckedUpdateWithoutQtyRungsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    prices?: ProductTierPriceUncheckedUpdateManyWithoutTierNestedInput
     customers?: CustomerUncheckedUpdateManyWithoutTierNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTierNestedInput
   }
@@ -114355,6 +116371,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     company: CompanyCreateNestedOneWithoutCustomersInput
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
@@ -114394,6 +116411,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
@@ -114490,6 +116508,7 @@ export namespace Prisma {
     createdAt?: Date | string
     company: CompanyCreateNestedOneWithoutPriceTiersInput
     prices?: ProductTierPriceCreateNestedManyWithoutTierInput
+    qtyRungs?: ProductQtyTierCreateNestedManyWithoutTierInput
     customers?: CustomerCreateNestedManyWithoutTierInput
   }
 
@@ -114501,6 +116520,7 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     prices?: ProductTierPriceUncheckedCreateNestedManyWithoutTierInput
+    qtyRungs?: ProductQtyTierUncheckedCreateNestedManyWithoutTierInput
     customers?: CustomerUncheckedCreateNestedManyWithoutTierInput
   }
 
@@ -114968,6 +116988,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutCustomersNestedInput
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
@@ -115007,6 +117028,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
@@ -115115,6 +117137,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: CompanyUpdateOneRequiredWithoutPriceTiersNestedInput
     prices?: ProductTierPriceUpdateManyWithoutTierNestedInput
+    qtyRungs?: ProductQtyTierUpdateManyWithoutTierNestedInput
     customers?: CustomerUpdateManyWithoutTierNestedInput
   }
 
@@ -115126,6 +117149,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     prices?: ProductTierPriceUncheckedUpdateManyWithoutTierNestedInput
+    qtyRungs?: ProductQtyTierUncheckedUpdateManyWithoutTierNestedInput
     customers?: CustomerUncheckedUpdateManyWithoutTierNestedInput
   }
 
@@ -115453,6 +117477,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -115485,6 +117510,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -115610,6 +117636,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -115642,6 +117669,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -115776,6 +117804,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     company: CompanyCreateNestedOneWithoutCustomersInput
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
@@ -115815,6 +117844,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
@@ -116140,6 +118170,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutCustomersNestedInput
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
@@ -116179,6 +118210,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
@@ -116420,6 +118452,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -116452,6 +118485,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -116543,6 +118577,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -116575,6 +118610,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -117303,6 +119339,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     company: CompanyCreateNestedOneWithoutCustomersInput
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
@@ -117342,6 +119379,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
@@ -117442,6 +119480,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutCustomersNestedInput
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
@@ -117481,6 +119520,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
@@ -119126,6 +121166,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
     transferLines?: TransferLineCreateNestedManyWithoutProductInput
@@ -119158,6 +121199,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
     transferLines?: TransferLineUncheckedCreateNestedManyWithoutProductInput
@@ -119284,6 +121326,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
     transferLines?: TransferLineUpdateManyWithoutProductNestedInput
@@ -119316,6 +121359,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
     transferLines?: TransferLineUncheckedUpdateManyWithoutProductNestedInput
@@ -119486,6 +121530,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
     transferLines?: TransferLineCreateNestedManyWithoutProductInput
@@ -119518,6 +121563,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
     transferLines?: TransferLineUncheckedCreateNestedManyWithoutProductInput
@@ -119826,6 +121872,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
     transferLines?: TransferLineUpdateManyWithoutProductNestedInput
@@ -119858,6 +121905,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
     transferLines?: TransferLineUncheckedUpdateManyWithoutProductNestedInput
@@ -120521,6 +122569,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     transferLines?: TransferLineCreateNestedManyWithoutProductInput
@@ -120553,6 +122602,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     transferLines?: TransferLineUncheckedCreateNestedManyWithoutProductInput
@@ -120638,6 +122688,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     transferLines?: TransferLineUpdateManyWithoutProductNestedInput
@@ -120670,6 +122721,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     transferLines?: TransferLineUncheckedUpdateManyWithoutProductNestedInput
@@ -121216,6 +123268,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     company: CompanyCreateNestedOneWithoutCustomersInput
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
@@ -121255,6 +123308,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
@@ -121538,6 +123592,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutCustomersNestedInput
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
@@ -121577,6 +123632,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
@@ -122220,6 +124276,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     company: CompanyCreateNestedOneWithoutCustomersInput
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
@@ -122259,6 +124316,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
@@ -122413,6 +124471,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutCustomersNestedInput
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
@@ -122452,6 +124511,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
@@ -122631,6 +124691,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     company: CompanyCreateNestedOneWithoutCustomersInput
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
@@ -122670,6 +124731,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCustomerInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
@@ -122877,6 +124939,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutCustomersNestedInput
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
@@ -122916,6 +124979,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
@@ -123226,6 +125290,7 @@ export namespace Prisma {
     images?: ProductImageCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierCreateNestedManyWithoutProductInput
     batches?: StockBatchCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineCreateNestedManyWithoutProductInput
@@ -123258,6 +125323,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedCreateNestedManyWithoutProductInput
     conversions?: ProductUnitConversionUncheckedCreateNestedManyWithoutProductInput
     tierPrices?: ProductTierPriceUncheckedCreateNestedManyWithoutProductInput
+    qtyTiers?: ProductQtyTierUncheckedCreateNestedManyWithoutProductInput
     batches?: StockBatchUncheckedCreateNestedManyWithoutProductInput
     purchaseLines?: PurchaseLineUncheckedCreateNestedManyWithoutProductInput
     returnLines?: SupplierReturnLineUncheckedCreateNestedManyWithoutProductInput
@@ -123343,6 +125409,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -123375,6 +125442,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -123509,6 +125577,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     company: CompanyCreateNestedOneWithoutCustomersInput
     wilaya?: WilayaCreateNestedOneWithoutCustomersInput
     secteur?: SecteurCreateNestedOneWithoutCustomersInput
@@ -123548,6 +125617,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutClientInput
     sales?: SaleUncheckedCreateNestedManyWithoutClientInput
     returns?: ClientReturnUncheckedCreateNestedManyWithoutClientInput
@@ -123845,6 +125915,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutCustomersNestedInput
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
@@ -123884,6 +125955,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
     returns?: ClientReturnUncheckedUpdateManyWithoutClientNestedInput
@@ -124841,6 +126913,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
   }
 
   export type SupplierCreateManyCompanyInput = {
@@ -125370,6 +127443,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
@@ -125408,6 +127482,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
@@ -125443,6 +127518,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SupplierUpdateWithoutCompanyInput = {
@@ -125519,6 +127595,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -125551,6 +127628,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -125648,6 +127726,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     prices?: ProductTierPriceUpdateManyWithoutTierNestedInput
+    qtyRungs?: ProductQtyTierUpdateManyWithoutTierNestedInput
     customers?: CustomerUpdateManyWithoutTierNestedInput
     sales?: SaleUpdateManyWithoutTierNestedInput
   }
@@ -125659,6 +127738,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     prices?: ProductTierPriceUncheckedUpdateManyWithoutTierNestedInput
+    qtyRungs?: ProductQtyTierUncheckedUpdateManyWithoutTierNestedInput
     customers?: CustomerUncheckedUpdateManyWithoutTierNestedInput
     sales?: SaleUncheckedUpdateManyWithoutTierNestedInput
   }
@@ -126698,6 +128778,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -126730,6 +128811,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -126782,6 +128864,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -126814,6 +128897,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -126866,6 +128950,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -126898,6 +128983,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -126960,6 +129046,14 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ProductQtyTierCreateManyTierInput = {
+    id?: string
+    productId: string
+    unitKey?: string
+    minQty: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+  }
+
   export type CustomerCreateManyTierInput = {
     id?: string
     companyId: string
@@ -126986,6 +129080,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
   }
 
   export type SaleCreateManyTierInput = {
@@ -127039,6 +129134,30 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ProductQtyTierUpdateWithoutTierInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitKey?: StringFieldUpdateOperationsInput | string
+    minQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutQtyTiersNestedInput
+  }
+
+  export type ProductQtyTierUncheckedUpdateWithoutTierInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    unitKey?: StringFieldUpdateOperationsInput | string
+    minQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductQtyTierUncheckedUpdateManyWithoutTierInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    unitKey?: StringFieldUpdateOperationsInput | string
+    minQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type CustomerUpdateWithoutTierInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
@@ -127062,6 +129181,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutCustomersNestedInput
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
@@ -127100,6 +129220,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
@@ -127135,6 +129256,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SaleUpdateWithoutTierInput = {
@@ -127323,6 +129445,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
   }
 
   export type SupplierCreateManyWilayaInput = {
@@ -127404,6 +129527,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutCustomersNestedInput
     secteur?: SecteurUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
@@ -127442,6 +129566,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
@@ -127477,6 +129602,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SupplierUpdateWithoutWilayaInput = {
@@ -127579,6 +129705,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     opId?: string | null
+    createdById?: string | null
   }
 
   export type SupplierCreateManySecteurInput = {
@@ -127660,6 +129787,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     company?: CompanyUpdateOneRequiredWithoutCustomersNestedInput
     wilaya?: WilayaUpdateOneWithoutCustomersNestedInput
     tier?: PriceTierUpdateOneWithoutCustomersNestedInput
@@ -127698,6 +129826,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     distances?: ClientDistanceUncheckedUpdateManyWithoutClientNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCustomerNestedInput
     sales?: SaleUncheckedUpdateManyWithoutClientNestedInput
@@ -127733,6 +129862,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SupplierUpdateWithoutSecteurInput = {
@@ -129978,6 +132108,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -130010,6 +132141,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -130222,6 +132354,7 @@ export namespace Prisma {
     images?: ProductImageUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUpdateManyWithoutProductNestedInput
     batches?: StockBatchUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUpdateManyWithoutProductNestedInput
@@ -130254,6 +132387,7 @@ export namespace Prisma {
     images?: ProductImageUncheckedUpdateManyWithoutProductNestedInput
     conversions?: ProductUnitConversionUncheckedUpdateManyWithoutProductNestedInput
     tierPrices?: ProductTierPriceUncheckedUpdateManyWithoutProductNestedInput
+    qtyTiers?: ProductQtyTierUncheckedUpdateManyWithoutProductNestedInput
     batches?: StockBatchUncheckedUpdateManyWithoutProductNestedInput
     purchaseLines?: PurchaseLineUncheckedUpdateManyWithoutProductNestedInput
     returnLines?: SupplierReturnLineUncheckedUpdateManyWithoutProductNestedInput
@@ -130305,6 +132439,14 @@ export namespace Prisma {
     tierId: string
     price: Decimal | DecimalJsLike | number | string
     updatedAt?: Date | string
+  }
+
+  export type ProductQtyTierCreateManyProductInput = {
+    id?: string
+    unitKey?: string
+    minQty: Decimal | DecimalJsLike | number | string
+    tierId?: string | null
+    createdAt?: Date | string
   }
 
   export type StockBatchCreateManyProductInput = {
@@ -130461,6 +132603,30 @@ export namespace Prisma {
     tierId?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductQtyTierUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitKey?: StringFieldUpdateOperationsInput | string
+    minQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tier?: PriceTierUpdateOneWithoutQtyRungsNestedInput
+  }
+
+  export type ProductQtyTierUncheckedUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitKey?: StringFieldUpdateOperationsInput | string
+    minQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tierId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductQtyTierUncheckedUpdateManyWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitKey?: StringFieldUpdateOperationsInput | string
+    minQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tierId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StockBatchUpdateWithoutProductInput = {

@@ -148,6 +148,7 @@ model PriceTier {
   createdAt DateTime @default(now())
 
   prices    ProductTierPrice[]
+  qtyRungs  ProductQtyTier[]
   customers Customer[]
   sales     Sale[]
 
@@ -602,6 +603,7 @@ model Product {
   images            ProductImage[]
   conversions       ProductUnitConversion[]
   tierPrices        ProductTierPrice[]
+  qtyTiers          ProductQtyTier[]
   batches           StockBatch[]
   purchaseLines     PurchaseLine[]
   returnLines       SupplierReturnLine[]
@@ -660,6 +662,26 @@ model ProductTierPrice {
 
   @@unique([productId, tierId])
   @@map("product_tier_prices")
+}
+
+/// Quantity ladder, per colisage: when a sale line of `unitKey` holds
+/// qty >= minQty, it is priced with the product's `tier` price (tierId null =
+/// the base "سعر البيع"). The active rung is the one with the greatest
+/// minQty <= qty. Rungs reuse the existing tier prices — no new price numbers.
+/// unitKey "" = the base unit; otherwise the Unit.id of the colisage.
+model ProductQtyTier {
+  id        String     @id @default(cuid())
+  productId String
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  unitKey   String     @default("")
+  minQty    Decimal
+  tierId    String?
+  tier      PriceTier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
+  createdAt DateTime   @default(now())
+
+  @@unique([productId, unitKey, minQty])
+  @@index([productId])
+  @@map("product_qty_tiers")
 }
 
 // ─── Sales ───────────────────────────────────────────────────────────────────

@@ -91,6 +91,8 @@ export type SnapshotProduct = {
   baseUnit: { id: string; name: string } | null;
   conversions: Array<{ unitId: string; name: string; factor: number; barcode: string | null }>;
   tierPrices: Array<{ tierId: string; price: number }>;
+  /// Quantity ladder per colisage (older snapshots have none).
+  qtyTiers?: Array<{ unitKey: string; minQty: number; tierId: string | null }>;
 };
 
 export type SnapshotClient = {

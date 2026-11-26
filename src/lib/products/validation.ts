@@ -29,6 +29,15 @@ export const productSchema = z.object({
     .array(z.object({ tierId: z.string(), price: decimal }))
     .max(20)
     .optional(),
+  /// Quantity ladder per colisage (unitKey "" = base unit; tierId null = base sale price).
+  qtyTiers: z
+    .array(z.object({
+      unitKey: z.string().max(60).default(""),
+      minQty: z.coerce.number().finite().min(0).max(10_000_000),
+      tierId: z.string().nullable(),
+    }))
+    .max(60)
+    .optional(),
 });
 
 export type ProductInput = z.infer<typeof productSchema>;

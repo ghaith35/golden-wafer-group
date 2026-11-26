@@ -1,3 +1,4 @@
+import { sanitizeQtyTiers } from "@/lib/products/qty-tiers";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
@@ -10,6 +11,7 @@ async function scoped(id: string, companyId: string) {
       images: { orderBy: { sortOrder: "asc" } },
       conversions: { include: { unit: true } },
       tierPrices: { include: { tier: true } },
+      qtyTiers: true,
       category: true,
       baseUnit: true,
       saleUnit: true,
@@ -89,6 +91,21 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (tiers.length !== ids.length) return NextResponse.json({ error: "bad_tier" }, { status: 400 });
   }
 
+  // Quantity ladder: validated against the colisages the product will have
+  // AFTER this save (body conversions, else the stored ones).
+  let qtyTiers: ReturnType<typeof sanitizeQtyTiers> | undefined;
+  if (d.qtyTiers !== undefined) {
+    const unitKeys = d.conversions
+      ? d.conversions.map((c) => c.unitId)
+      : (await prisma.productUnitConversion.findMany({ where: { productId: id }, select: { unitId: true } })).map((c) => c.unitId);
+    qtyTiers = sanitizeQtyTiers(d.qtyTiers, unitKeys);
+    const ids = [...new Set(qtyTiers.map((r) => r.tierId).filter((x): x is string => !!x))];
+    if (ids.length) {
+      const found = await prisma.priceTier.count({ where: { id: { in: ids }, companyId: session.companyId } });
+      if (found !== ids.length) return NextResponse.json({ error: "bad_tier" }, { status: 400 });
+    }
+  }
+
   await prisma.$transaction(async (tx) => {
     await tx.product.update({
       where: { id },
@@ -127,6 +144,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       if (d.tierPrices.length) {
         await tx.productTierPrice.createMany({
           data: d.tierPrices.map((t) => ({ productId: id, tierId: t.tierId, price: t.price })),
+        });
+      }
+    }
+    if (qtyTiers !== undefined) {
+      await tx.productQtyTier.deleteMany({ where: { productId: id } });
+      if (qtyTiers.length) {
+        await tx.productQtyTier.createMany({
+          data: qtyTiers.map((r) => ({ productId: id, unitKey: r.unitKey, minQty: r.minQty, tierId: r.tierId })),
         });
       }
     }

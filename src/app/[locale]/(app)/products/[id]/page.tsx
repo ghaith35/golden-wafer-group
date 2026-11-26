@@ -15,7 +15,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ lo
   const [product, categories, suppliers, units, tiers] = await Promise.all([
     prisma.product.findFirst({
       where: { id, companyId: session.companyId },
-      include: { images: { orderBy: { sortOrder: "asc" } }, conversions: true, tierPrices: true },
+      include: { images: { orderBy: { sortOrder: "asc" } }, conversions: true, tierPrices: true, qtyTiers: true },
     }),
     prisma.productCategory.findMany({ where: { companyId: session.companyId }, orderBy: { name: "asc" } }),
     prisma.supplier.findMany({ where: { companyId: session.companyId }, orderBy: { name: "asc" } }),
@@ -38,6 +38,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ lo
     images: product.images.map((i) => i.url),
     conversions: product.conversions.map((c) => ({ unitId: c.unitId, factor: Number(c.factor) })),
     tierPrices: product.tierPrices.map((x) => ({ tierId: x.tierId, price: Number(x.price) })),
+    qtyTiers: product.qtyTiers.map((r) => ({ unitKey: r.unitKey, minQty: Number(r.minQty), tierId: r.tierId })),
   };
   return (
     <div className="space-y-4 p-5 md:p-6">

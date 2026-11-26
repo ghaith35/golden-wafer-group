@@ -1,5 +1,6 @@
 "use client";
 
+import { QtyLadderHint } from "@/components/sales/QtyLadderHint";
 import { useFlip } from "@/lib/useFlip";
 import { matchClient } from "@/lib/clients/display";
 import { ClientName } from "@/components/clients/ClientName";
@@ -18,7 +19,7 @@ import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { CameraBox } from "@/components/scan/CameraBox";
 import { TicketView, type TicketLabels, type TicketVM } from "@/components/sales/TicketView";
 import { factorOf, normFactor, priceForUnit, saleUnits } from "@/components/products/UnitQty";
-import { mergeTiers, resolveTierPrice } from "@/lib/pricing";
+import { ladderLine, mergeTiers, resolveTierPrice } from "@/lib/pricing";
 import { beepAdd, beepConfirm } from "@/lib/beep";
 import { dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,8 @@ type Prod = {
   baseUnit: { id: string; name: string } | null;
   images: Array<{ url: string }>;
   tierPrices: Array<{ tierId: string; price: unknown }>;
+  /// Quantity ladder per colisage (see lib/pricing).
+  qtyTiers?: Array<{ unitKey: string; minQty: number; tierId: string | null }>;
   conversions: Array<{ unitId: string; factor: unknown; unit: { name: string } }>;
   category: { id: string; name: string } | null;
 };
@@ -373,6 +376,7 @@ export function VenteClient({
       baseUnit: p.baseUnit,
       images: p.images.map((url) => ({ url })),
       tierPrices: p.tierPrices.map((x) => ({ tierId: x.tierId, price: x.price })),
+      qtyTiers: p.qtyTiers ?? [],
       conversions: p.conversions.map((c) => ({ unitId: c.unitId, factor: c.factor, unit: { name: c.name } })),
       category: p.categoryId ? { id: p.categoryId, name: catName.get(p.categoryId) ?? "" } : null,
     }));
@@ -388,7 +392,23 @@ export function VenteClient({
   const giftLines = useMemo(() => giftBodyLines(gifts), [gifts]);
   // % off / new-price deals: the cart is re-priced here (same function as the
   // server) so an offline sale shows and queues the final prices.
-  const effLines = useDealLines(tpRules, giftProducts, lines, !editingTicket);
+  // Quantity ladder (per colisage): the line's unit price follows its quantity.
+  // Derived, never stored — so +/− and typed quantities re-tier instantly, online
+  // and offline. Editing an existing ticket keeps its recorded prices.
+  const laddered = useMemo<Line[]>(
+    () =>
+      editingTicket
+        ? lines
+        : lines.map((l) => {
+            const lp = effProducts.find((x) => x.id === l.productId) ?? products.find((x) => x.id === l.productId);
+            if (!lp) return l;
+            const r = ladderLine(lp, l.unitId, l.qty, l.tierId);
+            return r.hasLadder ? { ...l, unitPrice: r.unitPrice, tierId: r.tierId } : l;
+          }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [lines, effProducts, products, editingTicket],
+  );
+  const effLines = useDealLines(tpRules, giftProducts, laddered, !editingTicket);
   const snapStock = (() => {
     if (!snap) return null;
     const m: Record<string, number> = {};
@@ -525,9 +545,10 @@ export function VenteClient({
     // New lines take the TOGGLED tier (fallback: base sell). Lines already
     // in the facture keep theirs — the toggle never rewrites them.
     const base = priceFor(p, selTier);
+    const packLad = pack && packs > 0 ? ladderLine(p, pack.unitId, packs, selTier) : null;
     const row =
       pack && packs > 0
-        ? { productId: p.id, unitId: pack.unitId, qty: packs, unitPrice: priceForUnit(base, f), tierId: selTier }
+        ? { productId: p.id, unitId: pack.unitId, qty: packs, unitPrice: packLad ? packLad.unitPrice : priceForUnit(base, f), tierId: packLad ? packLad.tierId : selTier }
         : units > 0 && opts.some((o) => o.id === (p.baseUnitId ?? ""))
           ? { productId: p.id, unitId: p.baseUnitId, qty: units, unitPrice: base, tierId: selTier }
           : units > 0
@@ -592,6 +613,14 @@ export function VenteClient({
       void _drop;
       return rest;
     });
+  }
+
+  /// "Add N more" hint tap: jump to the quantity that unlocks the next price (capped by van stock).
+  function jumpQty(i: number, q: number) {
+    const cap = maxQtyFor(i);
+    const next = cap > 0 ? Math.min(q, cap) : q;
+    setQtyDraft({});
+    setLines((prev) => prev.map((l, j) => (j === i ? { ...l, qty: next } : l)));
   }
 
   function bump(i: number, d: number) {
@@ -1121,7 +1150,7 @@ export function VenteClient({
                       <div className="min-w-0 flex-1 text-[13px] font-bold leading-tight">
                         <span className="line-clamp-2 break-words">{p?.name ?? l.productId.slice(-4)}</span>
                         <span className="mt-0.5 block w-fit max-w-full break-words rounded-full bg-(--bg-sunken) px-1.5 py-px text-[10px] font-black leading-tight opacity-70">
-                          {tierName(l.tierId)}
+                          {tierName(laddered[i]?.tierId ?? l.tierId)}
                         </span>
                       </div>
                       <div className="shrink-0 whitespace-nowrap text-sm font-black tabular-nums" dir="ltr">{dzMoney(l.qty * effLines[i].unitPrice)}</div>
@@ -1134,7 +1163,7 @@ export function VenteClient({
                         </span>
                       )}
                       <span className="rounded-md bg-(--bg-sunken) px-1.5 py-0.5">
-                        {effLines[i].deal && <span className="me-1 opacity-40 line-through">{dzMoney(l.unitPrice)}</span>}
+                        {effLines[i].deal && <span className="me-1 opacity-40 line-through">{dzMoney(laddered[i]?.unitPrice ?? l.unitPrice)}</span>}
                         <bdi className="opacity-60">{uName}</bdi> <b className={effLines[i].deal ? "text-amber-700" : undefined}>{dzMoney(upr)}</b>
                       </span>
                       {isPack && (
@@ -1144,6 +1173,17 @@ export function VenteClient({
                       )}
                       <DealChip deal={effLines[i].deal} money={dzMoney(effLines[i].unitPrice)} />
                     </div>
+                    {p && !editingTicket && (
+                      <QtyLadderHint
+                        product={p}
+                        unitId={l.unitId}
+                        qty={l.qty}
+                        fallbackTierId={l.tierId}
+                        tierName={tierName}
+                        onJump={(q) => jumpQty(i, q)}
+                        className="!mt-1.5"
+                      />
+                    )}
                     {/* Quantity row: pieces total on the start side, big thumb-friendly stepper on the end. */}
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <span className="min-w-0 truncate text-[11px] font-bold opacity-60 tabular-nums">
@@ -1285,6 +1325,9 @@ export function VenteClient({
       {qtyFor && (() => {
         const pack = packOf(qtyFor);
         const base = priceFor(qtyFor, selTier);
+        // Price at the quantity being chosen (ladder), shelf price while it is 0.
+        const padPack = pack ? ladderLine(qtyFor, pack.unitId, Math.max(1, qtyPacks), selTier) : null;
+        const padUnit = ladderLine(qtyFor, qtyFor.baseUnitId, Math.max(1, qtyUnits), selTier);
         const live = freshStock ?? freeOf(qtyFor.id);
         const avail = Math.max(0, live);
         const f = pack ? normFactor(Number(pack.factor)) : 0;
@@ -1321,8 +1364,8 @@ export function VenteClient({
                 <div className="mb-2 flex items-center justify-between rounded-xl bg-(--bg-sunken) p-3">
                   <div>
                     <div className="text-sm font-black">{pack.unit.name}</div>
-                    <div className="text-base font-black tabular-nums text-(--brand-600)" dir="ltr">{dzMoney(base * f)}</div>
-                    <div className="text-[11px] tabular-nums opacity-60" dir="ltr">{dzMoney(base)} / {qtyFor.baseUnit?.name ?? ""}</div>
+                    <div className="text-base font-black tabular-nums text-(--brand-600)" dir="ltr">{dzMoney(padPack?.unitPrice ?? base * f)}</div>
+                    <div className="text-[11px] tabular-nums opacity-60" dir="ltr">{dzMoney((padPack?.unitPrice ?? base * f) / (f || 1))} / {qtyFor.baseUnit?.name ?? ""}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button aria-label="-" onClick={() => setQtyPacks((v) => Math.max(0, v - 1))} className="flex h-11 w-11 items-center justify-center rounded-xl border border-(--border-default)">
@@ -1335,11 +1378,22 @@ export function VenteClient({
                   </div>
                 </div>
               )}
+              {pack && (
+                <QtyLadderHint
+                  product={qtyFor}
+                  unitId={pack.unitId}
+                  qty={qtyPacks}
+                  fallbackTierId={selTier}
+                  tierName={tierName}
+                  onJump={(q) => setQtyPacks(Math.min(maxPacks, q))}
+                  className="!-mt-1 mb-2"
+                />
+              )}
               {(!pack || allowPieces) && (
               <div className="flex items-center justify-between rounded-xl bg-(--bg-sunken) p-3">
                 <div>
                   <div className="text-sm font-black">{labels.colis}</div>
-                  <div className="text-xs tabular-nums opacity-60" dir="ltr">{dzMoney(base)}</div>
+                  <div className="text-xs tabular-nums opacity-60" dir="ltr">{dzMoney(padUnit.unitPrice)}</div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button aria-label="-" onClick={() => setQtyUnits((v) => Math.max(0, v - 1))} className="flex h-11 w-11 items-center justify-center rounded-xl border border-(--border-default)">
@@ -1351,6 +1405,17 @@ export function VenteClient({
                   </button>
                 </div>
               </div>
+              )}
+              {(!pack || allowPieces) && (
+                <QtyLadderHint
+                  product={qtyFor}
+                  unitId={qtyFor.baseUnitId}
+                  qty={qtyUnits}
+                  fallbackTierId={selTier}
+                  tierName={tierName}
+                  onJump={(q) => setQtyUnits(Math.min(maxUnits, q))}
+                  className="!mt-1.5"
+                />
               )}
               <div className="mt-3 flex gap-2">
                   <Button variant="secondary" onClick={() => closeQty()} className="flex-1">{labels.cancel}</Button>

@@ -8,7 +8,7 @@ export async function getSaleFormData(companyId: string) {
     prisma.customer.findMany({ where: { companyId, isActive: true }, orderBy: { name: "asc" }, take: 500 }),
     prisma.product.findMany({
       where: { companyId, isActive: true },
-      include: { baseUnit: true, conversions: { include: { unit: true } }, tierPrices: true, images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } }, category: { select: { id: true, name: true } } },
+      include: { baseUnit: true, conversions: { include: { unit: true } }, tierPrices: true, qtyTiers: true, images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } }, category: { select: { id: true, name: true } } },
       orderBy: { name: "asc" },
       take: 500,
     }),
@@ -23,6 +23,7 @@ export async function getSaleFormData(companyId: string) {
       ...p,
       salePrice: Number(p.salePrice),
       tierPrices: p.tierPrices.map((x) => ({ ...x, price: Number(x.price) })),
+      qtyTiers: ((p as { qtyTiers?: Array<{ unitKey: string; minQty: unknown; tierId: string | null }> }).qtyTiers ?? []).map((r) => ({ unitKey: r.unitKey, minQty: Number(r.minQty), tierId: r.tierId })),
     })),
     units: JSON.parse(JSON.stringify(units)),
     tiers: JSON.parse(JSON.stringify(tiers)),

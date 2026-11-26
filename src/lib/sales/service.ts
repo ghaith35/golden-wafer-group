@@ -1,3 +1,4 @@
+import { priceForQty, qtyUnitKey } from "@/lib/pricing";
 import { prisma } from "@/lib/db";
 import { getOrCreateSettings } from "@/lib/settings/helpers";
 import { nextDocNumber, ensureSeasonFor } from "@/lib/docs/sequences";
@@ -42,7 +43,7 @@ async function priceLines(
   const productIds = [...new Set(lines.map((l) => l.productId))];
   const products = await prisma.product.findMany({
     where: { id: { in: productIds }, companyId },
-    include: { tierPrices: true },
+    include: { tierPrices: true, qtyTiers: true },
   });
   if (products.length !== productIds.length) throw Object.assign(new Error("bad_product"), { status: 400 });
 
@@ -78,12 +79,21 @@ async function priceLines(
       // Sub-base units (1 piece = 1/N base) normalize to exact 1/N.
       if (factor < 1) factor = 1 / Math.round(1 / factor);
     }
-    const tierPrice = tier ? p.tierPrices.find((x) => x.tierId === tier!.id) : null;
     // Stored prices are per base unit; scale to the chosen unit unless overridden.
-    const basePrice = tierPrice ? Number(tierPrice.price) : Number(p.salePrice);
+    // The product's quantity ladder (per colisage) decides the tier when it
+    // has one for this unit; otherwise the explicit / client tier applies.
+    const auto = priceForQty({
+      tierPrices: p.tierPrices,
+      salePrice: p.salePrice,
+      rungs: (p.qtyTiers ?? []).map((r) => ({ unitKey: r.unitKey, minQty: Number(r.minQty), tierId: r.tierId })),
+      unitKey: qtyUnitKey(l.unitId, p.baseUnitId),
+      qty: l.qty,
+      factor,
+      fallbackTierId: tier?.id ?? null,
+    });
     // 3pack gift lines (only the offline phone sends them) are always free.
     const isBonus = !!l.bonusRuleId;
-    const unitPrice = isBonus ? 0 : l.unitPrice ?? basePrice * factor;
+    const unitPrice = isBonus ? 0 : l.unitPrice ?? auto.unitPrice;
     const remise = isBonus ? 0 : l.remise ?? 0;
     if (remise > 0 && !allowRemise) throw Object.assign(new Error("remise_disabled"), { status: 400 });
     return {

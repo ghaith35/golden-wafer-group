@@ -20,6 +20,7 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
         baseUnit: true,
         conversions: { include: { unit: true } },
         tierPrices: { include: { tier: true } },
+        qtyTiers: true,
       },
       orderBy: { name: "asc" },
       take: 300,

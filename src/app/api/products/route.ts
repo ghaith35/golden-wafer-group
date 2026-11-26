@@ -1,3 +1,4 @@
+import { sanitizeQtyTiers } from "@/lib/products/qty-tiers";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
@@ -38,6 +39,7 @@ export async function GET(req: Request) {
       purchaseUnit: true,
       conversions: { include: { unit: true } },
       tierPrices: { include: { tier: true } },
+      qtyTiers: true,
     },
     orderBy: { name: "asc" },
     take: 200,
@@ -81,6 +83,14 @@ export async function POST(req: Request) {
     : [];
   if (tiers.length !== tierIds.length) return NextResponse.json({ error: "bad_tier" }, { status: 400 });
 
+  // Quantity ladder: tiers must be this company's; units must be real colisages.
+  const qtyTiers = sanitizeQtyTiers(d.qtyTiers, unitIds);
+  const qtyTierIds = [...new Set(qtyTiers.map((r) => r.tierId).filter((x): x is string => !!x))];
+  if (qtyTierIds.length) {
+    const found = await prisma.priceTier.count({ where: { id: { in: qtyTierIds }, companyId: session.companyId } });
+    if (found !== qtyTierIds.length) return NextResponse.json({ error: "bad_tier" }, { status: 400 });
+  }
+
   // Empty reference → auto-generate the next free sequential one.
   let reference: string | null = empty(d.reference ?? null) ? d.reference!.trim() : null;
   if (!reference) {
@@ -110,6 +120,7 @@ export async function POST(req: Request) {
       images: { create: (d.images ?? []).map((url, i) => ({ url, sortOrder: i })) },
       conversions: { create: (d.conversions ?? []).map((c) => ({ unitId: c.unitId, factor: c.factor, barcode: c.barcode?.trim() || null })) },
       tierPrices: { create: (d.tierPrices ?? []).map((t) => ({ tierId: t.tierId, price: t.price })) },
+      qtyTiers: { create: qtyTiers.map((r) => ({ unitKey: r.unitKey, minQty: r.minQty, tierId: r.tierId })) },
     },
     include: { images: { orderBy: { sortOrder: "asc" } } },
   });
