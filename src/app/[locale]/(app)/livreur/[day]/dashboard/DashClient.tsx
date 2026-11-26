@@ -19,6 +19,8 @@ import { canSell } from "@/lib/staff-permissions";
 import { cn } from "@/lib/utils";
 import { todaySlug } from "../../_days";
 import { ClosedShopButton, useClosedIds } from "@/components/livreur/ClosedShopButton";
+import { NewClient } from "../clients/new/NewClient";
+import type { AreaScope } from "@/lib/users/area-scope";
 
 /// Step 3 — Dashboard hub: sale, factures, commande, commandes, stock, sync.
 export function DashClient({
@@ -35,6 +37,7 @@ export function DashClient({
   dueCash: dueCashP,
   declared: declaredP,
   role,
+  newClientRefs,
   labels,
 }: {
   locale: string;
@@ -50,6 +53,12 @@ export function DashClient({
   dueCash: number;
   declared: number | null;
   role: string;
+  newClientRefs: {
+    companyId: string;
+    refs: { wilayas: Array<{ code: number; nameAr: string; nameFr: string }>; secteurs: Array<{ id: string; name: string; wilayaCode: number }>; tiers: Array<{ id: string; name: string }> };
+    areaScope: AreaScope | null;
+    defaultSecteurId: string | null;
+  };
   labels: Record<string, string>;
 }) {
   const router = useRouter();
@@ -67,6 +76,8 @@ export function DashClient({
   const tournee = shifted ? null : tourneeP;
   const dueCash = shifted ? 0 : dueCashP;
   const declared = shifted ? null : declaredP;
+  /// New-client popup (no page navigation).
+  const [addingClient, setAddingClient] = useState(false);
   const [pending, setPending] = useState(0);
   const [lastSync, setLastSync] = useState<string | null>(null);
   /// Till declaration state (pre-filled from his sales — still editable).
@@ -300,7 +311,7 @@ export function DashClient({
     // Row 1: the three "new" actions. Then factures → orders → restock, then the rest.
     { key: "sale", label: labels.newSale, Icon: Plus, cls: "bg-(--brand-500) text-(--brand-contrast)", go: () => goPage(router, `/${locale}/livreur/${day}/vente${qs}`) },
     { key: "order", label: labels.newCommand, Icon: ShoppingBag, cls: "bg-violet-500/15 text-violet-500", go: () => goPage(router, `/${locale}/livreur/${day}/commande${qs}`) },
-    { key: "newClient", label: labels.newClient, Icon: UserPlus, cls: "bg-emerald-500/15 text-emerald-600", go: () => goPage(router, `/${locale}/livreur/${day}/clients/new`) },
+    { key: "newClient", label: labels.newClient, Icon: UserPlus, cls: "bg-emerald-500/15 text-emerald-600", go: () => setAddingClient(true) },
     { key: "factures", label: labels.factures, Icon: ReceiptText, cls: "bg-sky-500/15 text-sky-600", go: () => goPage(router, `/${locale}/livreur/${day}/factures`) },
     { key: "orders", label: labels.commandes, Icon: ClipboardList, cls: "bg-indigo-500/15 text-indigo-500", go: () => goPage(router, `/${locale}/livreur/${day}/commandes`) },
     { key: "demande", label: labels.restock ?? "Restock", Icon: PackageCheck, cls: "bg-teal-500/15 text-teal-600", go: () => goPage(router, `/${locale}/livreur/${day}/demande`) },
@@ -568,6 +579,22 @@ export function DashClient({
 
       {/* Fin de journée recap: what the day produced, before locking it.
           Warns on undeclared till / unsynced ops — never blocks. */}
+      <Modal open={addingClient} onClose={() => setAddingClient(false)} title={labels.newClient ?? ""} icon={<UserPlus size={18} />} width="sm">
+        <NewClient
+          locale={locale}
+          day={day}
+          companyId={newClientRefs.companyId}
+          wilayas={newClientRefs.refs.wilayas}
+          secteurs={newClientRefs.refs.secteurs}
+          tiers={newClientRefs.refs.tiers}
+          labels={labels}
+          areaScope={newClientRefs.areaScope}
+          defaultSecteurId={newClientRefs.defaultSecteurId}
+          embedded
+          onClose={() => setAddingClient(false)}
+        />
+      </Modal>
+
       <Modal open={finishOpen} onClose={() => setFinishOpen(false)} title={labels.finishDay} subtitle={vanName} icon="🏁" width="sm">
         <div className="space-y-2">
           <div className="flex items-center justify-between rounded-xl bg-(--bg-sunken) px-3 py-2 text-sm font-bold">

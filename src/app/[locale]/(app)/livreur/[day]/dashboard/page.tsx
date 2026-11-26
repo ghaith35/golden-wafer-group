@@ -11,6 +11,7 @@ import { algiersDayKey } from "@/lib/tournees/days";
 import { vanDayCash } from "@/lib/cash/daily";
 import { DashClient } from "./DashClient";
 import { closedClientIdsToday } from "@/lib/closed-visits/service";
+import { loadAreaScope } from "@/lib/users/area-scope.server";
 
 /// Step 3 — Dashboard hub: sale, factures, commande, commandes, stock, sync.
 export default async function LivreurDashPage({
@@ -49,6 +50,13 @@ export default async function LivreurDashPage({
   await closeStaleDays(session.companyId).catch(() => {});
   // Recurring plans generate this day's tours on demand (one or two per van).
   await ensureDayTours(session.companyId, van.id, algiersDayKey(dayStart)).catch(() => {});
+  // Reference lists for the new-client popup (same as the clients screen).
+  const [wilayas, secteurs, tiers, areaScope] = await Promise.all([
+    prisma.wilaya.findMany({ orderBy: { code: "asc" } }),
+    prisma.secteur.findMany({ where: { companyId: session.companyId, isActive: true }, orderBy: { name: "asc" } }),
+    prisma.priceTier.findMany({ where: { companyId: session.companyId, isActive: true }, orderBy: { sortOrder: "asc" } }),
+    loadAreaScope(session.userId, session.role),
+  ]);
   const [todayAll, readyCount, dayTours, till] = await Promise.all([
     prisma.sale.aggregate({
       where: {
@@ -68,7 +76,7 @@ export default async function LivreurDashPage({
     }),
     prisma.tournee.findMany({
       where: { companyId: session.companyId, locationId: van.id, date: { gte: dayStart, lte: dayEnd } },
-      select: { id: true, status: true, startedAt: true, finishedAt: true, autoClosed: true, slot: true, createdAt: true },
+      select: { id: true, status: true, startedAt: true, finishedAt: true, autoClosed: true, slot: true, createdAt: true, secteurId: true },
     }),
     // Live till math for the auto-filled declaration (from his sales).
     vanDayCash(session.companyId, van.id, date).catch(() => null),
@@ -128,6 +136,12 @@ export default async function LivreurDashPage({
         return d == null ? null : Number(d);
       })()}
       role={session.role}
+      newClientRefs={{
+        companyId: session.companyId,
+        refs: JSON.parse(JSON.stringify({ wilayas, secteurs, tiers })),
+        areaScope,
+        defaultSecteurId: tournee?.secteurId ?? null,
+      }}
       labels={{
         closedShop: t("closedShop"), closedAddPhoto: t("closedAddPhoto"), closedSave: t("closedSave"), closedHint: t("closedHint"),
         closedBadge: t("closedBadge"), closedErr: t("closedErr"), closedShoot: t("closedShoot"), closedCancel: t("closedCancel"), closedSaved: t("closedSaved"), closedSavedOffline: t("closedSavedOffline"),
@@ -158,7 +172,12 @@ export default async function LivreurDashPage({
         syncOfflineReady: tc("offlineReady"), syncOfflineNotReady: tc("offlineNotReady"),
         syncWebUpdateTitle: tc("webUpdateTitle"), syncWebLater: tc("webLater"), syncWebValidate: tc("webValidate"),
         syncNativeTitle: tc("nativeTitle"), syncNativeGo: tc("nativeGo"),
-        newClient: t("newClient"), startDay: t("startDay"), finishDay: t("finishDay"), elapsed: t("elapsed"),
+        newClient: t("newClient"), clientName: t("clientName"), phoneOpt: t("phoneOpt"), addressOpt: t("addressOpt"),
+        activityOpt: t("activityOpt"), wilayaOpt: t("wilayaOpt"), secteurOpt: t("secteurOpt"),
+        tierOpt: t("tierOpt"), useGps: t("useGps"), confirm: t("confirm"),
+        qrReady: t("qrReady"), pendingSync: t("pendingSync"), another: t("another"),
+        saveQr: t("saveQr"), qrSaved: t("qrSaved"), qrShared: t("qrShared"), qrSaveFail: t("qrSaveFail"),
+        secteurOffline: t("secteurOffline"), errOutsideArea: t("errOutsideArea"), errAreaRequired: t("errAreaRequired"), startDay: t("startDay"), finishDay: t("finishDay"), elapsed: t("elapsed"),
         online: t("online"), offline: t("offline"),
         dayQueued: t("dayQueued"), noTournee: t("noTournee"), autoClosedDay: t("autoClosedDay"),
         declare: t("declare"), declaredOk: t("declaredOk"), queuedOk: t("queuedOk"),

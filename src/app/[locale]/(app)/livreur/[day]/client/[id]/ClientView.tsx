@@ -128,7 +128,7 @@ export function ClientView({
   const maxProd = Math.max(1, ...(stats?.topProducts.map((p) => p.revenue) ?? [0]));
 
   return (
-    <div className="mx-auto max-w-5xl space-y-3 p-4 pb-10 md:p-5">
+    <div className="mx-auto max-w-5xl space-y-3 p-3 pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:p-4 md:p-5">
       {/* Top bar */}
       <div className="flex items-center gap-2">
         <button
@@ -148,88 +148,77 @@ export function ClientView({
       ) : (
         <>
           {/* Hero */}
-          <section className="relative overflow-hidden rounded-3xl bg-gradient-brand p-4 text-(--brand-contrast) shadow-lg sm:p-5">
+          <section className="relative overflow-hidden rounded-3xl bg-gradient-brand p-3.5 text-(--brand-contrast) shadow-lg sm:p-5">
             <div className="pointer-events-none absolute -end-10 -top-12 h-40 w-40 rounded-full bg-white/10" />
             <div className="pointer-events-none absolute -bottom-14 start-1/3 h-32 w-32 rounded-full bg-white/10" />
-            <div className="relative flex items-center gap-3">
-              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-3xl font-black backdrop-blur">
+            <div className="relative flex items-start gap-3">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-2xl font-black backdrop-blur sm:h-16 sm:w-16 sm:text-3xl">
                 {c.name.trim().charAt(0)}
               </span>
               <div className="min-w-0 flex-1">
-                <h1 className="break-words text-xl font-black leading-tight sm:text-2xl">{c.name}</h1>
-                <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] font-black">
+                <h1 className="break-words text-lg font-black leading-tight sm:text-2xl">{c.name}</h1>
+                <div className="mt-1 flex flex-wrap items-center gap-1 text-[10px] font-black sm:gap-1.5 sm:text-[11px]">
                   <span className="rounded-full bg-white/20 px-2 py-0.5 font-mono" dir="ltr">{c.code}</span>
                   {c.tier && <span className="rounded-full bg-white/20 px-2 py-0.5">{c.tier}</span>}
                   {isClosed && <span className="rounded-full bg-red-600 px-2 py-0.5 text-white">🔒 {labels.closedToday}</span>}
                   {c.id.startsWith("pending:") && <span className="rounded-full bg-amber-400 px-2 py-0.5 text-black">⏳ {labels.unsynced}</span>}
                 </div>
               </div>
-            </div>
-
-            {/* Debt strip */}
-            <div className="relative mt-4 flex items-center justify-between gap-3 rounded-2xl bg-black/20 px-4 py-3 backdrop-blur">
-              <div className="flex items-center gap-2 text-sm font-black">
-                <Banknote size={18} />
-                {debt > 0 ? labels.debt : debt < 0 ? labels.credit : labels.noDebt}
-              </div>
-              <div className="text-xl font-black tabular-nums" dir="ltr">{dzMoney(Math.abs(debt))}</div>
-            </div>
-          </section>
-
-          {/* Contact + place */}
-          <section className="grid gap-2 sm:grid-cols-2">
-            {c.phone ? (
-              <a
-                href={`tel:${c.phone.replace(/[^+\d]/g, "")}`}
-                className="flex items-center gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 active:scale-[0.98]"
-              >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white"><Phone size={18} /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[11px] font-bold opacity-55">{labels.phone}</span>
-                  <span className="block truncate text-base font-black tabular-nums" dir="ltr">{c.phone}</span>
-                </span>
-              </a>
-            ) : null}
-            {(c.address || c.sector || c.wilaya) ? (
-              <div className="flex items-center gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/15 text-sky-600"><MapPin size={18} /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[11px] font-bold opacity-55">{labels.address}</span>
-                  <span className="block break-words text-sm font-black">
-                    {[c.address, c.sector, c.wilaya].filter(Boolean).join(" · ")}
-                  </span>
-                </span>
+              {/* One-tap contact */}
+              <div className="flex shrink-0 flex-col gap-1.5 sm:flex-row">
+                {c.phone && (
+                  <a
+                    href={`tel:${c.phone.replace(/[^+\d]/g, "")}`}
+                    aria-label={labels.callClient}
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-emerald-600 shadow active:scale-90"
+                  >
+                    <Phone size={19} />
+                  </a>
+                )}
                 {mapsUrl && (
                   <a
                     href={mapsUrl}
                     target="_blank"
                     rel="noreferrer"
                     aria-label={labels.navigate}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500)/10 text-(--brand-600)"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-white/25 backdrop-blur active:scale-90"
                   >
-                    <Navigation size={18} />
+                    <Navigation size={19} />
                   </a>
                 )}
               </div>
-            ) : null}
-            {c.activity ? (
-              <div className="flex items-center gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-500/15 text-violet-500"><Store size={18} /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[11px] font-bold opacity-55">{labels.activity}</span>
-                  <span className="block truncate text-sm font-black">{c.activity}</span>
-                </span>
-              </div>
-            ) : null}
-            <div className="flex items-center gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600"><CalendarClock size={18} /></span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-[11px] font-bold opacity-55">{labels.lastSale}</span>
-                <span className="block truncate text-sm font-black">
-                  {stats?.lastSaleAt ? fmtDT(stats.lastSaleAt, loc) : labels.never}
-                </span>
-              </span>
             </div>
+
+            {/* Debt strip */}
+            <div className="relative mt-3.5 flex items-center justify-between gap-3 rounded-2xl bg-black/25 px-3.5 py-2.5 backdrop-blur sm:mt-4 sm:px-4 sm:py-3">
+              <div className="flex min-w-0 items-center gap-2 text-[13px] font-black sm:text-sm">
+                <span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", debt > 0 ? "bg-amber-300" : debt < 0 ? "bg-sky-300" : "bg-emerald-300")} />
+                <span className="truncate">{debt > 0 ? labels.debt : debt < 0 ? labels.credit : labels.noDebt}</span>
+              </div>
+              <div className="shrink-0 text-xl font-black tabular-nums sm:text-2xl" dir="ltr">{dzMoney(Math.abs(debt))}</div>
+            </div>
+          </section>
+
+          {/* Info tiles: compact 2-column grid, address spans the row */}
+          <section className="grid grid-cols-2 gap-2">
+            {(c.address || c.sector || c.wilaya) ? (
+              <InfoTile className="col-span-2" Icon={MapPin} tone="bg-sky-500/15 text-sky-600" label={labels.address}>
+                {[c.address, c.sector, c.wilaya].filter(Boolean).join(" · ")}
+              </InfoTile>
+            ) : null}
+            {c.phone ? (
+              <InfoTile Icon={Phone} tone="bg-emerald-500/15 text-emerald-600" label={labels.phone}>
+                <bdi dir="ltr" className="tabular-nums">{c.phone}</bdi>
+              </InfoTile>
+            ) : null}
+            <InfoTile Icon={CalendarClock} tone="bg-amber-500/15 text-amber-600" label={labels.lastSale}>
+              {stats?.lastSaleAt ? fmtDT(stats.lastSaleAt, loc) : labels.never}
+            </InfoTile>
+            {c.activity ? (
+              <InfoTile Icon={Store} tone="bg-violet-500/15 text-violet-500" label={labels.activity}>
+                {c.activity}
+              </InfoTile>
+            ) : null}
           </section>
 
           {/* Actions */}
@@ -271,7 +260,7 @@ export function ClientView({
             <div className="grid gap-3 lg:grid-cols-2">
               <div className={cn("space-y-3 transition-opacity", filtering && "opacity-50")}>
                 {/* Month filter */}
-                <section className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1" role="tablist" aria-label={labels.period}>
+                <section className="-mx-3 flex snap-x gap-1.5 overflow-x-auto px-3 pb-1 sm:-mx-1 sm:px-1" role="tablist" aria-label={labels.period}>
                   {[{ key: "all", label: labels.all, current: isAll }, ...[...stats.months].reverse()].map((m) => (
                     <button
                       key={m.key}
@@ -289,14 +278,14 @@ export function ClientView({
                   ))}
                 </section>
                 {/* KPIs */}
-                <section className="grid grid-cols-2 gap-2">
-                  <div className="col-span-2 rounded-3xl border border-(--border-default) bg-(--bg-overlay) p-4">
+                <section className="grid grid-cols-3 gap-2">
+                  <div className="col-span-3 rounded-3xl border border-(--border-default) bg-(--bg-overlay) p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="text-xs font-bold opacity-60">
                           {isAll ? labels.totalSold : stats.selectedIsCurrent ? labels.monthSold : stats.selectedLabel}
                         </div>
-                        <div className="mt-1 text-3xl font-black tabular-nums text-(--brand-600)" dir="ltr">{dzMoney(stats.monthSold)}</div>
+                        <div className="mt-1 text-[1.75rem] font-black leading-none tabular-nums text-(--brand-600) sm:text-3xl" dir="ltr">{dzMoney(stats.monthSold)}</div>
                         <div className="mt-0.5 text-[11px] font-bold opacity-55">{stats.monthCount} {labels.invoices}</div>
                       </div>
                       {trend !== null && (
@@ -315,7 +304,7 @@ export function ClientView({
                   </div>
                   <Kpi Icon={Wallet} label={labels.totalSold} value={dzMoney(stats.totalSold)} tone="text-sky-600 bg-sky-500/15" />
                   <Kpi Icon={ReceiptText} label={labels.invoices} value={String(stats.invoiceCount)} tone="text-violet-500 bg-violet-500/15" />
-                  <Kpi Icon={Banknote} label={labels.avgTicket} value={dzMoney(stats.avgTicket)} tone="text-amber-600 bg-amber-500/15" className="col-span-2" />
+                  <Kpi Icon={Banknote} label={labels.avgTicket} value={dzMoney(stats.avgTicket)} tone="text-amber-600 bg-amber-500/15" />
                 </section>
 
                 {/* 6-month bars */}
@@ -330,6 +319,9 @@ export function ClientView({
                         aria-label={`${m.label} ${dzMoney(m.total)}`}
                         className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1"
                       >
+                        {m.current && m.total > 0 && (
+                          <span className="text-[9px] font-black tabular-nums text-(--brand-600)">{m.total >= 1000 ? `${Math.round(m.total / 100) / 10}k` : Math.round(m.total)}</span>
+                        )}
                         <div
                           className={cn("w-full rounded-t-md", m.current ? "bg-gradient-brand" : "bg-(--brand-500)/30")}
                           style={{ height: `${Math.max(m.total > 0 ? 6 : 2, (m.total / maxMonth) * 100)}%` }}
@@ -470,6 +462,26 @@ function ActionTile({
   );
 }
 
+function InfoTile({
+  Icon, tone, label, children, className,
+}: {
+  Icon: typeof Plus;
+  tone: string;
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex min-w-0 items-center gap-2.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2.5", className)}>
+      <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", tone)}><Icon size={17} /></span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[10px] font-bold opacity-55">{label}</span>
+        <span className="block break-words text-[13px] font-black leading-snug">{children}</span>
+      </span>
+    </div>
+  );
+}
+
 function Kpi({
   Icon, label, value, tone, className,
 }: {
@@ -480,10 +492,10 @@ function Kpi({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3", className)}>
-      <span className={cn("flex h-8 w-8 items-center justify-center rounded-lg", tone)}><Icon size={16} /></span>
-      <div className="mt-2 truncate text-lg font-black tabular-nums" dir="ltr">{value}</div>
-      <div className="truncate text-[11px] font-bold opacity-60">{label}</div>
+    <div className={cn("min-w-0 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2.5", className)}>
+      <span className={cn("flex h-7 w-7 items-center justify-center rounded-lg", tone)}><Icon size={14} /></span>
+      <div className="mt-1.5 truncate text-[15px] font-black tabular-nums sm:text-lg" dir="ltr">{value}</div>
+      <div className="truncate text-[10px] font-bold opacity-60">{label}</div>
     </div>
   );
 }
