@@ -4,7 +4,7 @@ import { ClientName } from "@/components/clients/ClientName";
 import { useEffect, useMemo, useState } from "react";
 import { ApkOnly } from "@/components/layout/ApkOnly";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Banknote, ClipboardList, Lock, Navigation, Package, PackageCheck, Plus, ReceiptText, RefreshCw, Satellite, Truck, UserRound, Wallet } from "lucide-react";
+import { ArrowLeft, Banknote, ClipboardList, Lock, Package, PackageCheck, Plus, ReceiptText, RefreshCw, Satellite, Truck, UserRound, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -154,28 +154,6 @@ export function DashClient({
       return null;
     }
   }
-
-  /// Dashboard GPS card: the phone's own fix (works offline), refreshed on
-  /// entry and on demand — the tile below opens the full client map.
-  const [gpsPos, setGpsPos] = useState<{ lat: number; lng: number } | null>(null);
-  const [gpsLocating, setGpsLocating] = useState(false);
-  async function refreshGps(fresh = false) {
-    if (gpsLocating) return;
-    setGpsLocating(true);
-    try {
-      const m = await import("@/lib/van-gps");
-      const f = await m.getGpsFix(fresh ? 15000 : 0);
-      if (f) setGpsPos({ lat: f.lat, lng: f.lng });
-    } catch {
-      /* keep the last fix */
-    } finally {
-      setGpsLocating(false);
-    }
-  }
-  useEffect(() => {
-    void refreshGps(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   async function stampDay(kind: "start" | "finish") {
     if (!tournee || stamping) return;
@@ -439,41 +417,6 @@ export function DashClient({
           {labels.noTournee ?? ""}
         </div>
       )}
-
-      {/* GPS position: live fix + shortcut to the client map. */}
-      <div className="flex items-center gap-2 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2.5">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/15 text-sky-600">
-          <Satellite size={19} />
-        </span>
-        <button
-          type="button"
-          onClick={() => goPage(router, `/${locale}/livreur/${day}/gps`)}
-          className="min-w-0 flex-1 text-start"
-        >
-          <span className="block truncate text-sm font-black">{labels.gps}</span>
-          <span className="block truncate font-mono text-[11px] font-bold tabular-nums opacity-60" dir="ltr">
-            {gpsLocating && !gpsPos ? (labels.gpsLocating ?? "…") : gpsPos ? `${gpsPos.lat.toFixed(5)}, ${gpsPos.lng.toFixed(5)}` : (labels.gpsNoPos ?? "")}
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => void refreshGps(true)}
-          disabled={gpsLocating}
-          aria-label={labels.gpsRefresh ?? "refresh"}
-          title={labels.gpsRefresh ?? "refresh"}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-default)"
-        >
-          <RefreshCw size={16} className={cn(gpsLocating && "animate-spin")} />
-        </button>
-        <button
-          type="button"
-          onClick={() => goPage(router, `/${locale}/livreur/${day}/gps`)}
-          aria-label={labels.gps}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500)/10 text-(--brand-600)"
-        >
-          <Navigation size={17} />
-        </button>
-      </div>
 
       {/* Responsive tile density: 3 columns on phones so the whole set
           fits near one view, 4 on large phones/tablets, 5 on desktop.
