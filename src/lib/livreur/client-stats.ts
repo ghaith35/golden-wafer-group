@@ -18,7 +18,7 @@ export type ClientStats = {
   /// Month before the selected one, for the trend chip (null = nothing to compare to / "all").
   prevMonthSold: number | null;
   /// Last 12 months, oldest first.
-  months: Array<{ key: string; label: string; total: number; current: boolean }>;
+  months: Array<{ key: string; label: string; total: number; count: number; current: boolean }>;
   topProducts: Array<{ productId: string; name: string; qty: number; revenue: number }>;
   /// Free items (3pack) given to this client this month.
   offers: Array<{ name: string; qty: number }>;
@@ -125,7 +125,7 @@ export async function loadClientStats(
     const key = `${y}-${String(m).padStart(2, "0")}`;
     buckets.set(key, { total: 0, count: 0 });
     const label = new Date(Date.UTC(y, m - 1, 15)).toLocaleDateString(`${locale}-u-nu-latn`, { month: "short", timeZone: "UTC" });
-    return { key, label, total: 0, current: key === wanted };
+    return { key, label, total: 0, count: 0, current: key === wanted };
   });
   for (const s of win) {
     const b = buckets.get(ymKey(s.date));
@@ -134,7 +134,10 @@ export async function loadClientStats(
       b.count += 1;
     }
   }
-  for (const m of months) m.total = buckets.get(m.key)?.total ?? 0;
+  for (const m of months) {
+    m.total = buckets.get(m.key)?.total ?? 0;
+    m.count = buckets.get(m.key)?.count ?? 0;
+  }
   const pk = wanted === "all" ? null : shiftMonth(selY, selM, -1);
   const prevKey = pk ? `${pk.y}-${String(pk.m).padStart(2, "0")}` : null;
   const prevB = prevKey ? buckets.get(prevKey) : null;

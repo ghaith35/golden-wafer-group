@@ -120,7 +120,9 @@ export function ClientView({
   const mapsUrl = c && c.gpsLat != null && c.gpsLng != null ? `https://www.google.com/maps/dir/?api=1&destination=${c.gpsLat},${c.gpsLng}` : null;
   const debt = c?.balance ?? 0;
 
-  const maxMonth = Math.max(1, ...(stats?.months.map((m) => m.total) ?? [0]));
+  /// Only months that actually have sales (the selected one always stays visible).
+  const dataMonths = stats?.months.filter((m) => m.count > 0 || m.current) ?? [];
+  const maxMonth = Math.max(1, ...dataMonths.map((m) => m.total));
   const trend =
     stats && stats.prevMonthSold && stats.prevMonthSold > 0
       ? Math.round(((stats.monthSold - stats.prevMonthSold) / stats.prevMonthSold) * 100)
@@ -128,7 +130,7 @@ export function ClientView({
   const maxProd = Math.max(1, ...(stats?.topProducts.map((p) => p.revenue) ?? [0]));
 
   return (
-    <div className="mx-auto max-w-5xl space-y-3 p-3 pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:p-4 md:p-5">
+    <div className="mx-auto w-full min-w-0 max-w-5xl space-y-3 overflow-x-hidden p-3 pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:p-4 md:p-5">
       {/* Top bar */}
       <div className="flex items-center gap-2">
         <button
@@ -257,11 +259,11 @@ export function ClientView({
 
           {/* Statistics */}
           {stats ? (
-            <div className="grid gap-3 lg:grid-cols-2">
-              <div className={cn("space-y-3 transition-opacity", filtering && "opacity-50")}>
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-3 lg:grid-cols-2">
+              <div className={cn("min-w-0 space-y-3 transition-opacity", filtering && "opacity-50")}>
                 {/* Month filter */}
                 <section className="-mx-3 flex snap-x gap-1.5 overflow-x-auto px-3 pb-1 sm:-mx-1 sm:px-1" role="tablist" aria-label={labels.period}>
-                  {[{ key: "all", label: labels.all, current: isAll }, ...[...stats.months].reverse()].map((m) => (
+                  {[{ key: "all", label: labels.all, current: isAll }, ...[...dataMonths].reverse()].map((m) => (
                     <button
                       key={m.key}
                       type="button"
@@ -310,14 +312,14 @@ export function ClientView({
                 {/* 6-month bars */}
                 <section className="rounded-3xl border border-(--border-default) bg-(--bg-overlay) p-4">
                   <div className="mb-3 text-sm font-black">{labels.last6}</div>
-                  <div className="flex h-32 items-end gap-1" dir="ltr">
-                    {stats.months.map((m) => (
+                  <div className="flex h-32 items-end justify-center gap-1.5" dir="ltr">
+                    {dataMonths.map((m) => (
                       <button
                         type="button"
                         key={m.key}
                         onClick={() => pickMonth(m.key)}
                         aria-label={`${m.label} ${dzMoney(m.total)}`}
-                        className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1"
+                        className="flex h-full min-w-0 max-w-14 flex-1 flex-col items-center justify-end gap-1"
                       >
                         {m.current && m.total > 0 && (
                           <span className="text-[9px] font-black tabular-nums text-(--brand-600)">{m.total >= 1000 ? `${Math.round(m.total / 100) / 10}k` : Math.round(m.total)}</span>
@@ -386,7 +388,7 @@ export function ClientView({
               </div>
 
               {/* Invoices */}
-              <section className={cn("rounded-3xl border border-(--border-default) bg-(--bg-overlay) p-4 transition-opacity lg:self-start", filtering && "opacity-50")}>
+              <section className={cn("rounded-3xl border border-(--border-default) bg-(--bg-overlay) p-4 min-w-0 transition-opacity lg:self-start", filtering && "opacity-50")}>
                 <div className="mb-3 flex items-center gap-2 text-sm font-black">
                   <ReceiptText size={16} className="text-(--brand-600)" />
                   {labels.invoicesTitle}
