@@ -1,5 +1,6 @@
 "use client";
 
+import { useFlip } from "@/lib/useFlip";
 import { matchClient } from "@/lib/clients/display";
 import { ClientName } from "@/components/clients/ClientName";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -150,6 +151,7 @@ export function VenteClient({
   const [searchOpen, setSearchOpen] = useState(false);
   const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
   const [pq, setPq] = useState("");
+  const cartRef = useFlip<HTMLDivElement>();
   const [lines, setLines] = useState<Line[]>(
     editingTicket?.lines.map((l) => ({ productId: l.productId, unitId: l.unitId, qty: l.qty, unitPrice: l.unitPrice, tierId: null })) ?? []
   );
@@ -1087,7 +1089,7 @@ export function VenteClient({
           </>
         }
       >
-        <div className="space-y-1.5">
+        <div ref={cartRef} className="space-y-1.5">
             {lines.map((l, i) => {
               const p = effProducts.find((x) => x.id === l.productId) ?? products.find((x) => x.id === l.productId);
               const img = p?.images?.[0]?.url;
@@ -1100,7 +1102,7 @@ export function VenteClient({
               const upr = effLines[i].unitPrice;
               const isPack = uf > 1;
               return (
-                <div key={i} className="flex gap-2.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2.5">
+                <div key={i} data-flip={`${l.productId}:${l.unitId}`} className="flex gap-2.5 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-2.5">
                   {img ? (
                     <button
                       type="button"

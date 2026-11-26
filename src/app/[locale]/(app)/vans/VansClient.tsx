@@ -1,5 +1,8 @@
 "use client";
 
+import { SwipeRow, SwipeEditDelete } from "@/components/motion/SwipeRow";
+import { EmptyState } from "@/components/motion/EmptyState";
+import { Inbox } from "lucide-react";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -152,6 +155,7 @@ export function VansClient({
           value={String(rows.length)}
           icon={<Bus size={18} />}
           accent="bg-sky-500/15 text-sky-600"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -159,6 +163,7 @@ export function VansClient({
           value={String(rows.filter((v) => v.user).length)}
           icon={<UserCheck size={18} />}
           accent="bg-emerald-500/15 text-emerald-600"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -166,15 +171,16 @@ export function VansClient({
           value={String(rows.filter((v) => !v.user).length)}
           icon={<UserX size={18} />}
           accent="bg-amber-500/15 text-amber-600"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button onClick={() => setCreating(true)} className="shrink-0">
           <Plus size={16} className="me-1" />
           {labels.neW}
         </Button>
-        <div className="flex-1">
+        <div className="order-last min-w-0 basis-full sm:order-none sm:min-w-40 sm:basis-0 sm:flex-1">
           <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <Link
@@ -185,30 +191,31 @@ export function VansClient({
         </Link>
       </div>
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
-      {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
+      {filtered.length === 0 && <EmptyState icon={<Inbox size={30} />} title={labels.empty} className="rounded-2xl border border-dashed border-(--border-default)" />}
       <div className="grid gap-3 sm:grid-cols-2">
         {filtered.map((v) => (
-          <div
-            key={v.id}
+          <SwipeRow key={v.id} actions={<SwipeEditDelete onEdit={() => openEdit(v)} onDelete={() => void startDelete(v)} editLabel={labels.edit} deleteLabel={labels.delete} />}>
+<div
             onClick={() => openEdit(v)}
-            className="flex cursor-pointer items-center gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 transition-colors hover:border-(--brand-500)"
+            className="flex cursor-pointer flex-wrap items-center gap-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3 transition-colors hover:border-(--brand-500)"
             style={v.isActive ? undefined : { opacity: 0.55 }}
           >
             {v.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={v.imageUrl} alt={v.name} className="h-16 w-24 shrink-0 rounded-xl object-cover" />
+              <img src={v.imageUrl} alt={v.name} className="h-16 w-16 shrink-0 rounded-xl object-cover sm:w-24" />
             ) : (
-              <div className="flex h-16 w-24 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken) text-(--text-secondary)">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken) text-(--text-secondary) sm:w-24">
                 <Bus size={26} />
               </div>
             )}
-            <div className="min-w-0 flex-1">
+            <div className="min-w-[8rem] flex-1">
               <div className="truncate text-sm font-bold">{v.name}</div>
               <div className="font-mono text-xs opacity-60" dir="ltr">{v.matricule ?? ""}</div>
               <div className="truncate text-xs opacity-60">
                 {v.marque ?? ""}{v.user ? ` · 👨‍✈️ ${v.user.fullName}` : ""}
               </div>
             </div>
+            <div className="ms-auto">
             <RowActions
               detailsHref={`/${locale}/vans/${v.id}`}
               onEdit={() => openEdit(v)}
@@ -216,7 +223,9 @@ export function VansClient({
               labels={{ details: labels.details, edit: labels.edit, delete: labels.delete }}
               size="md"
             />
+            </div>
           </div>
+</SwipeRow>
         ))}
       </div>
 

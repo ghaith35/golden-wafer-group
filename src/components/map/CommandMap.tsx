@@ -16,22 +16,35 @@ export type CmdZonePin = { id: string; name: string; code: string; lat: number; 
 
 const VAN_COLOR = { online: "#10b981", stale: "#f59e0b", offline: "#9ca3af" } as const;
 
+// Icons are cached: a fresh divIcon per render makes Leaflet rebuild the marker
+// DOM, which would kill the glide transition and restart the pulse ring.
+const iconCache = new Map<string, L.DivIcon>();
+function cached(key: string, make: () => L.DivIcon) {
+  let i = iconCache.get(key);
+  if (!i) { i = make(); iconCache.set(key, i); }
+  return i;
+}
 function vanIcon(color: string, selected: boolean) {
-  const ring = selected ? "0 0 0 4px rgba(37,99,235,.55)," : "";
-  return L.divIcon({
-    className: "",
-    html: `<div style="background:${color};width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;border:3px solid #fff;box-shadow:${ring}0 2px 6px rgba(0,0,0,.45)">🚚</div>`,
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
+  return cached(`van|${color}|${selected}`, () => {
+    const ring = selected ? "0 0 0 4px rgba(37,99,235,.55)," : "";
+    const pulse = color === VAN_COLOR.online ? `<span class="gw-van-ring" style="background:${color}"></span>` : "";
+    return L.divIcon({
+      className: "gw-van-marker",
+      html: `<div style="position:relative;width:34px;height:34px">${pulse}<div style="position:relative;background:${color};width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;border:3px solid #fff;box-shadow:${ring}0 2px 6px rgba(0,0,0,.45)">🚚</div></div>`,
+      iconSize: [34, 34],
+      iconAnchor: [17, 17],
+    });
   });
 }
 function pinIcon(n: number, selected: boolean) {
-  return L.divIcon({
-    className: "",
-    html: `<div style="background:${selected ? "#2563eb" : "#c9951a"};color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)">${n}</div>`,
-    iconSize: [26, 26],
-    iconAnchor: [13, 13],
-  });
+  return cached(`pin|${n}|${selected}`, () =>
+    L.divIcon({
+      className: "",
+      html: `<div class="gw-pin-drop" style="background:${selected ? "#2563eb" : "#c9951a"};color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)">${n}</div>`,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+    })
+  );
 }
 
 function Focus({ points, nonce }: { points: Array<[number, number]>; nonce: number }) {

@@ -48,7 +48,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
 
       {/* gold glow behind the card: depth on the big-screen canvas */}
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70 blur-3xl"
+        className="gw-breathe pointer-events-none absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70 blur-3xl"
         aria-hidden="true"
         style={{ background: "radial-gradient(closest-side, rgba(232,186,76,.20), transparent 72%)" }}
       />
@@ -61,26 +61,26 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
           <img
             src="/icons/logo-192.png"
             alt="Golden Wafer"
-            className="mb-5 inline-block h-16 w-16 rounded-[20px] 2xl:h-20 2xl:w-20"
+            className="gw-logo-reveal mb-5 inline-block h-16 w-16 rounded-[20px] 2xl:h-20 2xl:w-20"
             style={{ boxShadow: "0 0 55px -8px rgba(232,186,76,0.6), 0 0 0 1px rgba(232,186,76,0.25)" }}
           />
-          <h1 className="text-[2rem] font-extrabold leading-none tracking-tight text-white 2xl:text-4xl" dir="ltr">
+          <h1 className="gw-stagger-1 text-[2rem] font-extrabold leading-none tracking-tight text-white 2xl:text-4xl" dir="ltr">
             <span>GOLDEN</span>
             <span className="text-[#e8ba4c]"> WAFER</span>
           </h1>
-          <p className="mt-2.5 text-sm text-white/55">
+          <p className="gw-stagger-2 mt-2.5 text-sm text-white/55">
             {t("tagline")}
           </p>
         </div>
 
         {/* Language pill */}
-        <div className="mb-4 flex justify-center">
+        <div className="gw-stagger-2 mb-4 flex justify-center">
           <LanguageSwitcher tone="onDark" />
         </div>
 
         {/* Login card */}
         <div
-          className="rounded-2xl border border-white/10 p-5 sm:p-6"
+          className="gw-stagger-3 rounded-2xl border border-white/10 p-5 sm:p-6"
           style={{
             background: "rgba(255,255,255,0.045)",
             backdropFilter: "blur(24px)",

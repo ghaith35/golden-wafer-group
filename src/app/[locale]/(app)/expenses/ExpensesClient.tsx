@@ -1,5 +1,8 @@
 "use client";
 
+import { SwipeRow, SwipeEditDelete } from "@/components/motion/SwipeRow";
+import { EmptyState } from "@/components/motion/EmptyState";
+import { Inbox } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLocale } from "next-intl";
 import { Plus, ReceiptText, Wallet } from "lucide-react";
@@ -245,11 +248,13 @@ export function ExpensesClient({
     const [y, m] = month.split("-").map(Number);
     if (!y || !m) return month;
     try {
-      return new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+      // Explicit locale + UTC: `undefined` resolved to the server's default
+      // locale on SSR and the browser's on the client → hydration mismatch.
+      return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString(locale, { month: "long", year: "numeric", timeZone: "UTC" });
     } catch {
       return month;
     }
-  }, [month]);
+  }, [month, locale]);
 
   const today = () => new Date().toISOString().slice(0, 10);
 
@@ -261,45 +266,43 @@ export function ExpensesClient({
           value={dzMoney(total)}
           icon={<Wallet size={18} />}
           accent="bg-red-500/15 text-red-500"
-          compact
-        />
+          compact valueClassName="whitespace-normal! text-clip! break-words leading-tight" />
         <KpiCard
           label={labels.title}
           value={String(filtered.length)}
           icon={<ReceiptText size={18} />}
           accent="bg-sky-500/15 text-sky-600"
-          compact
-        />
+          compact valueClassName="whitespace-normal! text-clip! break-words leading-tight" />
       </div>
       {error && !creating && !editing && (
         <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>
       )}
 
       <div className="flex shrink-0 flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex gap-2 lg:flex-1">
-          <Button onClick={() => { setError(null); setCreating(true); }} className="shrink-0">
+        <div className="flex flex-wrap gap-2 lg:flex-1 lg:flex-nowrap">
+          <Button onClick={() => { setError(null); setCreating(true); }} className="w-full shrink-0 sm:w-auto">
             <Plus size={16} className="me-1" />
             {labels.new}
           </Button>
-          <div className="flex-1">
+          <div className="min-w-0 flex-1 basis-full sm:basis-0">
             <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Input
             type="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="w-44"
+            className="min-w-0 flex-auto basis-36 lg:w-44 lg:flex-none"
             aria-label={monthLabel}
           />
-          <select value={fType} onChange={(e) => setFType(e.target.value)} className={`${inputCls} w-36`} aria-label={labels.type}>
+          <select value={fType} onChange={(e) => setFType(e.target.value)} className={`${inputCls} min-w-0 flex-auto basis-32 lg:w-36 lg:flex-none`} aria-label={labels.type}>
             <option value="">— {labels.type}</option>
             {types.map((x) => (
               <option key={x.id} value={x.id}>{x.name}</option>
             ))}
           </select>
-          <select value={fLoc} onChange={(e) => setFLoc(e.target.value)} className={`${inputCls} w-36`} aria-label={labels.location}>
+          <select value={fLoc} onChange={(e) => setFLoc(e.target.value)} className={`${inputCls} min-w-0 flex-auto basis-32 lg:w-36 lg:flex-none`} aria-label={labels.location}>
             <option value="">— {labels.location}</option>
             {locations.map((x) => (
               <option key={x.id} value={x.id}>{x.name}</option>
@@ -308,7 +311,7 @@ export function ExpensesClient({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center justify-between rounded-2xl border border-(--border-default) bg-(--bg-overlay) px-4 py-3">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-2xl border border-(--border-default) bg-(--bg-overlay) px-4 py-3">
         <span className="text-sm font-bold capitalize opacity-80">
           {monthLabel}
           <span className="ms-2 rounded-full bg-(--bg-sunken) px-2 py-0.5 text-xs font-black opacity-80">
@@ -320,33 +323,34 @@ export function ExpensesClient({
         </span>
       </div>
 
-      {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
+      {filtered.length === 0 && <EmptyState icon={<Inbox size={30} />} title={labels.empty} className="rounded-2xl border border-dashed border-(--border-default)" />}
 
       <div className="min-h-0 space-y-2 lg:flex-1 lg:overflow-y-auto lg:pb-2">
         {filtered.map((r) => (
-          <div
-            key={r.id}
+          <SwipeRow key={r.id} actions={<SwipeEditDelete onEdit={() => { setError(null); setEditing(r); }} onDelete={() => setDeleting(r)} editLabel={labels.edit} deleteLabel={labels.delete} />}>
+<div
             onClick={() => { setError(null); setEditing(r); }}
-            className="flex cursor-pointer items-center gap-3 rounded-xl border border-(--border-default) bg-(--bg-overlay) p-3 transition-colors hover:border-(--brand-500)"
+            className="flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-(--border-default) bg-(--bg-overlay) p-3 transition-colors hover:border-(--brand-500)"
           >
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--bg-sunken) text-(--text-secondary)">
               <ReceiptText size={18} />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-bold">{r.label}</div>
-              <div className="truncate text-xs opacity-60">
+            <div className="min-w-[8rem] flex-1">
+              <div className="break-words text-sm font-bold">{r.label}</div>
+              <div className="break-words text-xs opacity-60">
                 {fmtDT(r.expenseDate, locale)}
                 {r.type ? ` · ${r.type.name}` : ""}
                 {r.location ? ` · 🚚 ${r.location.name}` : ""}
               </div>
             </div>
-            <div className="shrink-0 text-sm font-black">{fmtAmount(r.amount)}</div>
+            <div className="shrink-0 whitespace-nowrap text-sm font-black">{fmtAmount(r.amount)}</div>
             <RowActions
               onEdit={() => { setError(null); setEditing(r); }}
               onDelete={() => setDeleting(r)}
               labels={{ details: "", edit: labels.edit, delete: labels.delete }}
             />
           </div>
+</SwipeRow>
         ))}
       </div>
 

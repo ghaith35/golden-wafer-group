@@ -23,13 +23,19 @@ const STATE_COLOR: Record<MapStop["state"], string> = {
   skipped: "#ef4444",
 };
 
+const numCache = new Map<string, L.DivIcon>();
 function numberedIcon(n: number, color: string) {
-  return L.divIcon({
+  const k = `${n}|${color}`;
+  const hit = numCache.get(k);
+  if (hit) return hit;
+  const icon = L.divIcon({
     className: "",
-    html: `<div style="background:${color};color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)">${n}</div>`,
+    html: `<div class="gw-pin-drop" style="background:${color};color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)">${n}</div>`,
     iconSize: [26, 26],
     iconAnchor: [13, 13],
   });
+  numCache.set(k, icon);
+  return icon;
 }
 
 function OfflineLayer({ saveTiles }: { saveTiles: boolean }) {

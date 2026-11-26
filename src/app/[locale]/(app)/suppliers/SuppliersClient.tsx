@@ -1,5 +1,8 @@
 "use client";
 
+import { SwipeRow, SwipeEditDelete } from "@/components/motion/SwipeRow";
+import { EmptyState } from "@/components/motion/EmptyState";
+import { Inbox } from "lucide-react";
 import { useMemo, useState } from "react";
 import { LayoutGrid, List, MapPin, Phone, Plus, Users, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -113,6 +116,7 @@ export function SuppliersClient({
           value={String(rows.length)}
           icon={<Users size={18} />}
           accent="bg-sky-500/15 text-sky-600"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -120,16 +124,17 @@ export function SuppliersClient({
           value={dzMoney(rows.reduce((s, r) => s + Math.max(0, Number(r.balance ?? 0)), 0))}
           icon={<Wallet size={18} />}
           accent="bg-red-500/15 text-red-500"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
       </div>
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button onClick={() => setCreating(true)} className="shrink-0">
           <Plus size={16} className="me-1" />
           {labels.neW}
         </Button>
-        <div className="flex-1">
+        <div className="order-last min-w-0 basis-full sm:order-none sm:min-w-40 sm:basis-0 sm:flex-1">
           <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="flex shrink-0 gap-1 rounded-xl bg-(--bg-sunken) p-1">
@@ -154,14 +159,14 @@ export function SuppliersClient({
           {filtered.length}
         </span>
       </div>
-      {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
+      {filtered.length === 0 && <EmptyState icon={<Inbox size={30} />} title={labels.empty} className="rounded-2xl border border-dashed border-(--border-default)" />}
       <div className={view === "grid" ? "grid items-start gap-2.5 md:grid-cols-2 xl:grid-cols-3" : "space-y-1.5"}>
         {filtered.map((s) => {
           const bal = Number(s.balance);
           if (view === "list") {
             return (
-              <div
-                key={s.id}
+              <SwipeRow key={s.id} actions={<SwipeEditDelete onEdit={() => void openEdit(s)} onDelete={() => setDeleting(s)} editLabel={labels.edit} deleteLabel={labels.delete} />}>
+<div
                 onClick={() => void openEdit(s)}
                 className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-(--border-default) bg-(--bg-overlay) px-3 py-2 transition-colors hover:border-(--brand-500)"
                 style={s.isActive ? undefined : { opacity: 0.55 }}
@@ -183,6 +188,7 @@ export function SuppliersClient({
                   {dzMoney(bal)}
                 </span>
               </div>
+</SwipeRow>
             );
           }
           return (
@@ -192,11 +198,11 @@ export function SuppliersClient({
               className="cursor-pointer rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5 transition-all hover:-translate-y-px hover:border-(--brand-500)"
               style={s.isActive ? undefined : { opacity: 0.55 }}
             >
-              <div className="flex items-center gap-2.5">
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-(--brand-500)/10 text-lg font-black text-(--brand-600)">
                   {s.name.trim().charAt(0)}
                 </span>
-                <div className="min-w-0 flex-1">
+                <div className="min-w-[7rem] flex-1">
                   <div className="truncate text-sm font-black">{s.name}</div>
                   {s.code && <div className="truncate font-mono text-[11px] opacity-50" dir="ltr">{s.code}</div>}
                 </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { SwipeRow, SwipeEditDelete } from "@/components/motion/SwipeRow";
 import { useEffect, useState } from "react";
 import { Boxes, PackageX, Plus, Pencil, Trash2, Upload, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -58,10 +59,10 @@ const VIEW_MODES: Array<{ v: ViewMode; label: string }> = [
   { v: "grid-5", label: "5" },
 ];
 const GRID_CLS: Record<Exclude<ViewMode, "list">, string> = {
-  "grid-2": "grid grid-cols-2 gap-3",
-  "grid-3": "grid grid-cols-2 gap-3 sm:grid-cols-3",
-  "grid-4": "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4",
-  "grid-5": "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+  "grid-2": "grid grid-cols-2 gap-3 max-sm:grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]",
+  "grid-3": "grid grid-cols-2 gap-3 max-sm:grid-cols-[repeat(auto-fill,minmax(8rem,1fr))] sm:grid-cols-3",
+  "grid-4": "grid grid-cols-2 gap-3 max-sm:grid-cols-[repeat(auto-fill,minmax(8rem,1fr))] sm:grid-cols-3 lg:grid-cols-4",
+  "grid-5": "grid grid-cols-2 gap-3 max-sm:grid-cols-[repeat(auto-fill,minmax(8rem,1fr))] sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
 };
 
 export function ProductsClient({
@@ -250,7 +251,7 @@ export function ProductsClient({
       </div>
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
       <div className="flex shrink-0 flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex gap-2 lg:flex-1">
+        <div className="flex flex-wrap gap-2 lg:flex-1 lg:flex-nowrap">
           <Button onClick={() => setCreating(true)} className="shrink-0">
             <Plus size={16} className="me-1" />
             {labels.neW}
@@ -259,22 +260,22 @@ export function ProductsClient({
             <Upload size={16} className="me-1" />
             {labels.import}
           </Button>
-          <div className="min-w-40 flex-1">
+          <div className="min-w-0 flex-1 basis-full sm:min-w-40 sm:basis-0">
             <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <select
             value={cat}
             onChange={(e) => setCat(e.target.value)}
-            className="h-11 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm"
+            className="h-11 min-w-0 max-w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm"
           >
             <option value="">—</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
-          <div className="flex shrink-0 items-center gap-1 rounded-xl bg-(--bg-sunken) p-1" role="group" aria-label="view">
+          <div className="flex max-w-full flex-wrap items-center gap-1 rounded-xl bg-(--bg-sunken) p-1" role="group" aria-label="view">
           {VIEW_MODES.map((m) => (
             <button
               key={m.v}
@@ -283,7 +284,7 @@ export function ProductsClient({
               aria-pressed={view === m.v}
               aria-label={m.v}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-lg",
+                "flex h-11 w-11 items-center justify-center rounded-lg lg:h-9 lg:w-9",
                 view === m.v ? "bg-(--bg-overlay) shadow" : "opacity-50"
               )}
             >
@@ -296,30 +297,33 @@ export function ProductsClient({
       {view === "list" ? (
         <div className="min-h-0 space-y-2 lg:flex-1 lg:overflow-y-auto lg:pb-2">
           {filtered.map((p) => (
-            <div
-              key={p.id}
+            <SwipeRow key={p.id} actions={<SwipeEditDelete onEdit={() => void openEdit(p.id)} onDelete={() => setDeleting(p)} editLabel={actionLabels.edit} deleteLabel={actionLabels.delete} />}>
+<div
               onClick={() => void openDetails(p)}
-              className="flex cursor-pointer items-center gap-3 rounded-xl border border-(--border-default) bg-(--bg-overlay) p-2.5 transition-colors hover:border-(--brand-500)"
+              className="flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-(--border-default) bg-(--bg-overlay) p-2.5 transition-colors hover:border-(--brand-500)"
               style={p.isActive ? undefined : { opacity: 0.55 }}
             >
               <ProductGallery images={p.images.map((i) => i.url)} alt={p.name} className="h-14 w-20 shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-bold">{p.name}</div>
+              <div className="min-w-[8rem] flex-1">
+                <div className="line-clamp-2 break-words text-sm font-bold leading-snug">{p.name}</div>
                 <div className="truncate text-xs opacity-60">
                   {p.reference ?? ""} {p.category?.name ?? labels.noCategory}
                 </div>
-                <div className="truncate text-[11px] font-bold text-(--brand-600)">
+                <div className="break-words text-[11px] font-bold text-(--brand-600)">
                   {packBreakdown(Number(p.stockQty), p.conversions ?? [], unitName, p.baseUnit?.name ?? "—")}
                 </div>
               </div>
-              <span className="shrink-0 text-sm font-black">{String(p.salePrice)}</span>
-              <RowActions
-                onDetails={() => void openDetails(p)}
-                onEdit={() => void openEdit(p.id)}
-                onDelete={() => setDeleting(p)}
-                labels={actionLabels}
-              />
+              <div className="ms-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
+                <span className="shrink-0 text-sm font-black">{String(p.salePrice)}</span>
+                <RowActions
+                  onDetails={() => void openDetails(p)}
+                  onEdit={() => void openEdit(p.id)}
+                  onDelete={() => setDeleting(p)}
+                  labels={actionLabels}
+                />
+              </div>
             </div>
+</SwipeRow>
           ))}
         </div>
       ) : (
@@ -332,9 +336,9 @@ export function ProductsClient({
             style={p.isActive ? undefined : { opacity: 0.55 }}
           >
             <ProductGallery images={p.images.map((i) => i.url)} alt={p.name} className="mb-2 aspect-video w-full" />
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-bold">{p.name}</div>
+            <div className="flex flex-wrap items-start justify-between gap-x-2 gap-y-1.5">
+              <div className="min-w-[min(8rem,100%)] flex-1">
+                <div className="line-clamp-2 break-words text-sm font-bold leading-snug">{p.name}</div>
                 <div className="text-xs opacity-60">
                   {p.reference ?? ""} {p.category?.name ?? labels.noCategory}
                 </div>
@@ -364,7 +368,7 @@ export function ProductsClient({
               <Info label={labels.supplier} value={details.supplierName ?? "—"} />
               <Info label={labels.baseUnit} value={details.baseUnitName ?? "—"} />
               <div className="col-span-2 rounded-lg bg-(--bg-sunken) px-3 py-2">
-                <div className="text-[10px] font-bold uppercase opacity-60">{labels.stock}</div>
+                <div className="text-[11px] font-bold uppercase opacity-60">{labels.stock}</div>
                 <div className="truncate text-sm font-black text-(--brand-600)">
                   {packBreakdown(details.stock?.qty ?? details.stockQty, details.conversions, unitName, details.baseUnitName ?? "")}
                 </div>
@@ -384,7 +388,7 @@ export function ProductsClient({
                   );
                 }
                 const per = (v: number) =>
-                  priceForUnit(v, l1.factor).toLocaleString(undefined, { maximumFractionDigits: 2 });
+                  dz(priceForUnit(v, l1.factor));
                 const suffix = ` / ${unitName(l1.unitId)}`;
                 return (
                   <>
@@ -410,7 +414,7 @@ export function ProductsClient({
                         </span>
                         <span className="font-black">
                           {l1
-                            ? priceForUnit(x.price, l1.factor).toLocaleString(undefined, { maximumFractionDigits: 2 })
+                            ? dz(priceForUnit(x.price, l1.factor))
                             : x.price}
                         </span>
                       </div>
@@ -557,7 +561,7 @@ function StockBreakdown({
   if (packs.length === 0) {
     return (
       <div className="text-lg font-black tabular-nums">
-        {qty.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-sm">{baseName}</span>
+        {dz(qty)} <span className="text-sm">{baseName}</span>
       </div>
     );
   }
@@ -576,7 +580,7 @@ function StockBreakdown({
         parts.map((pt, i) => (
           <span key={i}>
             {i > 0 && " + "}
-            {pt.count.toLocaleString()} <span className="text-sm">{pt.name}</span>
+            {dz(pt.count)} <span className="text-sm">{pt.name}</span>
           </span>
         ))
       ) : (
@@ -584,11 +588,11 @@ function StockBreakdown({
       )}
       {rest > 0 && (
         <>
-          {parts.length > 0 && " + "}{rest.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-sm">{baseName}</span>
+          {parts.length > 0 && " + "}{dz(rest)} <span className="text-sm">{baseName}</span>
         </>
       )}
       <div className="text-xs font-bold opacity-60">
-        = {qty.toLocaleString(undefined, { maximumFractionDigits: 2 })} {baseName}
+        = {dz(qty)} {baseName}
       </div>
     </div>
   );
@@ -597,8 +601,8 @@ function StockBreakdown({
 function Info({ label, value, mono, strong }: { label: string; value: string; mono?: boolean; strong?: boolean }) {
   return (
     <div className="rounded-lg bg-(--bg-sunken) px-3 py-2">
-      <div className="text-[10px] font-bold uppercase opacity-60">{label}</div>
-      <div className={`truncate text-sm ${strong ? "font-black" : "font-semibold"} ${mono ? "font-mono" : ""}`}>{value}</div>
+      <div className="text-[11px] font-bold uppercase opacity-60">{label}</div>
+      <div className={`break-words text-sm ${strong ? "font-black" : "font-semibold"} ${mono ? "font-mono" : ""}`}>{value}</div>
     </div>
   );
 }

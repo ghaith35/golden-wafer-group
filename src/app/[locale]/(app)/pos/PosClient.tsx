@@ -1,5 +1,7 @@
 "use client";
 
+import { useFlip } from "@/lib/useFlip";
+import { dz } from "@/lib/format";
 import { matchClient } from "@/lib/clients/display";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -37,7 +39,7 @@ type Line = { productId: string; unitId: string; qty: number; unitPrice: string;
 
 const inputCls = "h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-3 text-sm outline-none focus:border-(--brand-500)";
 
-const fmt = (v: number) => v.toLocaleString(undefined, { maximumFractionDigits: 2 });
+const fmt = (v: number) => dz(v);
 
 export function PosClient({
   locale,
@@ -118,6 +120,7 @@ export function PosClient({
       cancelled = true;
     };
   }, [presetDepotId]);
+  const cartRef = useFlip<HTMLDivElement>();
   const [lines, setLines] = useState<Line[]>([]);
   const [docRemise, setDocRemise] = useState(0);
   const [paid, setPaid] = useState("");
@@ -307,14 +310,14 @@ export function PosClient({
     <div className="flex flex-col gap-4 p-5 md:p-6 lg:h-[calc(var(--vh)-3.5rem)] lg:overflow-hidden lg:pb-4">
       {error && <p className="rounded-lg bg-red-500/10 p-2 text-sm text-red-500"><ErrText code={error} /></p>}
 
-      <div className="grid items-start gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_380px] lg:grid-rows-[minmax(0,1fr)] lg:items-stretch">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_380px] lg:grid-rows-[minmax(0,1fr)] lg:items-stretch">
         {/* ── Product shelf (start side) ── */}
         <div className="min-w-0 space-y-3 lg:h-full lg:overflow-y-auto lg:pe-1">
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <select
               value={locationId}
               onChange={(e) => pickLocation(e.target.value)}
-              className="h-12 shrink-0 rounded-xl border border-(--border-default) bg-(--bg-surface) px-2 text-sm font-bold"
+              className="h-12 min-w-0 max-w-full shrink-0 rounded-xl border border-(--border-default) bg-(--bg-surface) px-2 text-sm font-bold"
               aria-label={labels.depot}
             >
               <option value="">— {labels.depot}</option>
@@ -322,7 +325,7 @@ export function PosClient({
                 <option key={d.id} value={d.id}>{d.name}</option>
               ))}
             </select>
-          <div className="relative min-w-0 flex-1">
+          <div className="relative min-w-0 flex-1 basis-40">
             <Search size={17} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 opacity-50" />
             <input
               ref={searchRef}
@@ -381,7 +384,7 @@ export function PosClient({
           </div>
 
           {filtered.length === 0 && <p className="py-10 text-center text-sm opacity-60">{labels.empty}</p>}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(190px,1fr))]">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(8rem,1fr))] gap-3 sm:grid-cols-[repeat(auto-fill,minmax(190px,1fr))]">
             {filtered.map((p) => {
               const img = p.images[0]?.url;
               const added = justAdded === p.id;
@@ -410,7 +413,7 @@ export function PosClient({
                     </div>
                   )}
                   <div className="flex flex-1 flex-col gap-0.5 p-2.5">
-                    <div className="truncate text-[13px] font-bold leading-5">{p.name}</div>
+                    <div className="line-clamp-2 break-words text-[13px] font-bold leading-5">{p.name}</div>
                     <div className="flex items-center justify-between text-[11px] opacity-60">
                       <span className="truncate font-mono" dir="ltr">{p.reference ?? p.barcode ?? ""}</span>
                       <span className={cn("shrink-0 font-bold", out ? "text-red-500" : availQty <= 3 ? "text-amber-600" : "")}>
@@ -481,7 +484,7 @@ export function PosClient({
         </div>
 
         {/* ── Cart (end side) ── */}
-        <div className="flex rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4  lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
+        <div className="flex min-w-0 flex-col rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 lg:h-full lg:min-h-0 lg:overflow-hidden">
           <div className="mb-3 flex min-h-12 items-center justify-between rounded-xl bg-(--bg-sunken) px-3 py-2">
             <span className="flex items-center gap-2 text-base font-black">
               <ReceiptText size={19} className="text-(--brand-600)" />
@@ -489,18 +492,18 @@ export function PosClient({
               <span className="rounded-full bg-(--brand-500) px-2.5 py-1 text-xs font-black text-(--brand-contrast)">{count}</span>
             </span>
             {lines.length > 0 && (
-              <button onClick={() => setLines([])} className="text-xs font-bold text-red-500 opacity-70 hover:opacity-100">
+              <button onClick={() => setLines([])} aria-label="clear" className="flex min-h-11 min-w-11 items-center justify-center text-xs font-bold text-red-500 opacity-70 hover:opacity-100">
                 <Trash2 size={14} className="inline me-1" />
               </button>
             )}
           </div>
 
           <div className="mb-2 grid grid-cols-[1fr_auto] gap-2">
-            <Input placeholder={labels.searchClient} value={clientQ} onChange={(e) => setClientQ(e.target.value)} className="h-10" />
+            <Input placeholder={labels.searchClient} value={clientQ} onChange={(e) => setClientQ(e.target.value)} className="h-11 min-w-0" />
             <select
               value={tierId}
               onChange={(e) => setTierId(e.target.value)}
-              className="h-10 rounded-lg border border-(--border-default) bg-(--bg-surface) px-1 text-xs font-bold"
+              className="h-11 max-w-32 rounded-lg border border-(--border-default) bg-(--bg-surface) px-1 text-xs font-bold"
               aria-label={labels.tier}
               title={labels.tier}
             >
@@ -510,7 +513,7 @@ export function PosClient({
               ))}
             </select>
           </div>
-          <select value={clientId} onChange={(e) => setClientId(e.target.value)} className={cn(inputCls, "mb-1 h-10")}>
+          <select value={clientId} onChange={(e) => setClientId(e.target.value)} className={cn(inputCls, "mb-1 h-11")}>
             <option value="">— {labels.walkin}</option>
             {clientId && !shownClients.some((c) => c.id === clientId) && client && (
               <option value={client.id}>{client.name} · {client.code}</option>
@@ -523,7 +526,7 @@ export function PosClient({
             <div className="mb-2 text-xs opacity-60">{labels.balance}: <b>{fmt(client.balance)}</b></div>
           )}
 
-          <div className="mb-2 max-h-64 space-y-1.5 overflow-y-auto lg:max-h-none lg:min-h-0 lg:flex-1">
+          <div ref={cartRef} className="mb-2 max-h-64 space-y-1.5 overflow-y-auto lg:max-h-none lg:min-h-0 lg:flex-1">
             {lines.length === 0 && (
               <div className="rounded-xl border border-dashed border-(--border-default) py-6 text-center text-xs opacity-50">
                 <ShoppingCart size={22} className="mx-auto mb-1" />
@@ -536,16 +539,16 @@ export function PosClient({
               const price = l.unitPrice === "" ? priceFor(p, l.unitId) : Number(l.unitPrice);
               const units = saleUnits(p, allowPieces);
               return (
-                <div key={i} className="rounded-xl border border-(--border-subtle) bg-(--bg-surface) px-2 py-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <button onClick={() => bump(i, -1)} className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-(--border-default) hover:bg-(--bg-sunken)" aria-label="-">
+                <div key={i} data-flip={`${l.productId}:${l.unitId}`} className="rounded-xl border border-(--border-subtle) bg-(--bg-surface) px-2 py-1.5">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <button onClick={() => bump(i, -1)} className="flex h-11 w-11 shrink-0 lg:h-7 lg:w-7 items-center justify-center rounded-lg border border-(--border-default) hover:bg-(--bg-sunken)" aria-label="-">
                       <Minus size={14} />
                     </button>
                     <span className="w-8 shrink-0 text-center text-sm font-black tabular-nums">{l.qty}</span>
-                    <button onClick={() => bump(i, 1)} className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-(--border-default) hover:bg-(--bg-sunken)" aria-label="+">
+                    <button onClick={() => bump(i, 1)} className="flex h-11 w-11 shrink-0 lg:h-7 lg:w-7 items-center justify-center rounded-lg border border-(--border-default) hover:bg-(--bg-sunken)" aria-label="+">
                       <Plus size={14} />
                     </button>
-                    <div className="min-w-0 flex-1">
+                    <div className="order-first min-w-0 basis-full sm:order-none sm:basis-0 sm:flex-1">
                       <div className="truncate text-[13px] font-bold">{p.name}</div>
                       <div className="text-[11px]">
                         <div className="flex items-center gap-1 opacity-60">
@@ -553,7 +556,7 @@ export function PosClient({
                             <select
                               value={l.unitId}
                               onChange={(e) => setLine(i, { unitId: e.target.value })}
-                              className="rounded bg-transparent text-[11px] font-bold outline-none"
+                              className="min-h-11 rounded bg-transparent text-[11px] font-bold outline-none lg:min-h-0"
                               onClick={(e) => e.stopPropagation()}
                             >
                               {units.map((u) => (
@@ -582,8 +585,8 @@ export function PosClient({
                       </div>
                       <UnitQty qty={l.qty} factor={factorOf(p, l.unitId)} baseName={baseNameOf(p)} product={p} />
                     </div>
-                    <span className="shrink-0 text-[13px] font-black tabular-nums">{fmt(Math.max(0, l.qty * price - l.remise))}</span>
-                    <button onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="shrink-0 p-1 text-red-500 opacity-60 hover:opacity-100" aria-label="remove">
+                    <span className="ms-auto shrink-0 text-[13px] font-black tabular-nums sm:ms-0">{fmt(Math.max(0, l.qty * price - l.remise))}</span>
+                    <button onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="flex h-11 w-11 shrink-0 items-center justify-center text-red-500 opacity-60 hover:opacity-100 lg:h-7 lg:w-7" aria-label="remove">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -607,7 +610,7 @@ export function PosClient({
               <input
                 type="number" min={0} step="any" value={docRemise || ""}
                 onChange={(e) => setDocRemise(Number(e.target.value))}
-                className="h-9 w-28 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-end text-sm font-bold outline-none focus:border-(--brand-500)"
+                className="h-11 w-28 rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-end text-sm font-bold outline-none focus:border-(--brand-500)"
               />
             </div>
           )}
@@ -618,12 +621,12 @@ export function PosClient({
               <span className="tabular-nums" dir="ltr">−{fmt(totals.dealSaving)}</span>
             </div>
           )}
-          <div className="mb-2 flex min-h-20 items-center justify-between rounded-xl bg-(--bg-sunken) px-4 py-3">
+          <div className="mb-2 flex min-h-20 flex-wrap items-center justify-between gap-x-3 rounded-xl bg-(--bg-sunken) px-4 py-3">
             <span className="text-base font-bold opacity-70">{labels.total}</span>
-            <span className="text-3xl font-black tabular-nums">{fmt(totals.total)}</span>
+            <span className="break-words text-2xl font-black tabular-nums sm:text-3xl">{fmt(totals.total)}</span>
           </div>
 
-          <div className="mb-2 flex gap-2">
+          <div className="mb-2 flex flex-wrap gap-2">
             <input
               type="number" min={0} step="any" value={paid}
               onChange={(e) => setPaid(e.target.value)}
@@ -632,7 +635,7 @@ export function PosClient({
             />
             <button
               onClick={() => setPaid(String(totals.total))}
-              className="shrink-0 rounded-lg border border-(--border-default) px-3 text-xs font-black opacity-70 hover:bg-(--bg-sunken) hover:opacity-100"
+              className="min-h-11 shrink-0 rounded-lg border border-(--border-default) px-3 text-xs font-black opacity-70 hover:bg-(--bg-sunken) hover:opacity-100"
             >
               {labels.exact}
             </button>

@@ -1,7 +1,9 @@
 "use client";
 
+import { SwipeRow } from "@/components/motion/SwipeRow";
+import { EmptyState } from "@/components/motion/EmptyState";
 import { useMemo, useState } from "react";
-import { LayoutGrid, List, MapPin, Phone, Plus, Upload, UserCheck, Users, Wallet } from "lucide-react";
+import { Inbox, LayoutGrid, List, MapPin, Pencil, Phone, Plus, Trash2, Upload, UserCheck, Users, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -167,6 +169,7 @@ export function ClientsClient({
           value={String(rows.length)}
           icon={<Users size={18} />}
           accent="bg-sky-500/15 text-sky-600"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -174,6 +177,7 @@ export function ClientsClient({
           value={String(rows.filter((c) => c.isActive).length)}
           icon={<UserCheck size={18} />}
           accent="bg-emerald-500/15 text-emerald-600"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
         <KpiCard
@@ -181,6 +185,7 @@ export function ClientsClient({
           value={dzMoney(rows.reduce((s, c) => s + Math.max(0, Number(c.balance ?? 0)), 0))}
           icon={<Wallet size={18} />}
           accent="bg-red-500/15 text-red-500"
+          valueClassName="whitespace-normal! text-clip! break-words leading-tight"
           compact
         />
       </div>
@@ -192,7 +197,7 @@ export function ClientsClient({
           <Upload size={16} className="me-1" />
           {labels.import}
         </Button>
-        <div className="min-w-40 flex-1">
+        <div className="order-last min-w-0 basis-full sm:order-none sm:min-w-40 sm:basis-0 sm:flex-1">
           <Input placeholder={labels.search} value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="flex shrink-0 gap-1">
@@ -261,7 +266,7 @@ export function ClientsClient({
           })}
         </div>
       )}
-      {filtered.length === 0 && <p className="rounded-2xl border border-dashed border-(--border-default) p-8 text-center text-sm opacity-60">{labels.empty}</p>}
+      {filtered.length === 0 && <EmptyState icon={<Inbox size={30} />} title={labels.empty} className="rounded-2xl border border-dashed border-(--border-default)" />}
       {filtered.length > 0 && (
         <label className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-dashed border-(--border-default) px-3 py-2 text-sm font-bold">
           <input type="checkbox" checked={allFilteredSelected} onChange={toggleAll} />
@@ -278,8 +283,16 @@ export function ClientsClient({
           const bal = Number(c.balance);
           if (view === "list") {
             return (
-              <div
+              <SwipeRow
                 key={c.id}
+                actions={
+                  <>
+                    <button type="button" aria-label={labels.edit} onClick={() => void openEdit(c)} className="flex flex-1 items-center justify-center bg-amber-500 text-white"><Pencil size={18} /></button>
+                    <button type="button" aria-label={labels.delete} onClick={() => setDeleting(c)} className="flex flex-1 items-center justify-center bg-red-500 text-white"><Trash2 size={18} /></button>
+                  </>
+                }
+              >
+              <div
                 onClick={() => void openEdit(c)}
                 className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-(--border-default) bg-(--bg-overlay) px-3 py-2 transition-colors hover:border-(--brand-500)"
                 style={c.isActive ? undefined : { opacity: 0.55 }}
@@ -310,6 +323,7 @@ export function ClientsClient({
                   {dzMoney(bal)}
                 </span>
               </div>
+              </SwipeRow>
             );
           }
           return (
@@ -319,7 +333,7 @@ export function ClientsClient({
               className="cursor-pointer rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-3.5 transition-colors hover:border-(--brand-500)"
               style={c.isActive ? undefined : { opacity: 0.55 }}
             >
-              <div className="flex items-center gap-2.5">
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
                 <input
                   type="checkbox"
                   className="h-5 w-5 shrink-0"
@@ -331,12 +345,12 @@ export function ClientsClient({
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-(--brand-500)/10 text-lg font-black text-(--brand-600)">
                   {c.name.trim().charAt(0)}
                 </span>
-                <div className="min-w-0 flex-1">
+                <div className="min-w-[7rem] flex-1">
                   <div className="truncate text-sm font-black">{c.name}</div>
                   <div className="truncate font-mono text-[11px] opacity-50" dir="ltr">{c.code}</div>
                 </div>
                 <span className={cn(
-                  "shrink-0 rounded-xl px-2 py-1 text-[13px] font-black tabular-nums",
+                  "ms-auto shrink-0 whitespace-nowrap rounded-xl px-2 py-1 text-[13px] font-black tabular-nums",
                   bal > 0 ? "bg-red-500/10 text-red-500" : "bg-emerald-500/10 text-emerald-600"
                 )} dir="ltr">
                   {dzMoney(bal)}
