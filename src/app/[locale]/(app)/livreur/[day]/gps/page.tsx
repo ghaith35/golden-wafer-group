@@ -74,7 +74,7 @@ export default async function LivreurGpsPage({
         near: t("proxNear"), mid: t("proxMid"), far: t("proxFar"), none: t("proxNone"),
         noPos: t("gpsNoPos"), refresh: t("gpsRefresh"), call: t("callClient"), locating: t("gpsLocating"),
         empty: t("gpsEmpty"), unitM: tg("unitM"), unitKm: tg("unitKm"),
-        closedShop: t("closedShop"), closedAddPhoto: t("closedAddPhoto"), closedSave: t("closedSave"), closedHint: t("closedHint"),
+        viewClient: t("viewClient"), closedShop: t("closedShop"), closedAddPhoto: t("closedAddPhoto"), closedSave: t("closedSave"), closedHint: t("closedHint"),
         closedBadge: t("closedBadge"), closedErr: t("closedErr"), closedShoot: t("closedShoot"), closedCancel: t("closedCancel"), closedSaved: t("closedSaved"), closedSavedOffline: t("closedSavedOffline"), closedCamFail: t("closedCamFail"),
       }}
     />

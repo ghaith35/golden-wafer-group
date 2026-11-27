@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Camera, Lock, Plus, X } from "lucide-react";
+import { Camera, Lock, Plus, UserRound, X } from "lucide-react";
 import { queueOp, syncNow } from "@/lib/sync/client";
 import { compressToJpegDataUrl } from "@/lib/photo";
 import { CameraCapture } from "@/components/camera/CameraCapture";
@@ -17,6 +17,7 @@ export function ClosedShopSheet({
   pos,
   alreadyClosed,
   labels,
+  onView,
   onClose,
   onSaved,
 }: {
@@ -24,6 +25,8 @@ export function ClosedShopSheet({
   pos: { lat: number; lng: number } | null;
   alreadyClosed: boolean;
   labels: Record<string, string>;
+  /// Opens the client's page (the same one reached from the clients list).
+  onView?: () => void;
   onClose: () => void;
   onSaved: (clientId: string, queuedOffline: boolean) => void;
 }) {
@@ -112,15 +115,31 @@ export function ClosedShopSheet({
         )}
 
         {photos.length === 0 ? (
-          <button
-            type="button"
-            onClick={openCamera}
-            disabled={busy}
-            className="flex h-20 w-full items-center justify-center gap-3 rounded-2xl bg-red-600 text-lg font-black text-white shadow-lg active:scale-[0.98] disabled:opacity-60"
-          >
-            <Lock size={22} />
-            {busy ? "…" : labels.closedShop}
-          </button>
+          <div className="grid grid-cols-2 gap-2">
+            {onView && (
+              <button
+                type="button"
+                onClick={onView}
+                className="gw-rise flex h-20 w-full flex-col items-center justify-center gap-1.5 rounded-2xl bg-gradient-brand text-base font-black text-(--brand-contrast) shadow-lg transition-transform active:scale-[0.97]"
+              >
+                <UserRound size={22} />
+                {labels.viewClient}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={openCamera}
+              disabled={busy}
+              style={onView ? { animationDelay: "70ms" } : undefined}
+              className={cn(
+                "gw-rise flex h-20 w-full flex-col items-center justify-center gap-1.5 rounded-2xl bg-red-600 text-base font-black text-white shadow-lg transition-transform active:scale-[0.97] disabled:opacity-60",
+                !onView && "col-span-2 flex-row gap-3 text-lg"
+              )}
+            >
+              <Lock size={22} />
+              {busy ? "…" : labels.closedShop}
+            </button>
+          </div>
         ) : (
           <>
             <div className="grid grid-cols-3 gap-2">

@@ -272,6 +272,7 @@ export function GpsClient({
           pos={pos}
           alreadyClosed={closedIds.has(sheetFor.id)}
           labels={labels}
+          onView={() => goPage(router, `/${locale}/livreur/${day}/client/${encodeURIComponent(sheetFor.id)}`)}
           onClose={() => setSheetFor(null)}
           onSaved={(id, offline) => {
             setClosedIds((s) => new Set([...s, id]));
