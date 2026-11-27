@@ -297,8 +297,8 @@ async function applyOp(
       if (tierId) {
         const tier = await prisma.priceTier.findFirst({ where: { id: tierId, companyId } });
         if (!tier) throw Object.assign(new Error("bad_tier"), { status: 400 });
-      } else {
-        // Same rule as POST /api/clients: détail (normal sell price) first.
+      } else if (d.tierId === undefined) {
+        // Match POST /api/clients for callers that omit the tier.
         const all = await prisma.priceTier.findMany({
           where: { companyId, isActive: true },
           orderBy: { sortOrder: "asc" },

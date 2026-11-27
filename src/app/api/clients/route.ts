@@ -38,14 +38,12 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "validation_error", issues: parsed.error.issues }, { status: 400 });
   const d = parsed.data;
 
-  // Tier assigned at creation: the "normal sell price" tier (détail) — never
-  // wholesale by accident. Falls back to the first active tier, then null
-  // (base sale price).
+  // Explicit null selects the base sale price. Older callers may omit the tier.
   let tierId = d.tierId ?? null;
   if (tierId) {
     const tier = await prisma.priceTier.findFirst({ where: { id: tierId, companyId: session.companyId } });
     if (!tier) return NextResponse.json({ error: "bad_tier" }, { status: 400 });
-  } else {
+  } else if (d.tierId === undefined) {
     const all = await prisma.priceTier.findMany({
       where: { companyId: session.companyId, isActive: true },
       orderBy: { sortOrder: "asc" },

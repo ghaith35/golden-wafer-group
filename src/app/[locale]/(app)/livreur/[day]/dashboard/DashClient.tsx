@@ -586,7 +586,6 @@ export function DashClient({
           companyId={newClientRefs.companyId}
           wilayas={newClientRefs.refs.wilayas}
           secteurs={newClientRefs.refs.secteurs}
-          tiers={newClientRefs.refs.tiers}
           labels={labels}
           areaScope={newClientRefs.areaScope}
           defaultSecteurId={newClientRefs.defaultSecteurId}

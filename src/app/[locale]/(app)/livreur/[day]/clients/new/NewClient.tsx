@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { queueOp, discardOutboxOp, getVanSnapshot, getOutbox, goPage, saleErrText, queueErrText } from "@/lib/sync/client";
 import { checkOfflineClient } from "@/lib/sync/offline-rules";
-import { pickDefaultTierId } from "@/lib/clients/tier-default";
 import { clientQrPayload, generateOfflineClientCode } from "@/lib/clients/validation";
 import { compareNatural } from "@/lib/sort";
 import QRCode from "qrcode";
@@ -32,7 +31,6 @@ export function NewClient({
   companyId,
   wilayas,
   secteurs,
-  tiers,
   labels,
   areaScope,
   defaultSecteurId = null,
@@ -45,7 +43,6 @@ export function NewClient({
   companyId: string;
   wilayas: Array<{ code: number; nameAr: string; nameFr: string }>;
   secteurs: Array<{ id: string; name: string; wilayaCode: number }>;
-  tiers: Array<{ id: string; name: string }>;
   labels: Record<string, string>;
   /// Admin-assigned zones (server truth at render time); null/absent = everything.
   areaScope?: AreaScope | null;
@@ -62,10 +59,6 @@ export function NewClient({
   const [activity, setActivity] = useState("");
   const [wilaya, setWilaya] = useState("");
   const [secteur, setSecteur] = useState("");
-  const [tier, setTier] = useState("");
-  /// Price-type default: détail (normal sell price) pre-selected until the
-  /// driver picks something himself — a new client never lands on gros.
-  const [tierTouched, setTierTouched] = useState(false);
   const [secteurList, setSecteurList] = useSyncedState(secteurs);
   const [showSecteur, setShowSecteur] = useState(false);
   const [secteurName, setSecteurName] = useState("");
@@ -78,8 +71,8 @@ export function NewClient({
   const [queued, setQueued] = useState(false);
   /// Synchronous double-tap guard.
   const savingRef = useRef(false);
-  /// Offline ref fallbacks (wilayas/secteurs/tiers from the last sync).
-  const [snapRefs, setSnapRefs] = useState<{ wilayas: typeof wilayas; secteurs: typeof secteurs; tiers: typeof tiers } | null>(null);
+  /// Offline ref fallbacks (wilayas and secteurs from the last sync).
+  const [snapRefs, setSnapRefs] = useState<{ wilayas: typeof wilayas; secteurs: typeof secteurs } | null>(null);
   useEffect(() => {
     if (wilayas.length && secteurs.length) return;
     getVanSnapshot().then((s) => {
@@ -87,7 +80,6 @@ export function NewClient({
       const refs = {
         wilayas: (s.wilayas ?? []) as typeof wilayas,
         secteurs: (s.secteurs ?? []) as typeof secteurs,
-        tiers: (s.tiers ?? []) as typeof tiers,
       };
       setSnapRefs(refs);
       setSecteurList((cur) => (cur.length ? cur : refs.secteurs));
@@ -124,8 +116,6 @@ export function NewClient({
   const secteurOpts = zone.secteurs.filter((s) => !wilayaEff || s.wilayaCode === Number(wilayaEff));
   const secteurEff = secteur || (daySec && String(daySec.wilayaCode) === wilayaEff ? daySec.id : "") || (restricted && wilayaEff && secteurOpts.length === 1 ? secteurOpts[0].id : "");
   const canAddSecteur = !!wilayaEff && canCreateSecteurIn(scope, Number(wilayaEff));
-  const effTiers = tiers.length ? tiers : (snapRefs?.tiers ?? []);
-  const tierEff = tierTouched ? tier : (tier || pickDefaultTierId(effTiers) || "");
 
   async function createSecteur() {
     const name = secteurName.trim();
@@ -248,7 +238,7 @@ export function NewClient({
       ...(activity.trim() ? { activityType: activity.trim() } : {}),
       ...(wilayaEff ? { wilayaCode: Number(wilayaEff) } : {}),
       ...(secteurEff ? { secteurId: secteurEff } : {}),
-      ...(tierEff ? { tierId: tierEff } : {}),
+      tierId: null,
       ...(() => {
         const g = gps ?? typedGps();
         return g ? { gpsLat: g.lat, gpsLng: g.lng } : {};
@@ -296,7 +286,7 @@ export function NewClient({
   function reset() {
     setName(""); setPhone(""); setAddress(""); setActivity("");
     setTouched(false); // next client: the day's sector again
-    setWilaya(""); setSecteur(""); setTier(""); setTierTouched(false);
+    setWilaya(""); setSecteur("");
     manualGps.current = false; // live GPS resumes for the next client
     setGps(null); setGpsText(""); setError(null);
     setQueued(false); setCreated(null);
@@ -529,16 +519,9 @@ export function NewClient({
           </div>
           <div>
             <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.tierOpt}</label>
-            <select
-              value={tierEff}
-              onChange={(e) => { setTierTouched(true); setTier(e.target.value); }}
-              className="h-11 w-full rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm outline-none focus:border-(--brand-500)"
-            >
-              <option value="">—</option>
-              {effTiers.map((x) => (
-                <option key={x.id} value={x.id}>{x.name}</option>
-              ))}
-            </select>
+            <p className="flex h-11 items-center rounded-lg border border-(--border-default) bg-(--bg-surface) px-2 text-sm">
+              {labels.tierBase}
+            </p>
           </div>
         </div>
       </div>

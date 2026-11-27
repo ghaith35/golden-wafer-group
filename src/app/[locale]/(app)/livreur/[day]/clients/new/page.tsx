@@ -24,15 +24,11 @@ export default async function LivreurNewClientPage({
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
 
-  const [wilayas, secteurs, tiers] = await Promise.all([
+  const [wilayas, secteurs] = await Promise.all([
     prisma.wilaya.findMany({ orderBy: { code: "asc" } }),
     prisma.secteur.findMany({
       where: { companyId: session.companyId, isActive: true },
       orderBy: { name: "asc" },
-    }),
-    prisma.priceTier.findMany({
-      where: { companyId: session.companyId, isActive: true },
-      orderBy: { sortOrder: "asc" },
     }),
   ]);
 
@@ -56,13 +52,12 @@ export default async function LivreurNewClientPage({
       companyId={session.companyId}
       wilayas={JSON.parse(JSON.stringify(wilayas))}
       secteurs={JSON.parse(JSON.stringify(secteurs))}
-      tiers={JSON.parse(JSON.stringify(tiers))}
       areaScope={areaScope}
       defaultSecteurId={defaultSecteurId}
       labels={{
         newClient: t("newClient"), clientName: t("clientName"), phoneOpt: t("phoneOpt"), addressOpt: t("addressOpt"),
         activityOpt: t("activityOpt"), wilayaOpt: t("wilayaOpt"), secteurOpt: t("secteurOpt"),
-        tierOpt: t("tierOpt"), useGps: t("useGps"), confirm: t("confirm"),
+        tierOpt: t("tierOpt"), tierBase: t("tierBase"), useGps: t("useGps"), confirm: t("confirm"),
         cancel: t("cancel"), empty: t("empty"), clients: t("clients"),
         qrReady: t("qrReady"), pendingSync: t("pendingSync"), another: t("another"),
         saveQr: t("saveQr"), qrSaved: t("qrSaved"), qrShared: t("qrShared"), qrSaveFail: t("qrSaveFail"),

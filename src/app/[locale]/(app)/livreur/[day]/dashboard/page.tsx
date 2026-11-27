@@ -174,7 +174,7 @@ export default async function LivreurDashPage({
         syncNativeTitle: tc("nativeTitle"), syncNativeGo: tc("nativeGo"),
         newClient: t("newClient"), clientName: t("clientName"), phoneOpt: t("phoneOpt"), addressOpt: t("addressOpt"),
         activityOpt: t("activityOpt"), wilayaOpt: t("wilayaOpt"), secteurOpt: t("secteurOpt"),
-        tierOpt: t("tierOpt"), useGps: t("useGps"), confirm: t("confirm"),
+        tierOpt: t("tierOpt"), tierBase: t("tierBase"), useGps: t("useGps"), confirm: t("confirm"),
         qrReady: t("qrReady"), pendingSync: t("pendingSync"), another: t("another"),
         saveQr: t("saveQr"), qrSaved: t("qrSaved"), qrShared: t("qrShared"), qrSaveFail: t("qrSaveFail"),
         secteurOffline: t("secteurOffline"), errOutsideArea: t("errOutsideArea"), errAreaRequired: t("errAreaRequired"), startDay: t("startDay"), finishDay: t("finishDay"), elapsed: t("elapsed"),

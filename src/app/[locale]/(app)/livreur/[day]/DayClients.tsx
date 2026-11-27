@@ -766,7 +766,6 @@ export function DayClients({
           companyId={companyId}
           wilayas={refs.wilayas}
           secteurs={refs.secteurs}
-          tiers={refs.tiers}
           labels={labels}
           areaScope={areaScope}
           defaultSecteurId={tourSecteurId}

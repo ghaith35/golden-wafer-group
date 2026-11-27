@@ -120,7 +120,7 @@ export default async function LivreurDayPage({
         newSale: t("newSale"), viewClient: tv("view"), callClient: t("callClient"), tourOf: t.raw("tourOf") as string,
         newClient: t("newClient"), phoneOpt: t("phoneOpt"), addressOpt: t("addressOpt"),
         activityOpt: t("activityOpt"), wilayaOpt: t("wilayaOpt"), secteurOpt: t("secteurOpt"),
-        tierOpt: t("tierOpt"), useGps: t("useGps"), confirm: t("confirm"),
+        tierOpt: t("tierOpt"), tierBase: t("tierBase"), useGps: t("useGps"), confirm: t("confirm"),
         cancel: t("cancel"), close: t("cancel"),
         qrReady: t("qrReady"), pendingSync: t("pendingSync"), another: t("another"),
         saveQr: t("saveQr"), qrSaved: t("qrSaved"), qrShared: t("qrShared"), qrSaveFail: t("qrSaveFail"),
