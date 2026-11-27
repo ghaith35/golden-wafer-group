@@ -3,10 +3,13 @@
 import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  ArrowRight, Banknote, CalendarClock, ClipboardList, Gift, Lock, MapPin, Navigation, Phone,
+  ArrowRight, Banknote, ChevronRight, CalendarClock, ClipboardList, Gift, Lock, MapPin, Navigation, Phone,
   Plus, ReceiptText, RefreshCw, Store, TrendingDown, TrendingUp, Trophy, Wallet,
 } from "lucide-react";
 import { ClosedShopButton, useClosedIds } from "@/components/livreur/ClosedShopButton";
+import { InvoiceSheet } from "@/components/livreur/InvoiceSheet";
+import type { TicketLabels } from "@/components/sales/TicketView";
+import { haptic } from "@/lib/motion";
 import { OnlineBadge } from "@/components/sync/OnlineBadge";
 import { getLastSync, getPendingClients, goPage, pendingCount, syncNow } from "@/lib/sync/client";
 import { dzMoney, fmtDT } from "@/lib/format";
@@ -45,6 +48,10 @@ export function ClientView({
   hasStarted,
   role,
   labels,
+  invLabels,
+  ticketLabels,
+  ticketLang,
+  driver,
 }: {
   locale: string;
   day: string;
@@ -56,10 +63,16 @@ export function ClientView({
   hasStarted: boolean;
   role: string;
   labels: Labels;
+  invLabels: Labels;
+  ticketLabels: TicketLabels;
+  ticketLang: "ar" | "fr";
+  driver: { fullName: string; phone: string | null } | null;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const [filtering, startFilter] = useTransition();
+  /// Invoice popup: the sheet stays mounted so it can animate out.
+  const [invoiceId, setInvoiceId] = useState<string | null>(null);
   const loc = `${locale}-u-nu-latn`;
   const closedState = useClosedIds(closed ? [clientId, ...closedToday] : closedToday);
   const isClosed = closedState.ids.has(clientId);
@@ -401,10 +414,19 @@ export function ClientView({
                     {stats.recent.map((s) => {
                       const rest = Math.max(0, s.total - s.paid);
                       return (
-                        <li key={s.id} className="rounded-2xl border border-(--border-default) bg-(--bg-surface) p-3">
+                        <li key={s.id}>
+                          <button
+                            type="button"
+                            onClick={() => { haptic("tap"); setInvoiceId(s.id); }}
+                            title={labels.tapHint}
+                            className="group block w-full rounded-2xl border border-(--border-default) bg-(--bg-surface) p-3 text-start transition hover:-translate-y-0.5 hover:border-(--brand-500)/60 hover:shadow-md active:scale-[0.99]"
+                          >
                           <div className="flex items-center justify-between gap-2">
                             <span className="min-w-0 truncate font-mono text-xs font-black" dir="ltr">{s.number}</span>
-                            <span className="shrink-0 text-base font-black tabular-nums" dir="ltr">{dzMoney(s.total)}</span>
+                            <span className="flex shrink-0 items-center gap-1">
+                              <span className="text-base font-black tabular-nums" dir="ltr">{dzMoney(s.total)}</span>
+                              <ChevronRight size={16} className="opacity-40 transition group-hover:translate-x-0.5 group-hover:opacity-80 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
+                            </span>
                           </div>
                           <div className="mt-1 flex flex-wrap items-center justify-between gap-1.5 text-[11px] font-bold">
                             <span className="opacity-60">{fmtDT(s.date, loc)}</span>
@@ -417,6 +439,7 @@ export function ClientView({
                               )}
                             </span>
                           </div>
+                          </button>
                         </li>
                       );
                     })}
@@ -427,6 +450,15 @@ export function ClientView({
           ) : null}
         </>
       )}
+      <InvoiceSheet
+        saleId={invoiceId}
+        locale={locale}
+        labels={invLabels}
+        ticketLabels={ticketLabels}
+        ticketLang={ticketLang}
+        driver={driver}
+        onClose={() => setInvoiceId(null)}
+      />
     </div>
   );
 }

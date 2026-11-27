@@ -7,6 +7,7 @@ import { parseDay } from "../../../_days";
 import { todayJourneeTour } from "@/lib/tournees/journee-today";
 import { closedClientIdsToday } from "@/lib/closed-visits/service";
 import { loadClientStats } from "@/lib/livreur/client-stats";
+import { getOrCreateSettings } from "@/lib/settings/helpers";
 import { ClientView } from "./ClientView";
 
 /// Client display: one responsive screen with everything about a client —
@@ -32,6 +33,13 @@ export default async function LivreurClientPage({
   const t = await getTranslations("livreur");
   const tv = await getTranslations("clientView");
   const tc = await getTranslations("sync");
+  const ts = await getTranslations("sales");
+  const tcm = await getTranslations("common");
+  // Ticket language is an admin setting, independent of the UI locale.
+  const settings = await getOrCreateSettings(session.companyId);
+  const ticketLang = settings.ticketLang === "ar" ? "ar" : "fr";
+  const tt = await getTranslations({ locale: ticketLang, namespace: "sales" });
+  const driver = await prisma.user.findFirst({ where: { id: session.userId, companyId: session.companyId }, select: { fullName: true, phone: true } });
 
   // A client registered on this phone and not synced yet has no server row:
   // the view resolves it on-device and shows an empty history.
@@ -77,6 +85,22 @@ export default async function LivreurClientPage({
       closedToday={closedToday}
       hasStarted={!!jTour?.startedAt && !jTour?.finishedAt}
       role={session.role}
+      ticketLang={ticketLang}
+      driver={driver}
+      ticketLabels={{
+        total: tt("total"), paid: tt("paid"), due: tt("due"), remise: tt("remise"),
+        thanks: tt("thanks"), seller: tt("seller"), client: tt("client"), share: tt("share"),
+        copied: tt("copied"), shareFail: tt("shareFail"), printFail: tt("printFail"),
+        pdfSaved: tt("pdfSaved"), pdfShared: tt("pdfShared"), pdfPreview: tt("pdfPreview"), save: tcm("save"),
+        packs: tt("packs"), articles: tt("articles"), oldDebt: tt("oldDebt"), newDebt: tt("newDebt"),
+        design: tt("product"), qty: tt("qty"), price: tt("price"), unitPrice: tt("unitPrice"),
+      }}
+      invLabels={{
+        invoiceTitle: tv("invoiceTitle"), invUnpaid: tv("invUnpaid"), invPartial: tv("invPartial"), invRetry: tv("invRetry"), invItems: tv("invItems"),
+        total: t("total"), paid: t("paid"), print: t("print"), invClose: t("invClose"), invRemaining: t("invRemaining"),
+        invSettled: t("invSettled"), invPieces: t("invPieces"), invNoLines: t("invNoLines"), notes: t("notes"),
+        staleData: t("staleData"), callClient: t("callClient"), remise: ts("remise"), packs: ts("packs"), offline: tcm("offline"),
+      }}
       labels={{
         online: t("online"), offline: t("offline"),
         back: tv("back"), view: tv("view"),
@@ -94,7 +118,7 @@ export default async function LivreurClientPage({
         invoicesTitle: tv("invoicesTitle"), noInvoices: tv("noInvoices"), paid: tv("paid"), due: tv("due"), onHold: tv("onHold"),
         phone: tv("phone"), address: tv("address"), sector: tv("sector"), activity: tv("activity"), tier: tv("tier"),
         since: tv("since"), navigate: tv("navigate"), unsynced: tv("unsynced"), units: tv("units"),
-        thisMonth: tv("thisMonth"), all: tv("all"), offers: tv("offers"), period: tv("period"),
+        thisMonth: tv("thisMonth"), all: tv("all"), offers: tv("offers"), period: tv("period"), tapHint: tv("tapHint"),
       }}
     />
   );
