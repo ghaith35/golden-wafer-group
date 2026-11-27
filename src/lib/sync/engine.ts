@@ -503,8 +503,16 @@ async function applyOp(
       // Van expense entered on the phone (fuel…): lands in company expenses
       // with the van link, so it shows in the logiciel + the day till math.
       const amount = Number(p.amount);
-      const label = String(p.label ?? "").trim();
+      let label = String(p.label ?? "").trim();
       if (!Number.isFinite(amount) || amount <= 0) throw Object.assign(new Error("bad_amount"), { status: 400 });
+      // Expense type (the required pick on the phone). Older queued ops have
+      // no type and keep their free-text label.
+      const typeId = typeof p.typeId === "string" && p.typeId ? p.typeId : null;
+      if (typeId) {
+        const et = await prisma.expenseType.findFirst({ where: { id: typeId, companyId }, select: { name: true } });
+        if (!et) throw Object.assign(new Error("bad_type"), { status: 400 });
+        if (!label) label = et.name;
+      }
       if (!label) throw Object.assign(new Error("bad_label"), { status: 400 });
       const season = await ensureSeasonFor(companyId, occurredAt);
       const vanLoc = ((p.vanId as string) ?? vanId) as string | null;
@@ -516,8 +524,12 @@ async function applyOp(
         data: {
           companyId, seasonId: season.id,
           locationId: vanLoc ?? null,
+          typeId,
           label: label.slice(0, 120),
-          description: typeof p.notes === "string" && p.notes.trim() ? p.notes.trim().slice(0, 500) : null,
+          description: (() => {
+            const n = typeof p.description === "string" ? p.description : typeof p.notes === "string" ? p.notes : "";
+            return n.trim() ? n.trim().slice(0, 500) : null;
+          })(),
           amount,
           expenseDate: validExpenseDay(p.expenseDate) ?? occurredAt,
           opId: op.opId,
@@ -550,8 +562,14 @@ async function applyOp(
           await prisma.expense.update({ where: { id: target.id }, data: { deletedAt: occurredAt } });
         }
       } else {
-        const patch: { label?: string; amount?: number; expenseDate?: Date } = {};
+        const patch: { label?: string; amount?: number; expenseDate?: Date; typeId?: string | null; description?: string | null } = {};
         if (typeof p.label === "string" && p.label.trim()) patch.label = p.label.trim().slice(0, 120);
+        if (typeof p.typeId === "string" && p.typeId) {
+          const et = await prisma.expenseType.findFirst({ where: { id: p.typeId, companyId }, select: { id: true } });
+          if (!et) throw Object.assign(new Error("bad_type"), { status: 400 });
+          patch.typeId = et.id;
+        }
+        if (typeof p.description === "string") patch.description = p.description.trim() ? p.description.trim().slice(0, 500) : null;
         if (p.amount != null) {
           const a = Number(p.amount);
           if (!Number.isFinite(a) || a <= 0) throw Object.assign(new Error("bad_amount"), { status: 400 });

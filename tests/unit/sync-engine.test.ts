@@ -22,6 +22,7 @@ vi.mock("@/lib/db", () => ({
     versement: { findFirst: vi.fn(async () => null) },
     clientReturn: { findFirst: vi.fn(async () => null) },
     transfer: { findMany: vi.fn(async () => []), findFirst: vi.fn(async () => null) },
+    expenseType: { findFirst: vi.fn(async () => null) },
     expense: { create: vi.fn(), findFirst: vi.fn(async () => null), update: vi.fn(async (a: any) => ({ id: a?.where?.id ?? "exp1" })) },
     stockBatch: { groupBy: vi.fn(async () => []) },
     tournee: { findMany: vi.fn(async () => []) },
@@ -151,6 +152,34 @@ describe("handleSync — phone with new data", () => {
     (prisma.expense.create as any).mockClear();
     const res2 = await handleSync({ deviceToken: TOKEN, ops: [op] } as any);
     expect(res2.applied[0]).toMatchObject({ opId: "op-expense-0001", ok: true });
+    expect(prisma.expense.create).not.toHaveBeenCalled();
+  });
+
+  it("expense op with a type stores typeId + the optional note, label defaults to the type name", async () => {
+    (ensureSeasonFor as any).mockResolvedValue({ id: "season1" });
+    (prisma.store.findFirst as any).mockResolvedValue({ id: "van1" });
+    (prisma.expenseType.findFirst as any).mockResolvedValue({ name: "Carburant" });
+    (prisma.expense.create as any).mockResolvedValue({ id: "exp2" });
+    const res = await handleSync({
+      deviceToken: TOKEN,
+      ops: [{ opId: "op-expense-0002", kind: "expense", payload: { typeId: "t1", description: "station Hassi", amount: 1500 } }],
+    } as any);
+    expect(res.applied[0]).toMatchObject({ ok: true, id: "exp2" });
+    expect(prisma.expense.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ typeId: "t1", label: "Carburant", description: "station Hassi" }) })
+    );
+  });
+
+  it("expense op with a foreign/unknown type is rejected", async () => {
+    (ensureSeasonFor as any).mockResolvedValue({ id: "season1" });
+    (prisma.store.findFirst as any).mockResolvedValue({ id: "van1" });
+    (prisma.expenseType.findFirst as any).mockResolvedValue(null);
+    (prisma.expense.create as any).mockClear();
+    const res = await handleSync({
+      deviceToken: TOKEN,
+      ops: [{ opId: "op-expense-0003", kind: "expense", payload: { typeId: "other-co", label: "x", amount: 10 } }],
+    } as any);
+    expect(res.applied[0]).toMatchObject({ ok: false, error: "bad_type" });
     expect(prisma.expense.create).not.toHaveBeenCalled();
   });
 

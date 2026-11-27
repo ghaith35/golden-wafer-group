@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { ExpenseTypePicker, expenseTypeStyle, type ExpenseTypeOpt } from "@/components/expenses/ExpenseTypePicker";
 import { OnlineBadge } from "@/components/sync/OnlineBadge";
 import { UnsyncedBadge } from "@/components/sync/UnsyncedBadge";
 import {
@@ -22,6 +23,8 @@ import { useSyncedState } from "@/lib/data-sync";
 type ServerRow = {
   id: string;
   label: string;
+  typeId?: string | null;
+  description?: string | null;
   amount: unknown;
   expenseDate: string;
   opId: string | null;
@@ -36,6 +39,8 @@ type ViewRow = {
   updateOpId: string | null;
   deleteOpId: string | null;
   label: string;
+  typeId: string | null;
+  note: string;
   amount: number;
   date: string; // YYYY-MM-DD
   pending: boolean;
@@ -46,6 +51,17 @@ const EXPENSE_KINDS = new Set(["expense", "expense-update", "expense-delete"]);
 function dayOf(v: unknown, fallback: string): string {
   if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0, 10);
   return fallback;
+}
+
+const TYPES_CACHE = "gw-expense-types";
+/// Offline: the page props are gone, so the last known type list is kept here.
+function readTypesCache(): ExpenseTypeOpt[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(TYPES_CACHE) ?? "[]");
+    return Array.isArray(v) ? v.filter((x) => x && typeof x.id === "string" && typeof x.name === "string") : [];
+  } catch {
+    return [];
+  }
 }
 
 function todayLocal(): string {
@@ -68,6 +84,7 @@ export function VanExpensesClient({
   vanId,
   vanName,
   rows,
+  types,
   labels,
 }: {
   locale: string;
@@ -75,6 +92,7 @@ export function VanExpensesClient({
   vanId: string;
   vanName: string;
   rows: ServerRow[];
+  types: ExpenseTypeOpt[];
   labels: Record<string, string>;
 }) {
   const router = useRouter();
@@ -82,12 +100,22 @@ export function VanExpensesClient({
   const [pending, setPending] = useState<PendingOp[]>([]);
   const [online, setOnline] = useState(true);
 
-  const [label, setLabel] = useState("");
+  const [cachedTypes] = useState<ExpenseTypeOpt[]>(() => (typeof window === "undefined" ? [] : readTypesCache()));
+  const typeList = types.length ? types : cachedTypes;
+  useEffect(() => {
+    if (!types.length) return;
+    try { localStorage.setItem(TYPES_CACHE, JSON.stringify(types)); } catch { /* storage full / blocked */ }
+  }, [types]);
+  const typeName = (id: string | null | undefined) => (id ? typeList.find((x) => x.id === id)?.name ?? null : null);
+
+  const [typeId, setTypeId] = useState("");
+  const [note, setNote] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(todayLocal);
 
   const [editingKey, setEditingKey] = useState<string | null>(null);
-  const [fLabel, setFLabel] = useState("");
+  const [fTypeId, setFTypeId] = useState("");
+  const [fNote, setFNote] = useState("");
   const [fAmount, setFAmount] = useState("");
   const [fDate, setFDate] = useState(todayLocal());
   const [confirming, setConfirming] = useState<string | null>(null);
@@ -143,6 +171,8 @@ export function VanExpensesClient({
         updateOpId: null,
         deleteOpId: null,
         label: r.label,
+        typeId: r.typeId ?? null,
+        note: r.description ?? "",
         amount: Number(r.amount ?? 0),
         date: dayOf(r.expenseDate, todayLocal()),
         pending: false,
@@ -166,6 +196,8 @@ export function VanExpensesClient({
           updateOpId: null,
           deleteOpId: null,
           label: String(p.label ?? ""),
+          typeId: typeof p.typeId === "string" && p.typeId ? p.typeId : null,
+          note: typeof p.description === "string" ? p.description : "",
           amount: Number(p.amount ?? 0),
           date: dayOf(p.expenseDate, todayLocal()),
           pending: true,
@@ -181,6 +213,8 @@ export function VanExpensesClient({
         if (o.kind === "expense-update") {
           target.updateOpId = o.opId;
           if (typeof p.label === "string" && p.label) target.label = p.label;
+          if (typeof p.typeId === "string" && p.typeId) target.typeId = p.typeId;
+          if (typeof p.description === "string") target.note = p.description;
           if (p.amount != null && Number.isFinite(Number(p.amount))) target.amount = Number(p.amount);
           const d = dayOf(p.expenseDate, "");
           if (d) target.date = d;
@@ -196,7 +230,8 @@ export function VanExpensesClient({
 
   function openEdit(row: ViewRow) {
     setEditingKey(row.key);
-    setFLabel(row.label);
+    setFTypeId(row.typeId ?? "");
+    setFNote(row.note);
     setFAmount(String(row.amount));
     setFDate(row.date);
     setConfirming(null);
@@ -216,14 +251,22 @@ export function VanExpensesClient({
     }
   }
 
+  function resetCreate() {
+    setTypeId("");
+    setNote("");
+    setAmount("");
+    setDate(todayLocal());
+  }
+
   async function submitCreate() {
-    const l = label.trim();
+    const tName = typeName(typeId);
     const a = Number(amount);
-    if (!l || !(a > 0) || busy) return;
+    if (!typeId || !tName || !(a > 0) || busy) return;
     setBusy(true);
     setErr(null);
     setOkMsg(null);
-    const body = { label: l, amount: a, expenseDate: date, vanId };
+    // The stored label is the type name; the optional note goes to the description.
+    const body = { label: tName, typeId, description: note.trim() || null, amount: a, expenseDate: date, vanId };
     try {
       const res = await fetch("/api/expenses", {
         method: "POST",
@@ -232,16 +275,12 @@ export function VanExpensesClient({
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(String((await res.json().catch(() => null))?.error ?? res.status));
-      setLabel("");
-      setAmount("");
-      setDate(todayLocal());
+      resetCreate();
       await reload();
     } catch {
       try {
         await queueOp("expense", { ...body });
-        setLabel("");
-        setAmount("");
-        setDate(todayLocal());
+        resetCreate();
         setOkMsg(labels.queuedOk);
         await reload();
       } catch {
@@ -253,16 +292,23 @@ export function VanExpensesClient({
   }
 
   async function submitEdit(row: ViewRow) {
-    const l = fLabel.trim();
+    // Rows from before types existed may stay type-less; any other row needs one.
+    const legacy = !row.typeId;
+    const tName = typeName(fTypeId);
     const a = Number(fAmount);
-    if (!l || !(a > 0) || busy) {
-      if (!l || !(a > 0)) setErr(labels.failed);
+    if ((!fTypeId && !legacy) || !(a > 0) || busy) {
+      if ((!fTypeId && !legacy) || !(a > 0)) setErr(labels.failed);
       return;
     }
     setBusy(true);
     setErr(null);
     setOkMsg(null);
-    const vals = { label: l, amount: a, expenseDate: fDate };
+    const vals = {
+      ...(fTypeId && tName ? { label: tName, typeId: fTypeId } : {}),
+      description: fNote.trim(),
+      amount: a,
+      expenseDate: fDate,
+    };
     try {
       if (row.updateOpId) {
         // Still-unsynced follow-up: rewrite the queued update in place.
@@ -386,10 +432,14 @@ export function VanExpensesClient({
 
       {/* create */}
       <div className="space-y-3 rounded-2xl border border-(--border-default) bg-(--bg-overlay) p-4 shadow-sm">
-        <div>
-          <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.expenseLabel}</label>
-          <Input value={label} onChange={(e) => setLabel(e.target.value)} maxLength={120} />
-        </div>
+        <ExpenseTypePicker
+          types={typeList}
+          value={typeId}
+          onChange={setTypeId}
+          label={labels.expenseTypes}
+          required
+          emptyText={labels.expenseNoTypes}
+        />
         <div className="grid grid-cols-2 gap-2">
           <div>
             <label className="mb-1 block text-xs font-bold uppercase opacity-60">{labels.amount}</label>
@@ -408,9 +458,16 @@ export function VanExpensesClient({
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} dir="ltr" />
           </div>
         </div>
+        <div>
+          <label className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase opacity-60">
+            {labels.expenseNote}
+            <span className="rounded-full bg-(--bg-sunken) px-1.5 py-px text-[10px] font-bold normal-case opacity-80">{labels.expenseOptional}</span>
+          </label>
+          <Input value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} placeholder={labels.expenseNotePh} />
+        </div>
         {err && <p role="alert" className="rounded-xl bg-red-500/10 p-2.5 text-sm font-bold text-red-500">{err}</p>}
         {okMsg && <p className="rounded-xl bg-emerald-500/10 p-2.5 text-sm font-bold text-emerald-600">{okMsg}</p>}
-        <Button onClick={() => void submitCreate()} disabled={busy || !label.trim() || !(Number(amount) > 0)} className="h-12 w-full text-base">
+        <Button onClick={() => void submitCreate()} disabled={busy || !typeId || !(Number(amount) > 0)} className="h-12 w-full text-base">
           {busy ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
           {labels.save}
         </Button>
@@ -438,8 +495,18 @@ export function VanExpensesClient({
               )}
             >
               <div className="flex items-center gap-2">
+                {(() => {
+                  const nm = typeName(r.typeId) ?? r.label;
+                  const { Icon, tone } = expenseTypeStyle(nm);
+                  return (
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: `${tone}22`, color: tone }}>
+                      <Icon size={19} />
+                    </span>
+                  );
+                })()}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-black" dir="auto">{r.label}</p>
+                  <p className="truncate text-sm font-black" dir="auto">{typeName(r.typeId) ?? r.label}</p>
+                  {r.note && <p className="truncate text-xs font-bold opacity-70" dir="auto">{r.note}</p>}
                   <p className="mt-0.5 flex items-center gap-2 text-[11px] font-bold opacity-60">
                     <span className="tabular-nums" dir="ltr">{fmtDay(r.date)}</span>
                     {r.pending && <UnsyncedBadge />}
@@ -478,7 +545,15 @@ export function VanExpensesClient({
 
               {editingKey === r.key && (
                 <div className="mt-3 space-y-2 border-t border-(--border-subtle) pt-3">
-                  <Input value={fLabel} onChange={(e) => setFLabel(e.target.value)} maxLength={120} />
+                  <ExpenseTypePicker
+                    compact
+                    types={typeList}
+                    value={fTypeId}
+                    onChange={setFTypeId}
+                    label={labels.expenseTypes}
+                    required={!!r.typeId}
+                    emptyText={labels.expenseNoTypes}
+                  />
                   <div className="grid grid-cols-2 gap-2">
                     <Input
                       type="number"
@@ -491,6 +566,7 @@ export function VanExpensesClient({
                     />
                     <Input type="date" value={fDate} onChange={(e) => setFDate(e.target.value)} dir="ltr" />
                   </div>
+                  <Input value={fNote} onChange={(e) => setFNote(e.target.value)} maxLength={500} placeholder={`${labels.expenseNote} (${labels.expenseOptional})`} />
                   <div className="flex gap-2">
                     <Button variant="secondary" onClick={() => setEditingKey(null)} className="flex-1">
                       {labels.cancel}

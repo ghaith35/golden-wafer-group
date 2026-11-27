@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getLivreurVan } from "../../_data";
 import { parseDay } from "../../_days";
+import { SALARY_TYPE_NAME } from "@/lib/employees/service";
 import { VanExpensesClient } from "./VanExpensesClient";
 
 /// Van expenses section (both staff roles, own van only): list + create +
@@ -27,11 +28,19 @@ export default async function LivreurExpensesPage({
   const van = await getLivreurVan(session.companyId, session.userId);
   if (!van) redirect(`/${locale}/livreur`);
 
-  const rows = await prisma.expense.findMany({
-    where: { companyId: session.companyId, locationId: van.id, deletedAt: null },
-    orderBy: { expenseDate: "desc" },
-    take: 200,
-  });
+  const [rows, types] = await Promise.all([
+    prisma.expense.findMany({
+      where: { companyId: session.companyId, locationId: van.id, deletedAt: null },
+      orderBy: { expenseDate: "desc" },
+      take: 200,
+    }),
+    // Payroll's auto-created "Salaires" type is not something a driver books.
+    prisma.expenseType.findMany({
+      where: { companyId: session.companyId, isActive: true, name: { not: SALARY_TYPE_NAME } },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+  ]);
 
   return (
     <VanExpensesClient
@@ -40,9 +49,15 @@ export default async function LivreurExpensesPage({
       vanId={van.id}
       vanName={van.name}
       rows={JSON.parse(JSON.stringify(rows))}
+      types={types}
       labels={{
         title: t("expense"),
-        expenseLabel: t("expenseLabel"),
+        expenseNote: t("expenseNote"),
+        expenseTypes: t("expenseTypes"),
+        expenseOptional: t("expenseOptional"),
+        expensePickType: t("expensePickType"),
+        expenseNoTypes: t("expenseNoTypes"),
+        expenseNotePh: t("expenseNotePh"),
         amount: tm("amount"),
         date: tc("date"),
         save: tc("save"),
