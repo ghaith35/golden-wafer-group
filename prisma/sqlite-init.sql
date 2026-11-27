@@ -1254,3 +1254,73 @@ CREATE INDEX "van_positions_vanId_recordedAt_idx" ON "van_positions"("vanId", "r
 
 -- CreateIndex
 CREATE INDEX "van_positions_companyId_recordedAt_idx" ON "van_positions"("companyId", "recordedAt");
+
+-- CreateTable
+CREATE TABLE "employees" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "companyId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "salary" DECIMAL NOT NULL DEFAULT 0,
+    "hireDate" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "endDate" DATETIME,
+    "position" TEXT,
+    "nationalId" TEXT,
+    "notes" TEXT,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "employees_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "employees_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "employee_advances" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "companyId" TEXT NOT NULL,
+    "employeeId" TEXT NOT NULL,
+    "amount" DECIMAL NOT NULL,
+    "remaining" DECIMAL NOT NULL,
+    "date" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "note" TEXT,
+    "expenseId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "employee_advances_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "employees" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "payslips" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "companyId" TEXT NOT NULL,
+    "employeeId" TEXT NOT NULL,
+    "year" INTEGER NOT NULL,
+    "month" INTEGER NOT NULL,
+    "baseSalary" DECIMAL NOT NULL,
+    "bonus" DECIMAL NOT NULL DEFAULT 0,
+    "deduction" DECIMAL NOT NULL DEFAULT 0,
+    "deductionNote" TEXT,
+    "advancesDeducted" DECIMAL NOT NULL DEFAULT 0,
+    "net" DECIMAL NOT NULL,
+    "paidAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expenseId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "payslips_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "employees" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "employees_userId_key" ON "employees"("userId");
+
+-- CreateIndex
+CREATE INDEX "employees_companyId_isActive_idx" ON "employees"("companyId", "isActive");
+
+-- CreateIndex
+CREATE INDEX "employee_advances_employeeId_date_idx" ON "employee_advances"("employeeId", "date");
+
+-- CreateIndex
+CREATE INDEX "employee_advances_companyId_date_idx" ON "employee_advances"("companyId", "date");
+
+-- CreateIndex
+CREATE INDEX "payslips_companyId_year_month_idx" ON "payslips"("companyId", "year", "month");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "payslips_employeeId_year_month_key" ON "payslips"("employeeId", "year", "month");
+

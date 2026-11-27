@@ -758,6 +758,50 @@ exports.Prisma.ExpenseScalarFieldEnum = {
   opId: 'opId'
 };
 
+exports.Prisma.EmployeeScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  userId: 'userId',
+  salary: 'salary',
+  hireDate: 'hireDate',
+  endDate: 'endDate',
+  position: 'position',
+  nationalId: 'nationalId',
+  notes: 'notes',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EmployeeAdvanceScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  employeeId: 'employeeId',
+  amount: 'amount',
+  remaining: 'remaining',
+  date: 'date',
+  note: 'note',
+  expenseId: 'expenseId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PayslipScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  employeeId: 'employeeId',
+  year: 'year',
+  month: 'month',
+  baseSalary: 'baseSalary',
+  bonus: 'bonus',
+  deduction: 'deduction',
+  deductionNote: 'deductionNote',
+  advancesDeducted: 'advancesDeducted',
+  net: 'net',
+  paidAt: 'paidAt',
+  expenseId: 'expenseId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.VersementScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
@@ -979,6 +1023,9 @@ exports.Prisma.ModelName = {
   SupplierReturn: 'SupplierReturn',
   SupplierReturnLine: 'SupplierReturnLine',
   Expense: 'Expense',
+  Employee: 'Employee',
+  EmployeeAdvance: 'EmployeeAdvance',
+  Payslip: 'Payslip',
   Versement: 'Versement',
   DailyClose: 'DailyClose',
   Deposit: 'Deposit',

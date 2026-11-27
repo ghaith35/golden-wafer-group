@@ -60,6 +60,7 @@ model Company {
   tournees         Tournee[]
   tourneePlans     TourneePlan[]
   expenses         Expense[]
+  employees        Employee[]
   versements       Versement[]
   distances        ClientDistance[]
   deposits         Deposit[]
@@ -235,6 +236,7 @@ model User {
   devices      Device[]
   closedVisits ClosedVisit[]
   createdSales Sale[]   @relation("CreatedSales")
+  employee     Employee?
 
   @@unique([companyId, username])
   @@map("users")
@@ -1210,6 +1212,77 @@ model Expense {
   @@index([companyId, typeId])
   @@unique([companyId, opId])
   @@map("expenses")
+}
+
+// ─── Employees (payroll) ─────────────────────────────────────────────────────
+
+/// A staff user who is on the payroll (some drivers are not employees).
+/// isActive=false keeps history but drops the person from payroll.
+model Employee {
+  id         String    @id @default(cuid())
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId     String    @unique
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Fixed monthly salary.
+  salary     Decimal   @default(0)
+  hireDate   DateTime  @default(now())
+  endDate    DateTime?
+  position   String?
+  nationalId String?
+  notes      String?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  advances EmployeeAdvance[]
+  payslips Payslip[]
+
+  @@index([companyId, isActive])
+  @@map("employees")
+}
+
+/// Salary advance (سلفة). `remaining` shrinks as payslips deduct it (FIFO).
+/// expenseId is a plain scalar (no FK): history must survive expense cleanup.
+model EmployeeAdvance {
+  id         String   @id @default(cuid())
+  companyId  String
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  amount     Decimal
+  remaining  Decimal
+  date       DateTime @default(now())
+  note       String?
+  expenseId  String?
+  createdAt  DateTime @default(now())
+
+  @@index([employeeId, date])
+  @@index([companyId, date])
+  @@map("employee_advances")
+}
+
+/// A PAID month for one employee (one row per employee+month, so a month can
+/// never be paid twice). Previews are computed live and never stored.
+model Payslip {
+  id               String   @id @default(cuid())
+  companyId        String
+  employeeId       String
+  employee         Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  year             Int
+  month            Int
+  baseSalary       Decimal
+  bonus            Decimal  @default(0)
+  deduction        Decimal  @default(0)
+  deductionNote    String?
+  advancesDeducted Decimal  @default(0)
+  net              Decimal
+  paidAt           DateTime @default(now())
+  expenseId        String?
+  createdAt        DateTime @default(now())
+
+  @@unique([employeeId, year, month])
+  @@index([companyId, year, month])
+  @@map("payslips")
 }
 
 // ─── Cash ────────────────────────────────────────────────────────────────────

@@ -282,6 +282,24 @@ export type SupplierReturnLine = $Result.DefaultSelection<Prisma.$SupplierReturn
  */
 export type Expense = $Result.DefaultSelection<Prisma.$ExpensePayload>
 /**
+ * Model Employee
+ * A staff user who is on the payroll (some drivers are not employees).
+ * isActive=false keeps history but drops the person from payroll.
+ */
+export type Employee = $Result.DefaultSelection<Prisma.$EmployeePayload>
+/**
+ * Model EmployeeAdvance
+ * Salary advance (سلفة). `remaining` shrinks as payslips deduct it (FIFO).
+ * expenseId is a plain scalar (no FK): history must survive expense cleanup.
+ */
+export type EmployeeAdvance = $Result.DefaultSelection<Prisma.$EmployeeAdvancePayload>
+/**
+ * Model Payslip
+ * A PAID month for one employee (one row per employee+month, so a month can
+ * never be paid twice). Previews are computed live and never stored.
+ */
+export type Payslip = $Result.DefaultSelection<Prisma.$PayslipPayload>
+/**
  * Model Versement
  * Cash-only money movements (per plan). Client/supplier payments move balances;
  * CASH_COLLECTION records van→depot handovers (auto-created on transfer confirm).
@@ -948,6 +966,36 @@ export class PrismaClient<
   get expense(): Prisma.ExpenseDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.employee`: Exposes CRUD operations for the **Employee** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Employees
+    * const employees = await prisma.employee.findMany()
+    * ```
+    */
+  get employee(): Prisma.EmployeeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.employeeAdvance`: Exposes CRUD operations for the **EmployeeAdvance** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmployeeAdvances
+    * const employeeAdvances = await prisma.employeeAdvance.findMany()
+    * ```
+    */
+  get employeeAdvance(): Prisma.EmployeeAdvanceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.payslip`: Exposes CRUD operations for the **Payslip** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Payslips
+    * const payslips = await prisma.payslip.findMany()
+    * ```
+    */
+  get payslip(): Prisma.PayslipDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.versement`: Exposes CRUD operations for the **Versement** model.
     * Example usage:
     * ```ts
@@ -1551,6 +1599,9 @@ export namespace Prisma {
     SupplierReturn: 'SupplierReturn',
     SupplierReturnLine: 'SupplierReturnLine',
     Expense: 'Expense',
+    Employee: 'Employee',
+    EmployeeAdvance: 'EmployeeAdvance',
+    Payslip: 'Payslip',
     Versement: 'Versement',
     DailyClose: 'DailyClose',
     Deposit: 'Deposit',
@@ -1577,7 +1628,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "userArea" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "productQtyTier" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem" | "closedVisit" | "closedVisitPhoto" | "tourneePlan" | "vanPosition"
+      modelProps: "company" | "companySettings" | "unit" | "priceTier" | "expenseType" | "wilaya" | "secteur" | "user" | "userArea" | "refreshToken" | "superAdminUser" | "superAdminAudit" | "store" | "transfer" | "transferLine" | "stockCount" | "stockCountLine" | "stockLoss" | "season" | "customer" | "supplier" | "productCategory" | "product" | "productImage" | "productUnitConversion" | "productTierPrice" | "productQtyTier" | "sale" | "saleLine" | "clientReturn" | "clientReturnLine" | "tournee" | "tourneeStop" | "machine" | "machineSubscription" | "blockedIp" | "licenseKey" | "trialIssue" | "tunnelSlot" | "clientDeployment" | "device" | "syncOp" | "purchaseInvoice" | "purchaseLine" | "stockBatch" | "supplierReturn" | "supplierReturnLine" | "expense" | "employee" | "employeeAdvance" | "payslip" | "versement" | "dailyClose" | "deposit" | "documentSequence" | "clientDistance" | "threePackRule" | "threePackItem" | "closedVisit" | "closedVisitPhoto" | "tourneePlan" | "vanPosition"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5133,6 +5184,228 @@ export namespace Prisma {
           }
         }
       }
+      Employee: {
+        payload: Prisma.$EmployeePayload<ExtArgs>
+        fields: Prisma.EmployeeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmployeeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmployeeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeePayload>
+          }
+          findFirst: {
+            args: Prisma.EmployeeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmployeeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeePayload>
+          }
+          findMany: {
+            args: Prisma.EmployeeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeePayload>[]
+          }
+          create: {
+            args: Prisma.EmployeeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeePayload>
+          }
+          createMany: {
+            args: Prisma.EmployeeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmployeeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeePayload>[]
+          }
+          delete: {
+            args: Prisma.EmployeeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeePayload>
+          }
+          update: {
+            args: Prisma.EmployeeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeePayload>
+          }
+          deleteMany: {
+            args: Prisma.EmployeeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmployeeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EmployeeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeePayload>[]
+          }
+          upsert: {
+            args: Prisma.EmployeeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeePayload>
+          }
+          aggregate: {
+            args: Prisma.EmployeeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmployee>
+          }
+          groupBy: {
+            args: Prisma.EmployeeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmployeeCountArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeCountAggregateOutputType> | number
+          }
+        }
+      }
+      EmployeeAdvance: {
+        payload: Prisma.$EmployeeAdvancePayload<ExtArgs>
+        fields: Prisma.EmployeeAdvanceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmployeeAdvanceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAdvancePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmployeeAdvanceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAdvancePayload>
+          }
+          findFirst: {
+            args: Prisma.EmployeeAdvanceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAdvancePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmployeeAdvanceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAdvancePayload>
+          }
+          findMany: {
+            args: Prisma.EmployeeAdvanceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAdvancePayload>[]
+          }
+          create: {
+            args: Prisma.EmployeeAdvanceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAdvancePayload>
+          }
+          createMany: {
+            args: Prisma.EmployeeAdvanceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmployeeAdvanceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAdvancePayload>[]
+          }
+          delete: {
+            args: Prisma.EmployeeAdvanceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAdvancePayload>
+          }
+          update: {
+            args: Prisma.EmployeeAdvanceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAdvancePayload>
+          }
+          deleteMany: {
+            args: Prisma.EmployeeAdvanceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmployeeAdvanceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EmployeeAdvanceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAdvancePayload>[]
+          }
+          upsert: {
+            args: Prisma.EmployeeAdvanceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAdvancePayload>
+          }
+          aggregate: {
+            args: Prisma.EmployeeAdvanceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmployeeAdvance>
+          }
+          groupBy: {
+            args: Prisma.EmployeeAdvanceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeAdvanceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmployeeAdvanceCountArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeAdvanceCountAggregateOutputType> | number
+          }
+        }
+      }
+      Payslip: {
+        payload: Prisma.$PayslipPayload<ExtArgs>
+        fields: Prisma.PayslipFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PayslipFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayslipPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PayslipFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayslipPayload>
+          }
+          findFirst: {
+            args: Prisma.PayslipFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayslipPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PayslipFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayslipPayload>
+          }
+          findMany: {
+            args: Prisma.PayslipFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayslipPayload>[]
+          }
+          create: {
+            args: Prisma.PayslipCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayslipPayload>
+          }
+          createMany: {
+            args: Prisma.PayslipCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PayslipCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayslipPayload>[]
+          }
+          delete: {
+            args: Prisma.PayslipDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayslipPayload>
+          }
+          update: {
+            args: Prisma.PayslipUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayslipPayload>
+          }
+          deleteMany: {
+            args: Prisma.PayslipDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PayslipUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PayslipUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayslipPayload>[]
+          }
+          upsert: {
+            args: Prisma.PayslipUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PayslipPayload>
+          }
+          aggregate: {
+            args: Prisma.PayslipAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePayslip>
+          }
+          groupBy: {
+            args: Prisma.PayslipGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PayslipGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PayslipCountArgs<ExtArgs>
+            result: $Utils.Optional<PayslipCountAggregateOutputType> | number
+          }
+        }
+      }
       Versement: {
         payload: Prisma.$VersementPayload<ExtArgs>
         fields: Prisma.VersementFieldRefs
@@ -6118,6 +6391,9 @@ export namespace Prisma {
     supplierReturn?: SupplierReturnOmit
     supplierReturnLine?: SupplierReturnLineOmit
     expense?: ExpenseOmit
+    employee?: EmployeeOmit
+    employeeAdvance?: EmployeeAdvanceOmit
+    payslip?: PayslipOmit
     versement?: VersementOmit
     dailyClose?: DailyCloseOmit
     deposit?: DepositOmit
@@ -6232,6 +6508,7 @@ export namespace Prisma {
     tournees: number
     tourneePlans: number
     expenses: number
+    employees: number
     versements: number
     distances: number
     deposits: number
@@ -6264,6 +6541,7 @@ export namespace Prisma {
     tournees?: boolean | CompanyCountOutputTypeCountTourneesArgs
     tourneePlans?: boolean | CompanyCountOutputTypeCountTourneePlansArgs
     expenses?: boolean | CompanyCountOutputTypeCountExpensesArgs
+    employees?: boolean | CompanyCountOutputTypeCountEmployeesArgs
     versements?: boolean | CompanyCountOutputTypeCountVersementsArgs
     distances?: boolean | CompanyCountOutputTypeCountDistancesArgs
     deposits?: boolean | CompanyCountOutputTypeCountDepositsArgs
@@ -6442,6 +6720,13 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountExpensesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ExpenseWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountEmployeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeWhereInput
   }
 
   /**
@@ -7670,6 +7955,46 @@ export namespace Prisma {
 
 
   /**
+   * Count Type EmployeeCountOutputType
+   */
+
+  export type EmployeeCountOutputType = {
+    advances: number
+    payslips: number
+  }
+
+  export type EmployeeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    advances?: boolean | EmployeeCountOutputTypeCountAdvancesArgs
+    payslips?: boolean | EmployeeCountOutputTypeCountPayslipsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * EmployeeCountOutputType without action
+   */
+  export type EmployeeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeCountOutputType
+     */
+    select?: EmployeeCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * EmployeeCountOutputType without action
+   */
+  export type EmployeeCountOutputTypeCountAdvancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeAdvanceWhereInput
+  }
+
+  /**
+   * EmployeeCountOutputType without action
+   */
+  export type EmployeeCountOutputTypeCountPayslipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PayslipWhereInput
+  }
+
+
+  /**
    * Count Type ThreePackRuleCountOutputType
    */
 
@@ -8042,6 +8367,7 @@ export namespace Prisma {
     tournees?: boolean | Company$tourneesArgs<ExtArgs>
     tourneePlans?: boolean | Company$tourneePlansArgs<ExtArgs>
     expenses?: boolean | Company$expensesArgs<ExtArgs>
+    employees?: boolean | Company$employeesArgs<ExtArgs>
     versements?: boolean | Company$versementsArgs<ExtArgs>
     distances?: boolean | Company$distancesArgs<ExtArgs>
     deposits?: boolean | Company$depositsArgs<ExtArgs>
@@ -8134,6 +8460,7 @@ export namespace Prisma {
     tournees?: boolean | Company$tourneesArgs<ExtArgs>
     tourneePlans?: boolean | Company$tourneePlansArgs<ExtArgs>
     expenses?: boolean | Company$expensesArgs<ExtArgs>
+    employees?: boolean | Company$employeesArgs<ExtArgs>
     versements?: boolean | Company$versementsArgs<ExtArgs>
     distances?: boolean | Company$distancesArgs<ExtArgs>
     deposits?: boolean | Company$depositsArgs<ExtArgs>
@@ -8172,6 +8499,7 @@ export namespace Prisma {
       tournees: Prisma.$TourneePayload<ExtArgs>[]
       tourneePlans: Prisma.$TourneePlanPayload<ExtArgs>[]
       expenses: Prisma.$ExpensePayload<ExtArgs>[]
+      employees: Prisma.$EmployeePayload<ExtArgs>[]
       versements: Prisma.$VersementPayload<ExtArgs>[]
       distances: Prisma.$ClientDistancePayload<ExtArgs>[]
       deposits: Prisma.$DepositPayload<ExtArgs>[]
@@ -8620,6 +8948,7 @@ export namespace Prisma {
     tournees<T extends Company$tourneesArgs<ExtArgs> = {}>(args?: Subset<T, Company$tourneesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tourneePlans<T extends Company$tourneePlansArgs<ExtArgs> = {}>(args?: Subset<T, Company$tourneePlansArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourneePlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     expenses<T extends Company$expensesArgs<ExtArgs> = {}>(args?: Subset<T, Company$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    employees<T extends Company$employeesArgs<ExtArgs> = {}>(args?: Subset<T, Company$employeesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     versements<T extends Company$versementsArgs<ExtArgs> = {}>(args?: Subset<T, Company$versementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VersementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     distances<T extends Company$distancesArgs<ExtArgs> = {}>(args?: Subset<T, Company$distancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClientDistancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     deposits<T extends Company$depositsArgs<ExtArgs> = {}>(args?: Subset<T, Company$depositsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepositPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -9630,6 +9959,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ExpenseScalarFieldEnum | ExpenseScalarFieldEnum[]
+  }
+
+  /**
+   * Company.employees
+   */
+  export type Company$employeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeInclude<ExtArgs> | null
+    where?: EmployeeWhereInput
+    orderBy?: EmployeeOrderByWithRelationInput | EmployeeOrderByWithRelationInput[]
+    cursor?: EmployeeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EmployeeScalarFieldEnum | EmployeeScalarFieldEnum[]
   }
 
   /**
@@ -17412,6 +17765,7 @@ export namespace Prisma {
     devices?: boolean | User$devicesArgs<ExtArgs>
     closedVisits?: boolean | User$closedVisitsArgs<ExtArgs>
     createdSales?: boolean | User$createdSalesArgs<ExtArgs>
+    employee?: boolean | User$employeeArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -17474,6 +17828,7 @@ export namespace Prisma {
     devices?: boolean | User$devicesArgs<ExtArgs>
     closedVisits?: boolean | User$closedVisitsArgs<ExtArgs>
     createdSales?: boolean | User$createdSalesArgs<ExtArgs>
+    employee?: boolean | User$employeeArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -17493,6 +17848,7 @@ export namespace Prisma {
       devices: Prisma.$DevicePayload<ExtArgs>[]
       closedVisits: Prisma.$ClosedVisitPayload<ExtArgs>[]
       createdSales: Prisma.$SalePayload<ExtArgs>[]
+      employee: Prisma.$EmployeePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -17925,6 +18281,7 @@ export namespace Prisma {
     devices<T extends User$devicesArgs<ExtArgs> = {}>(args?: Subset<T, User$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     closedVisits<T extends User$closedVisitsArgs<ExtArgs> = {}>(args?: Subset<T, User$closedVisitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClosedVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     createdSales<T extends User$createdSalesArgs<ExtArgs> = {}>(args?: Subset<T, User$createdSalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    employee<T extends User$employeeArgs<ExtArgs> = {}>(args?: Subset<T, User$employeeArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -18507,6 +18864,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SaleScalarFieldEnum | SaleScalarFieldEnum[]
+  }
+
+  /**
+   * User.employee
+   */
+  export type User$employeeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeInclude<ExtArgs> | null
+    where?: EmployeeWhereInput
   }
 
   /**
@@ -67287,6 +67663,3648 @@ export namespace Prisma {
 
 
   /**
+   * Model Employee
+   */
+
+  export type AggregateEmployee = {
+    _count: EmployeeCountAggregateOutputType | null
+    _avg: EmployeeAvgAggregateOutputType | null
+    _sum: EmployeeSumAggregateOutputType | null
+    _min: EmployeeMinAggregateOutputType | null
+    _max: EmployeeMaxAggregateOutputType | null
+  }
+
+  export type EmployeeAvgAggregateOutputType = {
+    salary: Decimal | null
+  }
+
+  export type EmployeeSumAggregateOutputType = {
+    salary: Decimal | null
+  }
+
+  export type EmployeeMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    userId: string | null
+    salary: Decimal | null
+    hireDate: Date | null
+    endDate: Date | null
+    position: string | null
+    nationalId: string | null
+    notes: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmployeeMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    userId: string | null
+    salary: Decimal | null
+    hireDate: Date | null
+    endDate: Date | null
+    position: string | null
+    nationalId: string | null
+    notes: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmployeeCountAggregateOutputType = {
+    id: number
+    companyId: number
+    userId: number
+    salary: number
+    hireDate: number
+    endDate: number
+    position: number
+    nationalId: number
+    notes: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EmployeeAvgAggregateInputType = {
+    salary?: true
+  }
+
+  export type EmployeeSumAggregateInputType = {
+    salary?: true
+  }
+
+  export type EmployeeMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    userId?: true
+    salary?: true
+    hireDate?: true
+    endDate?: true
+    position?: true
+    nationalId?: true
+    notes?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmployeeMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    userId?: true
+    salary?: true
+    hireDate?: true
+    endDate?: true
+    position?: true
+    nationalId?: true
+    notes?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmployeeCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    userId?: true
+    salary?: true
+    hireDate?: true
+    endDate?: true
+    position?: true
+    nationalId?: true
+    notes?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EmployeeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Employee to aggregate.
+     */
+    where?: EmployeeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Employees to fetch.
+     */
+    orderBy?: EmployeeOrderByWithRelationInput | EmployeeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmployeeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Employees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Employees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Employees
+    **/
+    _count?: true | EmployeeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EmployeeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EmployeeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmployeeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmployeeMaxAggregateInputType
+  }
+
+  export type GetEmployeeAggregateType<T extends EmployeeAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmployee]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmployee[P]>
+      : GetScalarType<T[P], AggregateEmployee[P]>
+  }
+
+
+
+
+  export type EmployeeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeWhereInput
+    orderBy?: EmployeeOrderByWithAggregationInput | EmployeeOrderByWithAggregationInput[]
+    by: EmployeeScalarFieldEnum[] | EmployeeScalarFieldEnum
+    having?: EmployeeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmployeeCountAggregateInputType | true
+    _avg?: EmployeeAvgAggregateInputType
+    _sum?: EmployeeSumAggregateInputType
+    _min?: EmployeeMinAggregateInputType
+    _max?: EmployeeMaxAggregateInputType
+  }
+
+  export type EmployeeGroupByOutputType = {
+    id: string
+    companyId: string
+    userId: string
+    salary: Decimal
+    hireDate: Date
+    endDate: Date | null
+    position: string | null
+    nationalId: string | null
+    notes: string | null
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: EmployeeCountAggregateOutputType | null
+    _avg: EmployeeAvgAggregateOutputType | null
+    _sum: EmployeeSumAggregateOutputType | null
+    _min: EmployeeMinAggregateOutputType | null
+    _max: EmployeeMaxAggregateOutputType | null
+  }
+
+  type GetEmployeeGroupByPayload<T extends EmployeeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmployeeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmployeeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmployeeGroupByOutputType[P]>
+            : GetScalarType<T[P], EmployeeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmployeeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    userId?: boolean
+    salary?: boolean
+    hireDate?: boolean
+    endDate?: boolean
+    position?: boolean
+    nationalId?: boolean
+    notes?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    advances?: boolean | Employee$advancesArgs<ExtArgs>
+    payslips?: boolean | Employee$payslipsArgs<ExtArgs>
+    _count?: boolean | EmployeeCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employee"]>
+
+  export type EmployeeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    userId?: boolean
+    salary?: boolean
+    hireDate?: boolean
+    endDate?: boolean
+    position?: boolean
+    nationalId?: boolean
+    notes?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employee"]>
+
+  export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    userId?: boolean
+    salary?: boolean
+    hireDate?: boolean
+    endDate?: boolean
+    position?: boolean
+    nationalId?: boolean
+    notes?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employee"]>
+
+  export type EmployeeSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    userId?: boolean
+    salary?: boolean
+    hireDate?: boolean
+    endDate?: boolean
+    position?: boolean
+    nationalId?: boolean
+    notes?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EmployeeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "userId" | "salary" | "hireDate" | "endDate" | "position" | "nationalId" | "notes" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
+  export type EmployeeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    advances?: boolean | Employee$advancesArgs<ExtArgs>
+    payslips?: boolean | Employee$payslipsArgs<ExtArgs>
+    _count?: boolean | EmployeeCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type EmployeeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type EmployeeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $EmployeePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Employee"
+    objects: {
+      company: Prisma.$CompanyPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+      advances: Prisma.$EmployeeAdvancePayload<ExtArgs>[]
+      payslips: Prisma.$PayslipPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      userId: string
+      /**
+       * Fixed monthly salary.
+       */
+      salary: Prisma.Decimal
+      hireDate: Date
+      endDate: Date | null
+      position: string | null
+      nationalId: string | null
+      notes: string | null
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["employee"]>
+    composites: {}
+  }
+
+  type EmployeeGetPayload<S extends boolean | null | undefined | EmployeeDefaultArgs> = $Result.GetResult<Prisma.$EmployeePayload, S>
+
+  type EmployeeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmployeeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmployeeCountAggregateInputType | true
+    }
+
+  export interface EmployeeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Employee'], meta: { name: 'Employee' } }
+    /**
+     * Find zero or one Employee that matches the filter.
+     * @param {EmployeeFindUniqueArgs} args - Arguments to find a Employee
+     * @example
+     * // Get one Employee
+     * const employee = await prisma.employee.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmployeeFindUniqueArgs>(args: SelectSubset<T, EmployeeFindUniqueArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Employee that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmployeeFindUniqueOrThrowArgs} args - Arguments to find a Employee
+     * @example
+     * // Get one Employee
+     * const employee = await prisma.employee.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmployeeFindUniqueOrThrowArgs>(args: SelectSubset<T, EmployeeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Employee that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeFindFirstArgs} args - Arguments to find a Employee
+     * @example
+     * // Get one Employee
+     * const employee = await prisma.employee.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmployeeFindFirstArgs>(args?: SelectSubset<T, EmployeeFindFirstArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Employee that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeFindFirstOrThrowArgs} args - Arguments to find a Employee
+     * @example
+     * // Get one Employee
+     * const employee = await prisma.employee.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmployeeFindFirstOrThrowArgs>(args?: SelectSubset<T, EmployeeFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Employees that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Employees
+     * const employees = await prisma.employee.findMany()
+     * 
+     * // Get first 10 Employees
+     * const employees = await prisma.employee.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const employeeWithIdOnly = await prisma.employee.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmployeeFindManyArgs>(args?: SelectSubset<T, EmployeeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Employee.
+     * @param {EmployeeCreateArgs} args - Arguments to create a Employee.
+     * @example
+     * // Create one Employee
+     * const Employee = await prisma.employee.create({
+     *   data: {
+     *     // ... data to create a Employee
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmployeeCreateArgs>(args: SelectSubset<T, EmployeeCreateArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Employees.
+     * @param {EmployeeCreateManyArgs} args - Arguments to create many Employees.
+     * @example
+     * // Create many Employees
+     * const employee = await prisma.employee.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmployeeCreateManyArgs>(args?: SelectSubset<T, EmployeeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Employees and returns the data saved in the database.
+     * @param {EmployeeCreateManyAndReturnArgs} args - Arguments to create many Employees.
+     * @example
+     * // Create many Employees
+     * const employee = await prisma.employee.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Employees and only return the `id`
+     * const employeeWithIdOnly = await prisma.employee.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmployeeCreateManyAndReturnArgs>(args?: SelectSubset<T, EmployeeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Employee.
+     * @param {EmployeeDeleteArgs} args - Arguments to delete one Employee.
+     * @example
+     * // Delete one Employee
+     * const Employee = await prisma.employee.delete({
+     *   where: {
+     *     // ... filter to delete one Employee
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmployeeDeleteArgs>(args: SelectSubset<T, EmployeeDeleteArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Employee.
+     * @param {EmployeeUpdateArgs} args - Arguments to update one Employee.
+     * @example
+     * // Update one Employee
+     * const employee = await prisma.employee.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmployeeUpdateArgs>(args: SelectSubset<T, EmployeeUpdateArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Employees.
+     * @param {EmployeeDeleteManyArgs} args - Arguments to filter Employees to delete.
+     * @example
+     * // Delete a few Employees
+     * const { count } = await prisma.employee.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmployeeDeleteManyArgs>(args?: SelectSubset<T, EmployeeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Employees.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Employees
+     * const employee = await prisma.employee.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmployeeUpdateManyArgs>(args: SelectSubset<T, EmployeeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Employees and returns the data updated in the database.
+     * @param {EmployeeUpdateManyAndReturnArgs} args - Arguments to update many Employees.
+     * @example
+     * // Update many Employees
+     * const employee = await prisma.employee.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Employees and only return the `id`
+     * const employeeWithIdOnly = await prisma.employee.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EmployeeUpdateManyAndReturnArgs>(args: SelectSubset<T, EmployeeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Employee.
+     * @param {EmployeeUpsertArgs} args - Arguments to update or create a Employee.
+     * @example
+     * // Update or create a Employee
+     * const employee = await prisma.employee.upsert({
+     *   create: {
+     *     // ... data to create a Employee
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Employee we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmployeeUpsertArgs>(args: SelectSubset<T, EmployeeUpsertArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Employees.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeCountArgs} args - Arguments to filter Employees to count.
+     * @example
+     * // Count the number of Employees
+     * const count = await prisma.employee.count({
+     *   where: {
+     *     // ... the filter for the Employees we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmployeeCountArgs>(
+      args?: Subset<T, EmployeeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmployeeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Employee.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmployeeAggregateArgs>(args: Subset<T, EmployeeAggregateArgs>): Prisma.PrismaPromise<GetEmployeeAggregateType<T>>
+
+    /**
+     * Group by Employee.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmployeeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmployeeGroupByArgs['orderBy'] }
+        : { orderBy?: EmployeeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmployeeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmployeeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Employee model
+   */
+  readonly fields: EmployeeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Employee.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmployeeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    advances<T extends Employee$advancesArgs<ExtArgs> = {}>(args?: Subset<T, Employee$advancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeAdvancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    payslips<T extends Employee$payslipsArgs<ExtArgs> = {}>(args?: Subset<T, Employee$payslipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Employee model
+   */
+  interface EmployeeFieldRefs {
+    readonly id: FieldRef<"Employee", 'String'>
+    readonly companyId: FieldRef<"Employee", 'String'>
+    readonly userId: FieldRef<"Employee", 'String'>
+    readonly salary: FieldRef<"Employee", 'Decimal'>
+    readonly hireDate: FieldRef<"Employee", 'DateTime'>
+    readonly endDate: FieldRef<"Employee", 'DateTime'>
+    readonly position: FieldRef<"Employee", 'String'>
+    readonly nationalId: FieldRef<"Employee", 'String'>
+    readonly notes: FieldRef<"Employee", 'String'>
+    readonly isActive: FieldRef<"Employee", 'Boolean'>
+    readonly createdAt: FieldRef<"Employee", 'DateTime'>
+    readonly updatedAt: FieldRef<"Employee", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Employee findUnique
+   */
+  export type EmployeeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeInclude<ExtArgs> | null
+    /**
+     * Filter, which Employee to fetch.
+     */
+    where: EmployeeWhereUniqueInput
+  }
+
+  /**
+   * Employee findUniqueOrThrow
+   */
+  export type EmployeeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeInclude<ExtArgs> | null
+    /**
+     * Filter, which Employee to fetch.
+     */
+    where: EmployeeWhereUniqueInput
+  }
+
+  /**
+   * Employee findFirst
+   */
+  export type EmployeeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeInclude<ExtArgs> | null
+    /**
+     * Filter, which Employee to fetch.
+     */
+    where?: EmployeeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Employees to fetch.
+     */
+    orderBy?: EmployeeOrderByWithRelationInput | EmployeeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Employees.
+     */
+    cursor?: EmployeeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Employees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Employees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Employees.
+     */
+    distinct?: EmployeeScalarFieldEnum | EmployeeScalarFieldEnum[]
+  }
+
+  /**
+   * Employee findFirstOrThrow
+   */
+  export type EmployeeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeInclude<ExtArgs> | null
+    /**
+     * Filter, which Employee to fetch.
+     */
+    where?: EmployeeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Employees to fetch.
+     */
+    orderBy?: EmployeeOrderByWithRelationInput | EmployeeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Employees.
+     */
+    cursor?: EmployeeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Employees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Employees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Employees.
+     */
+    distinct?: EmployeeScalarFieldEnum | EmployeeScalarFieldEnum[]
+  }
+
+  /**
+   * Employee findMany
+   */
+  export type EmployeeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeInclude<ExtArgs> | null
+    /**
+     * Filter, which Employees to fetch.
+     */
+    where?: EmployeeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Employees to fetch.
+     */
+    orderBy?: EmployeeOrderByWithRelationInput | EmployeeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Employees.
+     */
+    cursor?: EmployeeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Employees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Employees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Employees.
+     */
+    distinct?: EmployeeScalarFieldEnum | EmployeeScalarFieldEnum[]
+  }
+
+  /**
+   * Employee create
+   */
+  export type EmployeeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Employee.
+     */
+    data: XOR<EmployeeCreateInput, EmployeeUncheckedCreateInput>
+  }
+
+  /**
+   * Employee createMany
+   */
+  export type EmployeeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Employees.
+     */
+    data: EmployeeCreateManyInput | EmployeeCreateManyInput[]
+  }
+
+  /**
+   * Employee createManyAndReturn
+   */
+  export type EmployeeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * The data used to create many Employees.
+     */
+    data: EmployeeCreateManyInput | EmployeeCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Employee update
+   */
+  export type EmployeeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Employee.
+     */
+    data: XOR<EmployeeUpdateInput, EmployeeUncheckedUpdateInput>
+    /**
+     * Choose, which Employee to update.
+     */
+    where: EmployeeWhereUniqueInput
+  }
+
+  /**
+   * Employee updateMany
+   */
+  export type EmployeeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Employees.
+     */
+    data: XOR<EmployeeUpdateManyMutationInput, EmployeeUncheckedUpdateManyInput>
+    /**
+     * Filter which Employees to update
+     */
+    where?: EmployeeWhereInput
+    /**
+     * Limit how many Employees to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Employee updateManyAndReturn
+   */
+  export type EmployeeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * The data used to update Employees.
+     */
+    data: XOR<EmployeeUpdateManyMutationInput, EmployeeUncheckedUpdateManyInput>
+    /**
+     * Filter which Employees to update
+     */
+    where?: EmployeeWhereInput
+    /**
+     * Limit how many Employees to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Employee upsert
+   */
+  export type EmployeeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Employee to update in case it exists.
+     */
+    where: EmployeeWhereUniqueInput
+    /**
+     * In case the Employee found by the `where` argument doesn't exist, create a new Employee with this data.
+     */
+    create: XOR<EmployeeCreateInput, EmployeeUncheckedCreateInput>
+    /**
+     * In case the Employee was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmployeeUpdateInput, EmployeeUncheckedUpdateInput>
+  }
+
+  /**
+   * Employee delete
+   */
+  export type EmployeeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeInclude<ExtArgs> | null
+    /**
+     * Filter which Employee to delete.
+     */
+    where: EmployeeWhereUniqueInput
+  }
+
+  /**
+   * Employee deleteMany
+   */
+  export type EmployeeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Employees to delete
+     */
+    where?: EmployeeWhereInput
+    /**
+     * Limit how many Employees to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Employee.advances
+   */
+  export type Employee$advancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceInclude<ExtArgs> | null
+    where?: EmployeeAdvanceWhereInput
+    orderBy?: EmployeeAdvanceOrderByWithRelationInput | EmployeeAdvanceOrderByWithRelationInput[]
+    cursor?: EmployeeAdvanceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EmployeeAdvanceScalarFieldEnum | EmployeeAdvanceScalarFieldEnum[]
+  }
+
+  /**
+   * Employee.payslips
+   */
+  export type Employee$payslipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipInclude<ExtArgs> | null
+    where?: PayslipWhereInput
+    orderBy?: PayslipOrderByWithRelationInput | PayslipOrderByWithRelationInput[]
+    cursor?: PayslipWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PayslipScalarFieldEnum | PayslipScalarFieldEnum[]
+  }
+
+  /**
+   * Employee without action
+   */
+  export type EmployeeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employee
+     */
+    select?: EmployeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employee
+     */
+    omit?: EmployeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EmployeeAdvance
+   */
+
+  export type AggregateEmployeeAdvance = {
+    _count: EmployeeAdvanceCountAggregateOutputType | null
+    _avg: EmployeeAdvanceAvgAggregateOutputType | null
+    _sum: EmployeeAdvanceSumAggregateOutputType | null
+    _min: EmployeeAdvanceMinAggregateOutputType | null
+    _max: EmployeeAdvanceMaxAggregateOutputType | null
+  }
+
+  export type EmployeeAdvanceAvgAggregateOutputType = {
+    amount: Decimal | null
+    remaining: Decimal | null
+  }
+
+  export type EmployeeAdvanceSumAggregateOutputType = {
+    amount: Decimal | null
+    remaining: Decimal | null
+  }
+
+  export type EmployeeAdvanceMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    employeeId: string | null
+    amount: Decimal | null
+    remaining: Decimal | null
+    date: Date | null
+    note: string | null
+    expenseId: string | null
+    createdAt: Date | null
+  }
+
+  export type EmployeeAdvanceMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    employeeId: string | null
+    amount: Decimal | null
+    remaining: Decimal | null
+    date: Date | null
+    note: string | null
+    expenseId: string | null
+    createdAt: Date | null
+  }
+
+  export type EmployeeAdvanceCountAggregateOutputType = {
+    id: number
+    companyId: number
+    employeeId: number
+    amount: number
+    remaining: number
+    date: number
+    note: number
+    expenseId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type EmployeeAdvanceAvgAggregateInputType = {
+    amount?: true
+    remaining?: true
+  }
+
+  export type EmployeeAdvanceSumAggregateInputType = {
+    amount?: true
+    remaining?: true
+  }
+
+  export type EmployeeAdvanceMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    employeeId?: true
+    amount?: true
+    remaining?: true
+    date?: true
+    note?: true
+    expenseId?: true
+    createdAt?: true
+  }
+
+  export type EmployeeAdvanceMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    employeeId?: true
+    amount?: true
+    remaining?: true
+    date?: true
+    note?: true
+    expenseId?: true
+    createdAt?: true
+  }
+
+  export type EmployeeAdvanceCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    employeeId?: true
+    amount?: true
+    remaining?: true
+    date?: true
+    note?: true
+    expenseId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type EmployeeAdvanceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmployeeAdvance to aggregate.
+     */
+    where?: EmployeeAdvanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeAdvances to fetch.
+     */
+    orderBy?: EmployeeAdvanceOrderByWithRelationInput | EmployeeAdvanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmployeeAdvanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeAdvances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeAdvances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmployeeAdvances
+    **/
+    _count?: true | EmployeeAdvanceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EmployeeAdvanceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EmployeeAdvanceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmployeeAdvanceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmployeeAdvanceMaxAggregateInputType
+  }
+
+  export type GetEmployeeAdvanceAggregateType<T extends EmployeeAdvanceAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmployeeAdvance]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmployeeAdvance[P]>
+      : GetScalarType<T[P], AggregateEmployeeAdvance[P]>
+  }
+
+
+
+
+  export type EmployeeAdvanceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeAdvanceWhereInput
+    orderBy?: EmployeeAdvanceOrderByWithAggregationInput | EmployeeAdvanceOrderByWithAggregationInput[]
+    by: EmployeeAdvanceScalarFieldEnum[] | EmployeeAdvanceScalarFieldEnum
+    having?: EmployeeAdvanceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmployeeAdvanceCountAggregateInputType | true
+    _avg?: EmployeeAdvanceAvgAggregateInputType
+    _sum?: EmployeeAdvanceSumAggregateInputType
+    _min?: EmployeeAdvanceMinAggregateInputType
+    _max?: EmployeeAdvanceMaxAggregateInputType
+  }
+
+  export type EmployeeAdvanceGroupByOutputType = {
+    id: string
+    companyId: string
+    employeeId: string
+    amount: Decimal
+    remaining: Decimal
+    date: Date
+    note: string | null
+    expenseId: string | null
+    createdAt: Date
+    _count: EmployeeAdvanceCountAggregateOutputType | null
+    _avg: EmployeeAdvanceAvgAggregateOutputType | null
+    _sum: EmployeeAdvanceSumAggregateOutputType | null
+    _min: EmployeeAdvanceMinAggregateOutputType | null
+    _max: EmployeeAdvanceMaxAggregateOutputType | null
+  }
+
+  type GetEmployeeAdvanceGroupByPayload<T extends EmployeeAdvanceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmployeeAdvanceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmployeeAdvanceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmployeeAdvanceGroupByOutputType[P]>
+            : GetScalarType<T[P], EmployeeAdvanceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmployeeAdvanceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    employeeId?: boolean
+    amount?: boolean
+    remaining?: boolean
+    date?: boolean
+    note?: boolean
+    expenseId?: boolean
+    createdAt?: boolean
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeAdvance"]>
+
+  export type EmployeeAdvanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    employeeId?: boolean
+    amount?: boolean
+    remaining?: boolean
+    date?: boolean
+    note?: boolean
+    expenseId?: boolean
+    createdAt?: boolean
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeAdvance"]>
+
+  export type EmployeeAdvanceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    employeeId?: boolean
+    amount?: boolean
+    remaining?: boolean
+    date?: boolean
+    note?: boolean
+    expenseId?: boolean
+    createdAt?: boolean
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeAdvance"]>
+
+  export type EmployeeAdvanceSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    employeeId?: boolean
+    amount?: boolean
+    remaining?: boolean
+    date?: boolean
+    note?: boolean
+    expenseId?: boolean
+    createdAt?: boolean
+  }
+
+  export type EmployeeAdvanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "employeeId" | "amount" | "remaining" | "date" | "note" | "expenseId" | "createdAt", ExtArgs["result"]["employeeAdvance"]>
+  export type EmployeeAdvanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }
+  export type EmployeeAdvanceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }
+  export type EmployeeAdvanceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }
+
+  export type $EmployeeAdvancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmployeeAdvance"
+    objects: {
+      employee: Prisma.$EmployeePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      employeeId: string
+      amount: Prisma.Decimal
+      remaining: Prisma.Decimal
+      date: Date
+      note: string | null
+      expenseId: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["employeeAdvance"]>
+    composites: {}
+  }
+
+  type EmployeeAdvanceGetPayload<S extends boolean | null | undefined | EmployeeAdvanceDefaultArgs> = $Result.GetResult<Prisma.$EmployeeAdvancePayload, S>
+
+  type EmployeeAdvanceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmployeeAdvanceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmployeeAdvanceCountAggregateInputType | true
+    }
+
+  export interface EmployeeAdvanceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmployeeAdvance'], meta: { name: 'EmployeeAdvance' } }
+    /**
+     * Find zero or one EmployeeAdvance that matches the filter.
+     * @param {EmployeeAdvanceFindUniqueArgs} args - Arguments to find a EmployeeAdvance
+     * @example
+     * // Get one EmployeeAdvance
+     * const employeeAdvance = await prisma.employeeAdvance.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmployeeAdvanceFindUniqueArgs>(args: SelectSubset<T, EmployeeAdvanceFindUniqueArgs<ExtArgs>>): Prisma__EmployeeAdvanceClient<$Result.GetResult<Prisma.$EmployeeAdvancePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmployeeAdvance that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmployeeAdvanceFindUniqueOrThrowArgs} args - Arguments to find a EmployeeAdvance
+     * @example
+     * // Get one EmployeeAdvance
+     * const employeeAdvance = await prisma.employeeAdvance.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmployeeAdvanceFindUniqueOrThrowArgs>(args: SelectSubset<T, EmployeeAdvanceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmployeeAdvanceClient<$Result.GetResult<Prisma.$EmployeeAdvancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmployeeAdvance that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAdvanceFindFirstArgs} args - Arguments to find a EmployeeAdvance
+     * @example
+     * // Get one EmployeeAdvance
+     * const employeeAdvance = await prisma.employeeAdvance.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmployeeAdvanceFindFirstArgs>(args?: SelectSubset<T, EmployeeAdvanceFindFirstArgs<ExtArgs>>): Prisma__EmployeeAdvanceClient<$Result.GetResult<Prisma.$EmployeeAdvancePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmployeeAdvance that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAdvanceFindFirstOrThrowArgs} args - Arguments to find a EmployeeAdvance
+     * @example
+     * // Get one EmployeeAdvance
+     * const employeeAdvance = await prisma.employeeAdvance.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmployeeAdvanceFindFirstOrThrowArgs>(args?: SelectSubset<T, EmployeeAdvanceFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmployeeAdvanceClient<$Result.GetResult<Prisma.$EmployeeAdvancePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmployeeAdvances that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAdvanceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmployeeAdvances
+     * const employeeAdvances = await prisma.employeeAdvance.findMany()
+     * 
+     * // Get first 10 EmployeeAdvances
+     * const employeeAdvances = await prisma.employeeAdvance.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const employeeAdvanceWithIdOnly = await prisma.employeeAdvance.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmployeeAdvanceFindManyArgs>(args?: SelectSubset<T, EmployeeAdvanceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeAdvancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmployeeAdvance.
+     * @param {EmployeeAdvanceCreateArgs} args - Arguments to create a EmployeeAdvance.
+     * @example
+     * // Create one EmployeeAdvance
+     * const EmployeeAdvance = await prisma.employeeAdvance.create({
+     *   data: {
+     *     // ... data to create a EmployeeAdvance
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmployeeAdvanceCreateArgs>(args: SelectSubset<T, EmployeeAdvanceCreateArgs<ExtArgs>>): Prisma__EmployeeAdvanceClient<$Result.GetResult<Prisma.$EmployeeAdvancePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmployeeAdvances.
+     * @param {EmployeeAdvanceCreateManyArgs} args - Arguments to create many EmployeeAdvances.
+     * @example
+     * // Create many EmployeeAdvances
+     * const employeeAdvance = await prisma.employeeAdvance.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmployeeAdvanceCreateManyArgs>(args?: SelectSubset<T, EmployeeAdvanceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EmployeeAdvances and returns the data saved in the database.
+     * @param {EmployeeAdvanceCreateManyAndReturnArgs} args - Arguments to create many EmployeeAdvances.
+     * @example
+     * // Create many EmployeeAdvances
+     * const employeeAdvance = await prisma.employeeAdvance.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EmployeeAdvances and only return the `id`
+     * const employeeAdvanceWithIdOnly = await prisma.employeeAdvance.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmployeeAdvanceCreateManyAndReturnArgs>(args?: SelectSubset<T, EmployeeAdvanceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeAdvancePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EmployeeAdvance.
+     * @param {EmployeeAdvanceDeleteArgs} args - Arguments to delete one EmployeeAdvance.
+     * @example
+     * // Delete one EmployeeAdvance
+     * const EmployeeAdvance = await prisma.employeeAdvance.delete({
+     *   where: {
+     *     // ... filter to delete one EmployeeAdvance
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmployeeAdvanceDeleteArgs>(args: SelectSubset<T, EmployeeAdvanceDeleteArgs<ExtArgs>>): Prisma__EmployeeAdvanceClient<$Result.GetResult<Prisma.$EmployeeAdvancePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmployeeAdvance.
+     * @param {EmployeeAdvanceUpdateArgs} args - Arguments to update one EmployeeAdvance.
+     * @example
+     * // Update one EmployeeAdvance
+     * const employeeAdvance = await prisma.employeeAdvance.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmployeeAdvanceUpdateArgs>(args: SelectSubset<T, EmployeeAdvanceUpdateArgs<ExtArgs>>): Prisma__EmployeeAdvanceClient<$Result.GetResult<Prisma.$EmployeeAdvancePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmployeeAdvances.
+     * @param {EmployeeAdvanceDeleteManyArgs} args - Arguments to filter EmployeeAdvances to delete.
+     * @example
+     * // Delete a few EmployeeAdvances
+     * const { count } = await prisma.employeeAdvance.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmployeeAdvanceDeleteManyArgs>(args?: SelectSubset<T, EmployeeAdvanceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmployeeAdvances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAdvanceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmployeeAdvances
+     * const employeeAdvance = await prisma.employeeAdvance.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmployeeAdvanceUpdateManyArgs>(args: SelectSubset<T, EmployeeAdvanceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmployeeAdvances and returns the data updated in the database.
+     * @param {EmployeeAdvanceUpdateManyAndReturnArgs} args - Arguments to update many EmployeeAdvances.
+     * @example
+     * // Update many EmployeeAdvances
+     * const employeeAdvance = await prisma.employeeAdvance.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EmployeeAdvances and only return the `id`
+     * const employeeAdvanceWithIdOnly = await prisma.employeeAdvance.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EmployeeAdvanceUpdateManyAndReturnArgs>(args: SelectSubset<T, EmployeeAdvanceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeAdvancePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EmployeeAdvance.
+     * @param {EmployeeAdvanceUpsertArgs} args - Arguments to update or create a EmployeeAdvance.
+     * @example
+     * // Update or create a EmployeeAdvance
+     * const employeeAdvance = await prisma.employeeAdvance.upsert({
+     *   create: {
+     *     // ... data to create a EmployeeAdvance
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmployeeAdvance we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmployeeAdvanceUpsertArgs>(args: SelectSubset<T, EmployeeAdvanceUpsertArgs<ExtArgs>>): Prisma__EmployeeAdvanceClient<$Result.GetResult<Prisma.$EmployeeAdvancePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmployeeAdvances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAdvanceCountArgs} args - Arguments to filter EmployeeAdvances to count.
+     * @example
+     * // Count the number of EmployeeAdvances
+     * const count = await prisma.employeeAdvance.count({
+     *   where: {
+     *     // ... the filter for the EmployeeAdvances we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmployeeAdvanceCountArgs>(
+      args?: Subset<T, EmployeeAdvanceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmployeeAdvanceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmployeeAdvance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAdvanceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmployeeAdvanceAggregateArgs>(args: Subset<T, EmployeeAdvanceAggregateArgs>): Prisma.PrismaPromise<GetEmployeeAdvanceAggregateType<T>>
+
+    /**
+     * Group by EmployeeAdvance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAdvanceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmployeeAdvanceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmployeeAdvanceGroupByArgs['orderBy'] }
+        : { orderBy?: EmployeeAdvanceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmployeeAdvanceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmployeeAdvanceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmployeeAdvance model
+   */
+  readonly fields: EmployeeAdvanceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmployeeAdvance.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmployeeAdvanceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    employee<T extends EmployeeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EmployeeDefaultArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmployeeAdvance model
+   */
+  interface EmployeeAdvanceFieldRefs {
+    readonly id: FieldRef<"EmployeeAdvance", 'String'>
+    readonly companyId: FieldRef<"EmployeeAdvance", 'String'>
+    readonly employeeId: FieldRef<"EmployeeAdvance", 'String'>
+    readonly amount: FieldRef<"EmployeeAdvance", 'Decimal'>
+    readonly remaining: FieldRef<"EmployeeAdvance", 'Decimal'>
+    readonly date: FieldRef<"EmployeeAdvance", 'DateTime'>
+    readonly note: FieldRef<"EmployeeAdvance", 'String'>
+    readonly expenseId: FieldRef<"EmployeeAdvance", 'String'>
+    readonly createdAt: FieldRef<"EmployeeAdvance", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmployeeAdvance findUnique
+   */
+  export type EmployeeAdvanceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeAdvance to fetch.
+     */
+    where: EmployeeAdvanceWhereUniqueInput
+  }
+
+  /**
+   * EmployeeAdvance findUniqueOrThrow
+   */
+  export type EmployeeAdvanceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeAdvance to fetch.
+     */
+    where: EmployeeAdvanceWhereUniqueInput
+  }
+
+  /**
+   * EmployeeAdvance findFirst
+   */
+  export type EmployeeAdvanceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeAdvance to fetch.
+     */
+    where?: EmployeeAdvanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeAdvances to fetch.
+     */
+    orderBy?: EmployeeAdvanceOrderByWithRelationInput | EmployeeAdvanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmployeeAdvances.
+     */
+    cursor?: EmployeeAdvanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeAdvances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeAdvances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmployeeAdvances.
+     */
+    distinct?: EmployeeAdvanceScalarFieldEnum | EmployeeAdvanceScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeAdvance findFirstOrThrow
+   */
+  export type EmployeeAdvanceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeAdvance to fetch.
+     */
+    where?: EmployeeAdvanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeAdvances to fetch.
+     */
+    orderBy?: EmployeeAdvanceOrderByWithRelationInput | EmployeeAdvanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmployeeAdvances.
+     */
+    cursor?: EmployeeAdvanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeAdvances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeAdvances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmployeeAdvances.
+     */
+    distinct?: EmployeeAdvanceScalarFieldEnum | EmployeeAdvanceScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeAdvance findMany
+   */
+  export type EmployeeAdvanceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeAdvances to fetch.
+     */
+    where?: EmployeeAdvanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeAdvances to fetch.
+     */
+    orderBy?: EmployeeAdvanceOrderByWithRelationInput | EmployeeAdvanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmployeeAdvances.
+     */
+    cursor?: EmployeeAdvanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeAdvances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeAdvances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmployeeAdvances.
+     */
+    distinct?: EmployeeAdvanceScalarFieldEnum | EmployeeAdvanceScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeAdvance create
+   */
+  export type EmployeeAdvanceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EmployeeAdvance.
+     */
+    data: XOR<EmployeeAdvanceCreateInput, EmployeeAdvanceUncheckedCreateInput>
+  }
+
+  /**
+   * EmployeeAdvance createMany
+   */
+  export type EmployeeAdvanceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmployeeAdvances.
+     */
+    data: EmployeeAdvanceCreateManyInput | EmployeeAdvanceCreateManyInput[]
+  }
+
+  /**
+   * EmployeeAdvance createManyAndReturn
+   */
+  export type EmployeeAdvanceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * The data used to create many EmployeeAdvances.
+     */
+    data: EmployeeAdvanceCreateManyInput | EmployeeAdvanceCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmployeeAdvance update
+   */
+  export type EmployeeAdvanceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EmployeeAdvance.
+     */
+    data: XOR<EmployeeAdvanceUpdateInput, EmployeeAdvanceUncheckedUpdateInput>
+    /**
+     * Choose, which EmployeeAdvance to update.
+     */
+    where: EmployeeAdvanceWhereUniqueInput
+  }
+
+  /**
+   * EmployeeAdvance updateMany
+   */
+  export type EmployeeAdvanceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmployeeAdvances.
+     */
+    data: XOR<EmployeeAdvanceUpdateManyMutationInput, EmployeeAdvanceUncheckedUpdateManyInput>
+    /**
+     * Filter which EmployeeAdvances to update
+     */
+    where?: EmployeeAdvanceWhereInput
+    /**
+     * Limit how many EmployeeAdvances to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmployeeAdvance updateManyAndReturn
+   */
+  export type EmployeeAdvanceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * The data used to update EmployeeAdvances.
+     */
+    data: XOR<EmployeeAdvanceUpdateManyMutationInput, EmployeeAdvanceUncheckedUpdateManyInput>
+    /**
+     * Filter which EmployeeAdvances to update
+     */
+    where?: EmployeeAdvanceWhereInput
+    /**
+     * Limit how many EmployeeAdvances to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmployeeAdvance upsert
+   */
+  export type EmployeeAdvanceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EmployeeAdvance to update in case it exists.
+     */
+    where: EmployeeAdvanceWhereUniqueInput
+    /**
+     * In case the EmployeeAdvance found by the `where` argument doesn't exist, create a new EmployeeAdvance with this data.
+     */
+    create: XOR<EmployeeAdvanceCreateInput, EmployeeAdvanceUncheckedCreateInput>
+    /**
+     * In case the EmployeeAdvance was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmployeeAdvanceUpdateInput, EmployeeAdvanceUncheckedUpdateInput>
+  }
+
+  /**
+   * EmployeeAdvance delete
+   */
+  export type EmployeeAdvanceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceInclude<ExtArgs> | null
+    /**
+     * Filter which EmployeeAdvance to delete.
+     */
+    where: EmployeeAdvanceWhereUniqueInput
+  }
+
+  /**
+   * EmployeeAdvance deleteMany
+   */
+  export type EmployeeAdvanceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmployeeAdvances to delete
+     */
+    where?: EmployeeAdvanceWhereInput
+    /**
+     * Limit how many EmployeeAdvances to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmployeeAdvance without action
+   */
+  export type EmployeeAdvanceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAdvance
+     */
+    select?: EmployeeAdvanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAdvance
+     */
+    omit?: EmployeeAdvanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAdvanceInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Payslip
+   */
+
+  export type AggregatePayslip = {
+    _count: PayslipCountAggregateOutputType | null
+    _avg: PayslipAvgAggregateOutputType | null
+    _sum: PayslipSumAggregateOutputType | null
+    _min: PayslipMinAggregateOutputType | null
+    _max: PayslipMaxAggregateOutputType | null
+  }
+
+  export type PayslipAvgAggregateOutputType = {
+    year: number | null
+    month: number | null
+    baseSalary: Decimal | null
+    bonus: Decimal | null
+    deduction: Decimal | null
+    advancesDeducted: Decimal | null
+    net: Decimal | null
+  }
+
+  export type PayslipSumAggregateOutputType = {
+    year: number | null
+    month: number | null
+    baseSalary: Decimal | null
+    bonus: Decimal | null
+    deduction: Decimal | null
+    advancesDeducted: Decimal | null
+    net: Decimal | null
+  }
+
+  export type PayslipMinAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    employeeId: string | null
+    year: number | null
+    month: number | null
+    baseSalary: Decimal | null
+    bonus: Decimal | null
+    deduction: Decimal | null
+    deductionNote: string | null
+    advancesDeducted: Decimal | null
+    net: Decimal | null
+    paidAt: Date | null
+    expenseId: string | null
+    createdAt: Date | null
+  }
+
+  export type PayslipMaxAggregateOutputType = {
+    id: string | null
+    companyId: string | null
+    employeeId: string | null
+    year: number | null
+    month: number | null
+    baseSalary: Decimal | null
+    bonus: Decimal | null
+    deduction: Decimal | null
+    deductionNote: string | null
+    advancesDeducted: Decimal | null
+    net: Decimal | null
+    paidAt: Date | null
+    expenseId: string | null
+    createdAt: Date | null
+  }
+
+  export type PayslipCountAggregateOutputType = {
+    id: number
+    companyId: number
+    employeeId: number
+    year: number
+    month: number
+    baseSalary: number
+    bonus: number
+    deduction: number
+    deductionNote: number
+    advancesDeducted: number
+    net: number
+    paidAt: number
+    expenseId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type PayslipAvgAggregateInputType = {
+    year?: true
+    month?: true
+    baseSalary?: true
+    bonus?: true
+    deduction?: true
+    advancesDeducted?: true
+    net?: true
+  }
+
+  export type PayslipSumAggregateInputType = {
+    year?: true
+    month?: true
+    baseSalary?: true
+    bonus?: true
+    deduction?: true
+    advancesDeducted?: true
+    net?: true
+  }
+
+  export type PayslipMinAggregateInputType = {
+    id?: true
+    companyId?: true
+    employeeId?: true
+    year?: true
+    month?: true
+    baseSalary?: true
+    bonus?: true
+    deduction?: true
+    deductionNote?: true
+    advancesDeducted?: true
+    net?: true
+    paidAt?: true
+    expenseId?: true
+    createdAt?: true
+  }
+
+  export type PayslipMaxAggregateInputType = {
+    id?: true
+    companyId?: true
+    employeeId?: true
+    year?: true
+    month?: true
+    baseSalary?: true
+    bonus?: true
+    deduction?: true
+    deductionNote?: true
+    advancesDeducted?: true
+    net?: true
+    paidAt?: true
+    expenseId?: true
+    createdAt?: true
+  }
+
+  export type PayslipCountAggregateInputType = {
+    id?: true
+    companyId?: true
+    employeeId?: true
+    year?: true
+    month?: true
+    baseSalary?: true
+    bonus?: true
+    deduction?: true
+    deductionNote?: true
+    advancesDeducted?: true
+    net?: true
+    paidAt?: true
+    expenseId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type PayslipAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Payslip to aggregate.
+     */
+    where?: PayslipWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Payslips to fetch.
+     */
+    orderBy?: PayslipOrderByWithRelationInput | PayslipOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PayslipWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Payslips from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Payslips.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Payslips
+    **/
+    _count?: true | PayslipCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PayslipAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PayslipSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PayslipMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PayslipMaxAggregateInputType
+  }
+
+  export type GetPayslipAggregateType<T extends PayslipAggregateArgs> = {
+        [P in keyof T & keyof AggregatePayslip]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePayslip[P]>
+      : GetScalarType<T[P], AggregatePayslip[P]>
+  }
+
+
+
+
+  export type PayslipGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PayslipWhereInput
+    orderBy?: PayslipOrderByWithAggregationInput | PayslipOrderByWithAggregationInput[]
+    by: PayslipScalarFieldEnum[] | PayslipScalarFieldEnum
+    having?: PayslipScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PayslipCountAggregateInputType | true
+    _avg?: PayslipAvgAggregateInputType
+    _sum?: PayslipSumAggregateInputType
+    _min?: PayslipMinAggregateInputType
+    _max?: PayslipMaxAggregateInputType
+  }
+
+  export type PayslipGroupByOutputType = {
+    id: string
+    companyId: string
+    employeeId: string
+    year: number
+    month: number
+    baseSalary: Decimal
+    bonus: Decimal
+    deduction: Decimal
+    deductionNote: string | null
+    advancesDeducted: Decimal
+    net: Decimal
+    paidAt: Date
+    expenseId: string | null
+    createdAt: Date
+    _count: PayslipCountAggregateOutputType | null
+    _avg: PayslipAvgAggregateOutputType | null
+    _sum: PayslipSumAggregateOutputType | null
+    _min: PayslipMinAggregateOutputType | null
+    _max: PayslipMaxAggregateOutputType | null
+  }
+
+  type GetPayslipGroupByPayload<T extends PayslipGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PayslipGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PayslipGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PayslipGroupByOutputType[P]>
+            : GetScalarType<T[P], PayslipGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PayslipSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    employeeId?: boolean
+    year?: boolean
+    month?: boolean
+    baseSalary?: boolean
+    bonus?: boolean
+    deduction?: boolean
+    deductionNote?: boolean
+    advancesDeducted?: boolean
+    net?: boolean
+    paidAt?: boolean
+    expenseId?: boolean
+    createdAt?: boolean
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["payslip"]>
+
+  export type PayslipSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    employeeId?: boolean
+    year?: boolean
+    month?: boolean
+    baseSalary?: boolean
+    bonus?: boolean
+    deduction?: boolean
+    deductionNote?: boolean
+    advancesDeducted?: boolean
+    net?: boolean
+    paidAt?: boolean
+    expenseId?: boolean
+    createdAt?: boolean
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["payslip"]>
+
+  export type PayslipSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    companyId?: boolean
+    employeeId?: boolean
+    year?: boolean
+    month?: boolean
+    baseSalary?: boolean
+    bonus?: boolean
+    deduction?: boolean
+    deductionNote?: boolean
+    advancesDeducted?: boolean
+    net?: boolean
+    paidAt?: boolean
+    expenseId?: boolean
+    createdAt?: boolean
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["payslip"]>
+
+  export type PayslipSelectScalar = {
+    id?: boolean
+    companyId?: boolean
+    employeeId?: boolean
+    year?: boolean
+    month?: boolean
+    baseSalary?: boolean
+    bonus?: boolean
+    deduction?: boolean
+    deductionNote?: boolean
+    advancesDeducted?: boolean
+    net?: boolean
+    paidAt?: boolean
+    expenseId?: boolean
+    createdAt?: boolean
+  }
+
+  export type PayslipOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyId" | "employeeId" | "year" | "month" | "baseSalary" | "bonus" | "deduction" | "deductionNote" | "advancesDeducted" | "net" | "paidAt" | "expenseId" | "createdAt", ExtArgs["result"]["payslip"]>
+  export type PayslipInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }
+  export type PayslipIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }
+  export type PayslipIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }
+
+  export type $PayslipPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Payslip"
+    objects: {
+      employee: Prisma.$EmployeePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      companyId: string
+      employeeId: string
+      year: number
+      month: number
+      baseSalary: Prisma.Decimal
+      bonus: Prisma.Decimal
+      deduction: Prisma.Decimal
+      deductionNote: string | null
+      advancesDeducted: Prisma.Decimal
+      net: Prisma.Decimal
+      paidAt: Date
+      expenseId: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["payslip"]>
+    composites: {}
+  }
+
+  type PayslipGetPayload<S extends boolean | null | undefined | PayslipDefaultArgs> = $Result.GetResult<Prisma.$PayslipPayload, S>
+
+  type PayslipCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PayslipFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PayslipCountAggregateInputType | true
+    }
+
+  export interface PayslipDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Payslip'], meta: { name: 'Payslip' } }
+    /**
+     * Find zero or one Payslip that matches the filter.
+     * @param {PayslipFindUniqueArgs} args - Arguments to find a Payslip
+     * @example
+     * // Get one Payslip
+     * const payslip = await prisma.payslip.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PayslipFindUniqueArgs>(args: SelectSubset<T, PayslipFindUniqueArgs<ExtArgs>>): Prisma__PayslipClient<$Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Payslip that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PayslipFindUniqueOrThrowArgs} args - Arguments to find a Payslip
+     * @example
+     * // Get one Payslip
+     * const payslip = await prisma.payslip.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PayslipFindUniqueOrThrowArgs>(args: SelectSubset<T, PayslipFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PayslipClient<$Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Payslip that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayslipFindFirstArgs} args - Arguments to find a Payslip
+     * @example
+     * // Get one Payslip
+     * const payslip = await prisma.payslip.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PayslipFindFirstArgs>(args?: SelectSubset<T, PayslipFindFirstArgs<ExtArgs>>): Prisma__PayslipClient<$Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Payslip that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayslipFindFirstOrThrowArgs} args - Arguments to find a Payslip
+     * @example
+     * // Get one Payslip
+     * const payslip = await prisma.payslip.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PayslipFindFirstOrThrowArgs>(args?: SelectSubset<T, PayslipFindFirstOrThrowArgs<ExtArgs>>): Prisma__PayslipClient<$Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Payslips that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayslipFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Payslips
+     * const payslips = await prisma.payslip.findMany()
+     * 
+     * // Get first 10 Payslips
+     * const payslips = await prisma.payslip.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const payslipWithIdOnly = await prisma.payslip.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PayslipFindManyArgs>(args?: SelectSubset<T, PayslipFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Payslip.
+     * @param {PayslipCreateArgs} args - Arguments to create a Payslip.
+     * @example
+     * // Create one Payslip
+     * const Payslip = await prisma.payslip.create({
+     *   data: {
+     *     // ... data to create a Payslip
+     *   }
+     * })
+     * 
+     */
+    create<T extends PayslipCreateArgs>(args: SelectSubset<T, PayslipCreateArgs<ExtArgs>>): Prisma__PayslipClient<$Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Payslips.
+     * @param {PayslipCreateManyArgs} args - Arguments to create many Payslips.
+     * @example
+     * // Create many Payslips
+     * const payslip = await prisma.payslip.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PayslipCreateManyArgs>(args?: SelectSubset<T, PayslipCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Payslips and returns the data saved in the database.
+     * @param {PayslipCreateManyAndReturnArgs} args - Arguments to create many Payslips.
+     * @example
+     * // Create many Payslips
+     * const payslip = await prisma.payslip.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Payslips and only return the `id`
+     * const payslipWithIdOnly = await prisma.payslip.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PayslipCreateManyAndReturnArgs>(args?: SelectSubset<T, PayslipCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Payslip.
+     * @param {PayslipDeleteArgs} args - Arguments to delete one Payslip.
+     * @example
+     * // Delete one Payslip
+     * const Payslip = await prisma.payslip.delete({
+     *   where: {
+     *     // ... filter to delete one Payslip
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PayslipDeleteArgs>(args: SelectSubset<T, PayslipDeleteArgs<ExtArgs>>): Prisma__PayslipClient<$Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Payslip.
+     * @param {PayslipUpdateArgs} args - Arguments to update one Payslip.
+     * @example
+     * // Update one Payslip
+     * const payslip = await prisma.payslip.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PayslipUpdateArgs>(args: SelectSubset<T, PayslipUpdateArgs<ExtArgs>>): Prisma__PayslipClient<$Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Payslips.
+     * @param {PayslipDeleteManyArgs} args - Arguments to filter Payslips to delete.
+     * @example
+     * // Delete a few Payslips
+     * const { count } = await prisma.payslip.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PayslipDeleteManyArgs>(args?: SelectSubset<T, PayslipDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Payslips.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayslipUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Payslips
+     * const payslip = await prisma.payslip.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PayslipUpdateManyArgs>(args: SelectSubset<T, PayslipUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Payslips and returns the data updated in the database.
+     * @param {PayslipUpdateManyAndReturnArgs} args - Arguments to update many Payslips.
+     * @example
+     * // Update many Payslips
+     * const payslip = await prisma.payslip.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Payslips and only return the `id`
+     * const payslipWithIdOnly = await prisma.payslip.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PayslipUpdateManyAndReturnArgs>(args: SelectSubset<T, PayslipUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Payslip.
+     * @param {PayslipUpsertArgs} args - Arguments to update or create a Payslip.
+     * @example
+     * // Update or create a Payslip
+     * const payslip = await prisma.payslip.upsert({
+     *   create: {
+     *     // ... data to create a Payslip
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Payslip we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PayslipUpsertArgs>(args: SelectSubset<T, PayslipUpsertArgs<ExtArgs>>): Prisma__PayslipClient<$Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Payslips.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayslipCountArgs} args - Arguments to filter Payslips to count.
+     * @example
+     * // Count the number of Payslips
+     * const count = await prisma.payslip.count({
+     *   where: {
+     *     // ... the filter for the Payslips we want to count
+     *   }
+     * })
+    **/
+    count<T extends PayslipCountArgs>(
+      args?: Subset<T, PayslipCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PayslipCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Payslip.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayslipAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PayslipAggregateArgs>(args: Subset<T, PayslipAggregateArgs>): Prisma.PrismaPromise<GetPayslipAggregateType<T>>
+
+    /**
+     * Group by Payslip.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PayslipGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PayslipGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PayslipGroupByArgs['orderBy'] }
+        : { orderBy?: PayslipGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PayslipGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPayslipGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Payslip model
+   */
+  readonly fields: PayslipFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Payslip.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PayslipClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    employee<T extends EmployeeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EmployeeDefaultArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Payslip model
+   */
+  interface PayslipFieldRefs {
+    readonly id: FieldRef<"Payslip", 'String'>
+    readonly companyId: FieldRef<"Payslip", 'String'>
+    readonly employeeId: FieldRef<"Payslip", 'String'>
+    readonly year: FieldRef<"Payslip", 'Int'>
+    readonly month: FieldRef<"Payslip", 'Int'>
+    readonly baseSalary: FieldRef<"Payslip", 'Decimal'>
+    readonly bonus: FieldRef<"Payslip", 'Decimal'>
+    readonly deduction: FieldRef<"Payslip", 'Decimal'>
+    readonly deductionNote: FieldRef<"Payslip", 'String'>
+    readonly advancesDeducted: FieldRef<"Payslip", 'Decimal'>
+    readonly net: FieldRef<"Payslip", 'Decimal'>
+    readonly paidAt: FieldRef<"Payslip", 'DateTime'>
+    readonly expenseId: FieldRef<"Payslip", 'String'>
+    readonly createdAt: FieldRef<"Payslip", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Payslip findUnique
+   */
+  export type PayslipFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipInclude<ExtArgs> | null
+    /**
+     * Filter, which Payslip to fetch.
+     */
+    where: PayslipWhereUniqueInput
+  }
+
+  /**
+   * Payslip findUniqueOrThrow
+   */
+  export type PayslipFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipInclude<ExtArgs> | null
+    /**
+     * Filter, which Payslip to fetch.
+     */
+    where: PayslipWhereUniqueInput
+  }
+
+  /**
+   * Payslip findFirst
+   */
+  export type PayslipFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipInclude<ExtArgs> | null
+    /**
+     * Filter, which Payslip to fetch.
+     */
+    where?: PayslipWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Payslips to fetch.
+     */
+    orderBy?: PayslipOrderByWithRelationInput | PayslipOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Payslips.
+     */
+    cursor?: PayslipWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Payslips from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Payslips.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Payslips.
+     */
+    distinct?: PayslipScalarFieldEnum | PayslipScalarFieldEnum[]
+  }
+
+  /**
+   * Payslip findFirstOrThrow
+   */
+  export type PayslipFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipInclude<ExtArgs> | null
+    /**
+     * Filter, which Payslip to fetch.
+     */
+    where?: PayslipWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Payslips to fetch.
+     */
+    orderBy?: PayslipOrderByWithRelationInput | PayslipOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Payslips.
+     */
+    cursor?: PayslipWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Payslips from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Payslips.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Payslips.
+     */
+    distinct?: PayslipScalarFieldEnum | PayslipScalarFieldEnum[]
+  }
+
+  /**
+   * Payslip findMany
+   */
+  export type PayslipFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipInclude<ExtArgs> | null
+    /**
+     * Filter, which Payslips to fetch.
+     */
+    where?: PayslipWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Payslips to fetch.
+     */
+    orderBy?: PayslipOrderByWithRelationInput | PayslipOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Payslips.
+     */
+    cursor?: PayslipWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Payslips from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Payslips.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Payslips.
+     */
+    distinct?: PayslipScalarFieldEnum | PayslipScalarFieldEnum[]
+  }
+
+  /**
+   * Payslip create
+   */
+  export type PayslipCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Payslip.
+     */
+    data: XOR<PayslipCreateInput, PayslipUncheckedCreateInput>
+  }
+
+  /**
+   * Payslip createMany
+   */
+  export type PayslipCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Payslips.
+     */
+    data: PayslipCreateManyInput | PayslipCreateManyInput[]
+  }
+
+  /**
+   * Payslip createManyAndReturn
+   */
+  export type PayslipCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * The data used to create many Payslips.
+     */
+    data: PayslipCreateManyInput | PayslipCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Payslip update
+   */
+  export type PayslipUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Payslip.
+     */
+    data: XOR<PayslipUpdateInput, PayslipUncheckedUpdateInput>
+    /**
+     * Choose, which Payslip to update.
+     */
+    where: PayslipWhereUniqueInput
+  }
+
+  /**
+   * Payslip updateMany
+   */
+  export type PayslipUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Payslips.
+     */
+    data: XOR<PayslipUpdateManyMutationInput, PayslipUncheckedUpdateManyInput>
+    /**
+     * Filter which Payslips to update
+     */
+    where?: PayslipWhereInput
+    /**
+     * Limit how many Payslips to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Payslip updateManyAndReturn
+   */
+  export type PayslipUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * The data used to update Payslips.
+     */
+    data: XOR<PayslipUpdateManyMutationInput, PayslipUncheckedUpdateManyInput>
+    /**
+     * Filter which Payslips to update
+     */
+    where?: PayslipWhereInput
+    /**
+     * Limit how many Payslips to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Payslip upsert
+   */
+  export type PayslipUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Payslip to update in case it exists.
+     */
+    where: PayslipWhereUniqueInput
+    /**
+     * In case the Payslip found by the `where` argument doesn't exist, create a new Payslip with this data.
+     */
+    create: XOR<PayslipCreateInput, PayslipUncheckedCreateInput>
+    /**
+     * In case the Payslip was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PayslipUpdateInput, PayslipUncheckedUpdateInput>
+  }
+
+  /**
+   * Payslip delete
+   */
+  export type PayslipDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipInclude<ExtArgs> | null
+    /**
+     * Filter which Payslip to delete.
+     */
+    where: PayslipWhereUniqueInput
+  }
+
+  /**
+   * Payslip deleteMany
+   */
+  export type PayslipDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Payslips to delete
+     */
+    where?: PayslipWhereInput
+    /**
+     * Limit how many Payslips to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Payslip without action
+   */
+  export type PayslipDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payslip
+     */
+    select?: PayslipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payslip
+     */
+    omit?: PayslipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PayslipInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model Versement
    */
 
@@ -81290,6 +85308,59 @@ export namespace Prisma {
   export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]
 
 
+  export const EmployeeScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    userId: 'userId',
+    salary: 'salary',
+    hireDate: 'hireDate',
+    endDate: 'endDate',
+    position: 'position',
+    nationalId: 'nationalId',
+    notes: 'notes',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
+
+
+  export const EmployeeAdvanceScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    employeeId: 'employeeId',
+    amount: 'amount',
+    remaining: 'remaining',
+    date: 'date',
+    note: 'note',
+    expenseId: 'expenseId',
+    createdAt: 'createdAt'
+  };
+
+  export type EmployeeAdvanceScalarFieldEnum = (typeof EmployeeAdvanceScalarFieldEnum)[keyof typeof EmployeeAdvanceScalarFieldEnum]
+
+
+  export const PayslipScalarFieldEnum: {
+    id: 'id',
+    companyId: 'companyId',
+    employeeId: 'employeeId',
+    year: 'year',
+    month: 'month',
+    baseSalary: 'baseSalary',
+    bonus: 'bonus',
+    deduction: 'deduction',
+    deductionNote: 'deductionNote',
+    advancesDeducted: 'advancesDeducted',
+    net: 'net',
+    paidAt: 'paidAt',
+    expenseId: 'expenseId',
+    createdAt: 'createdAt'
+  };
+
+  export type PayslipScalarFieldEnum = (typeof PayslipScalarFieldEnum)[keyof typeof PayslipScalarFieldEnum]
+
+
   export const VersementScalarFieldEnum: {
     id: 'id',
     companyId: 'companyId',
@@ -81617,6 +85688,7 @@ export namespace Prisma {
     tournees?: TourneeListRelationFilter
     tourneePlans?: TourneePlanListRelationFilter
     expenses?: ExpenseListRelationFilter
+    employees?: EmployeeListRelationFilter
     versements?: VersementListRelationFilter
     distances?: ClientDistanceListRelationFilter
     deposits?: DepositListRelationFilter
@@ -81666,6 +85738,7 @@ export namespace Prisma {
     tournees?: TourneeOrderByRelationAggregateInput
     tourneePlans?: TourneePlanOrderByRelationAggregateInput
     expenses?: ExpenseOrderByRelationAggregateInput
+    employees?: EmployeeOrderByRelationAggregateInput
     versements?: VersementOrderByRelationAggregateInput
     distances?: ClientDistanceOrderByRelationAggregateInput
     deposits?: DepositOrderByRelationAggregateInput
@@ -81718,6 +85791,7 @@ export namespace Prisma {
     tournees?: TourneeListRelationFilter
     tourneePlans?: TourneePlanListRelationFilter
     expenses?: ExpenseListRelationFilter
+    employees?: EmployeeListRelationFilter
     versements?: VersementListRelationFilter
     distances?: ClientDistanceListRelationFilter
     deposits?: DepositListRelationFilter
@@ -82312,6 +86386,7 @@ export namespace Prisma {
     devices?: DeviceListRelationFilter
     closedVisits?: ClosedVisitListRelationFilter
     createdSales?: SaleListRelationFilter
+    employee?: XOR<EmployeeNullableScalarRelationFilter, EmployeeWhereInput> | null
   }
 
   export type UserOrderByWithRelationInput = {
@@ -82335,6 +86410,7 @@ export namespace Prisma {
     devices?: DeviceOrderByRelationAggregateInput
     closedVisits?: ClosedVisitOrderByRelationAggregateInput
     createdSales?: SaleOrderByRelationAggregateInput
+    employee?: EmployeeOrderByWithRelationInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -82362,6 +86438,7 @@ export namespace Prisma {
     devices?: DeviceListRelationFilter
     closedVisits?: ClosedVisitListRelationFilter
     createdSales?: SaleListRelationFilter
+    employee?: XOR<EmployeeNullableScalarRelationFilter, EmployeeWhereInput> | null
   }, "id" | "qrToken" | "companyId_username">
 
   export type UserOrderByWithAggregationInput = {
@@ -86054,6 +90131,287 @@ export namespace Prisma {
     opId?: StringNullableWithAggregatesFilter<"Expense"> | string | null
   }
 
+  export type EmployeeWhereInput = {
+    AND?: EmployeeWhereInput | EmployeeWhereInput[]
+    OR?: EmployeeWhereInput[]
+    NOT?: EmployeeWhereInput | EmployeeWhereInput[]
+    id?: StringFilter<"Employee"> | string
+    companyId?: StringFilter<"Employee"> | string
+    userId?: StringFilter<"Employee"> | string
+    salary?: DecimalFilter<"Employee"> | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFilter<"Employee"> | Date | string
+    endDate?: DateTimeNullableFilter<"Employee"> | Date | string | null
+    position?: StringNullableFilter<"Employee"> | string | null
+    nationalId?: StringNullableFilter<"Employee"> | string | null
+    notes?: StringNullableFilter<"Employee"> | string | null
+    isActive?: BoolFilter<"Employee"> | boolean
+    createdAt?: DateTimeFilter<"Employee"> | Date | string
+    updatedAt?: DateTimeFilter<"Employee"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    advances?: EmployeeAdvanceListRelationFilter
+    payslips?: PayslipListRelationFilter
+  }
+
+  export type EmployeeOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    userId?: SortOrder
+    salary?: SortOrder
+    hireDate?: SortOrder
+    endDate?: SortOrderInput | SortOrder
+    position?: SortOrderInput | SortOrder
+    nationalId?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    company?: CompanyOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+    advances?: EmployeeAdvanceOrderByRelationAggregateInput
+    payslips?: PayslipOrderByRelationAggregateInput
+  }
+
+  export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId?: string
+    AND?: EmployeeWhereInput | EmployeeWhereInput[]
+    OR?: EmployeeWhereInput[]
+    NOT?: EmployeeWhereInput | EmployeeWhereInput[]
+    companyId?: StringFilter<"Employee"> | string
+    salary?: DecimalFilter<"Employee"> | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFilter<"Employee"> | Date | string
+    endDate?: DateTimeNullableFilter<"Employee"> | Date | string | null
+    position?: StringNullableFilter<"Employee"> | string | null
+    nationalId?: StringNullableFilter<"Employee"> | string | null
+    notes?: StringNullableFilter<"Employee"> | string | null
+    isActive?: BoolFilter<"Employee"> | boolean
+    createdAt?: DateTimeFilter<"Employee"> | Date | string
+    updatedAt?: DateTimeFilter<"Employee"> | Date | string
+    company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    advances?: EmployeeAdvanceListRelationFilter
+    payslips?: PayslipListRelationFilter
+  }, "id" | "userId">
+
+  export type EmployeeOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    userId?: SortOrder
+    salary?: SortOrder
+    hireDate?: SortOrder
+    endDate?: SortOrderInput | SortOrder
+    position?: SortOrderInput | SortOrder
+    nationalId?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EmployeeCountOrderByAggregateInput
+    _avg?: EmployeeAvgOrderByAggregateInput
+    _max?: EmployeeMaxOrderByAggregateInput
+    _min?: EmployeeMinOrderByAggregateInput
+    _sum?: EmployeeSumOrderByAggregateInput
+  }
+
+  export type EmployeeScalarWhereWithAggregatesInput = {
+    AND?: EmployeeScalarWhereWithAggregatesInput | EmployeeScalarWhereWithAggregatesInput[]
+    OR?: EmployeeScalarWhereWithAggregatesInput[]
+    NOT?: EmployeeScalarWhereWithAggregatesInput | EmployeeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Employee"> | string
+    companyId?: StringWithAggregatesFilter<"Employee"> | string
+    userId?: StringWithAggregatesFilter<"Employee"> | string
+    salary?: DecimalWithAggregatesFilter<"Employee"> | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeWithAggregatesFilter<"Employee"> | Date | string
+    endDate?: DateTimeNullableWithAggregatesFilter<"Employee"> | Date | string | null
+    position?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    nationalId?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    notes?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    isActive?: BoolWithAggregatesFilter<"Employee"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"Employee"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Employee"> | Date | string
+  }
+
+  export type EmployeeAdvanceWhereInput = {
+    AND?: EmployeeAdvanceWhereInput | EmployeeAdvanceWhereInput[]
+    OR?: EmployeeAdvanceWhereInput[]
+    NOT?: EmployeeAdvanceWhereInput | EmployeeAdvanceWhereInput[]
+    id?: StringFilter<"EmployeeAdvance"> | string
+    companyId?: StringFilter<"EmployeeAdvance"> | string
+    employeeId?: StringFilter<"EmployeeAdvance"> | string
+    amount?: DecimalFilter<"EmployeeAdvance"> | Decimal | DecimalJsLike | number | string
+    remaining?: DecimalFilter<"EmployeeAdvance"> | Decimal | DecimalJsLike | number | string
+    date?: DateTimeFilter<"EmployeeAdvance"> | Date | string
+    note?: StringNullableFilter<"EmployeeAdvance"> | string | null
+    expenseId?: StringNullableFilter<"EmployeeAdvance"> | string | null
+    createdAt?: DateTimeFilter<"EmployeeAdvance"> | Date | string
+    employee?: XOR<EmployeeScalarRelationFilter, EmployeeWhereInput>
+  }
+
+  export type EmployeeAdvanceOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    employeeId?: SortOrder
+    amount?: SortOrder
+    remaining?: SortOrder
+    date?: SortOrder
+    note?: SortOrderInput | SortOrder
+    expenseId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    employee?: EmployeeOrderByWithRelationInput
+  }
+
+  export type EmployeeAdvanceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: EmployeeAdvanceWhereInput | EmployeeAdvanceWhereInput[]
+    OR?: EmployeeAdvanceWhereInput[]
+    NOT?: EmployeeAdvanceWhereInput | EmployeeAdvanceWhereInput[]
+    companyId?: StringFilter<"EmployeeAdvance"> | string
+    employeeId?: StringFilter<"EmployeeAdvance"> | string
+    amount?: DecimalFilter<"EmployeeAdvance"> | Decimal | DecimalJsLike | number | string
+    remaining?: DecimalFilter<"EmployeeAdvance"> | Decimal | DecimalJsLike | number | string
+    date?: DateTimeFilter<"EmployeeAdvance"> | Date | string
+    note?: StringNullableFilter<"EmployeeAdvance"> | string | null
+    expenseId?: StringNullableFilter<"EmployeeAdvance"> | string | null
+    createdAt?: DateTimeFilter<"EmployeeAdvance"> | Date | string
+    employee?: XOR<EmployeeScalarRelationFilter, EmployeeWhereInput>
+  }, "id">
+
+  export type EmployeeAdvanceOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    employeeId?: SortOrder
+    amount?: SortOrder
+    remaining?: SortOrder
+    date?: SortOrder
+    note?: SortOrderInput | SortOrder
+    expenseId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: EmployeeAdvanceCountOrderByAggregateInput
+    _avg?: EmployeeAdvanceAvgOrderByAggregateInput
+    _max?: EmployeeAdvanceMaxOrderByAggregateInput
+    _min?: EmployeeAdvanceMinOrderByAggregateInput
+    _sum?: EmployeeAdvanceSumOrderByAggregateInput
+  }
+
+  export type EmployeeAdvanceScalarWhereWithAggregatesInput = {
+    AND?: EmployeeAdvanceScalarWhereWithAggregatesInput | EmployeeAdvanceScalarWhereWithAggregatesInput[]
+    OR?: EmployeeAdvanceScalarWhereWithAggregatesInput[]
+    NOT?: EmployeeAdvanceScalarWhereWithAggregatesInput | EmployeeAdvanceScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EmployeeAdvance"> | string
+    companyId?: StringWithAggregatesFilter<"EmployeeAdvance"> | string
+    employeeId?: StringWithAggregatesFilter<"EmployeeAdvance"> | string
+    amount?: DecimalWithAggregatesFilter<"EmployeeAdvance"> | Decimal | DecimalJsLike | number | string
+    remaining?: DecimalWithAggregatesFilter<"EmployeeAdvance"> | Decimal | DecimalJsLike | number | string
+    date?: DateTimeWithAggregatesFilter<"EmployeeAdvance"> | Date | string
+    note?: StringNullableWithAggregatesFilter<"EmployeeAdvance"> | string | null
+    expenseId?: StringNullableWithAggregatesFilter<"EmployeeAdvance"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EmployeeAdvance"> | Date | string
+  }
+
+  export type PayslipWhereInput = {
+    AND?: PayslipWhereInput | PayslipWhereInput[]
+    OR?: PayslipWhereInput[]
+    NOT?: PayslipWhereInput | PayslipWhereInput[]
+    id?: StringFilter<"Payslip"> | string
+    companyId?: StringFilter<"Payslip"> | string
+    employeeId?: StringFilter<"Payslip"> | string
+    year?: IntFilter<"Payslip"> | number
+    month?: IntFilter<"Payslip"> | number
+    baseSalary?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    bonus?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    deduction?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    deductionNote?: StringNullableFilter<"Payslip"> | string | null
+    advancesDeducted?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    net?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    paidAt?: DateTimeFilter<"Payslip"> | Date | string
+    expenseId?: StringNullableFilter<"Payslip"> | string | null
+    createdAt?: DateTimeFilter<"Payslip"> | Date | string
+    employee?: XOR<EmployeeScalarRelationFilter, EmployeeWhereInput>
+  }
+
+  export type PayslipOrderByWithRelationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    employeeId?: SortOrder
+    year?: SortOrder
+    month?: SortOrder
+    baseSalary?: SortOrder
+    bonus?: SortOrder
+    deduction?: SortOrder
+    deductionNote?: SortOrderInput | SortOrder
+    advancesDeducted?: SortOrder
+    net?: SortOrder
+    paidAt?: SortOrder
+    expenseId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    employee?: EmployeeOrderByWithRelationInput
+  }
+
+  export type PayslipWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    employeeId_year_month?: PayslipEmployeeIdYearMonthCompoundUniqueInput
+    AND?: PayslipWhereInput | PayslipWhereInput[]
+    OR?: PayslipWhereInput[]
+    NOT?: PayslipWhereInput | PayslipWhereInput[]
+    companyId?: StringFilter<"Payslip"> | string
+    employeeId?: StringFilter<"Payslip"> | string
+    year?: IntFilter<"Payslip"> | number
+    month?: IntFilter<"Payslip"> | number
+    baseSalary?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    bonus?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    deduction?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    deductionNote?: StringNullableFilter<"Payslip"> | string | null
+    advancesDeducted?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    net?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    paidAt?: DateTimeFilter<"Payslip"> | Date | string
+    expenseId?: StringNullableFilter<"Payslip"> | string | null
+    createdAt?: DateTimeFilter<"Payslip"> | Date | string
+    employee?: XOR<EmployeeScalarRelationFilter, EmployeeWhereInput>
+  }, "id" | "employeeId_year_month">
+
+  export type PayslipOrderByWithAggregationInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    employeeId?: SortOrder
+    year?: SortOrder
+    month?: SortOrder
+    baseSalary?: SortOrder
+    bonus?: SortOrder
+    deduction?: SortOrder
+    deductionNote?: SortOrderInput | SortOrder
+    advancesDeducted?: SortOrder
+    net?: SortOrder
+    paidAt?: SortOrder
+    expenseId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: PayslipCountOrderByAggregateInput
+    _avg?: PayslipAvgOrderByAggregateInput
+    _max?: PayslipMaxOrderByAggregateInput
+    _min?: PayslipMinOrderByAggregateInput
+    _sum?: PayslipSumOrderByAggregateInput
+  }
+
+  export type PayslipScalarWhereWithAggregatesInput = {
+    AND?: PayslipScalarWhereWithAggregatesInput | PayslipScalarWhereWithAggregatesInput[]
+    OR?: PayslipScalarWhereWithAggregatesInput[]
+    NOT?: PayslipScalarWhereWithAggregatesInput | PayslipScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Payslip"> | string
+    companyId?: StringWithAggregatesFilter<"Payslip"> | string
+    employeeId?: StringWithAggregatesFilter<"Payslip"> | string
+    year?: IntWithAggregatesFilter<"Payslip"> | number
+    month?: IntWithAggregatesFilter<"Payslip"> | number
+    baseSalary?: DecimalWithAggregatesFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    bonus?: DecimalWithAggregatesFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    deduction?: DecimalWithAggregatesFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    deductionNote?: StringNullableWithAggregatesFilter<"Payslip"> | string | null
+    advancesDeducted?: DecimalWithAggregatesFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    net?: DecimalWithAggregatesFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    paidAt?: DateTimeWithAggregatesFilter<"Payslip"> | Date | string
+    expenseId?: StringNullableWithAggregatesFilter<"Payslip"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Payslip"> | Date | string
+  }
+
   export type VersementWhereInput = {
     AND?: VersementWhereInput | VersementWhereInput[]
     OR?: VersementWhereInput[]
@@ -87060,6 +91418,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -87109,6 +91468,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -87158,6 +91518,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -87207,6 +91568,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -87862,6 +92224,7 @@ export namespace Prisma {
     devices?: DeviceCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -87884,6 +92247,7 @@ export namespace Prisma {
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -87906,6 +92270,7 @@ export namespace Prisma {
     devices?: DeviceUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -87928,6 +92293,7 @@ export namespace Prisma {
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -91863,6 +96229,318 @@ export namespace Prisma {
     opId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type EmployeeCreateInput = {
+    id?: string
+    salary?: Decimal | DecimalJsLike | number | string
+    hireDate?: Date | string
+    endDate?: Date | string | null
+    position?: string | null
+    nationalId?: string | null
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutEmployeesInput
+    user: UserCreateNestedOneWithoutEmployeeInput
+    advances?: EmployeeAdvanceCreateNestedManyWithoutEmployeeInput
+    payslips?: PayslipCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    userId: string
+    salary?: Decimal | DecimalJsLike | number | string
+    hireDate?: Date | string
+    endDate?: Date | string | null
+    position?: string | null
+    nationalId?: string | null
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    advances?: EmployeeAdvanceUncheckedCreateNestedManyWithoutEmployeeInput
+    payslips?: PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutEmployeesNestedInput
+    user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
+    advances?: EmployeeAdvanceUpdateManyWithoutEmployeeNestedInput
+    payslips?: PayslipUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type EmployeeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    advances?: EmployeeAdvanceUncheckedUpdateManyWithoutEmployeeNestedInput
+    payslips?: PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type EmployeeCreateManyInput = {
+    id?: string
+    companyId: string
+    userId: string
+    salary?: Decimal | DecimalJsLike | number | string
+    hireDate?: Date | string
+    endDate?: Date | string | null
+    position?: string | null
+    nationalId?: string | null
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmployeeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeAdvanceCreateInput = {
+    id?: string
+    companyId: string
+    amount: Decimal | DecimalJsLike | number | string
+    remaining: Decimal | DecimalJsLike | number | string
+    date?: Date | string
+    note?: string | null
+    expenseId?: string | null
+    createdAt?: Date | string
+    employee: EmployeeCreateNestedOneWithoutAdvancesInput
+  }
+
+  export type EmployeeAdvanceUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    employeeId: string
+    amount: Decimal | DecimalJsLike | number | string
+    remaining: Decimal | DecimalJsLike | number | string
+    date?: Date | string
+    note?: string | null
+    expenseId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type EmployeeAdvanceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employee?: EmployeeUpdateOneRequiredWithoutAdvancesNestedInput
+  }
+
+  export type EmployeeAdvanceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeAdvanceCreateManyInput = {
+    id?: string
+    companyId: string
+    employeeId: string
+    amount: Decimal | DecimalJsLike | number | string
+    remaining: Decimal | DecimalJsLike | number | string
+    date?: Date | string
+    note?: string | null
+    expenseId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type EmployeeAdvanceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeAdvanceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PayslipCreateInput = {
+    id?: string
+    companyId: string
+    year: number
+    month: number
+    baseSalary: Decimal | DecimalJsLike | number | string
+    bonus?: Decimal | DecimalJsLike | number | string
+    deduction?: Decimal | DecimalJsLike | number | string
+    deductionNote?: string | null
+    advancesDeducted?: Decimal | DecimalJsLike | number | string
+    net: Decimal | DecimalJsLike | number | string
+    paidAt?: Date | string
+    expenseId?: string | null
+    createdAt?: Date | string
+    employee: EmployeeCreateNestedOneWithoutPayslipsInput
+  }
+
+  export type PayslipUncheckedCreateInput = {
+    id?: string
+    companyId: string
+    employeeId: string
+    year: number
+    month: number
+    baseSalary: Decimal | DecimalJsLike | number | string
+    bonus?: Decimal | DecimalJsLike | number | string
+    deduction?: Decimal | DecimalJsLike | number | string
+    deductionNote?: string | null
+    advancesDeducted?: Decimal | DecimalJsLike | number | string
+    net: Decimal | DecimalJsLike | number | string
+    paidAt?: Date | string
+    expenseId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PayslipUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    baseSalary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    bonus?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deduction?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deductionNote?: NullableStringFieldUpdateOperationsInput | string | null
+    advancesDeducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    net?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employee?: EmployeeUpdateOneRequiredWithoutPayslipsNestedInput
+  }
+
+  export type PayslipUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    baseSalary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    bonus?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deduction?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deductionNote?: NullableStringFieldUpdateOperationsInput | string | null
+    advancesDeducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    net?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PayslipCreateManyInput = {
+    id?: string
+    companyId: string
+    employeeId: string
+    year: number
+    month: number
+    baseSalary: Decimal | DecimalJsLike | number | string
+    bonus?: Decimal | DecimalJsLike | number | string
+    deduction?: Decimal | DecimalJsLike | number | string
+    deductionNote?: string | null
+    advancesDeducted?: Decimal | DecimalJsLike | number | string
+    net: Decimal | DecimalJsLike | number | string
+    paidAt?: Date | string
+    expenseId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PayslipUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    baseSalary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    bonus?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deduction?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deductionNote?: NullableStringFieldUpdateOperationsInput | string | null
+    advancesDeducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    net?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PayslipUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    baseSalary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    bonus?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deduction?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deductionNote?: NullableStringFieldUpdateOperationsInput | string | null
+    advancesDeducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    net?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type VersementCreateInput = {
     id?: string
     seasonId?: string | null
@@ -93048,6 +97726,12 @@ export namespace Prisma {
     none?: ExpenseWhereInput
   }
 
+  export type EmployeeListRelationFilter = {
+    every?: EmployeeWhereInput
+    some?: EmployeeWhereInput
+    none?: EmployeeWhereInput
+  }
+
   export type VersementListRelationFilter = {
     every?: VersementWhereInput
     some?: VersementWhereInput
@@ -93178,6 +97862,10 @@ export namespace Prisma {
   }
 
   export type ExpenseOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EmployeeOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -93727,6 +98415,11 @@ export namespace Prisma {
 
   export type SecteurSumOrderByAggregateInput = {
     wilayaCode?: SortOrder
+  }
+
+  export type EmployeeNullableScalarRelationFilter = {
+    is?: EmployeeWhereInput | null
+    isNot?: EmployeeWhereInput | null
   }
 
   export type UserCompanyIdUsernameCompoundUniqueInput = {
@@ -96211,6 +100904,207 @@ export namespace Prisma {
     amount?: SortOrder
   }
 
+  export type EmployeeAdvanceListRelationFilter = {
+    every?: EmployeeAdvanceWhereInput
+    some?: EmployeeAdvanceWhereInput
+    none?: EmployeeAdvanceWhereInput
+  }
+
+  export type PayslipListRelationFilter = {
+    every?: PayslipWhereInput
+    some?: PayslipWhereInput
+    none?: PayslipWhereInput
+  }
+
+  export type EmployeeAdvanceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PayslipOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EmployeeCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    userId?: SortOrder
+    salary?: SortOrder
+    hireDate?: SortOrder
+    endDate?: SortOrder
+    position?: SortOrder
+    nationalId?: SortOrder
+    notes?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmployeeAvgOrderByAggregateInput = {
+    salary?: SortOrder
+  }
+
+  export type EmployeeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    userId?: SortOrder
+    salary?: SortOrder
+    hireDate?: SortOrder
+    endDate?: SortOrder
+    position?: SortOrder
+    nationalId?: SortOrder
+    notes?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmployeeMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    userId?: SortOrder
+    salary?: SortOrder
+    hireDate?: SortOrder
+    endDate?: SortOrder
+    position?: SortOrder
+    nationalId?: SortOrder
+    notes?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmployeeSumOrderByAggregateInput = {
+    salary?: SortOrder
+  }
+
+  export type EmployeeScalarRelationFilter = {
+    is?: EmployeeWhereInput
+    isNot?: EmployeeWhereInput
+  }
+
+  export type EmployeeAdvanceCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    employeeId?: SortOrder
+    amount?: SortOrder
+    remaining?: SortOrder
+    date?: SortOrder
+    note?: SortOrder
+    expenseId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EmployeeAdvanceAvgOrderByAggregateInput = {
+    amount?: SortOrder
+    remaining?: SortOrder
+  }
+
+  export type EmployeeAdvanceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    employeeId?: SortOrder
+    amount?: SortOrder
+    remaining?: SortOrder
+    date?: SortOrder
+    note?: SortOrder
+    expenseId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EmployeeAdvanceMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    employeeId?: SortOrder
+    amount?: SortOrder
+    remaining?: SortOrder
+    date?: SortOrder
+    note?: SortOrder
+    expenseId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EmployeeAdvanceSumOrderByAggregateInput = {
+    amount?: SortOrder
+    remaining?: SortOrder
+  }
+
+  export type PayslipEmployeeIdYearMonthCompoundUniqueInput = {
+    employeeId: string
+    year: number
+    month: number
+  }
+
+  export type PayslipCountOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    employeeId?: SortOrder
+    year?: SortOrder
+    month?: SortOrder
+    baseSalary?: SortOrder
+    bonus?: SortOrder
+    deduction?: SortOrder
+    deductionNote?: SortOrder
+    advancesDeducted?: SortOrder
+    net?: SortOrder
+    paidAt?: SortOrder
+    expenseId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PayslipAvgOrderByAggregateInput = {
+    year?: SortOrder
+    month?: SortOrder
+    baseSalary?: SortOrder
+    bonus?: SortOrder
+    deduction?: SortOrder
+    advancesDeducted?: SortOrder
+    net?: SortOrder
+  }
+
+  export type PayslipMaxOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    employeeId?: SortOrder
+    year?: SortOrder
+    month?: SortOrder
+    baseSalary?: SortOrder
+    bonus?: SortOrder
+    deduction?: SortOrder
+    deductionNote?: SortOrder
+    advancesDeducted?: SortOrder
+    net?: SortOrder
+    paidAt?: SortOrder
+    expenseId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PayslipMinOrderByAggregateInput = {
+    id?: SortOrder
+    companyId?: SortOrder
+    employeeId?: SortOrder
+    year?: SortOrder
+    month?: SortOrder
+    baseSalary?: SortOrder
+    bonus?: SortOrder
+    deduction?: SortOrder
+    deductionNote?: SortOrder
+    advancesDeducted?: SortOrder
+    net?: SortOrder
+    paidAt?: SortOrder
+    expenseId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PayslipSumOrderByAggregateInput = {
+    year?: SortOrder
+    month?: SortOrder
+    baseSalary?: SortOrder
+    bonus?: SortOrder
+    deduction?: SortOrder
+    advancesDeducted?: SortOrder
+    net?: SortOrder
+  }
+
   export type VersementCompanyIdOpIdCompoundUniqueInput = {
     companyId: string
     opId: string
@@ -97015,6 +101909,13 @@ export namespace Prisma {
     connect?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
   }
 
+  export type EmployeeCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<EmployeeCreateWithoutCompanyInput, EmployeeUncheckedCreateWithoutCompanyInput> | EmployeeCreateWithoutCompanyInput[] | EmployeeUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EmployeeCreateOrConnectWithoutCompanyInput | EmployeeCreateOrConnectWithoutCompanyInput[]
+    createMany?: EmployeeCreateManyCompanyInputEnvelope
+    connect?: EmployeeWhereUniqueInput | EmployeeWhereUniqueInput[]
+  }
+
   export type VersementCreateNestedManyWithoutCompanyInput = {
     create?: XOR<VersementCreateWithoutCompanyInput, VersementUncheckedCreateWithoutCompanyInput> | VersementCreateWithoutCompanyInput[] | VersementUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: VersementCreateOrConnectWithoutCompanyInput | VersementCreateOrConnectWithoutCompanyInput[]
@@ -97222,6 +102123,13 @@ export namespace Prisma {
     connectOrCreate?: ExpenseCreateOrConnectWithoutCompanyInput | ExpenseCreateOrConnectWithoutCompanyInput[]
     createMany?: ExpenseCreateManyCompanyInputEnvelope
     connect?: ExpenseWhereUniqueInput | ExpenseWhereUniqueInput[]
+  }
+
+  export type EmployeeUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<EmployeeCreateWithoutCompanyInput, EmployeeUncheckedCreateWithoutCompanyInput> | EmployeeCreateWithoutCompanyInput[] | EmployeeUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EmployeeCreateOrConnectWithoutCompanyInput | EmployeeCreateOrConnectWithoutCompanyInput[]
+    createMany?: EmployeeCreateManyCompanyInputEnvelope
+    connect?: EmployeeWhereUniqueInput | EmployeeWhereUniqueInput[]
   }
 
   export type VersementUncheckedCreateNestedManyWithoutCompanyInput = {
@@ -97608,6 +102516,20 @@ export namespace Prisma {
     update?: ExpenseUpdateWithWhereUniqueWithoutCompanyInput | ExpenseUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: ExpenseUpdateManyWithWhereWithoutCompanyInput | ExpenseUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: ExpenseScalarWhereInput | ExpenseScalarWhereInput[]
+  }
+
+  export type EmployeeUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<EmployeeCreateWithoutCompanyInput, EmployeeUncheckedCreateWithoutCompanyInput> | EmployeeCreateWithoutCompanyInput[] | EmployeeUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EmployeeCreateOrConnectWithoutCompanyInput | EmployeeCreateOrConnectWithoutCompanyInput[]
+    upsert?: EmployeeUpsertWithWhereUniqueWithoutCompanyInput | EmployeeUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: EmployeeCreateManyCompanyInputEnvelope
+    set?: EmployeeWhereUniqueInput | EmployeeWhereUniqueInput[]
+    disconnect?: EmployeeWhereUniqueInput | EmployeeWhereUniqueInput[]
+    delete?: EmployeeWhereUniqueInput | EmployeeWhereUniqueInput[]
+    connect?: EmployeeWhereUniqueInput | EmployeeWhereUniqueInput[]
+    update?: EmployeeUpdateWithWhereUniqueWithoutCompanyInput | EmployeeUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: EmployeeUpdateManyWithWhereWithoutCompanyInput | EmployeeUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: EmployeeScalarWhereInput | EmployeeScalarWhereInput[]
   }
 
   export type VersementUpdateManyWithoutCompanyNestedInput = {
@@ -98024,6 +102946,20 @@ export namespace Prisma {
     update?: ExpenseUpdateWithWhereUniqueWithoutCompanyInput | ExpenseUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: ExpenseUpdateManyWithWhereWithoutCompanyInput | ExpenseUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: ExpenseScalarWhereInput | ExpenseScalarWhereInput[]
+  }
+
+  export type EmployeeUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<EmployeeCreateWithoutCompanyInput, EmployeeUncheckedCreateWithoutCompanyInput> | EmployeeCreateWithoutCompanyInput[] | EmployeeUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: EmployeeCreateOrConnectWithoutCompanyInput | EmployeeCreateOrConnectWithoutCompanyInput[]
+    upsert?: EmployeeUpsertWithWhereUniqueWithoutCompanyInput | EmployeeUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: EmployeeCreateManyCompanyInputEnvelope
+    set?: EmployeeWhereUniqueInput | EmployeeWhereUniqueInput[]
+    disconnect?: EmployeeWhereUniqueInput | EmployeeWhereUniqueInput[]
+    delete?: EmployeeWhereUniqueInput | EmployeeWhereUniqueInput[]
+    connect?: EmployeeWhereUniqueInput | EmployeeWhereUniqueInput[]
+    update?: EmployeeUpdateWithWhereUniqueWithoutCompanyInput | EmployeeUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: EmployeeUpdateManyWithWhereWithoutCompanyInput | EmployeeUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: EmployeeScalarWhereInput | EmployeeScalarWhereInput[]
   }
 
   export type VersementUncheckedUpdateManyWithoutCompanyNestedInput = {
@@ -99022,6 +103958,12 @@ export namespace Prisma {
     connect?: SaleWhereUniqueInput | SaleWhereUniqueInput[]
   }
 
+  export type EmployeeCreateNestedOneWithoutUserInput = {
+    create?: XOR<EmployeeCreateWithoutUserInput, EmployeeUncheckedCreateWithoutUserInput>
+    connectOrCreate?: EmployeeCreateOrConnectWithoutUserInput
+    connect?: EmployeeWhereUniqueInput
+  }
+
   export type ClientDistanceUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<ClientDistanceCreateWithoutUserInput, ClientDistanceUncheckedCreateWithoutUserInput> | ClientDistanceCreateWithoutUserInput[] | ClientDistanceUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ClientDistanceCreateOrConnectWithoutUserInput | ClientDistanceCreateOrConnectWithoutUserInput[]
@@ -99062,6 +104004,12 @@ export namespace Prisma {
     connectOrCreate?: SaleCreateOrConnectWithoutCreatedByInput | SaleCreateOrConnectWithoutCreatedByInput[]
     createMany?: SaleCreateManyCreatedByInputEnvelope
     connect?: SaleWhereUniqueInput | SaleWhereUniqueInput[]
+  }
+
+  export type EmployeeUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<EmployeeCreateWithoutUserInput, EmployeeUncheckedCreateWithoutUserInput>
+    connectOrCreate?: EmployeeCreateOrConnectWithoutUserInput
+    connect?: EmployeeWhereUniqueInput
   }
 
   export type CompanyUpdateOneRequiredWithoutUsersNestedInput = {
@@ -99156,6 +104104,16 @@ export namespace Prisma {
     deleteMany?: SaleScalarWhereInput | SaleScalarWhereInput[]
   }
 
+  export type EmployeeUpdateOneWithoutUserNestedInput = {
+    create?: XOR<EmployeeCreateWithoutUserInput, EmployeeUncheckedCreateWithoutUserInput>
+    connectOrCreate?: EmployeeCreateOrConnectWithoutUserInput
+    upsert?: EmployeeUpsertWithoutUserInput
+    disconnect?: EmployeeWhereInput | boolean
+    delete?: EmployeeWhereInput | boolean
+    connect?: EmployeeWhereUniqueInput
+    update?: XOR<XOR<EmployeeUpdateToOneWithWhereWithoutUserInput, EmployeeUpdateWithoutUserInput>, EmployeeUncheckedUpdateWithoutUserInput>
+  }
+
   export type ClientDistanceUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<ClientDistanceCreateWithoutUserInput, ClientDistanceUncheckedCreateWithoutUserInput> | ClientDistanceCreateWithoutUserInput[] | ClientDistanceUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ClientDistanceCreateOrConnectWithoutUserInput | ClientDistanceCreateOrConnectWithoutUserInput[]
@@ -99238,6 +104196,16 @@ export namespace Prisma {
     update?: SaleUpdateWithWhereUniqueWithoutCreatedByInput | SaleUpdateWithWhereUniqueWithoutCreatedByInput[]
     updateMany?: SaleUpdateManyWithWhereWithoutCreatedByInput | SaleUpdateManyWithWhereWithoutCreatedByInput[]
     deleteMany?: SaleScalarWhereInput | SaleScalarWhereInput[]
+  }
+
+  export type EmployeeUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<EmployeeCreateWithoutUserInput, EmployeeUncheckedCreateWithoutUserInput>
+    connectOrCreate?: EmployeeCreateOrConnectWithoutUserInput
+    upsert?: EmployeeUpsertWithoutUserInput
+    disconnect?: EmployeeWhereInput | boolean
+    delete?: EmployeeWhereInput | boolean
+    connect?: EmployeeWhereUniqueInput
+    update?: XOR<XOR<EmployeeUpdateToOneWithWhereWithoutUserInput, EmployeeUpdateWithoutUserInput>, EmployeeUncheckedUpdateWithoutUserInput>
   }
 
   export type UserCreateNestedOneWithoutAreasInput = {
@@ -102920,6 +107888,146 @@ export namespace Prisma {
     update?: XOR<XOR<StoreUpdateToOneWithWhereWithoutExpenseLinksInput, StoreUpdateWithoutExpenseLinksInput>, StoreUncheckedUpdateWithoutExpenseLinksInput>
   }
 
+  export type CompanyCreateNestedOneWithoutEmployeesInput = {
+    create?: XOR<CompanyCreateWithoutEmployeesInput, CompanyUncheckedCreateWithoutEmployeesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutEmployeesInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutEmployeeInput = {
+    create?: XOR<UserCreateWithoutEmployeeInput, UserUncheckedCreateWithoutEmployeeInput>
+    connectOrCreate?: UserCreateOrConnectWithoutEmployeeInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EmployeeAdvanceCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<EmployeeAdvanceCreateWithoutEmployeeInput, EmployeeAdvanceUncheckedCreateWithoutEmployeeInput> | EmployeeAdvanceCreateWithoutEmployeeInput[] | EmployeeAdvanceUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: EmployeeAdvanceCreateOrConnectWithoutEmployeeInput | EmployeeAdvanceCreateOrConnectWithoutEmployeeInput[]
+    createMany?: EmployeeAdvanceCreateManyEmployeeInputEnvelope
+    connect?: EmployeeAdvanceWhereUniqueInput | EmployeeAdvanceWhereUniqueInput[]
+  }
+
+  export type PayslipCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<PayslipCreateWithoutEmployeeInput, PayslipUncheckedCreateWithoutEmployeeInput> | PayslipCreateWithoutEmployeeInput[] | PayslipUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: PayslipCreateOrConnectWithoutEmployeeInput | PayslipCreateOrConnectWithoutEmployeeInput[]
+    createMany?: PayslipCreateManyEmployeeInputEnvelope
+    connect?: PayslipWhereUniqueInput | PayslipWhereUniqueInput[]
+  }
+
+  export type EmployeeAdvanceUncheckedCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<EmployeeAdvanceCreateWithoutEmployeeInput, EmployeeAdvanceUncheckedCreateWithoutEmployeeInput> | EmployeeAdvanceCreateWithoutEmployeeInput[] | EmployeeAdvanceUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: EmployeeAdvanceCreateOrConnectWithoutEmployeeInput | EmployeeAdvanceCreateOrConnectWithoutEmployeeInput[]
+    createMany?: EmployeeAdvanceCreateManyEmployeeInputEnvelope
+    connect?: EmployeeAdvanceWhereUniqueInput | EmployeeAdvanceWhereUniqueInput[]
+  }
+
+  export type PayslipUncheckedCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<PayslipCreateWithoutEmployeeInput, PayslipUncheckedCreateWithoutEmployeeInput> | PayslipCreateWithoutEmployeeInput[] | PayslipUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: PayslipCreateOrConnectWithoutEmployeeInput | PayslipCreateOrConnectWithoutEmployeeInput[]
+    createMany?: PayslipCreateManyEmployeeInputEnvelope
+    connect?: PayslipWhereUniqueInput | PayslipWhereUniqueInput[]
+  }
+
+  export type CompanyUpdateOneRequiredWithoutEmployeesNestedInput = {
+    create?: XOR<CompanyCreateWithoutEmployeesInput, CompanyUncheckedCreateWithoutEmployeesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutEmployeesInput
+    upsert?: CompanyUpsertWithoutEmployeesInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutEmployeesInput, CompanyUpdateWithoutEmployeesInput>, CompanyUncheckedUpdateWithoutEmployeesInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutEmployeeNestedInput = {
+    create?: XOR<UserCreateWithoutEmployeeInput, UserUncheckedCreateWithoutEmployeeInput>
+    connectOrCreate?: UserCreateOrConnectWithoutEmployeeInput
+    upsert?: UserUpsertWithoutEmployeeInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutEmployeeInput, UserUpdateWithoutEmployeeInput>, UserUncheckedUpdateWithoutEmployeeInput>
+  }
+
+  export type EmployeeAdvanceUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<EmployeeAdvanceCreateWithoutEmployeeInput, EmployeeAdvanceUncheckedCreateWithoutEmployeeInput> | EmployeeAdvanceCreateWithoutEmployeeInput[] | EmployeeAdvanceUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: EmployeeAdvanceCreateOrConnectWithoutEmployeeInput | EmployeeAdvanceCreateOrConnectWithoutEmployeeInput[]
+    upsert?: EmployeeAdvanceUpsertWithWhereUniqueWithoutEmployeeInput | EmployeeAdvanceUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: EmployeeAdvanceCreateManyEmployeeInputEnvelope
+    set?: EmployeeAdvanceWhereUniqueInput | EmployeeAdvanceWhereUniqueInput[]
+    disconnect?: EmployeeAdvanceWhereUniqueInput | EmployeeAdvanceWhereUniqueInput[]
+    delete?: EmployeeAdvanceWhereUniqueInput | EmployeeAdvanceWhereUniqueInput[]
+    connect?: EmployeeAdvanceWhereUniqueInput | EmployeeAdvanceWhereUniqueInput[]
+    update?: EmployeeAdvanceUpdateWithWhereUniqueWithoutEmployeeInput | EmployeeAdvanceUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: EmployeeAdvanceUpdateManyWithWhereWithoutEmployeeInput | EmployeeAdvanceUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: EmployeeAdvanceScalarWhereInput | EmployeeAdvanceScalarWhereInput[]
+  }
+
+  export type PayslipUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<PayslipCreateWithoutEmployeeInput, PayslipUncheckedCreateWithoutEmployeeInput> | PayslipCreateWithoutEmployeeInput[] | PayslipUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: PayslipCreateOrConnectWithoutEmployeeInput | PayslipCreateOrConnectWithoutEmployeeInput[]
+    upsert?: PayslipUpsertWithWhereUniqueWithoutEmployeeInput | PayslipUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: PayslipCreateManyEmployeeInputEnvelope
+    set?: PayslipWhereUniqueInput | PayslipWhereUniqueInput[]
+    disconnect?: PayslipWhereUniqueInput | PayslipWhereUniqueInput[]
+    delete?: PayslipWhereUniqueInput | PayslipWhereUniqueInput[]
+    connect?: PayslipWhereUniqueInput | PayslipWhereUniqueInput[]
+    update?: PayslipUpdateWithWhereUniqueWithoutEmployeeInput | PayslipUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: PayslipUpdateManyWithWhereWithoutEmployeeInput | PayslipUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: PayslipScalarWhereInput | PayslipScalarWhereInput[]
+  }
+
+  export type EmployeeAdvanceUncheckedUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<EmployeeAdvanceCreateWithoutEmployeeInput, EmployeeAdvanceUncheckedCreateWithoutEmployeeInput> | EmployeeAdvanceCreateWithoutEmployeeInput[] | EmployeeAdvanceUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: EmployeeAdvanceCreateOrConnectWithoutEmployeeInput | EmployeeAdvanceCreateOrConnectWithoutEmployeeInput[]
+    upsert?: EmployeeAdvanceUpsertWithWhereUniqueWithoutEmployeeInput | EmployeeAdvanceUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: EmployeeAdvanceCreateManyEmployeeInputEnvelope
+    set?: EmployeeAdvanceWhereUniqueInput | EmployeeAdvanceWhereUniqueInput[]
+    disconnect?: EmployeeAdvanceWhereUniqueInput | EmployeeAdvanceWhereUniqueInput[]
+    delete?: EmployeeAdvanceWhereUniqueInput | EmployeeAdvanceWhereUniqueInput[]
+    connect?: EmployeeAdvanceWhereUniqueInput | EmployeeAdvanceWhereUniqueInput[]
+    update?: EmployeeAdvanceUpdateWithWhereUniqueWithoutEmployeeInput | EmployeeAdvanceUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: EmployeeAdvanceUpdateManyWithWhereWithoutEmployeeInput | EmployeeAdvanceUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: EmployeeAdvanceScalarWhereInput | EmployeeAdvanceScalarWhereInput[]
+  }
+
+  export type PayslipUncheckedUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<PayslipCreateWithoutEmployeeInput, PayslipUncheckedCreateWithoutEmployeeInput> | PayslipCreateWithoutEmployeeInput[] | PayslipUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: PayslipCreateOrConnectWithoutEmployeeInput | PayslipCreateOrConnectWithoutEmployeeInput[]
+    upsert?: PayslipUpsertWithWhereUniqueWithoutEmployeeInput | PayslipUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: PayslipCreateManyEmployeeInputEnvelope
+    set?: PayslipWhereUniqueInput | PayslipWhereUniqueInput[]
+    disconnect?: PayslipWhereUniqueInput | PayslipWhereUniqueInput[]
+    delete?: PayslipWhereUniqueInput | PayslipWhereUniqueInput[]
+    connect?: PayslipWhereUniqueInput | PayslipWhereUniqueInput[]
+    update?: PayslipUpdateWithWhereUniqueWithoutEmployeeInput | PayslipUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: PayslipUpdateManyWithWhereWithoutEmployeeInput | PayslipUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: PayslipScalarWhereInput | PayslipScalarWhereInput[]
+  }
+
+  export type EmployeeCreateNestedOneWithoutAdvancesInput = {
+    create?: XOR<EmployeeCreateWithoutAdvancesInput, EmployeeUncheckedCreateWithoutAdvancesInput>
+    connectOrCreate?: EmployeeCreateOrConnectWithoutAdvancesInput
+    connect?: EmployeeWhereUniqueInput
+  }
+
+  export type EmployeeUpdateOneRequiredWithoutAdvancesNestedInput = {
+    create?: XOR<EmployeeCreateWithoutAdvancesInput, EmployeeUncheckedCreateWithoutAdvancesInput>
+    connectOrCreate?: EmployeeCreateOrConnectWithoutAdvancesInput
+    upsert?: EmployeeUpsertWithoutAdvancesInput
+    connect?: EmployeeWhereUniqueInput
+    update?: XOR<XOR<EmployeeUpdateToOneWithWhereWithoutAdvancesInput, EmployeeUpdateWithoutAdvancesInput>, EmployeeUncheckedUpdateWithoutAdvancesInput>
+  }
+
+  export type EmployeeCreateNestedOneWithoutPayslipsInput = {
+    create?: XOR<EmployeeCreateWithoutPayslipsInput, EmployeeUncheckedCreateWithoutPayslipsInput>
+    connectOrCreate?: EmployeeCreateOrConnectWithoutPayslipsInput
+    connect?: EmployeeWhereUniqueInput
+  }
+
+  export type EmployeeUpdateOneRequiredWithoutPayslipsNestedInput = {
+    create?: XOR<EmployeeCreateWithoutPayslipsInput, EmployeeUncheckedCreateWithoutPayslipsInput>
+    connectOrCreate?: EmployeeCreateOrConnectWithoutPayslipsInput
+    upsert?: EmployeeUpsertWithoutPayslipsInput
+    connect?: EmployeeWhereUniqueInput
+    update?: XOR<XOR<EmployeeUpdateToOneWithWhereWithoutPayslipsInput, EmployeeUpdateWithoutPayslipsInput>, EmployeeUncheckedUpdateWithoutPayslipsInput>
+  }
+
   export type CompanyCreateNestedOneWithoutVersementsInput = {
     create?: XOR<CompanyCreateWithoutVersementsInput, CompanyUncheckedCreateWithoutVersementsInput>
     connectOrCreate?: CompanyCreateOrConnectWithoutVersementsInput
@@ -103728,6 +108836,7 @@ export namespace Prisma {
     devices?: DeviceCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCompanyInput = {
@@ -103749,6 +108858,7 @@ export namespace Prisma {
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCompanyInput = {
@@ -104803,6 +109913,47 @@ export namespace Prisma {
 
   export type ExpenseCreateManyCompanyInputEnvelope = {
     data: ExpenseCreateManyCompanyInput | ExpenseCreateManyCompanyInput[]
+  }
+
+  export type EmployeeCreateWithoutCompanyInput = {
+    id?: string
+    salary?: Decimal | DecimalJsLike | number | string
+    hireDate?: Date | string
+    endDate?: Date | string | null
+    position?: string | null
+    nationalId?: string | null
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutEmployeeInput
+    advances?: EmployeeAdvanceCreateNestedManyWithoutEmployeeInput
+    payslips?: PayslipCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    userId: string
+    salary?: Decimal | DecimalJsLike | number | string
+    hireDate?: Date | string
+    endDate?: Date | string | null
+    position?: string | null
+    nationalId?: string | null
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    advances?: EmployeeAdvanceUncheckedCreateNestedManyWithoutEmployeeInput
+    payslips?: PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeCreateOrConnectWithoutCompanyInput = {
+    where: EmployeeWhereUniqueInput
+    create: XOR<EmployeeCreateWithoutCompanyInput, EmployeeUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type EmployeeCreateManyCompanyInputEnvelope = {
+    data: EmployeeCreateManyCompanyInput | EmployeeCreateManyCompanyInput[]
   }
 
   export type VersementCreateWithoutCompanyInput = {
@@ -105895,6 +111046,40 @@ export namespace Prisma {
     opId?: StringNullableFilter<"Expense"> | string | null
   }
 
+  export type EmployeeUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: EmployeeWhereUniqueInput
+    update: XOR<EmployeeUpdateWithoutCompanyInput, EmployeeUncheckedUpdateWithoutCompanyInput>
+    create: XOR<EmployeeCreateWithoutCompanyInput, EmployeeUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type EmployeeUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: EmployeeWhereUniqueInput
+    data: XOR<EmployeeUpdateWithoutCompanyInput, EmployeeUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type EmployeeUpdateManyWithWhereWithoutCompanyInput = {
+    where: EmployeeScalarWhereInput
+    data: XOR<EmployeeUpdateManyMutationInput, EmployeeUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type EmployeeScalarWhereInput = {
+    AND?: EmployeeScalarWhereInput | EmployeeScalarWhereInput[]
+    OR?: EmployeeScalarWhereInput[]
+    NOT?: EmployeeScalarWhereInput | EmployeeScalarWhereInput[]
+    id?: StringFilter<"Employee"> | string
+    companyId?: StringFilter<"Employee"> | string
+    userId?: StringFilter<"Employee"> | string
+    salary?: DecimalFilter<"Employee"> | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFilter<"Employee"> | Date | string
+    endDate?: DateTimeNullableFilter<"Employee"> | Date | string | null
+    position?: StringNullableFilter<"Employee"> | string | null
+    nationalId?: StringNullableFilter<"Employee"> | string | null
+    notes?: StringNullableFilter<"Employee"> | string | null
+    isActive?: BoolFilter<"Employee"> | boolean
+    createdAt?: DateTimeFilter<"Employee"> | Date | string
+    updatedAt?: DateTimeFilter<"Employee"> | Date | string
+  }
+
   export type VersementUpsertWithWhereUniqueWithoutCompanyInput = {
     where: VersementWhereUniqueInput
     update: XOR<VersementUpdateWithoutCompanyInput, VersementUncheckedUpdateWithoutCompanyInput>
@@ -106139,6 +111324,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -106187,6 +111373,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -106251,6 +111438,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -106299,6 +111487,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -106347,6 +111536,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -106395,6 +111585,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -106709,6 +111900,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -106757,6 +111949,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -106881,6 +112074,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -106929,6 +112123,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -107197,6 +112392,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -107245,6 +112441,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -107380,6 +112577,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -107428,6 +112626,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -107529,6 +112728,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -107577,6 +112777,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -107902,6 +113103,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -107950,6 +113152,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -108280,6 +113483,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -108328,6 +113532,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -108485,6 +113690,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -108533,6 +113739,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -108826,6 +114033,43 @@ export namespace Prisma {
     data: SaleCreateManyCreatedByInput | SaleCreateManyCreatedByInput[]
   }
 
+  export type EmployeeCreateWithoutUserInput = {
+    id?: string
+    salary?: Decimal | DecimalJsLike | number | string
+    hireDate?: Date | string
+    endDate?: Date | string | null
+    position?: string | null
+    nationalId?: string | null
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutEmployeesInput
+    advances?: EmployeeAdvanceCreateNestedManyWithoutEmployeeInput
+    payslips?: PayslipCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeUncheckedCreateWithoutUserInput = {
+    id?: string
+    companyId: string
+    salary?: Decimal | DecimalJsLike | number | string
+    hireDate?: Date | string
+    endDate?: Date | string | null
+    position?: string | null
+    nationalId?: string | null
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    advances?: EmployeeAdvanceUncheckedCreateNestedManyWithoutEmployeeInput
+    payslips?: PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeCreateOrConnectWithoutUserInput = {
+    where: EmployeeWhereUniqueInput
+    create: XOR<EmployeeCreateWithoutUserInput, EmployeeUncheckedCreateWithoutUserInput>
+  }
+
   export type CompanyUpsertWithoutUsersInput = {
     update: XOR<CompanyUpdateWithoutUsersInput, CompanyUncheckedUpdateWithoutUsersInput>
     create: XOR<CompanyCreateWithoutUsersInput, CompanyUncheckedCreateWithoutUsersInput>
@@ -108877,6 +114121,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -108925,6 +114170,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -109029,6 +114275,49 @@ export namespace Prisma {
     data: XOR<SaleUpdateManyMutationInput, SaleUncheckedUpdateManyWithoutCreatedByInput>
   }
 
+  export type EmployeeUpsertWithoutUserInput = {
+    update: XOR<EmployeeUpdateWithoutUserInput, EmployeeUncheckedUpdateWithoutUserInput>
+    create: XOR<EmployeeCreateWithoutUserInput, EmployeeUncheckedCreateWithoutUserInput>
+    where?: EmployeeWhereInput
+  }
+
+  export type EmployeeUpdateToOneWithWhereWithoutUserInput = {
+    where?: EmployeeWhereInput
+    data: XOR<EmployeeUpdateWithoutUserInput, EmployeeUncheckedUpdateWithoutUserInput>
+  }
+
+  export type EmployeeUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutEmployeesNestedInput
+    advances?: EmployeeAdvanceUpdateManyWithoutEmployeeNestedInput
+    payslips?: PayslipUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type EmployeeUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    advances?: EmployeeAdvanceUncheckedUpdateManyWithoutEmployeeNestedInput
+    payslips?: PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  }
+
   export type UserCreateWithoutAreasInput = {
     id?: string
     username: string
@@ -109048,6 +114337,7 @@ export namespace Prisma {
     devices?: DeviceCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAreasInput = {
@@ -109069,6 +114359,7 @@ export namespace Prisma {
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAreasInput = {
@@ -109160,6 +114451,7 @@ export namespace Prisma {
     devices?: DeviceUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAreasInput = {
@@ -109181,6 +114473,7 @@ export namespace Prisma {
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type WilayaUpsertWithoutUserAreasInput = {
@@ -109400,6 +114693,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -109448,6 +114742,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -109480,6 +114775,7 @@ export namespace Prisma {
     devices?: DeviceCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAssignedVansInput = {
@@ -109501,6 +114797,7 @@ export namespace Prisma {
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAssignedVansInput = {
@@ -110157,6 +115454,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -110205,6 +115503,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -110243,6 +115542,7 @@ export namespace Prisma {
     devices?: DeviceUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedVansInput = {
@@ -110264,6 +115564,7 @@ export namespace Prisma {
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type StockBatchUpsertWithWhereUniqueWithoutLocationInput = {
@@ -110545,6 +115846,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -110593,6 +115895,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -110908,6 +116211,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -110956,6 +116260,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -111469,6 +116774,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -111517,6 +116823,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -111679,6 +116986,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -111727,6 +117035,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -112095,6 +117404,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -112143,6 +117453,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -112353,6 +117664,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -112401,6 +117713,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -112607,6 +117920,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -112655,6 +117969,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -112719,6 +118034,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -112767,6 +118083,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -112815,6 +118132,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -112863,6 +118181,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -113297,6 +118616,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -113345,6 +118665,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -113620,6 +118941,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -113668,6 +118990,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -113984,6 +119307,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -114032,6 +119356,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -114301,6 +119626,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -114349,6 +119675,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -114927,6 +120254,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -114975,6 +120303,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -116287,6 +121616,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -116335,6 +121665,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -116548,6 +121879,7 @@ export namespace Prisma {
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
+    employee?: EmployeeCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedSalesInput = {
@@ -116569,6 +121901,7 @@ export namespace Prisma {
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
+    employee?: EmployeeUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedSalesInput = {
@@ -116898,6 +122231,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -116946,6 +122280,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -117183,6 +122518,7 @@ export namespace Prisma {
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
+    employee?: EmployeeUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedSalesInput = {
@@ -117204,6 +122540,7 @@ export namespace Prisma {
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
+    employee?: EmployeeUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type TourneeUpsertWithoutSalesInput = {
@@ -117720,6 +123057,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -117768,6 +123106,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -118080,6 +123419,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -118128,6 +123468,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -118661,6 +124002,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -118709,6 +124051,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -119020,6 +124363,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -119068,6 +124412,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -119896,6 +125241,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -119944,6 +125290,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -120050,6 +125397,7 @@ export namespace Prisma {
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDevicesInput = {
@@ -120071,6 +125419,7 @@ export namespace Prisma {
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDevicesInput = {
@@ -120163,6 +125512,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -120211,6 +125561,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -120329,6 +125680,7 @@ export namespace Prisma {
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDevicesInput = {
@@ -120350,6 +125702,7 @@ export namespace Prisma {
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type SyncOpUpsertWithWhereUniqueWithoutDeviceInput = {
@@ -120409,6 +125762,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -120457,6 +125811,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -120550,6 +125905,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -120598,6 +125954,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -120680,6 +126037,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -120728,6 +126086,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -120950,6 +126309,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -120998,6 +126358,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -121447,6 +126808,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -121495,6 +126857,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -121783,6 +127146,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -121831,6 +127195,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -122127,6 +127492,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -122175,6 +127541,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -122348,6 +127715,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -122396,6 +127764,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -122772,6 +128141,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -122820,6 +128190,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -122980,6 +128351,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -123028,6 +128400,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -123144,6 +128517,621 @@ export namespace Prisma {
     dailyCloses?: DailyCloseUncheckedUpdateManyWithoutVanNestedInput
   }
 
+  export type CompanyCreateWithoutEmployeesInput = {
+    id?: string
+    name: string
+    phone?: string | null
+    address?: string | null
+    email?: string | null
+    rc?: string | null
+    nif?: string | null
+    ai?: string | null
+    nis?: string | null
+    bankName?: string | null
+    rib?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    stampUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    stores?: StoreCreateNestedManyWithoutCompanyInput
+    customers?: CustomerCreateNestedManyWithoutCompanyInput
+    suppliers?: SupplierCreateNestedManyWithoutCompanyInput
+    products?: ProductCreateNestedManyWithoutCompanyInput
+    seasons?: SeasonCreateNestedManyWithoutCompanyInput
+    settings?: CompanySettingsCreateNestedOneWithoutCompanyInput
+    units?: UnitCreateNestedManyWithoutCompanyInput
+    priceTiers?: PriceTierCreateNestedManyWithoutCompanyInput
+    expenseTypes?: ExpenseTypeCreateNestedManyWithoutCompanyInput
+    secteurs?: SecteurCreateNestedManyWithoutCompanyInput
+    purchaseInvoices?: PurchaseInvoiceCreateNestedManyWithoutCompanyInput
+    supplierReturns?: SupplierReturnCreateNestedManyWithoutCompanyInput
+    stockBatches?: StockBatchCreateNestedManyWithoutCompanyInput
+    transfers?: TransferCreateNestedManyWithoutCompanyInput
+    stockCounts?: StockCountCreateNestedManyWithoutCompanyInput
+    stockLosses?: StockLossCreateNestedManyWithoutCompanyInput
+    sales?: SaleCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleCreateNestedManyWithoutCompanyInput
+    clientReturns?: ClientReturnCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
+    tournees?: TourneeCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
+    expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    versements?: VersementCreateNestedManyWithoutCompanyInput
+    distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
+    deposits?: DepositCreateNestedManyWithoutCompanyInput
+    devices?: DeviceCreateNestedManyWithoutCompanyInput
+    syncOps?: SyncOpCreateNestedManyWithoutCompanyInput
+    dailyCloses?: DailyCloseCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutEmployeesInput = {
+    id?: string
+    name: string
+    phone?: string | null
+    address?: string | null
+    email?: string | null
+    rc?: string | null
+    nif?: string | null
+    ai?: string | null
+    nis?: string | null
+    bankName?: string | null
+    rib?: string | null
+    logoUrl?: string | null
+    signatureUrl?: string | null
+    stampUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    stores?: StoreUncheckedCreateNestedManyWithoutCompanyInput
+    customers?: CustomerUncheckedCreateNestedManyWithoutCompanyInput
+    suppliers?: SupplierUncheckedCreateNestedManyWithoutCompanyInput
+    products?: ProductUncheckedCreateNestedManyWithoutCompanyInput
+    seasons?: SeasonUncheckedCreateNestedManyWithoutCompanyInput
+    settings?: CompanySettingsUncheckedCreateNestedOneWithoutCompanyInput
+    units?: UnitUncheckedCreateNestedManyWithoutCompanyInput
+    priceTiers?: PriceTierUncheckedCreateNestedManyWithoutCompanyInput
+    expenseTypes?: ExpenseTypeUncheckedCreateNestedManyWithoutCompanyInput
+    secteurs?: SecteurUncheckedCreateNestedManyWithoutCompanyInput
+    purchaseInvoices?: PurchaseInvoiceUncheckedCreateNestedManyWithoutCompanyInput
+    supplierReturns?: SupplierReturnUncheckedCreateNestedManyWithoutCompanyInput
+    stockBatches?: StockBatchUncheckedCreateNestedManyWithoutCompanyInput
+    transfers?: TransferUncheckedCreateNestedManyWithoutCompanyInput
+    stockCounts?: StockCountUncheckedCreateNestedManyWithoutCompanyInput
+    stockLosses?: StockLossUncheckedCreateNestedManyWithoutCompanyInput
+    sales?: SaleUncheckedCreateNestedManyWithoutCompanyInput
+    threePackRules?: ThreePackRuleUncheckedCreateNestedManyWithoutCompanyInput
+    clientReturns?: ClientReturnUncheckedCreateNestedManyWithoutCompanyInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
+    tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
+    tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
+    distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
+    deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutCompanyInput
+    syncOps?: SyncOpUncheckedCreateNestedManyWithoutCompanyInput
+    dailyCloses?: DailyCloseUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutEmployeesInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutEmployeesInput, CompanyUncheckedCreateWithoutEmployeesInput>
+  }
+
+  export type UserCreateWithoutEmployeeInput = {
+    id?: string
+    username: string
+    passwordHash: string
+    phone?: string | null
+    passwordView?: string | null
+    qrToken?: string | null
+    fullName: string
+    role?: string
+    isActive?: boolean
+    canChooseDay?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutUsersInput
+    distances?: ClientDistanceCreateNestedManyWithoutUserInput
+    areas?: UserAreaCreateNestedManyWithoutUserInput
+    assignedVans?: StoreCreateNestedManyWithoutUserInput
+    devices?: DeviceCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
+    createdSales?: SaleCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserUncheckedCreateWithoutEmployeeInput = {
+    id?: string
+    companyId: string
+    username: string
+    passwordHash: string
+    phone?: string | null
+    passwordView?: string | null
+    qrToken?: string | null
+    fullName: string
+    role?: string
+    isActive?: boolean
+    canChooseDay?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    distances?: ClientDistanceUncheckedCreateNestedManyWithoutUserInput
+    areas?: UserAreaUncheckedCreateNestedManyWithoutUserInput
+    assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
+    closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
+    createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserCreateOrConnectWithoutEmployeeInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutEmployeeInput, UserUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type EmployeeAdvanceCreateWithoutEmployeeInput = {
+    id?: string
+    companyId: string
+    amount: Decimal | DecimalJsLike | number | string
+    remaining: Decimal | DecimalJsLike | number | string
+    date?: Date | string
+    note?: string | null
+    expenseId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type EmployeeAdvanceUncheckedCreateWithoutEmployeeInput = {
+    id?: string
+    companyId: string
+    amount: Decimal | DecimalJsLike | number | string
+    remaining: Decimal | DecimalJsLike | number | string
+    date?: Date | string
+    note?: string | null
+    expenseId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type EmployeeAdvanceCreateOrConnectWithoutEmployeeInput = {
+    where: EmployeeAdvanceWhereUniqueInput
+    create: XOR<EmployeeAdvanceCreateWithoutEmployeeInput, EmployeeAdvanceUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type EmployeeAdvanceCreateManyEmployeeInputEnvelope = {
+    data: EmployeeAdvanceCreateManyEmployeeInput | EmployeeAdvanceCreateManyEmployeeInput[]
+  }
+
+  export type PayslipCreateWithoutEmployeeInput = {
+    id?: string
+    companyId: string
+    year: number
+    month: number
+    baseSalary: Decimal | DecimalJsLike | number | string
+    bonus?: Decimal | DecimalJsLike | number | string
+    deduction?: Decimal | DecimalJsLike | number | string
+    deductionNote?: string | null
+    advancesDeducted?: Decimal | DecimalJsLike | number | string
+    net: Decimal | DecimalJsLike | number | string
+    paidAt?: Date | string
+    expenseId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PayslipUncheckedCreateWithoutEmployeeInput = {
+    id?: string
+    companyId: string
+    year: number
+    month: number
+    baseSalary: Decimal | DecimalJsLike | number | string
+    bonus?: Decimal | DecimalJsLike | number | string
+    deduction?: Decimal | DecimalJsLike | number | string
+    deductionNote?: string | null
+    advancesDeducted?: Decimal | DecimalJsLike | number | string
+    net: Decimal | DecimalJsLike | number | string
+    paidAt?: Date | string
+    expenseId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PayslipCreateOrConnectWithoutEmployeeInput = {
+    where: PayslipWhereUniqueInput
+    create: XOR<PayslipCreateWithoutEmployeeInput, PayslipUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type PayslipCreateManyEmployeeInputEnvelope = {
+    data: PayslipCreateManyEmployeeInput | PayslipCreateManyEmployeeInput[]
+  }
+
+  export type CompanyUpsertWithoutEmployeesInput = {
+    update: XOR<CompanyUpdateWithoutEmployeesInput, CompanyUncheckedUpdateWithoutEmployeesInput>
+    create: XOR<CompanyCreateWithoutEmployeesInput, CompanyUncheckedCreateWithoutEmployeesInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutEmployeesInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutEmployeesInput, CompanyUncheckedUpdateWithoutEmployeesInput>
+  }
+
+  export type CompanyUpdateWithoutEmployeesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stampUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    stores?: StoreUpdateManyWithoutCompanyNestedInput
+    customers?: CustomerUpdateManyWithoutCompanyNestedInput
+    suppliers?: SupplierUpdateManyWithoutCompanyNestedInput
+    products?: ProductUpdateManyWithoutCompanyNestedInput
+    seasons?: SeasonUpdateManyWithoutCompanyNestedInput
+    settings?: CompanySettingsUpdateOneWithoutCompanyNestedInput
+    units?: UnitUpdateManyWithoutCompanyNestedInput
+    priceTiers?: PriceTierUpdateManyWithoutCompanyNestedInput
+    expenseTypes?: ExpenseTypeUpdateManyWithoutCompanyNestedInput
+    secteurs?: SecteurUpdateManyWithoutCompanyNestedInput
+    purchaseInvoices?: PurchaseInvoiceUpdateManyWithoutCompanyNestedInput
+    supplierReturns?: SupplierReturnUpdateManyWithoutCompanyNestedInput
+    stockBatches?: StockBatchUpdateManyWithoutCompanyNestedInput
+    transfers?: TransferUpdateManyWithoutCompanyNestedInput
+    stockCounts?: StockCountUpdateManyWithoutCompanyNestedInput
+    stockLosses?: StockLossUpdateManyWithoutCompanyNestedInput
+    sales?: SaleUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUpdateManyWithoutCompanyNestedInput
+    clientReturns?: ClientReturnUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
+    tournees?: TourneeUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
+    expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    versements?: VersementUpdateManyWithoutCompanyNestedInput
+    distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
+    deposits?: DepositUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUpdateManyWithoutCompanyNestedInput
+    syncOps?: SyncOpUpdateManyWithoutCompanyNestedInput
+    dailyCloses?: DailyCloseUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutEmployeesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    rc?: NullableStringFieldUpdateOperationsInput | string | null
+    nif?: NullableStringFieldUpdateOperationsInput | string | null
+    ai?: NullableStringFieldUpdateOperationsInput | string | null
+    nis?: NullableStringFieldUpdateOperationsInput | string | null
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    rib?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    signatureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    stampUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    stores?: StoreUncheckedUpdateManyWithoutCompanyNestedInput
+    customers?: CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+    suppliers?: SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+    products?: ProductUncheckedUpdateManyWithoutCompanyNestedInput
+    seasons?: SeasonUncheckedUpdateManyWithoutCompanyNestedInput
+    settings?: CompanySettingsUncheckedUpdateOneWithoutCompanyNestedInput
+    units?: UnitUncheckedUpdateManyWithoutCompanyNestedInput
+    priceTiers?: PriceTierUncheckedUpdateManyWithoutCompanyNestedInput
+    expenseTypes?: ExpenseTypeUncheckedUpdateManyWithoutCompanyNestedInput
+    secteurs?: SecteurUncheckedUpdateManyWithoutCompanyNestedInput
+    purchaseInvoices?: PurchaseInvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+    supplierReturns?: SupplierReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    stockBatches?: StockBatchUncheckedUpdateManyWithoutCompanyNestedInput
+    transfers?: TransferUncheckedUpdateManyWithoutCompanyNestedInput
+    stockCounts?: StockCountUncheckedUpdateManyWithoutCompanyNestedInput
+    stockLosses?: StockLossUncheckedUpdateManyWithoutCompanyNestedInput
+    sales?: SaleUncheckedUpdateManyWithoutCompanyNestedInput
+    threePackRules?: ThreePackRuleUncheckedUpdateManyWithoutCompanyNestedInput
+    clientReturns?: ClientReturnUncheckedUpdateManyWithoutCompanyNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
+    tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
+    tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
+    distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
+    deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutCompanyNestedInput
+    syncOps?: SyncOpUncheckedUpdateManyWithoutCompanyNestedInput
+    dailyCloses?: DailyCloseUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type UserUpsertWithoutEmployeeInput = {
+    update: XOR<UserUpdateWithoutEmployeeInput, UserUncheckedUpdateWithoutEmployeeInput>
+    create: XOR<UserCreateWithoutEmployeeInput, UserUncheckedCreateWithoutEmployeeInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutEmployeeInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutEmployeeInput, UserUncheckedUpdateWithoutEmployeeInput>
+  }
+
+  export type UserUpdateWithoutEmployeeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordView?: NullableStringFieldUpdateOperationsInput | string | null
+    qrToken?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutUsersNestedInput
+    distances?: ClientDistanceUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUpdateManyWithoutUserNestedInput
+    assignedVans?: StoreUpdateManyWithoutUserNestedInput
+    devices?: DeviceUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
+    createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutEmployeeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordView?: NullableStringFieldUpdateOperationsInput | string | null
+    qrToken?: NullableStringFieldUpdateOperationsInput | string | null
+    fullName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    canChooseDay?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    distances?: ClientDistanceUncheckedUpdateManyWithoutUserNestedInput
+    areas?: UserAreaUncheckedUpdateManyWithoutUserNestedInput
+    assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
+    closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
+    createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type EmployeeAdvanceUpsertWithWhereUniqueWithoutEmployeeInput = {
+    where: EmployeeAdvanceWhereUniqueInput
+    update: XOR<EmployeeAdvanceUpdateWithoutEmployeeInput, EmployeeAdvanceUncheckedUpdateWithoutEmployeeInput>
+    create: XOR<EmployeeAdvanceCreateWithoutEmployeeInput, EmployeeAdvanceUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type EmployeeAdvanceUpdateWithWhereUniqueWithoutEmployeeInput = {
+    where: EmployeeAdvanceWhereUniqueInput
+    data: XOR<EmployeeAdvanceUpdateWithoutEmployeeInput, EmployeeAdvanceUncheckedUpdateWithoutEmployeeInput>
+  }
+
+  export type EmployeeAdvanceUpdateManyWithWhereWithoutEmployeeInput = {
+    where: EmployeeAdvanceScalarWhereInput
+    data: XOR<EmployeeAdvanceUpdateManyMutationInput, EmployeeAdvanceUncheckedUpdateManyWithoutEmployeeInput>
+  }
+
+  export type EmployeeAdvanceScalarWhereInput = {
+    AND?: EmployeeAdvanceScalarWhereInput | EmployeeAdvanceScalarWhereInput[]
+    OR?: EmployeeAdvanceScalarWhereInput[]
+    NOT?: EmployeeAdvanceScalarWhereInput | EmployeeAdvanceScalarWhereInput[]
+    id?: StringFilter<"EmployeeAdvance"> | string
+    companyId?: StringFilter<"EmployeeAdvance"> | string
+    employeeId?: StringFilter<"EmployeeAdvance"> | string
+    amount?: DecimalFilter<"EmployeeAdvance"> | Decimal | DecimalJsLike | number | string
+    remaining?: DecimalFilter<"EmployeeAdvance"> | Decimal | DecimalJsLike | number | string
+    date?: DateTimeFilter<"EmployeeAdvance"> | Date | string
+    note?: StringNullableFilter<"EmployeeAdvance"> | string | null
+    expenseId?: StringNullableFilter<"EmployeeAdvance"> | string | null
+    createdAt?: DateTimeFilter<"EmployeeAdvance"> | Date | string
+  }
+
+  export type PayslipUpsertWithWhereUniqueWithoutEmployeeInput = {
+    where: PayslipWhereUniqueInput
+    update: XOR<PayslipUpdateWithoutEmployeeInput, PayslipUncheckedUpdateWithoutEmployeeInput>
+    create: XOR<PayslipCreateWithoutEmployeeInput, PayslipUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type PayslipUpdateWithWhereUniqueWithoutEmployeeInput = {
+    where: PayslipWhereUniqueInput
+    data: XOR<PayslipUpdateWithoutEmployeeInput, PayslipUncheckedUpdateWithoutEmployeeInput>
+  }
+
+  export type PayslipUpdateManyWithWhereWithoutEmployeeInput = {
+    where: PayslipScalarWhereInput
+    data: XOR<PayslipUpdateManyMutationInput, PayslipUncheckedUpdateManyWithoutEmployeeInput>
+  }
+
+  export type PayslipScalarWhereInput = {
+    AND?: PayslipScalarWhereInput | PayslipScalarWhereInput[]
+    OR?: PayslipScalarWhereInput[]
+    NOT?: PayslipScalarWhereInput | PayslipScalarWhereInput[]
+    id?: StringFilter<"Payslip"> | string
+    companyId?: StringFilter<"Payslip"> | string
+    employeeId?: StringFilter<"Payslip"> | string
+    year?: IntFilter<"Payslip"> | number
+    month?: IntFilter<"Payslip"> | number
+    baseSalary?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    bonus?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    deduction?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    deductionNote?: StringNullableFilter<"Payslip"> | string | null
+    advancesDeducted?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    net?: DecimalFilter<"Payslip"> | Decimal | DecimalJsLike | number | string
+    paidAt?: DateTimeFilter<"Payslip"> | Date | string
+    expenseId?: StringNullableFilter<"Payslip"> | string | null
+    createdAt?: DateTimeFilter<"Payslip"> | Date | string
+  }
+
+  export type EmployeeCreateWithoutAdvancesInput = {
+    id?: string
+    salary?: Decimal | DecimalJsLike | number | string
+    hireDate?: Date | string
+    endDate?: Date | string | null
+    position?: string | null
+    nationalId?: string | null
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutEmployeesInput
+    user: UserCreateNestedOneWithoutEmployeeInput
+    payslips?: PayslipCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeUncheckedCreateWithoutAdvancesInput = {
+    id?: string
+    companyId: string
+    userId: string
+    salary?: Decimal | DecimalJsLike | number | string
+    hireDate?: Date | string
+    endDate?: Date | string | null
+    position?: string | null
+    nationalId?: string | null
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    payslips?: PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeCreateOrConnectWithoutAdvancesInput = {
+    where: EmployeeWhereUniqueInput
+    create: XOR<EmployeeCreateWithoutAdvancesInput, EmployeeUncheckedCreateWithoutAdvancesInput>
+  }
+
+  export type EmployeeUpsertWithoutAdvancesInput = {
+    update: XOR<EmployeeUpdateWithoutAdvancesInput, EmployeeUncheckedUpdateWithoutAdvancesInput>
+    create: XOR<EmployeeCreateWithoutAdvancesInput, EmployeeUncheckedCreateWithoutAdvancesInput>
+    where?: EmployeeWhereInput
+  }
+
+  export type EmployeeUpdateToOneWithWhereWithoutAdvancesInput = {
+    where?: EmployeeWhereInput
+    data: XOR<EmployeeUpdateWithoutAdvancesInput, EmployeeUncheckedUpdateWithoutAdvancesInput>
+  }
+
+  export type EmployeeUpdateWithoutAdvancesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutEmployeesNestedInput
+    user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
+    payslips?: PayslipUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type EmployeeUncheckedUpdateWithoutAdvancesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    payslips?: PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type EmployeeCreateWithoutPayslipsInput = {
+    id?: string
+    salary?: Decimal | DecimalJsLike | number | string
+    hireDate?: Date | string
+    endDate?: Date | string | null
+    position?: string | null
+    nationalId?: string | null
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    company: CompanyCreateNestedOneWithoutEmployeesInput
+    user: UserCreateNestedOneWithoutEmployeeInput
+    advances?: EmployeeAdvanceCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeUncheckedCreateWithoutPayslipsInput = {
+    id?: string
+    companyId: string
+    userId: string
+    salary?: Decimal | DecimalJsLike | number | string
+    hireDate?: Date | string
+    endDate?: Date | string | null
+    position?: string | null
+    nationalId?: string | null
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    advances?: EmployeeAdvanceUncheckedCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeCreateOrConnectWithoutPayslipsInput = {
+    where: EmployeeWhereUniqueInput
+    create: XOR<EmployeeCreateWithoutPayslipsInput, EmployeeUncheckedCreateWithoutPayslipsInput>
+  }
+
+  export type EmployeeUpsertWithoutPayslipsInput = {
+    update: XOR<EmployeeUpdateWithoutPayslipsInput, EmployeeUncheckedUpdateWithoutPayslipsInput>
+    create: XOR<EmployeeCreateWithoutPayslipsInput, EmployeeUncheckedCreateWithoutPayslipsInput>
+    where?: EmployeeWhereInput
+  }
+
+  export type EmployeeUpdateToOneWithWhereWithoutPayslipsInput = {
+    where?: EmployeeWhereInput
+    data: XOR<EmployeeUpdateWithoutPayslipsInput, EmployeeUncheckedUpdateWithoutPayslipsInput>
+  }
+
+  export type EmployeeUpdateWithoutPayslipsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutEmployeesNestedInput
+    user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
+    advances?: EmployeeAdvanceUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type EmployeeUncheckedUpdateWithoutPayslipsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    advances?: EmployeeAdvanceUncheckedUpdateManyWithoutEmployeeNestedInput
+  }
+
   export type CompanyCreateWithoutVersementsInput = {
     id?: string
     name: string
@@ -123185,6 +129173,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
     devices?: DeviceCreateNestedManyWithoutCompanyInput
@@ -123233,6 +129222,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
     devices?: DeviceUncheckedCreateNestedManyWithoutCompanyInput
@@ -123503,6 +129493,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
     devices?: DeviceUpdateManyWithoutCompanyNestedInput
@@ -123551,6 +129542,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -123829,6 +129821,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -123877,6 +129870,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -124016,6 +130010,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -124064,6 +130059,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -124193,6 +130189,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     devices?: DeviceCreateNestedManyWithoutCompanyInput
@@ -124241,6 +130238,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     devices?: DeviceUncheckedCreateNestedManyWithoutCompanyInput
@@ -124382,6 +130380,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     devices?: DeviceUpdateManyWithoutCompanyNestedInput
@@ -124430,6 +130429,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -124561,6 +130561,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
     devices?: DeviceCreateNestedManyWithoutCompanyInput
@@ -124609,6 +130610,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
     devices?: DeviceUncheckedCreateNestedManyWithoutCompanyInput
@@ -124640,6 +130642,7 @@ export namespace Prisma {
     devices?: DeviceCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDistancesInput = {
@@ -124661,6 +130664,7 @@ export namespace Prisma {
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDistancesInput = {
@@ -124797,6 +130801,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
     devices?: DeviceUpdateManyWithoutCompanyNestedInput
@@ -124845,6 +130850,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -124882,6 +130888,7 @@ export namespace Prisma {
     devices?: DeviceUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDistancesInput = {
@@ -124903,6 +130910,7 @@ export namespace Prisma {
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type CustomerUpsertWithoutDistancesInput = {
@@ -125028,6 +131036,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -125076,6 +131085,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -125165,6 +131175,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -125213,6 +131224,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -125493,6 +131505,7 @@ export namespace Prisma {
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -125541,6 +131554,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     tourneePlans?: TourneePlanUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -125725,6 +131739,7 @@ export namespace Prisma {
     assignedVans?: StoreCreateNestedManyWithoutUserInput
     devices?: DeviceCreateNestedManyWithoutUserInput
     createdSales?: SaleCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutClosedVisitsInput = {
@@ -125746,6 +131761,7 @@ export namespace Prisma {
     assignedVans?: StoreUncheckedCreateNestedManyWithoutUserInput
     devices?: DeviceUncheckedCreateNestedManyWithoutUserInput
     createdSales?: SaleUncheckedCreateNestedManyWithoutCreatedByInput
+    employee?: EmployeeUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutClosedVisitsInput = {
@@ -125825,6 +131841,7 @@ export namespace Prisma {
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -125873,6 +131890,7 @@ export namespace Prisma {
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     tourneePlans?: TourneePlanUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -126075,6 +132093,7 @@ export namespace Prisma {
     assignedVans?: StoreUpdateManyWithoutUserNestedInput
     devices?: DeviceUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutClosedVisitsInput = {
@@ -126096,6 +132115,7 @@ export namespace Prisma {
     assignedVans?: StoreUncheckedUpdateManyWithoutUserNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type ClosedVisitPhotoUpsertWithWhereUniqueWithoutVisitInput = {
@@ -126236,6 +132256,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitCreateNestedManyWithoutCompanyInput
     tournees?: TourneeCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeCreateNestedManyWithoutCompanyInput
     versements?: VersementCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceCreateNestedManyWithoutCompanyInput
     deposits?: DepositCreateNestedManyWithoutCompanyInput
@@ -126284,6 +132305,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedCreateNestedManyWithoutCompanyInput
     tournees?: TourneeUncheckedCreateNestedManyWithoutCompanyInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutCompanyInput
+    employees?: EmployeeUncheckedCreateNestedManyWithoutCompanyInput
     versements?: VersementUncheckedCreateNestedManyWithoutCompanyInput
     distances?: ClientDistanceUncheckedCreateNestedManyWithoutCompanyInput
     deposits?: DepositUncheckedCreateNestedManyWithoutCompanyInput
@@ -126505,6 +132527,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUpdateManyWithoutCompanyNestedInput
     versements?: VersementUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUpdateManyWithoutCompanyNestedInput
@@ -126553,6 +132576,7 @@ export namespace Prisma {
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutCompanyNestedInput
     tournees?: TourneeUncheckedUpdateManyWithoutCompanyNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutCompanyNestedInput
+    employees?: EmployeeUncheckedUpdateManyWithoutCompanyNestedInput
     versements?: VersementUncheckedUpdateManyWithoutCompanyNestedInput
     distances?: ClientDistanceUncheckedUpdateManyWithoutCompanyNestedInput
     deposits?: DepositUncheckedUpdateManyWithoutCompanyNestedInput
@@ -127188,6 +133212,20 @@ export namespace Prisma {
     opId?: string | null
   }
 
+  export type EmployeeCreateManyCompanyInput = {
+    id?: string
+    userId: string
+    salary?: Decimal | DecimalJsLike | number | string
+    hireDate?: Date | string
+    endDate?: Date | string | null
+    position?: string | null
+    nationalId?: string | null
+    notes?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type VersementCreateManyCompanyInput = {
     id?: string
     seasonId?: string | null
@@ -127291,6 +133329,7 @@ export namespace Prisma {
     devices?: DeviceUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUpdateManyWithoutUserNestedInput
     createdSales?: SaleUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCompanyInput = {
@@ -127312,6 +133351,7 @@ export namespace Prisma {
     devices?: DeviceUncheckedUpdateManyWithoutUserNestedInput
     closedVisits?: ClosedVisitUncheckedUpdateManyWithoutUserNestedInput
     createdSales?: SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+    employee?: EmployeeUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutCompanyInput = {
@@ -128433,6 +134473,52 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     opId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type EmployeeUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutEmployeeNestedInput
+    advances?: EmployeeAdvanceUpdateManyWithoutEmployeeNestedInput
+    payslips?: PayslipUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type EmployeeUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    advances?: EmployeeAdvanceUncheckedUpdateManyWithoutEmployeeNestedInput
+    payslips?: PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type EmployeeUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    salary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    nationalId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type VersementUpdateWithoutCompanyInput = {
@@ -133655,6 +139741,114 @@ export namespace Prisma {
     baseQty?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unitPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     lineTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type EmployeeAdvanceCreateManyEmployeeInput = {
+    id?: string
+    companyId: string
+    amount: Decimal | DecimalJsLike | number | string
+    remaining: Decimal | DecimalJsLike | number | string
+    date?: Date | string
+    note?: string | null
+    expenseId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PayslipCreateManyEmployeeInput = {
+    id?: string
+    companyId: string
+    year: number
+    month: number
+    baseSalary: Decimal | DecimalJsLike | number | string
+    bonus?: Decimal | DecimalJsLike | number | string
+    deduction?: Decimal | DecimalJsLike | number | string
+    deductionNote?: string | null
+    advancesDeducted?: Decimal | DecimalJsLike | number | string
+    net: Decimal | DecimalJsLike | number | string
+    paidAt?: Date | string
+    expenseId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type EmployeeAdvanceUpdateWithoutEmployeeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeAdvanceUncheckedUpdateWithoutEmployeeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeAdvanceUncheckedUpdateManyWithoutEmployeeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    remaining?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PayslipUpdateWithoutEmployeeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    baseSalary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    bonus?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deduction?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deductionNote?: NullableStringFieldUpdateOperationsInput | string | null
+    advancesDeducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    net?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PayslipUncheckedUpdateWithoutEmployeeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    baseSalary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    bonus?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deduction?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deductionNote?: NullableStringFieldUpdateOperationsInput | string | null
+    advancesDeducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    net?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PayslipUncheckedUpdateManyWithoutEmployeeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    month?: IntFieldUpdateOperationsInput | number
+    baseSalary?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    bonus?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deduction?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deductionNote?: NullableStringFieldUpdateOperationsInput | string | null
+    advancesDeducted?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    net?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expenseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ThreePackItemCreateManyRuleInput = {

@@ -48,6 +48,7 @@ const TITLE_KEYS: Record<string, string> = {
   "cash-daily": "dailyCash",
   cash: "dailyCash",
   expenses: "expenses",
+  employees: "employees",
   reports: "reports",
   settings: "settings",
   devices: "devices",
