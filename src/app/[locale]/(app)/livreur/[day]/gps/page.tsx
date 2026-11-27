@@ -10,7 +10,7 @@ import { GpsClient } from "./GpsClient";
 import { ensureDayTours } from "@/lib/tournees/plans";
 import { algiersDayKey } from "@/lib/tournees/days";
 
-/// مواقع GPS — every client with a position, on a phone-first map, colour
+/// مواقع GPS — clients with a position in the van's sectors, colour
 /// coded by distance from the driver. All data is server-rendered into the
 /// page (cached for offline by the journée warm-up) — no live query needed.
 export default async function LivreurGpsPage({
@@ -43,7 +43,19 @@ export default async function LivreurGpsPage({
       select: { secteurId: true, startedAt: true, slot: true, createdAt: true, stops: { select: { clientId: true } } },
     }),
     prisma.customer.findMany({
-      where: { companyId: session.companyId, isActive: true, gpsLat: { not: null }, gpsLng: { not: null } },
+      where: {
+        companyId: session.companyId,
+        isActive: true,
+        gpsLat: { not: null },
+        gpsLng: { not: null },
+        secteur: {
+          companyId: session.companyId,
+          OR: [
+            { tourneePlans: { some: { companyId: session.companyId, locationId: van.id, isActive: true } } },
+            { tournees: { some: { companyId: session.companyId, locationId: van.id, date: { gte: start, lte: end } } } },
+          ],
+        },
+      },
       select: {
         id: true, code: true, name: true, phone: true, gpsLat: true, gpsLng: true,
         secteurId: true, secteur: { select: { name: true } },

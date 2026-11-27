@@ -39,7 +39,9 @@ export function GpsClient({
   labels: Record<string, string>;
 }) {
   const router = useRouter();
-  const [filter, setFilterRaw] = useState<Filter>(todayIds.length ? "today" : "all");
+  const [filter, setFilterRaw] = useState<Filter>(() =>
+    clients.some((c) => c.secteurId && todaySecteurIds.includes(c.secteurId)) ? "sector" : "all",
+  );
   const setFilter = (f: Filter) => {
     setFilterRaw(f);
     setNonce((n) => n + 1); // re-fit the map to the new set
@@ -95,6 +97,7 @@ export function GpsClient({
   }, []);
 
   const todaySet = useMemo(() => new Set(todayIds), [todayIds]);
+  const todayCount = clients.filter((c) => todaySet.has(c.id)).length;
   const sectors = useMemo(() => {
     const m = new Map<string, { name: string; n: number }>();
     for (const c of clients) {
@@ -178,7 +181,7 @@ export function GpsClient({
             {labels.all} ({clients.length})
           </button>
           <button type="button" onClick={() => setFilter("today")} className={chip(filter === "today")}>
-            {labels.today} ({todayIds.length})
+            {labels.today} ({todayCount})
           </button>
           {todaySector && (
             <button type="button" onClick={() => setFilter("sector")} className={chip(filter === "sector")}>
