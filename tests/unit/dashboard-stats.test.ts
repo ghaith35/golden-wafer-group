@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildDashboard, weekStart, type RawSale } from "@/lib/dashboard/stats";
+import { buildDashboard, profitAfterSalary, weekStart, type RawSale } from "@/lib/dashboard/stats";
 
 // Wednesday 2026-11-18 15:00 local.
 const NOW = new Date(2026, 10, 18, 15, 0, 0);
@@ -43,6 +43,22 @@ describe("dashboard stats", () => {
     expect(result.vans.find((v) => v.id === "v1")?.monthlySalary).toBe(40_000);
     expect(result.vans.find((v) => v.id === "v2")?.monthlySalary).toBe(0);
     expect(result.periods.month.cur.expenses).toBe(50);
+  });
+
+  it("deducts monthly salaries without counting booked payroll again", () => {
+    const result = buildDashboard({
+      now: NOW,
+      sales,
+      expenses: [
+        { amount: 50, expenseDate: NOW, locationId: "v1" },
+        { amount: 100, expenseDate: NOW, locationId: "v1", isPayroll: true },
+      ],
+      vans,
+    });
+
+    expect(result.periods.month.cur.expenses).toBe(150);
+    expect(profitAfterSalary(result.periods.month.cur, 200)).toBe(510);
+    expect(profitAfterSalary(result.vans[0].periods.month, 200)).toBe(190);
   });
 
   it("computes revenue and profit per period", () => {

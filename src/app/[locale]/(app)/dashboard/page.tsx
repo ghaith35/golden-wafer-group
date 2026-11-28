@@ -66,7 +66,7 @@ export default async function DashboardPage({ params, searchParams }: { params: 
       }),
       prisma.expense.findMany({
         where: { companyId, deletedAt: null, expenseDate: { gte: since }, ...locationFilter },
-        select: { amount: true, expenseDate: true, locationId: true },
+        select: { id: true, amount: true, expenseDate: true, locationId: true },
         take: 20000,
       }),
       prisma.customer.aggregate({ where: { companyId, balance: { gt: 0 } }, _sum: { balance: true } }),
@@ -98,11 +98,17 @@ export default async function DashboardPage({ params, searchParams }: { params: 
     const selectedDrivers = new Set(selectedVans.map((v) => v.userId));
     const monthlySalary = [...salaryByUser].reduce((sum, [userId, salary]) =>
       sum + (!vanIds.length || selectedDrivers.has(userId) ? salary : 0), 0);
+    const expenseIds = expenses.map((expense) => expense.id);
+    const [salaryPayments, salaryAdvances] = await Promise.all([
+      prisma.payslip.findMany({ where: { companyId, expenseId: { in: expenseIds } }, select: { expenseId: true } }),
+      prisma.employeeAdvance.findMany({ where: { companyId, expenseId: { in: expenseIds } }, select: { expenseId: true } }),
+    ]);
+    const payrollExpenseIds = new Set([...salaryPayments, ...salaryAdvances].map((row) => row.expenseId));
     const data = buildDashboard({
       now,
       custom,
       sales,
-      expenses,
+      expenses: expenses.map((expense) => ({ ...expense, isPayroll: payrollExpenseIds.has(expense.id) })),
       monthlySalary,
       showAllProvidedVans: vanIds.length > 0,
       vans: vans.map((v) => ({

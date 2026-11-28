@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { dz, dzMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { Agg, DashboardData, Period } from "@/lib/dashboard/stats";
+import { profitAfterSalary, type Agg, type DashboardData, type Period } from "@/lib/dashboard/stats";
 import { MiniBars, TrendChart, compactNum, useCountUp } from "./charts";
 import { ClientName } from "@/components/clients/ClientName";
 import { Modal } from "@/components/ui/Modal";
@@ -256,6 +256,7 @@ export function DashboardClient({ data, locale, userName, extras, actions, vanOp
   const cur = data.periods[period].cur;
   const prev = data.periods[period].prev;
   const net = cur.profit - cur.expenses;
+  const monthlyNet = profitAfterSalary(data.periods.month.cur, data.monthlySalary);
   const marginPct = cur.revenue > 0 ? (cur.profit / cur.revenue) * 100 : 0;
   const avg = cur.count > 0 ? cur.revenue / cur.count : 0;
   const collectedPct = cur.revenue > 0 ? Math.min(100, (cur.paid / cur.revenue) * 100) : 0;
@@ -357,6 +358,10 @@ export function DashboardClient({ data, locale, userName, extras, actions, vanOp
       c: "bg-violet-500/15 text-violet-500", sub: null,
     }] : []),
     { l: t("netProfit"), v: money(Math.round(net)), icon: PiggyBank, c: net >= 0 ? "bg-emerald-500/15 text-emerald-600" : "bg-red-500/15 text-red-500", sub: null },
+    ...(period === "month" ? [{
+      l: t("profitAfterSalaries"), v: money(Math.round(monthlyNet)), icon: PiggyBank,
+      c: monthlyNet >= 0 ? "bg-emerald-500/15 text-emerald-600" : "bg-red-500/15 text-red-500", sub: null,
+    }] : []),
   ];
 
   const channelBlock = chTotal <= 0 ? null : (
@@ -423,7 +428,7 @@ export function DashboardClient({ data, locale, userName, extras, actions, vanOp
       <div className="grid grid-cols-3 gap-2 lg:col-span-12">
         {PERIODS.map((p) => {
           const a: Agg = v.periods[p];
-          const net = a.profit - a.expenses;
+          const net = p === "month" ? profitAfterSalary(a, v.monthlySalary) : a.profit - a.expenses;
           return (
             <div key={p} className="min-w-0 rounded-xl border border-(--border-default) bg-(--bg-overlay) p-2.5">
               <div className="mb-1 flex items-center justify-between gap-1 text-[11px] lg:text-[10.5px] font-black text-(--text-secondary)">
@@ -437,7 +442,7 @@ export function DashboardClient({ data, locale, userName, extras, actions, vanOp
                 {p === "month" && <span>{t("monthlySalaries")} <span className="font-black tabular-nums">{money(Math.round(v.monthlySalary))}</span></span>}
               </div>
               <div className={cn("mt-1.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 rounded-lg px-2 py-1.5 ring-1", net >= 0 ? "bg-emerald-500/12 ring-emerald-500/30" : "bg-red-500/12 ring-red-500/30")}>
-                <span className="flex items-center gap-1 text-[11px] lg:text-[10.5px] font-black text-(--text-secondary)"><PiggyBank size={13} className={net >= 0 ? "text-emerald-600" : "text-red-500"} />{t("netProfit")}</span>
+                <span className="flex items-center gap-1 text-[11px] lg:text-[10.5px] font-black text-(--text-secondary)"><PiggyBank size={13} className={net >= 0 ? "text-emerald-600" : "text-red-500"} />{t(p === "month" ? "profitAfterSalaries" : "netProfit")}</span>
                 <span className={cn("break-words lg:whitespace-nowrap text-[clamp(14px,1.5vw,19px)] font-black leading-none tabular-nums", net >= 0 ? "text-emerald-600" : "text-red-500")}>{money(Math.round(net))}</span>
               </div>
             </div>
@@ -607,7 +612,7 @@ export function DashboardClient({ data, locale, userName, extras, actions, vanOp
   );
 
   const kpiStrip = (
-    <div className={cn("grid shrink-0 gap-2.5", fit ? (period === "month" ? "grid-cols-7" : "grid-cols-6") : "grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] md:grid-cols-3 2xl:grid-cols-[repeat(auto-fit,minmax(8rem,1fr))]")}>
+    <div className={cn("grid shrink-0 gap-2.5", fit ? (period === "month" ? "grid-cols-8" : "grid-cols-6") : "grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] md:grid-cols-3 2xl:grid-cols-[repeat(auto-fit,minmax(8rem,1fr))]")}>
       {kpis.map((k) => (
         <div key={k.l} className={cn("group relative flex min-w-0 items-center gap-2.5 overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay) transition-all duration-300 hover:-translate-y-0.5 hover:border-(--border-strong)", fit ? "p-2" : "p-3")}>
           <span className={cn("flex shrink-0 items-center justify-center rounded-xl", fit ? "h-8 w-8" : "h-10 w-10", k.c)}><k.icon size={fit ? 15 : 18} /></span>

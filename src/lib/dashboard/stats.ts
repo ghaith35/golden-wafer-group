@@ -34,10 +34,14 @@ export type RawSale = {
   client: { name: string; gpsLat?: number | null; gpsLng?: number | null } | null;
   lines: RawLine[];
 };
-export type RawExpense = { amount: unknown; expenseDate: Date; locationId: string | null };
+export type RawExpense = { amount: unknown; expenseDate: Date; locationId: string | null; isPayroll?: boolean };
 export type RawVan = { id: string; name: string; matricule: string | null; isActive: boolean; driver: string | null; monthlySalary?: number };
 
-export type Agg = { revenue: number; profit: number; count: number; paid: number; expenses: number };
+export type Agg = { revenue: number; profit: number; count: number; paid: number; expenses: number; payrollExpenses: number };
+export function profitAfterSalary(period: Agg, monthlySalary: number): number {
+  return period.profit - (period.expenses - period.payrollExpenses) - monthlySalary;
+}
+
 export type ProductStat = { id: string; name: string; qty: number; revenue: number; profit: number };
 export type ClientStat = { id: string; name: string; gpsLat?: number | null; gpsLng?: number | null; revenue: number; profit: number; count: number };
 export type VanStat = { id: string; name: string; matricule: string; revenue: number; profit: number; count: number };
@@ -132,7 +136,7 @@ function ranges(now: Date, custom?: CustomRange | null): Record<Exclude<Period, 
   };
 }
 
-const emptyAgg = (): Agg => ({ revenue: 0, profit: 0, count: 0, paid: 0, expenses: 0 });
+const emptyAgg = (): Agg => ({ revenue: 0, profit: 0, count: 0, paid: 0, expenses: 0, payrollExpenses: 0 });
 
 function saleCogs(s: RawSale): number {
   let c = 0;
@@ -252,12 +256,17 @@ export function buildDashboard(args: {
     for (const e of expenses) {
       const amt = num(e.amount);
       if (inRange(e.expenseDate, r.start, r.end)) {
-        cur.expenses += amt;
         const i = e.locationId ? vanIdx.get(e.locationId) : undefined;
-        if (i !== undefined) vanBlocks[i].periods[p].expenses += amt;
-        else oth.expenses += amt;
+        const location = i === undefined ? oth : vanBlocks[i].periods[p];
+        cur.expenses += amt;
+        location.expenses += amt;
+        if (e.isPayroll) {
+          cur.payrollExpenses += amt;
+          location.payrollExpenses += amt;
+        }
       } else if (inRange(e.expenseDate, r.prevStart, r.prevEnd)) {
         prev.expenses += amt;
+        if (e.isPayroll) prev.payrollExpenses += amt;
       }
     }
     periods[p] = { cur, prev };
