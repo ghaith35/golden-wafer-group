@@ -35,7 +35,7 @@ export type RawSale = {
   lines: RawLine[];
 };
 export type RawExpense = { amount: unknown; expenseDate: Date; locationId: string | null };
-export type RawVan = { id: string; name: string; matricule: string | null; isActive: boolean; driver: string | null };
+export type RawVan = { id: string; name: string; matricule: string | null; isActive: boolean; driver: string | null; monthlySalary?: number };
 
 export type Agg = { revenue: number; profit: number; count: number; paid: number; expenses: number };
 export type ProductStat = { id: string; name: string; qty: number; revenue: number; profit: number };
@@ -48,6 +48,7 @@ export type VanBlock = {
   name: string;
   matricule: string;
   driver: string;
+  monthlySalary: number;
   periods: Record<Period, VanPeriod>;
   /// Last 14 days, oldest first.
   trend: Array<{ r: number; p: number }>;
@@ -55,6 +56,7 @@ export type VanBlock = {
 
 export type DashboardData = {
   nowIso: string;
+  monthlySalary: number;
   /// The from/to window behind the "custom" period (null = none asked for).
   customRange: { from: string; to: string; days: number } | null;
   periods: Record<Period, { cur: Agg; prev: Agg }>;
@@ -188,6 +190,8 @@ export function buildDashboard(args: {
   expenses: RawExpense[];
   vans: RawVan[];
   custom?: CustomRange | null;
+  monthlySalary?: number;
+  showAllProvidedVans?: boolean;
 }): DashboardData {
   const { now, sales, expenses, vans } = args;
   const R = ranges(now, args.custom);
@@ -203,6 +207,7 @@ export function buildDashboard(args: {
     name: v.name,
     matricule: v.matricule ?? "",
     driver: v.driver ?? "",
+    monthlySalary: v.monthlySalary ?? 0,
     periods: {
       day: { ...emptyAgg(), products: [], clients: [] },
       week: { ...emptyAgg(), products: [], clients: [] },
@@ -332,7 +337,7 @@ export function buildDashboard(args: {
 
   // Active vans first by month revenue; inactive vans only if they sold.
   const visibleVans = vanBlocks
-    .filter((b) => vans[vanIdx.get(b.id)!].isActive || b.periods.month.count > 0 || b.periods.week.count > 0)
+    .filter((b) => args.showAllProvidedVans || vans[vanIdx.get(b.id)!].isActive || b.periods.month.count > 0 || b.periods.week.count > 0)
     .sort((a, b) => b.periods.month.revenue - a.periods.month.revenue || a.name.localeCompare(b.name));
 
   const recent = [...sales]
@@ -351,5 +356,5 @@ export function buildDashboard(args: {
   const customRange = R.custom && args.custom
     ? { from: args.custom.from, to: args.custom.to, days: Math.round((R.custom.end.getTime() - R.custom.start.getTime()) / 86_400_000) }
     : null;
-  return { nowIso: now.toISOString(), customRange, periods, trend, channels, top, vans: visibleVans, other, recent };
+  return { nowIso: now.toISOString(), monthlySalary: args.monthlySalary ?? 0, customRange, periods, trend, channels, top, vans: visibleVans, other, recent };
 }

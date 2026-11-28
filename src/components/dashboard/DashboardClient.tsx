@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   AlertTriangle, ArrowDownRight, ArrowLeftRight, ArrowUpRight, BarChart3, Boxes, CalendarDays, CalendarRange,
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import type { Agg, DashboardData, Period } from "@/lib/dashboard/stats";
 import { MiniBars, TrendChart, compactNum, useCountUp } from "./charts";
 import { ClientName } from "@/components/clients/ClientName";
+import { Modal } from "@/components/ui/Modal";
 import { RangePicker, type RangeLabels } from "./RangePicker";
 
 const ICONS: Record<string, LucideIcon> = { Store, ShoppingCart, Users, Boxes, ArrowLeftRight, Wallet, NotebookPen, BarChart3 };
@@ -154,10 +155,22 @@ function RankList({ items, max, fit, t, green }: { items: RankItem[]; max: numbe
   );
 }
 
-export function DashboardClient({ data, locale, userName, extras, actions }: { data: DashboardData; locale: string; userName: string; extras: DashExtras; actions: DashAction[] }) {
+export function DashboardClient({ data, locale, userName, extras, actions, vanOptions, selectedVanIds }: {
+  data: DashboardData;
+  locale: string;
+  userName: string;
+  extras: DashExtras;
+  actions: DashAction[];
+  vanOptions: Array<{ id: string; name: string }>;
+  selectedVanIds: string[];
+}) {
   const t = useTranslations("dashboard");
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [choosingVans, setChoosingVans] = React.useState(false);
+  const [draftVans, setDraftVans] = React.useState<string[]>([]);
+  const vansFiltered = selectedVanIds.length > 0;
   const [period, setPeriod] = React.useState<Period>(data.customRange ? "custom" : "day");
   // A new custom window arriving from the server switches the view to it;
   // clearing it (live view) falls back to today.
@@ -185,12 +198,30 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
     thisMonth: t("rangeThisMonth"), lastMonth: t("rangeLastMonth"), thisYear: t("rangeThisYear"),
     invalid: t("rangeInvalid"), max: t("rangeMax"),
   };
-  const applyRange = (from: string, to: string) => {
-    startRefresh(() => router.push(`${pathname}?from=${from}&to=${to}`));
+  const updateQuery = (update: (query: URLSearchParams) => void) => {
+    const query = new URLSearchParams(searchParams.toString());
+    update(query);
+    const qs = query.toString();
+    startRefresh(() => router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false }));
   };
+  const applyRange = (from: string, to: string) => updateQuery((query) => {
+    query.set("from", from);
+    query.set("to", to);
+  });
   const clearRange = () => {
     setPeriod("day");
-    startRefresh(() => router.push(pathname));
+    updateQuery((query) => {
+      query.delete("from");
+      query.delete("to");
+    });
+  };
+  const applyVans = (ids: string[]) => {
+    setChoosingVans(false);
+    setOpenVan(null);
+    updateQuery((query) => {
+      query.delete("vans");
+      for (const id of ids) query.append("vans", id);
+    });
   };
 
   // ── One-screen "stage": on desktop the whole dashboard is laid out on a
@@ -321,6 +352,10 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
     { l: t("marginPct"), v: `${marginPct.toFixed(1)}%`, icon: Percent, c: "bg-(--brand-500)/15 text-(--gold-text)", sub: null },
     { l: t("collected"), v: money(Math.round(cur.paid)), icon: Wallet2, c: "bg-teal-500/15 text-teal-600", sub: <span className="text-[11px] lg:text-[10px] font-black text-(--text-tertiary)" dir="ltr">{collectedPct.toFixed(0)}%</span> },
     { l: t("expenses"), v: money(Math.round(cur.expenses)), icon: Wallet, c: "bg-orange-500/15 text-orange-500", sub: null },
+    ...(period === "month" ? [{
+      l: t("monthlySalaries"), v: money(Math.round(data.monthlySalary)), icon: Users,
+      c: "bg-violet-500/15 text-violet-500", sub: null,
+    }] : []),
     { l: t("netProfit"), v: money(Math.round(net)), icon: PiggyBank, c: net >= 0 ? "bg-emerald-500/15 text-emerald-600" : "bg-red-500/15 text-red-500", sub: null },
   ];
 
@@ -339,7 +374,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
     </div>
   );
 
-  const alertsBlock = (
+  const alertsBlock = !vansFiltered && (
     <>
       <div className="grid shrink-0 grid-cols-2 gap-1.5">
         <div className="min-w-0 rounded-lg bg-red-500/10 px-2 py-1.5">
@@ -399,6 +434,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
               <div className="mt-0.5 flex flex-wrap items-baseline justify-between gap-x-2 text-[11px] lg:text-[10px] font-bold text-(--text-tertiary)">
                 <span className="break-words lg:whitespace-nowrap">{t("profit")} <span className={cn("font-black tabular-nums", a.profit >= 0 ? "text-(--semantic-success)" : "text-(--semantic-danger)")}>{money(Math.round(a.profit))}</span></span>
                 <span className="break-words lg:whitespace-nowrap">{t("expenses")} <span className="font-black tabular-nums text-orange-500">{money(Math.round(a.expenses))}</span></span>
+                {p === "month" && <span>{t("monthlySalaries")} <span className="font-black tabular-nums">{money(Math.round(v.monthlySalary))}</span></span>}
               </div>
               <div className={cn("mt-1.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 rounded-lg px-2 py-1.5 ring-1", net >= 0 ? "bg-emerald-500/12 ring-emerald-500/30" : "bg-red-500/12 ring-red-500/30")}>
                 <span className="flex items-center gap-1 text-[11px] lg:text-[10.5px] font-black text-(--text-secondary)"><PiggyBank size={13} className={net >= 0 ? "text-emerald-600" : "text-red-500"} />{t("netProfit")}</span>
@@ -470,6 +506,9 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
                       <div className="text-[11px] lg:text-[9.5px] font-black text-(--text-tertiary) md:hidden">{label(p)}</div>
                       <div className="break-words lg:whitespace-nowrap text-[12px] font-black tabular-nums">{money(Math.round(v.periods[p].revenue))}</div>
                       <div className={cn("break-words lg:whitespace-nowrap text-[11px] lg:text-[10.5px] font-black tabular-nums", v.periods[p].profit >= 0 ? "text-(--semantic-success)" : "text-(--semantic-danger)")}>{money(Math.round(v.periods[p].profit))}</div>
+                      {p === "month" && period === "month" && (
+                        <div className="text-[11px] font-bold text-(--text-secondary)">{t("monthlySalaries")} · {money(Math.round(v.monthlySalary))}</div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -479,7 +518,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
             </div>
           );
         })}
-        <div className={cn("grid grid-cols-1 items-center gap-2 rounded-xl border border-dashed border-(--border-default) px-3 md:grid-cols-[minmax(0,1.25fr)_repeat(3,minmax(0,1fr))_20px] md:gap-3", fit ? "py-1" : "py-2.5")}>
+        {!vansFiltered && <div className={cn("grid grid-cols-1 items-center gap-2 rounded-xl border border-dashed border-(--border-default) px-3 md:grid-cols-[minmax(0,1.25fr)_repeat(3,minmax(0,1fr))_20px] md:gap-3", fit ? "py-1" : "py-2.5")}>
           <div className="flex items-center gap-2 text-[12.5px] font-black text-(--text-secondary)"><span className={cn("flex items-center justify-center rounded-lg bg-(--bg-sunken)", fit ? "h-6 w-6" : "h-9 w-9")}><Store size={14} /></span>{t("otherSales")}</div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))] gap-2 md:contents">
             {PERIODS.map((p) => (
@@ -490,7 +529,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
             ))}
           </div>
           <span />
-        </div>
+        </div>}
       </div>
     </div>
   );
@@ -534,6 +573,16 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Seg small={fit} value={period} onChange={setPeriod} options={PERIODS.map((p) => ({ v: p, label: label(p) }))} />
+        {vanOptions.length > 0 && (
+          <button
+            type="button"
+            onClick={() => { setDraftVans(selectedVanIds); setChoosingVans(true); }}
+            className={cn("inline-flex items-center gap-1.5 rounded-xl border bg-(--bg-surface) font-black hover:border-(--brand-500)", vansFiltered ? "border-(--brand-500)" : "border-(--border-default)", fit ? "px-2 py-1 text-[11px]" : "min-h-11 px-3 text-xs lg:min-h-9")}
+          >
+            <Truck size={14} />
+            {t("filterVans")}{vansFiltered && ` (${selectedVanIds.length})`}
+          </button>
+        )}
         <RangePicker
           small={fit}
           value={data.customRange}
@@ -558,7 +607,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
   );
 
   const kpiStrip = (
-    <div className={cn("grid shrink-0 gap-2.5", fit ? "grid-cols-6" : "grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] md:grid-cols-3 2xl:grid-cols-6")}>
+    <div className={cn("grid shrink-0 gap-2.5", fit ? (period === "month" ? "grid-cols-7" : "grid-cols-6") : "grid-cols-[repeat(auto-fit,minmax(8rem,1fr))] md:grid-cols-3 2xl:grid-cols-[repeat(auto-fit,minmax(8rem,1fr))]")}>
       {kpis.map((k) => (
         <div key={k.l} className={cn("group relative flex min-w-0 items-center gap-2.5 overflow-hidden rounded-2xl border border-(--border-default) bg-(--bg-overlay) transition-all duration-300 hover:-translate-y-0.5 hover:border-(--border-strong)", fit ? "p-2" : "p-3")}>
           <span className={cn("flex shrink-0 items-center justify-center rounded-xl", fit ? "h-8 w-8" : "h-10 w-10", k.c)}><k.icon size={fit ? 15 : 18} /></span>
@@ -611,7 +660,7 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
     </Panel>
   );
   const pulsePanel = (
-    <Panel fit={fit} className={fit ? "col-span-3" : ""} title={`${t("alerts")} · ${t("channelMix")}`} icon={AlertTriangle}>
+    <Panel fit={fit} className={fit ? "col-span-3" : ""} title={vansFiltered ? t("channelMix") : `${t("alerts")} · ${t("channelMix")}`} icon={AlertTriangle}>
       {channelBlock}
       <div className="mt-2 flex min-h-0 flex-1 flex-col">
         {alertsBlock}
@@ -638,48 +687,71 @@ export function DashboardClient({ data, locale, userName, extras, actions }: { d
   );
 
   return (
-    <div className="relative w-full" style={fit && box ? { height: box.h, overflow: "hidden" } : undefined}>
-      {/* measures the space under the top bar (zoom-aware --vh) */}
-      <div ref={probeRef} aria-hidden className="pointer-events-none invisible absolute inset-x-0 top-0 h-[calc(var(--vh)-3.5rem)]" />
-      {fit && box ? (
-        <div className="flex flex-col gap-2.5 p-3" style={{ zoom: scale, width: box.w / scale, height: box.h / scale } as React.CSSProperties}>
-          {header}
-          <div className={cn("grid shrink-0 gap-2.5", data.customRange ? "grid-cols-4" : "grid-cols-3")}>{cardPeriods.map(periodCard)}</div>
-          {kpiStrip}
-          <div className="grid min-h-0 flex-1 grid-cols-12 grid-rows-[minmax(0,1fr)_minmax(0,1.14fr)] gap-2.5">
-            {trendPanel}
-            {productsPanel}
-            {clientsPanel}
-            {vansPanel}
-            {topVansPanel}
-            {pulsePanel}
+    <>
+      <div className="relative w-full" style={fit && box ? { height: box.h, overflow: "hidden" } : undefined}>
+        {/* measures the space under the top bar (zoom-aware --vh) */}
+        <div ref={probeRef} aria-hidden className="pointer-events-none invisible absolute inset-x-0 top-0 h-[calc(var(--vh)-3.5rem)]" />
+        {fit && box ? (
+          <div className="flex flex-col gap-2.5 p-3" style={{ zoom: scale, width: box.w / scale, height: box.h / scale } as React.CSSProperties}>
+            {header}
+            <div className={cn("grid shrink-0 gap-2.5", data.customRange ? "grid-cols-4" : "grid-cols-3")}>{cardPeriods.map(periodCard)}</div>
+            {kpiStrip}
+            <div className="grid min-h-0 flex-1 grid-cols-12 grid-rows-[minmax(0,1fr)_minmax(0,1.14fr)] gap-2.5">
+              {trendPanel}
+              {productsPanel}
+              {clientsPanel}
+              {vansPanel}
+              {topVansPanel}
+              {pulsePanel}
+            </div>
           </div>
+        ) : (
+          <div className="mx-auto w-full max-w-[1800px] space-y-4 p-4 sm:p-5 md:p-6">
+            {header}
+            <div className={cn("grid grid-cols-[minmax(0,1fr)] gap-3", data.customRange ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-3")}>{cardPeriods.map(periodCard)}</div>
+            {kpiStrip}
+            <div className="grid gap-4 xl:grid-cols-12">
+              {trendPanel}
+              <Panel className="xl:col-span-4" title={vansFiltered ? t("channelMix") : `${t("alerts")} · ${t("channelMix")}`} icon={AlertTriangle}>
+                {channelBlock}
+                <div className="mt-3">{alertsBlock}</div>
+              </Panel>
+            </div>
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {productsPanel}
+              {topVansPanel}
+              {clientsPanel}
+            </div>
+            <div className="grid gap-4 xl:grid-cols-12">
+              {vansPanel}
+              <Panel className="xl:col-span-4" title={t("recentSales")} icon={Coins}>{recentList(8)}</Panel>
+            </div>
+            {shortcuts}
+          </div>
+        )}
+      </div>
+      <Modal open={choosingVans} onClose={() => setChoosingVans(false)} title={t("filterVans")} width="sm">
+        <div className="max-h-[50vh] space-y-1 overflow-y-auto">
+          {vanOptions.map((van) => (
+            <label key={van.id} className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-(--bg-sunken)">
+              <input
+                type="checkbox"
+                checked={draftVans.includes(van.id)}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setDraftVans((ids) => checked ? [...ids, van.id] : ids.filter((id) => id !== van.id));
+                }}
+              />
+              <span dir="auto">{van.name}</span>
+            </label>
+          ))}
         </div>
-      ) : (
-        <div className="mx-auto w-full max-w-[1800px] space-y-4 p-4 sm:p-5 md:p-6">
-          {header}
-          <div className={cn("grid grid-cols-[minmax(0,1fr)] gap-3", data.customRange ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-3")}>{cardPeriods.map(periodCard)}</div>
-          {kpiStrip}
-          <div className="grid gap-4 xl:grid-cols-12">
-            {trendPanel}
-            <Panel className="xl:col-span-4" title={`${t("alerts")} · ${t("channelMix")}`} icon={AlertTriangle}>
-              {channelBlock}
-              <div className="mt-3">{alertsBlock}</div>
-            </Panel>
-          </div>
-          <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {productsPanel}
-            {topVansPanel}
-            {clientsPanel}
-          </div>
-          <div className="grid gap-4 xl:grid-cols-12">
-            {vansPanel}
-            <Panel className="xl:col-span-4" title={t("recentSales")} icon={Coins}>{recentList(8)}</Panel>
-          </div>
-          {shortcuts}
+        <div className="mt-4 flex flex-wrap justify-end gap-2">
+          <button type="button" className="rounded-lg border border-(--border-default) px-3 py-2 text-sm font-bold" onClick={() => applyVans([])}>{t("companyOverview")}</button>
+          <button type="button" className="rounded-lg bg-(--brand-500) px-3 py-2 text-sm font-bold text-(--brand-contrast) disabled:opacity-50" disabled={!draftVans.length} onClick={() => applyVans(draftVans)}>{t("rangeApply")}</button>
         </div>
-      )}
-    </div>
+      </Modal>
+    </>
   );
 }
 

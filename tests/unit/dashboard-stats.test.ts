@@ -30,6 +30,21 @@ describe("dashboard stats", () => {
   ];
   const d = buildDashboard({ now: NOW, sales, vans, expenses: [{ amount: 50, expenseDate: new Date(2026, 10, 18, 8), locationId: "v1" }] });
 
+  it("reports company and assigned van salaries separately from booked expenses", () => {
+    const result = buildDashboard({
+      now: NOW,
+      sales,
+      expenses: [{ amount: 50, expenseDate: NOW, locationId: "v1" }],
+      monthlySalary: 70_000,
+      vans: [{ ...vans[0], monthlySalary: 40_000 }, vans[1]],
+    });
+
+    expect(result.monthlySalary).toBe(70_000);
+    expect(result.vans.find((v) => v.id === "v1")?.monthlySalary).toBe(40_000);
+    expect(result.vans.find((v) => v.id === "v2")?.monthlySalary).toBe(0);
+    expect(result.periods.month.cur.expenses).toBe(50);
+  });
+
   it("computes revenue and profit per period", () => {
     expect(d.periods.day.cur).toMatchObject({ revenue: 1000, profit: 400, count: 1, expenses: 50 });
     expect(d.periods.week.cur).toMatchObject({ revenue: 1800, profit: 720, count: 3 });

@@ -15,7 +15,7 @@ import { buildDashboard, dashboardSince } from "@/lib/dashboard/stats";
 
 const fmt = (v: number) => dzMoney(v);
 
-export default async function DashboardPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ from?: string; to?: string }> }) {
+export default async function DashboardPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ from?: string; to?: string; vans?: string | string[] }> }) {
   const { locale } = await params;
   const sp = await searchParams;
   setRequestLocale(locale);
@@ -40,10 +40,22 @@ export default async function DashboardPage({ params, searchParams }: { params: 
       if (days <= 366) custom = { from: sp.from!, to: sp.to! };
     }
     const since = dashboardSince(now, custom);
+    const payrollMonth = { year: now.getFullYear(), month: now.getMonth() + 1 };
+    const nextMonthStart = new Date(payrollMonth.year, payrollMonth.month, 1);
     const KINDS = ["DELIVERY", "TICKET"] as ["DELIVERY", "TICKET"];
-    const [sales, expenses, vans, clientDebts, supplierDebts, products] = await Promise.all([
+    const allVans = await prisma.store.findMany({
+      where: { companyId, kind: "VAN" },
+      orderBy: [{ isActive: "desc" }, { name: "asc" }],
+      select: { id: true, name: true, matricule: true, isActive: true, userId: true, user: { select: { fullName: true } } },
+    });
+    const requestedVans = new Set(Array.isArray(sp.vans) ? sp.vans : sp.vans ? [sp.vans] : []);
+    const selectedVans = allVans.filter((v) => requestedVans.has(v.id));
+    const vanIds = selectedVans.map((v) => v.id);
+    const locationFilter = vanIds.length ? { locationId: { in: vanIds } } : {};
+    const vans = vanIds.length ? selectedVans : allVans;
+    const [sales, expenses, clientDebts, supplierDebts, products, employees] = await Promise.all([
       prisma.sale.findMany({
-        where: { companyId, kind: { in: KINDS }, status: "DELIVERED", date: { gte: since } },
+        where: { companyId, kind: { in: KINDS }, status: "DELIVERED", date: { gte: since }, ...locationFilter },
         select: {
           id: true, number: true, date: true, total: true, paid: true, channel: true, locationId: true, clientId: true,
           client: { select: { name: true, gpsLat: true, gpsLng: true } },
@@ -53,27 +65,51 @@ export default async function DashboardPage({ params, searchParams }: { params: 
         take: 40000,
       }),
       prisma.expense.findMany({
-        where: { companyId, deletedAt: null, expenseDate: { gte: since } },
+        where: { companyId, deletedAt: null, expenseDate: { gte: since }, ...locationFilter },
         select: { amount: true, expenseDate: true, locationId: true },
         take: 20000,
-      }),
-      prisma.store.findMany({
-        where: { companyId, kind: "VAN" },
-        select: { id: true, name: true, matricule: true, isActive: true, user: { select: { fullName: true } } },
       }),
       prisma.customer.aggregate({ where: { companyId, balance: { gt: 0 } }, _sum: { balance: true } }),
       prisma.supplier.aggregate({ where: { companyId, balance: { gt: 0 } }, _sum: { balance: true } }),
       prisma.product.findMany({ where: { companyId, isActive: true }, select: { name: true, stockQty: true, minStock: true } }),
+      prisma.employee.findMany({
+        where: {
+          companyId,
+          OR: [
+            {
+              isActive: true,
+              hireDate: { lt: nextMonthStart },
+              OR: [{ endDate: null }, { endDate: { gte: monthStart } }],
+            },
+            { payslips: { some: payrollMonth } },
+          ],
+        },
+        select: {
+          userId: true,
+          salary: true,
+          payslips: { where: payrollMonth, select: { baseSalary: true } },
+        },
+      }),
     ]);
     const low = products
       .filter((p) => Number(p.stockQty) <= Number(p.minStock))
       .sort((a, b) => Number(a.stockQty) - Number(b.stockQty));
+    const salaryByUser = new Map(employees.map((e) => [e.userId, Number(e.payslips[0]?.baseSalary ?? e.salary)]));
+    const selectedDrivers = new Set(selectedVans.map((v) => v.userId));
+    const monthlySalary = [...salaryByUser].reduce((sum, [userId, salary]) =>
+      sum + (!vanIds.length || selectedDrivers.has(userId) ? salary : 0), 0);
     const data = buildDashboard({
       now,
       custom,
       sales,
       expenses,
-      vans: vans.map((v) => ({ id: v.id, name: v.name, matricule: v.matricule, isActive: v.isActive, driver: v.user?.fullName ?? null })),
+      monthlySalary,
+      showAllProvidedVans: vanIds.length > 0,
+      vans: vans.map((v) => ({
+        id: v.id, name: v.name, matricule: v.matricule, isActive: v.isActive,
+        driver: v.user?.fullName ?? null,
+        monthlySalary: v.userId ? salaryByUser.get(v.userId) ?? 0 : 0,
+      })),
     });
     const adminActions: DashAction[] = [
       { href: "pos", label: tn("pos"), icon: "Store", cls: "bg-gradient-brand text-(--brand-contrast)" },
@@ -88,6 +124,8 @@ export default async function DashboardPage({ params, searchParams }: { params: 
     return (
       <DashboardClient
         data={data}
+        vanOptions={allVans.map(({ id, name }) => ({ id, name }))}
+        selectedVanIds={vanIds}
         locale={locale}
         userName={session.username}
         extras={{
